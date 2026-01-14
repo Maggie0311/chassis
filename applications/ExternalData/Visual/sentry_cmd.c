@@ -9,8 +9,6 @@
 #include "func_Visual_Com.h"
 // #include "HRef_ID.h"
 
-extern DJI_Data_t DJI_ReadData;
-
 static struct rt_timer SentrySendTimerSem; // 定时器
 static struct rt_semaphore Sentry_cmd_sem; // 信号量
 
@@ -111,9 +109,11 @@ uint8_t get_Radar_Data(void)
 uint8_t get_radar_commd_keyboard(void)
 {
     uint8_t ret = 0;
+    uint8_t temp;
     if (rt_tick_get() - GetRefDataRefreshTick(Index_robot_command_map) <= 70) // 70ms内都相信此数据
     {
-        if (DJI_ReadData.ext_robot_command_map.commd_keyboard == 'R')
+        getRefData(memberGet_parm(temp,ext_robot_command_map,commd_keyboard));
+        if (temp == 'R')
             ret = 1;
     }
     return ret;

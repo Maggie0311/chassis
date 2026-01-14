@@ -12,6 +12,7 @@
 #include "func_smooth_acc.h"
 #include "mod_motion.h"
 #include "Wheel_data.h"
+#include "app_RefSystem.h"
 #include <arm_math.h>
 
 #define POWER_LIMIT_TEST 0
@@ -369,12 +370,12 @@ uint8_t follow_at_powerlim(Mot_base_t *const VxyW)
  * @param    fol_angle 范围：[0-360°]单位度
  * @return   输出到Resolve函数的VxyW
  */
-float yaw_angle = 0;
 float anglevel_last = 0; // 记录上次角速度滤波后的值
 Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_mode)
 {
     fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
     float fol_angle = ctrlMsg->fol_angle;
+    float yaw_angle = 0;
     float yaw_Omega = 0;
     static Mot_base_t last_speed = {0};
     /*输入限制*/
@@ -382,13 +383,13 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
 
     /*确保角度为0-360*/
     utils_norm_circle_number(&fol_angle, 0, 360.f);
-    if (fabsf(ctrlMsg->xyw.angvel) >= 300)
+    if(fabsf(ctrlMsg->xyw.angvel)>=300)
     {
-        anglevel_last = ctrlMsg->xyw.angvel;
+        anglevel_last=ctrlMsg->xyw.angvel;
     }
     else
     {
-        anglevel_last = 0;
+        anglevel_last=0;
     }
     // anglevel_last = UTILS_LP_FAST(anglevel_last, ctrlMsg->xyw.angvel, 0.2f); // 对云台角速度进行低通滤波
     if (ctrlMsg->getYawAngel)
@@ -418,7 +419,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     VxyW.angvel = anglevel_last + angfol_pid.out;
     // VxyW.angvel=0;
     /*跟随时，当功率受限时降低平移保证转向*/
-#ifdef POWER_LIMIT_TEST == 0
+#ifdef POWER_LIMIT_TEST==0
     follow_at_powerlim(&VxyW);
 #endif
     // yaw_Omega = Get_GM_Omega(ctrlMsg->arg); // 这里的arg是云台yaw或者pitch轴电机的枚举，在云台接受控制数据处定义
@@ -505,16 +506,16 @@ uint8_t gyro_at_powerlim(Mot_base_t *const VxyW, Ctrl_data_t *const ctrlMsg)
     return ret_0;
 }
 
-// 功率限制控制器结构体
-typedef struct
-{
-    float K_in;          // 当前输入缩放因子(平滑后)
-    float K_in_raw;      // 原始计算的缩放因子(平滑前)
-    float K_out_last;    // 上一次输出端限制比例
-    float max_power;     // 系统最大允许功率(W)
-    float min_K;         // 最小缩放因子(0.01~0.1)
-    float smooth_factor; // 平滑因子(0.05~0.2)
 
+// 功率限制控制器结构体
+typedef struct {
+    float K_in;              // 当前输入缩放因子(平滑后)
+    float K_in_raw;          // 原始计算的缩放因子(平滑前)
+    float K_out_last;        // 上一次输出端限制比例
+    float max_power;         // 系统最大允许功率(W)
+    float min_K;             // 最小缩放因子(0.01~0.1)
+    float smooth_factor;     // 平滑因子(0.05~0.2)
+    
     // PID控制器参数
     pid_t pid_controller;
 } power_input_limiter_t;
@@ -524,33 +525,32 @@ power_input_limiter_t input_limiter = {
     .K_in = 1.0f,
     .K_in_raw = 1.0f,
     .K_out_last = 1.0f,
-    .max_power = 200.0f, // 根据实际系统调整
+    .max_power = 200.0f,     // 根据实际系统调整
     .min_K = 0.05f,
     .smooth_factor = 0.1f,
     .pid_controller = PID_INIT(0.8f, 0.05f, 0.02f, 0.2f, 0.1f, -0.1f) // 调整PID限幅
 };
 
-float update_input_limiter(float K_out)
-{
+float update_input_limiter(float K_out) {
     /* 1. 计算控制误差 */
     float error = 1.0f - K_out;
-
+    
     /* 2. 使用PID计算缩放因子调整量 */
     PID_Calculate(&input_limiter.pid_controller, error);
-
+    
     /* 3. 计算原始K_in */
     input_limiter.K_in_raw = input_limiter.K_in - input_limiter.pid_controller.out;
-
+    
     /* 4. 限制原始K_in范围 */
-    if (input_limiter.K_in_raw > 1.0f)
+    if (input_limiter.K_in_raw > 1.0f) 
         input_limiter.K_in_raw = 1.0f;
-    else if (input_limiter.K_in_raw < input_limiter.min_K)
+    else if (input_limiter.K_in_raw < input_limiter.min_K) 
         input_limiter.K_in_raw = input_limiter.min_K;
-
+    
     /* 5. 应用正确的平滑滤波: 当前值 = 平滑因子×新值 + (1-平滑因子)×旧值 */
-    input_limiter.K_in = input_limiter.smooth_factor * input_limiter.K_in_raw +
-                         (1 - input_limiter.smooth_factor) * input_limiter.K_in;
-
+    input_limiter.K_in = input_limiter.smooth_factor * input_limiter.K_in_raw + 
+                        (1 - input_limiter.smooth_factor) * input_limiter.K_in;
+    
     input_limiter.K_out_last = K_out;
     return input_limiter.K_in;
 }
@@ -560,25 +560,25 @@ float update_input_limiter(float K_out)
  * @param power_limit_k 当前实际功率限制系数
  *                      计算得出实际在控制端限制的比例
  */
-void apply_input_power_limit(float power_limit_k)
-{
+void apply_input_power_limit(float power_limit_k) {
 
-    power_limit_k = (power_limit_k > 1) ? 1 : power_limit_k;
+    power_limit_k=(power_limit_k>1)? 1:power_limit_k;
     /* 2. 更新缩放因子 */
     update_input_limiter(power_limit_k);
 }
+
 
 Mot_base_t MotPack_Power_Limit(Ctrl_data_t *const ctrlMsg)
 {
 
     Mot_base_t VxyW = ctrlMsg->xyw;
-    apply_input_power_limit(PowerCtrl.k_power_allo_wheel); // 这里没有兼容除全向和麦轮以外的底盘
-    if (ctrlMsg->motion_mode == FOLLOW_GIMBAL || ctrlMsg->motion_mode == NO_FOLLOW)
+    apply_input_power_limit(PowerCtrl.k_power_allo_wheel);//这里没有兼容除全向和麦轮以外的底盘
+    if(ctrlMsg->motion_mode == FOLLOW_GIMBAL||ctrlMsg->motion_mode == NO_FOLLOW)
     {
         VxyW.vel.x *= input_limiter.K_in;
         VxyW.vel.y *= input_limiter.K_in;
     }
-    else if (ctrlMsg->motion_mode == SLOW_GYRO || ctrlMsg->motion_mode == FAST_GYRO)
+    else if(ctrlMsg->motion_mode == SLOW_GYRO||ctrlMsg->motion_mode == FAST_GYRO)
     {
         // VxyW.vel.x *= input_limiter.K_in;
         // VxyW.vel.y *= input_limiter.K_in;
@@ -586,6 +586,12 @@ Mot_base_t MotPack_Power_Limit(Ctrl_data_t *const ctrlMsg)
     }
     return VxyW;
 }
+
+
+
+
+
+
 
 uint8_t if_turn_to_change = 0;
 void gyro_at_hurt(Mot_base_t *const VxyW, Ctrl_data_t *const ctrlMsg)
@@ -597,9 +603,9 @@ void gyro_at_hurt(Mot_base_t *const VxyW, Ctrl_data_t *const ctrlMsg)
     float temp = 0;
     if (ctrlMsg->motion_mode == CHANGE_GYRO)
     {
-        if (Ref_Get_Robot_If_Hurt() && rt_tick_get() - last_time > T * 1000)
+        if (hurt.robot_if_hurt && rt_tick_get() - last_time > T * 1000)
         {
-            Ref_Robot_Reset_Hurt();
+            hurt.robot_if_hurt = 0;
             last_time = rt_tick_get();
             if_turn_to_change = 1;
         }
@@ -657,7 +663,7 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     {
         gyro_at_hurt(&VxyW, ctrlMsg); // 陀螺受伤时，开启变速小陀螺
     }
-#ifdef POWER_LIMIT_TEST == 0
+#ifdef POWER_LIMIT_TEST ==0
     gyro_at_powerlim(&VxyW, ctrlMsg); // 功率受限时限制陀螺保证平移性
 #endif
     if (ctrlMsg->getYawAngel)
@@ -737,10 +743,11 @@ Mot_base_t MotSmooth_Vxyw_Process(Ctrl_data_t ctrl)
 
     float angle = 0;
     if (ctrl.motion_mode == FOLLOW_GIMBAL) // 跟随模式下，自转也参与加速度规划，这样就不需要管模式切换时的角速度阶跃问题
-    {                                      // 但是需要保证角速度跟随效果不错，还可以平滑控制效果，使底盘控制效果更加丝滑
+    {                                       // 但是需要保证角速度跟随效果不错，还可以平滑控制效果，使底盘控制效果更加丝滑
         smooth_xyw.vel.x = DynamicSmooth_func(&smooth_data[WHEEL_XSPEED], ctrl.xyw.vel.x);
         smooth_xyw.vel.y = DynamicSmooth_func(&smooth_data[WHEEL_YSPEED], ctrl.xyw.vel.y);
         smooth_xyw.angvel = DynamicSmooth_func(&smooth_data[WHEEL_ACSPEED], ctrl.xyw.angvel);
+
     }
     else
     {
@@ -757,6 +764,7 @@ Mot_base_t MotSmooth_Vxyw_Process(Ctrl_data_t ctrl)
     ret_xyw.angvel = smooth_xyw.angvel; // 角速度不参与平滑规划
     return ret_xyw;
 }
+
 
 // 统一的Mot_base_t类型数据输出接口
 void ExMotMod_Output(const Ctrl_data_t *const ctrlData)

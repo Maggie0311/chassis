@@ -74,7 +74,7 @@ void Refresh_Gimbaldata(struct rt_can_msg *msg)
 // 接收云台算出的底盘姿态角度数据
 void Refresh_Chassis_Gimbalcaled_IMU_Data(struct rt_can_msg *msg)
 {
-    chassis_imu.pitch = (float)(msg->data[0]<<8 | msg->data[1]);
+    chassis_imu.pitch = *((float *)&msg->data[0]);
     chassis_imu.roll = *((float *)&msg->data[4]);
     imu_data_freshtick = rt_tick_get();
 }

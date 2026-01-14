@@ -142,20 +142,20 @@ void Ref_Bulid_If_Hurt(void *data)
 {
     ext_game_robot_survivors_t *robot_survivors = (ext_game_robot_survivors_t *)data;
     if (robot_survivors->ally_7_robot_HP < hurt.sentry_hp)
-    {
-        hurt.build_if_attacked |= 1 << 0;
+        {
+            hurt.build_if_attacked |= 1 << 0;
         hurt.sentry_hp = robot_survivors->ally_7_robot_HP;
-    }
+        }
     if (robot_survivors->ally_outpost_HP < hurt.outpost_hp)
-    {
-        hurt.build_if_attacked |= 1 << 1;
+        {
+            hurt.build_if_attacked |= 1 << 1;
         hurt.outpost_hp = robot_survivors->ally_outpost_HP;
-    }
+        }
     if (robot_survivors->ally_base_HP < hurt.base_hp)
-    {
-        hurt.build_if_attacked |= 1 << 2;
+        {
+            hurt.build_if_attacked |= 1 << 2;
         hurt.base_hp = robot_survivors->ally_base_HP;
-    }
+        }
 
     EnemyInfo.outpost_hp = robot_survivors->ally_outpost_HP;
 }

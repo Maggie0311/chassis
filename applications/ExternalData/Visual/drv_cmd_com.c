@@ -379,7 +379,7 @@ static unsigned char Process_Receive_Packet(unsigned short CmdID, unsigned char 
 {
     for (unsigned char i = 0; i < MAX_RECEIVE_CMD_NUM; i++)
     {
-        if (receiveCtrl[i].CmdID == CmdID)           
+        if (receiveCtrl[i].CmdID == CmdID)
         {
             // 调用注册的回调函数
             if (receiveCtrl[i].Data)

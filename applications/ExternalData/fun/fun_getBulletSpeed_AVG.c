@@ -2,6 +2,38 @@
 #include "app_RefSystem.h"
 #include "fun_protocolGim.h"
 
+/**
+ * @brief    获取弹速档位
+ * @param    None
+ * @return   Ref_bullet_speed_mode_e
+ */
+static rt_uint8_t Ref_Bullet_Speed_Mode(void)
+{ // v1.6.1协议更新后无弹速上限数据
+#ifdef CORE_USING_HERO
+    switch (HERO_BS_2)
+    {
+    case HERO_BS_1:
+        return LOW_SPEED;
+    case HERO_BS_2:
+        return MID_SPEED;
+    default:
+        return LOW_SPEED;
+    }
+#else
+    switch (INFANTRY_BS_3)
+    {
+    case INFANTRY_BS_1:
+        return LOW_SPEED;
+    case INFANTRY_BS_2:
+        return MID_SPEED;
+    case INFANTRY_BS_3:
+        return HIGH_SPEED;
+    default:
+        return LOW_SPEED;
+    }
+#endif
+}
+
 /***
  * @brief 	对裁判系统弹速和云台设定的弹速取平均
  * @param
@@ -22,6 +54,8 @@ rt_uint16_t Get_Bullet_Speed(void)
     rt_uint16_t len;
     rt_uint16_t bullet_speed_filter;
     rt_uint16_t bullet_speed_ref = 0; // 裁判系统弹速返回值
+    float temp;
+
     if (!is_init)
     {
         InitSqQueue(&bullet_speed_buff[0]);
@@ -31,7 +65,8 @@ rt_uint16_t Get_Bullet_Speed(void)
     }
 
     bullet_speed_mode = Ref_Bullet_Speed_Mode();
-    bullet_speed_ref = Ref_Bullet_Speed(); // 裁判系统弹速返回值
+    getRefData(memberGet_parm(temp,ext_shoot_data,bullet_speed));// 裁判系统弹速返回值
+    bullet_speed_ref = (rt_uint16_t)(temp * 100); //m/s -> cm/s
     if (bullet_speed_ref != 0)
     {
 

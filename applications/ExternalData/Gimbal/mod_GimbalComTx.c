@@ -12,6 +12,50 @@
 RefState_TxGimMsg_t TxGimMsg;
 uint8_t gimTxDebug = 1;
 
+/**
+ * @brief    获取枪口热量
+ * @param    None
+ * @return   原始数据，单位不变
+ */
+static rt_uint16_t Ref_Shooter_Cooling_Heat(void)
+{
+    uint16_t heat_temp;
+    switch(REF_ROBO_ID)
+    {
+        case REF_ROBO_R1_HERO:
+        case REF_ROBO_B1_HERO:
+            getRefData(memberGet_parm(heat_temp,ext_power_heat_data,shooter_id1_42mm_cooling_heat));
+            break;
+        case REF_ROBO_R3_STANDARD:
+        case REF_ROBO_B3_STANDARD:
+        case REF_ROBO_R4_STANDARD:
+        case REF_ROBO_B4_STANDARD:
+            getRefData(memberGet_parm(heat_temp,ext_power_heat_data,shooter_id1_17mm_cooling_heat));
+            break;
+        case REF_ROBO_R7_SENTRY:
+        case REF_ROBO_B7_SENTRY:
+            getRefData(memberGet_parm(heat_temp,ext_power_heat_data,shooter_id1_17mm_cooling_heat));
+            break;
+        default:
+            getRefData(memberGet_parm(heat_temp,ext_power_heat_data,shooter_id1_17mm_cooling_heat));
+    }
+    return heat_temp;
+}
+
+/**
+ * @brief    获取枪口上限速度
+ * @param    None
+ * @return   单位 m/s
+ */
+static rt_uint16_t Ref_Bullet_Speed_Limit(void)
+{
+    #ifdef CORE_USING_HERO
+        return 16;
+    #else
+        return 30;
+    #endif
+}
+
 /***
  * @brief    向云台端发送热量和射速信息
  * @param    cooling_heat 枪口热量
@@ -20,7 +64,7 @@ uint8_t gimTxDebug = 1;
  * @param    speed_limit 枪口上限速度,单位m/s
  * @return   rt_err_t：can2报文发送成功or失败
  ***/
-static rt_err_t Send_Shooter_Data(rt_uint16_t cooling_heat, rt_uint16_t cooling_rate, rt_uint16_t cooling_limit, rt_uint16_t speed_limit, rt_uint8_t rune_buff)
+static rt_err_t Send_Shooter_Data(rt_uint16_t cooling_heat,rt_uint16_t cooling_rate,rt_uint16_t cooling_limit,rt_uint16_t speed_limit,rt_uint8_t rune_buff)
 {
     struct rt_can_msg tx_gimbal;
 
@@ -69,25 +113,55 @@ static rt_err_t Send_Mixed_Data(RefState_TxGimMsg_t *msg)
         return RT_EOK;
 }
 
+/**
+ * @brief 当装甲板受攻击时(距上次数据更新<20ms)返回受击装甲板id
+ * 
+ * @return uint8_t 受击装甲板id(当装甲板未受攻击时为0XFF)
+ */
+static uint8_t getArmorHurtID(void)
+{
+    if (IsRefDataValid(Index_robot_hurt,20))// 20ms内都相信此数据
+    {
+        return hurt.robot_hurt_armor;
+    }
+    return 0xFF;
+}
+
+// 得到己方前哨战血量
+static uint16_t getOurOutpostHP(void)
+{
+    if (IsRefDataValid(Index_robot_hurt,20))// 20ms内都相信此数据
+    {
+        return hurt.outpost_hp;
+    }
+    return 0;
+}
+
 static void getGimData(void)
 {
     static uint32_t lastBulletT;
-    uint8_t tm = 0;
+    uint8_t temp_8;
+    uint16_t temp_16;
+    float temp_f;
 
-    // 当装甲板未受攻击时为0XFF
+    // 当装甲板受攻击时(距上次数据更新<20ms)返回受击装甲板id
     TxGimMsg.hurtID = getArmorHurtID();
-    TxGimMsg.isStartGame = getIsStartGame();
-    TxGimMsg.SentryHP = getSentryHP();
 
-    // 前哨战信息
-    EnemyInfo_t enermy;
+    //判断比赛是否开始
+    getRefData(bitGet_parm(temp_8,ext_game_state,game_data,4,4));
+    TxGimMsg.isStartGame = temp_8 == 4 ? 1:0;
+    
+    //得到己方哨兵血量
+    getRefData(memberGet_parm(temp_16,ext_game_robot_survivors,ally_7_robot_HP));
+
+    TxGimMsg.SentryHP = temp_16;
+
     if (getOurOutpostHP())
         TxGimMsg.ourOutpost = 1;
     else
         TxGimMsg.ourOutpost = 0;
-    enermy = GetEnemyInfo();    
-//bug,好像是写错了吧？
-    if (enermy.outpost_hp)
+
+    if (EnemyInfo.outpost_hp)
         TxGimMsg.ourOutpost = 1;
     else
         TxGimMsg.ourOutpost = 0;
@@ -96,7 +170,8 @@ static void getGimData(void)
     // if (lastBulletT < GetRefDataRefreshTick(Index_shoot_data))
     // {
     //     // 弹速单位为cm/s
-        TxGimMsg.speed = (uint16_t)(Ref_Bullet_Speed());        //发送最新一次的弹速数据，只要不射击就不会变化，裁判系统只在射击时更新
+    getRefData(memberGet_parm(temp_f,ext_shoot_data,bullet_speed));
+    TxGimMsg.speed = (uint16_t)(temp_f * 100);        //发送最新一次的弹速数据，只要不射击就不会变化，裁判系统只在射击时更新
     //     lastBulletT = GetRefDataRefreshTick(Index_shoot_data);
     // }
     // else
@@ -130,7 +205,8 @@ static void getGimData(void)
  ***/
 static void Gimbal_Com_Thread(void *parameter)
 {
-    uint8_t tm = 0;
+    uint8_t temp_8;
+    uint16_t temp1_16,temp2_16;
     while (1)
     {
         // 如果通信存在异常断连, 就直接发送 -1 告知云台
@@ -140,12 +216,16 @@ static void Gimbal_Com_Thread(void *parameter)
             Send_Shooter_Data((rt_uint16_t)-1, (rt_uint16_t)-1, (rt_uint16_t)-1, (rt_uint16_t)-1, (rt_uint8_t)-1);
         }
         else
+        {
             // 发送枪管信息
-            Send_Shooter_Data(Ref_Shooter_Cooling_Heat(), Ref_Shooter_Cooling_Rate(), Ref_Shooter_Cooling_Limit(), Ref_Bullet_Speed_Limit(), Ref_Power_Rune_Buff());
-
+            getRefData(memberGet_parm(temp1_16,ext_game_robot_status,shooter_cooling_rate));
+            getRefData(memberGet_parm(temp2_16,ext_game_robot_status,shooter_cooling_limit));
+            getRefData(memberGet_parm(temp_8,ext_buff_musk,cooling_buff));
+            Send_Shooter_Data(Ref_Shooter_Cooling_Heat(), temp1_16, temp2_16, Ref_Bullet_Speed_Limit(),temp_8);
+        }
+            
         // 发送各类信息
         // Vector2_t temp = ExMotMod_Get_xyDelta();
-        tm = gimGetRobotHurt();
         if (gimTxDebug) // 给云台发送一些杂项数据
             getGimData();
         Send_Mixed_Data(&TxGimMsg);

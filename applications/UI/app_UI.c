@@ -799,6 +799,13 @@ void UI_If_Option_Flag_Change()
     last_option_flag = UiExData.MenuOption; // 更新选项标志状态
 }
 
+static rt_uint8_t getIfBuildAttacked(void)
+{
+    if (IsRefDataValid(Index_game_robot_survivors,20) != Ref_ERROR)
+        hurt.build_if_attacked = 0;
+    return hurt.build_if_attacked;
+}
+
 void Get_UI_Data(void)
 {
 /******************************未用****************************************/
@@ -875,13 +882,13 @@ void Get_UI_Data(void)
     UI_If_Option_Flag_Change();
 
     // UiExData.Local_Chassis_Mode = Get_Local_Chassis_Type(); // 当前的本地底盘模式(0功率优先 1血量优先)
-    UiExData.Robot_Hurted = Ref_Get_Robot_If_Hurt();
+    UiExData.Robot_Hurted = hurt.robot_if_hurt;
 
     UiExData.Bullet_Speed = Get_Bullet_Speed(); // 获得弹速 未使用
     UiExData.Ref_AmmoRemain = Ref_AmmoRemain(); // 剩余弹量 未使用
 
     UiExData.Magazine_Status = Get_Magazine_Status();   // 显示弹仓状态
-    UiExData.Bulid_If_Hurt = Ref_Get_Bulid_If_Hurt();   // 当建筑受到攻击时警告
+    UiExData.Bulid_If_Hurt = getIfBuildAttacked();   // 当建筑受到攻击时警告
     UiExData.HeatLimit_Status = Get_HeatLimit_Status(); // 画出热量限制开关状态
 
     UiExData.Energy_is_already =Get_Energy_is_already(); // 能量机关视觉拟合状态

@@ -156,32 +156,11 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
             PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
         }
     }
-#else
-    if (PowerInfo.Ref.isValid)
-    {
-        // 缓冲能量很低时认为超电异常
-        if (PowerInfo.Ref.PowerBuff <= PowerBuffReamin || PowerInfo.Cap.Cap_State == CAP_STATE_ERROR)
-        {                                // 缓冲能量小于预留能量,关超电
-            Cap_false_flag = 1;          // 标记超电功能异常
-            power_ctrl_close = 1;        // 通讯关闭超电
-            PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
-        }
-        // #if KEY_C_FUN == 2
-        //         // 超电余量限制功能（第二部分：超电关闭后的恢复）
-        //         if (PowerInfo.Ref.PowerBuff >= 50 && !Cap_false_flag)
-        //         {
-        //             power_ctrl_close = 0;        // 通讯打开超电
-        //             PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
-        //         }
-        // #endif
-    }
     static uint8_t user_enable=1;       //用户设置的放电状态
     static uint8_t pre_button_state=1;  //前次按键状态（初始上电为0，一段时间后和云台通信成功后，云台发送为1）
     static uint8_t if_used_up=0;        //是否电量耗尽
     static uint8_t if_used_up_user_unchange=0;  //是否用光超电并且用户是否改变状态
-
-
-    if (pre_button_state != GimIfSuperCapOutput) // 判断云台是否切换模式
+    if(pre_button_state!=GimIfSuperCapOutput)   //判断云台是否切换模式
     {
         user_enable= !user_enable;                                 //标记为需要切换模式
         if_used_up_user_unchange=0;
@@ -213,7 +192,6 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         power_ctrl_close = 1;        // 通讯关闭超电
         PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
     }
-#endif
 // #endif
 }
 

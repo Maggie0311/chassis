@@ -363,20 +363,6 @@ menu "Board function module"
             default "1"
     endmenu
 
-    if BSP_USING_REF
-        #确定裁判系统使用串口
-        menu "ref_config"
-            config BSP_REF_USART_NAME
-                string "the specific uart device used for ref"
-                depends on  BSP_USING_REF
-                default "uart1"
-            config BSP_REF_USART_BUND          #vofa波特率
-                int "the ref usart bound"
-                depends on BSP_USING_REF 
-                default "115200"
-        endmenu
-    endif
-
     #是否开启rtt监视
     config CORE_USING_RTT_MONITOR
         bool "Enable RTT monitor"

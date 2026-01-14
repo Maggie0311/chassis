@@ -21,11 +21,6 @@
 #define THREAD_PRIO_RGB (20)
 #define THREAD_TICK_RGB (1)
 
-// SPI_CAN
-#define THREAD_STACK_SPI_CAN (1280)
-#define THREAD_PRIO_SPI_CAN (1)
-#define THREAD_TICK_SPI_CAN (5)
-
 // 防打滑线程
 #define THREAD_STACK_IMU_CALI (6144)
 #define THREAD_PRIO_IMU_CALI (10)
@@ -58,11 +53,6 @@
 #define THREAD_STACK_CHASSIS_CTRL (1024)
 #define THREAD_PRIO_CHASSIS_CTRL (1)
 #define THREAD_TICK_CHASSIS_CTRL (2)
-
-// 裁判系统线程
-#define THREAD_STACK_DJI (2048)
-#define THREAD_PRIO_DJI (7)
-#define THREAD_TICK_DJI (10)
 
 // 超级电容通信线程
 #define THREAD_STACK_SC (1024)
