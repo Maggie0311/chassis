@@ -34,6 +34,11 @@
 #include "func_sd_master.h"
 #endif
 
+#define LOG_TAG     "main"
+#define LOG_LVL     LOG_LVL_DBG
+#include <ulog.h>
+#include "mod_Log.h"
+
 int main(void)
 {
     int result=0;

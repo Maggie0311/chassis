@@ -1,7 +1,9 @@
 from building import *
 
 cwd = GetCurrentDir()
-src = Glob('*.c')
+src = []
+src += ['SuperCap_Com.c']
+#src = Glob('*.c')
 
 CPPPATH = [cwd]
 
