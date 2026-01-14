@@ -1,0 +1,133 @@
+#ifndef __THREADHANDLE_H__
+#define __THREADHANDLE_H__
+
+// 监视器线程
+#define THREAD_STACK_MONITOR (1024)
+#define THREAD_PRIO_MONITOR (1)
+#define THREAD_TICK_MONITOR (2)
+
+// can1线程
+#define THREAD_STACK_CAN1RX (1024)
+#define THREAD_PRIO_CAN1RX (1)
+#define THREAD_TICK_CAN1RX (5)
+
+// can2线程
+#define THREAD_STACK_CAN2RX (1024)
+#define THREAD_PRIO_CAN2RX (1)
+#define THREAD_TICK_CAN2RX (5)
+
+// RGB
+#define THREAD_STACK_RGB (768)
+#define THREAD_PRIO_RGB (20)
+#define THREAD_TICK_RGB (1)
+
+// SPI_CAN
+#define THREAD_STACK_SPI_CAN (1280)
+#define THREAD_PRIO_SPI_CAN (1)
+#define THREAD_TICK_SPI_CAN (5)
+
+// 防打滑线程
+#define THREAD_STACK_IMU_CALI (6144)
+#define THREAD_PRIO_IMU_CALI (10)
+#define THREAD_TICK_IMU_CALI (3)
+#define THREAD_PEROID_CALI (10)
+
+// 单轮pid线程
+#define THREAD_STACK_WHEELS_CAL (1024)
+#define THREAD_PRIO_WHEELS_CAL (2)
+#define THREAD_TICK_WHEELS_CAL (3)
+
+// 云台通信线程
+#define THREAD_STACK_GIMBAL (1536)
+#define THREAD_PRIO_GIMBAL (4)
+#define THREAD_TICK_GIMBAL (2)
+
+// 视觉通信线程
+#define THREAD_STACK_VISUAL (1536)
+#define THREAD_PRIO_VISUAL (4)
+#define THREAD_TICK_VISUAL (2)
+#define THREAD_PEROID_VISUAL (10)
+
+// 底盘里程计线程
+#define THREAD_STACK_ODO (1536)
+#define THREAD_PRIO_ODO (3)
+#define THREAD_TICK_ODO (4)
+#define THREAD_PEROID_ODO (2)
+
+// 底盘控制线程
+#define THREAD_STACK_CHASSIS_CTRL (1024)
+#define THREAD_PRIO_CHASSIS_CTRL (1)
+#define THREAD_TICK_CHASSIS_CTRL (2)
+
+// 裁判系统线程
+#define THREAD_STACK_DJI (2048)
+#define THREAD_PRIO_DJI (7)
+#define THREAD_TICK_DJI (10)
+
+// 超级电容通信线程
+#define THREAD_STACK_SC (1024)
+#define THREAD_PRIO_SC (9)
+#define THREAD_TICK_SC (2)
+
+// 平滑线程
+#define THREAD_STACK_SMOOTH (768)
+#define THREAD_PRIO_SMOOTH (10)
+#define THREAD_TICK_SMOOTH (5)
+
+// 自定义UI线程
+#define THREAD_STACK_UI (2048)
+#define THREAD_PRIO_UI (15)
+#define THREAD_TICK_UI (10)
+
+// 哨兵自主决策指令发送线程
+#define THREAD_STACK_SENTRY (2048)
+#define THREAD_PRIO_SENTRY (15)
+#define THREAD_TICK_SENTRY (2)
+
+// 用户0x308发送线程
+#define THREAD_STACK_CUSTOM_MESSAGE (1024)
+#define THREAD_PRIO_CUSTOM_MESSAGE (16)
+#define THREAD_TICK_CUSTOM_MESSAGE (2)
+
+// 机器人间通信线程
+#define THREAD_STACK_INTERACT (1024)
+#define THREAD_PRIO_INTERACT (16)
+#define THREAD_TICK_INTERACT (1)
+
+// 测试线程
+#define THREAD_STACK_MYTEST (512)
+#define THREAD_PRIO_MYTEST (17)
+#define THREAD_TICK_MYTEST (5)
+
+// 遥控器线程
+#define THREAD_STACK_REMOTE (1024)
+#define THREAD_PRIO_REMOTE (22)
+#define THREAD_TICK_REMOTE (1)
+#define THREAD_TIMER_REMOTE (10)
+
+// debug 接收线程
+#define THREAD_STACK_DEBUGRX (1536)
+#define THREAD_PRIO_DEBUGRX (23)
+#define THREAD_TICK_DEBUGRX (10)
+
+// debug 发送线程
+#define THREAD_STACK_DEBUGTX (1536)
+#define THREAD_PRIO_DEBUGTX (24)
+#define THREAD_TICK_DEBUGTX (10)
+#define THREAD_TIMER_PEROID_VOFA (100)
+
+// SD 主机线程
+#define THREAD_PRIO_SD_MASTER (25)
+
+// 报警线程
+#define THREAD_STACK_ALARM (1024)
+#define THREAD_PRIO_ALARM (26)
+#define THREAD_TICK_ALARM (2)
+
+// rtt减监视和电机保护线程
+#define THREAD_STACK_PROTECT (1024)
+#define THREAD_PRIO_PROTECT (26)
+#define THREAD_TICK_PROTECT (2)
+#define THREAD_TICK_PEROID_PROTECT (10)
+
+#endif /*__THREADHANDLE_H__*/

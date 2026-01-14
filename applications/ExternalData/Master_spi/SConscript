@@ -1,0 +1,18 @@
+from building import *
+
+cwd = GetCurrentDir()
+
+src=[]
+src += ['drv_HW_SPI.c']
+src += ['drv_spiCanMaster.c']
+CPPPATH = [cwd]
+
+if GetDepend(['SPI_CAN_USING_HAL_ERROR_HANDLE']):
+    src += ['drv_HALmain.c']
+
+if GetDepend(['BSP_CHASSIS_USE_SPI_CAN']):
+    group = DefineGroup('CanCom', src, depend = [''], CPPPATH = CPPPATH)
+else:
+    group = []
+
+Return('group')

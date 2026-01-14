@@ -1,0 +1,23 @@
+from building import *
+
+cwd = GetCurrentDir()
+
+src = []
+
+
+if GetDepend(['CORE_USING_REMOTE']):
+    src+=['drv_remote.c']
+    src+=['onlyChassis.c']   
+if GetDepend(['CORE_USING_TEST']):
+    src+=['onlyChassis.c']           
+    if GetDepend(['BSP_USING_VOFA']):
+        src+=['vofa.c']
+CPPPATH = [cwd]
+
+if GetDepend(['CORE_USING_TEST'])or GetDepend(['CORE_USING_REMOTE']):
+    group = DefineGroup('test', src, depend = [''], CPPPATH = CPPPATH)
+else:
+    group = []
+    
+
+Return('group')

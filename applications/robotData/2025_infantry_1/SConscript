@@ -1,0 +1,16 @@
+from building import *
+
+cwd = GetCurrentDir()
+
+src = Glob('*.c')
+src+=['Wheel_data.h']
+src+=['HCanID_data.h']
+
+CPPPATH = [cwd]
+
+if GetDepend(['CORE_USING_2025_INFANTRY_1']):
+    group = DefineGroup('Main', src, depend = [''], CPPPATH = CPPPATH)
+else:
+    group = []
+
+Return('group')

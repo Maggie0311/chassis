@@ -1,0 +1,451 @@
+menu "Car Customize Config"
+
+menu "Choose Car model Config"
+    
+#    choice #底盘选取麦轮or全向轮or舵轮
+#		prompt "select chassis kind"
+#		default USING_MECANUM_WHEEL
+#		
+#        #是否使用麦轮
+#        config USING_MECANUM_WHEEL
+#            bool "select mecanum"
+#		
+#			#是否使用全向轮
+#        config USING_OMNI_WHEEL
+#			bool "select omnidirectional"
+#
+#            #是否使用舵轮
+#        config USING_STEER_WHEEL
+#            bool "select steer wheel"
+#            #note 此处在底盘调试前期修改为不强制与底盘类型相关，需要手动开启
+#            #select BSP_USING_SPI_Master
+#	endchoice    
+    
+    menu  "Set chassis wheel_kind"  #底盘轮组类型选择
+        #底盘右前轮组类型
+        choice  
+		prompt "select chassis RF wheel_kind"
+        default RF_USING_OMNI_WHEEL
+        
+        config RF_USING_MECANUM_WHEEL
+        bool "select mecanum wheel"
+        help
+            Select this if RF using mecanum wheel. 
+
+        config RF_USING_OMNI_WHEEL
+        bool "select omni wheel"
+        help
+            Select this if RF using omni wheel. 
+
+        config RF_USING_STEER_WHEEL
+        bool "select steer wheel"
+        help
+            Select this if RF using steer wheel.   
+        endchoice
+        #底盘左前轮组类型
+        choice  
+		prompt "select chassis LF wheel_kind"
+        default LF_USING_OMNI_WHEEL
+        
+        config LF_USING_MECANUM_WHEEL
+        bool "select mecanum wheel"
+        help
+            Select this if LF using mecanum wheel. 
+
+        config LF_USING_OMNI_WHEEL
+        bool "select omni wheel"
+        help
+            Select this if LF using omni wheel. 
+
+        config LF_USING_STEER_WHEEL
+        bool "select steer wheel"
+        help
+            Select this if LF using steer wheel.   
+        endchoice     
+           
+        #底盘左后轮组类型
+        choice  
+		prompt "select chassis LB wheel_kind"
+        default LB_USING_OMNI_WHEEL
+        
+        config LB_USING_MECANUM_WHEEL
+        bool "select mecanum wheel"
+        help
+            Select this if LB using mecanum wheel. 
+
+        config LB_USING_OMNI_WHEEL
+        bool "select omni wheel"
+        help
+            Select this if LB using omni wheel. 
+
+        config LB_USING_STEER_WHEEL
+        bool "select steer wheel"
+        help
+            Select this if LB using steer wheel.   
+        endchoice
+
+        #底盘右后轮组类型
+        choice  
+        prompt "select chassis RB wheel_kind"
+        default RB_USING_OMNI_WHEEL
+        
+        config RB_USING_MECANUM_WHEEL
+        bool "select mecanum wheel"
+        help
+            Select this if RB using mecanum wheel. 
+
+        config RB_USING_OMNI_WHEEL
+        bool "select omni wheel"
+        help
+            Select this if RB using omni wheel. 
+
+        config RB_USING_STEER_WHEEL
+        bool "select steer wheel"
+        help
+            Select this if RB using steer wheel.   
+        endchoice
+
+        #设定底盘各个轮组挂载的can线（使用SPI转CAN也需要考虑）
+        menu "Chassis CAN device set"
+        
+        config  RF_CAN_DEVICE_NAME      #右前轮组CAN设备名称
+            int "the specific chassis_RF_kind can device"
+            default "1"
+        config  LF_CAN_DEVICE_NAME      #左前轮组CAN设备名称
+            int "the specific chassis_LF_kind can device"
+            default "1"
+        config  LB_CAN_DEVICE_NAME      #左后轮组CAN设备名称
+            int "the specific chassis_LB_kind can device"
+            default "1"
+        config  RB_CAN_DEVICE_NAME      #右后轮组CAN设备名称
+            int "the specific chassis_RB_kind can device"
+            default "1"
+        endmenu
+    endmenu
+
+    menu "Set chassis moter kind"
+        choice # 配置轮向电机种类
+            prompt "select chassis wheel motor"
+            default WHEEL_MOTOR_3508
+
+            config WHEEL_MOTOR_3508
+                bool "RM 3508"
+                help
+                    Select this if you are using RM 3508 as your wheel motor.  
+                
+            config WHEEL_MOTOR_2006
+                bool "RM 2006"
+                help
+                    Select this if you are using RM 2006 as your wheel motor. 
+            config WHEEL_MOTOR_DM_8006
+                bool "DM 8006"
+                help
+                    Select this if you are using DM 8006 as your wheel motor. 
+
+        endchoice
+        choice # 配置舵向电机种类
+            prompt "select chassis steer motor"
+            default STEER_MOTOR_6020
+
+            config STEER_MOTOR_6020
+                bool "RM 6020"
+                help
+                    Select this if you are using RM 6020 as your wheel motor.  
+
+            config STEER_MOTOR_3508
+                bool "RM 3508"
+                help
+                    Select this if you are using RM 3508 as your wheel motor.  
+                
+            config STEER_MOTOR_DM_4310
+                bool "DM 4310"
+                help
+                    Select this if you are using DM 4310 as your wheel motor. 
+            config STEER_MOTOR_DM_6006
+                bool "DM 6006"
+                help
+                    Select this if you are using DM 6006 as your wheel motor. 
+
+        endchoice
+    endmenu
+
+    menu "Set gimbal motor kind" #云台电机选择
+        choice # 配置Yaw轴电机种类
+            prompt "select chassis YAW motor"
+            default YAW_MOTOR_6020
+
+            config YAW_MOTOR_6020
+                bool "RM 6020"
+                help
+                    Select this if you are using RM 6020 as your YAW motor.  
+
+            config YAW_MOTOR_3508
+                bool "RM 3508"
+                help
+                    Select this if you are using RM 3508 as your YAW motor.  
+                
+            config YAW_MOTOR_DM
+                bool "DaMiao Motor"
+                help
+                    Select this if you are using 达妙 motor as your YAW motor. 
+        endchoice
+
+        choice # 配置Pitch轴电机种类
+            prompt "select chassis Pitch motor"
+            default PITCH_MOTOR_6020
+
+            config PITCH_MOTOR_6020
+                bool "RM 6020"
+                help
+                    Select this if you are using RM 6020 as your PITCH motor.  
+
+            config PITCH_MOTOR_3508
+                bool "RM 3508"
+                help
+                    Select this if you are using RM 3508 as your PITCH motor.  
+                
+            config PITCH_MOTOR_DM
+                bool "DaMiao Motor"
+                help
+                    Select this if you are using 达妙 motor as your PITCH motor. 
+        endchoice
+    endmenu 
+
+    #选择机器人类型
+    choice
+        prompt "select Types of robot" 
+        default CORE_USING_INFANTRY
+        config CORE_USING_INFANTRY  #步兵
+            bool "infantry"
+        config CORE_USING_HERO      #英雄
+            bool "hero"
+		config CORE_USING_SENTRY    #哨兵
+			bool "sentry"
+		config CORE_USING_ENGINEER  #工程
+			bool "engineer"			
+    endchoice
+    #当为哨兵时
+    if  CORE_USING_SENTRY
+        choice
+            prompt "select Types of sentry robot" 
+            default CORE_USING_OMNI_SENTRY
+              
+            #全向轮哨兵-研发于2024-雷达首次装在了云台上，实现边导航边陀螺
+            config CORE_USING_OMNI_SENTRY
+                bool "omni wheel sentry"    
+
+            #麦轮哨兵-退役于2024-被全向轮哨兵取代
+            config CORE_USING_MECANUM_SENTRY
+                bool "mecanum sentry"    
+            
+            #舵轮哨兵-2025年研发，因为在联盟赛上总是被肘击而光荣退役
+            config CORE_USING_STEER_SENTRY
+                bool "steer sentry"               
+        endchoice
+    endif
+
+    #当为普通步兵时
+    if  CORE_USING_INFANTRY
+        choice
+           	prompt "select Types of infantry robot" 
+            default CORE_USING_2025_INFANTRY_1
+
+            #2024全向轮步兵-目前还没名字
+            config CORE_USING_2024_INFANTRY_OMNI
+                bool "2024 infantry OMNI"  
+
+            config CORE_USING_2025_INFANTRY_1   
+                bool "2025 infantry 1 zhijiao"              #2025步兵1(按照出车时间排序)
+
+            config CORE_USING_2025_INFANTRY_2
+                bool "2025 infantry 2 daojiao"              #2025步兵2
+
+            config CORE_USING_2025_INFANTRY_3
+                bool "2025 infantry 3 omni"                 #2025步兵3
+
+            #2024麦轮步兵-飞将-轮距很窄-左右容易晃；轮子大-为飞坡设计-但飞坡效果并不理想
+            config CORE_USING_2024_NEW_INFANTRY
+                bool "2024 new infantry"            
+                             
+            #碳板步兵-老学长-性能还很不错
+            config CORE_USING_CARBON_INFANTRY
+                bool "carbon infantry"
+
+            #瓦力步兵-2023复刻的碳步-但是各方面性能都不如碳步-很差
+            config CORE_USING_WALL_E_INFANTRY
+                bool "wall_e infantry"
+
+        endchoice
+    endif
+
+    #当为英雄时
+    if  CORE_USING_HERO
+        choice
+            prompt "select Types of hero robot" 
+            default CORE_USING_BUNCHES_HERO
+          
+            #2024英雄-骁将
+            config CORE_USING_2024_HERO
+                bool "2024 hero"
+
+            #英雄双马尾
+            config CORE_USING_BUNCHES_HERO
+                bool "SMW hero"
+
+            #复刻老英雄
+            config CORE_USING_NEW_OLD_HERO
+                bool "old-sub hero"
+
+            #老英雄
+            config CORE_USING_NATION_HERO
+                bool "old hero"
+
+        endchoice
+
+    endif
+
+endmenu 
+
+
+
+#底盘相关配置 每次更改兵种最好检查一下有无更改部分
+menu "Board function module"
+
+    choice #选择超级电容类型
+        prompt "select superCap kind"
+        default USE_CAPACITY_3
+        
+        #超级电容串联电容
+        config USE_CAPACITY_2
+            bool "select superCap_2"
+        
+        #超级电容并联
+        config USE_CAPACITY_3
+            bool "select superCap_3"
+    endchoice 
+    
+    #配置使用SPI转CAN的情况
+    menuconfig BSP_USING_SPI_Master
+        bool "Enable spi_can master"
+        default n
+
+        #底盘是否使用主从机模式
+        if USING_STEER_WHEEL && BSP_USING_SPI_Master
+        config BSP_CHASSIS_USE_SPI_CAN
+            bool "Enable chassis spiCAN"
+            depends on BSP_USING_SPI_Master
+            default y
+        endif
+
+        #SPI_CAN是否需要hal库的Error_Handler
+        config SPI_CAN_USING_HAL_ERROR_HANDLE
+            bool "spi_can add  hal Error_Handler"
+            depends on BSP_USING_SPI_Master
+            default n        
+
+    #底盘是否装IMU
+    config BSP_USING_CHASSIS_IMU
+        bool "whether to use chassis imu"
+        default n
+
+    menu "CAN device set"
+        config GIMBAL_CAN_DEVICE_NAME       #云台CAN设备名称
+            int "the specific gimbal can device"
+            default "2"
+        config IMU_GIMBAL_CAN_DEVICE_NAME  #IMU云台CAN设备名称
+            int "the specific IMU gimbal can device"
+            default "2"
+        config IMU_CHASSIS_CAN_DEVICE_NAME  #IMU底盘CAN设备名称
+            int "the specific IMU chassis can device"
+            default "2"
+        config SCPR_CAN_DEVICE_NAME            #超级电容CAN设备名称
+            int "the specific superCap can device"
+            default "1"
+    endmenu
+
+    if BSP_USING_REF
+        #确定裁判系统使用串口
+        menu "ref_config"
+            config BSP_REF_USART_NAME
+                string "the specific uart device used for ref"
+                depends on  BSP_USING_REF
+                default "uart1"
+            config BSP_REF_USART_BUND          #vofa波特率
+                int "the ref usart bound"
+                depends on BSP_USING_REF 
+                default "115200"
+        endmenu
+    endif
+
+    #是否开启rtt监视
+    config CORE_USING_RTT_MONITOR
+        bool "Enable RTT monitor"
+        default n
+
+    #是否进行底盘测试
+    menuconfig CORE_USING_TEST
+        bool "Enable test chassis"
+        default n   
+
+    menuconfig BSP_USING_VOFA    
+        bool "select using vofa"
+        depends on CORE_USING_TEST     
+        default n    
+
+        config BSP_TEST_USART_NAME          #调试数据可视化串口
+            string "the specific vofa usart device"
+            depends on BSP_USING_VOFA     
+            default "uart3"
+        config BSP_TEST_USART_BOUD          #vofa波特率
+            int "the vofa usart bound"
+            depends on BSP_USING_VOFA 
+            default "115200"
+
+    menuconfig CORE_USING_REMOTE        #遥控器直接调试底盘
+        bool "use dji remote"
+        depends on CORE_USING_TEST
+        default n                  
+        config BSP_REMOTE_USART_NAME        #遥控器串口
+            string "the specific remote usart device"
+            depends on CORE_USING_REMOTE
+            default "uart6"
+
+    #是否需要使用和视觉通信的串口
+    menuconfig BSP_USING_VISUAL_USART
+        bool "Use visual com"
+        default n
+
+        config BSP_VISUAL_USART_NAME         
+            string "the specific Visual usart device"
+            depends on BSP_USING_VISUAL_USART  
+            default "uart2"  
+        config BSP_VISUAL_USART_BOUD
+            int "the Visual usart bound"
+            depends on BSP_USING_VISUAL_USART  
+            default "115200"
+
+        if BSP_USING_VISUAL_USART
+            choice
+                prompt "select Types of usart" 
+                default VISUAL_USART_USING_NORMAL
+                config VISUAL_USART_USING_NORMAL  #普通串口
+                    bool "normal usart"
+                config VISUAL_USART_USING_RS485  #RS485串口(不能同时收发)
+                    bool "usart-RS485"	
+            endchoice
+            choice
+                prompt "select Types of visual usart data" 
+                default USART_DATA_TYPE_VEL
+                config USART_DATA_TYPE_VEL  #速度直控，视觉导航
+                    bool "velxy&angvel"
+                config USART_DATA_TYPE_POS  #位姿通讯，电控导航-古老东西了，内容已经删了-直接用上面的就行了
+                    bool "posxy&yaw"	
+            endchoice
+        endif
+endmenu #menu "Board function module"
+
+
+
+
+endmenu
+

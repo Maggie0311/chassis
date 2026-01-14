@@ -1,0 +1,13 @@
+from building import *
+
+cwd = GetCurrentDir()
+
+src = Glob('*.c')
+src += ['ThreadCtrl.h']
+
+
+CPPPATH = [cwd]
+
+group = DefineGroup('Main', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')

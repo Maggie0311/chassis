@@ -1,0 +1,293 @@
+#ifndef __CUSTOMUI_GRAPHPARAMETERS_H
+#define __CUSTOMUI_GRAPHPARAMETERS_H
+
+#include "board.h"
+
+#ifndef PI
+#define PI 3.14159265f
+#endif
+#ifndef angleTorad
+#define angleTorad (PI / 180.0f) // 角度转弧度
+#endif
+#ifndef radToAngle
+#define radToAngle (180.0f / PI) // 弧度转角度
+#endif
+
+#define UI_STRIKE_MODE_CENTER_X 1350          // 子弹中心位置
+#define UI_STRIKE_MODE_CENTER_Y 100           // 子弹中心位置
+#define UI_STRIKE_MODE_COLOR GRAPH_COLOR_CYAN // 发射子弹颜色
+
+// 超级电容
+#define UI_SC_BAR_SIZE 15 // 图形大小
+#define UI_SC_BAR_CENTER_X 650
+#define UI_SC_BAR_CENTER_Y 100
+#define Draw_SC_Bar_WIDTH 2 // 为了方便之后统一将宽度设为2 字体大小与线宽比例为 10:1
+
+// 屏幕中心
+#define X_OFFSET 960
+#define Y_OFFSET 540
+
+// 绘制弹道线
+#define UI_AUXAIM_BKGD_COLOR GRAPH_COLOR_YELLOW
+#define UI_AUXAIM_BKGD_SIZE 40
+/*------------------------------------fun_drawCustomUI.h-------------------------------*/
+
+#ifdef CORE_USING_HERO
+#define mass_1 41.0f // 大弹丸质
+#else
+#define mass_1 3.2f // 小弹丸质
+#endif
+
+// 基地宽度
+#define BASEMENT_HEIGHT 42.0f
+// 哨兵宽度
+#define SENTRY_HEIGHT 130.0f
+// 前哨站宽度
+#define OUTPOST_HEIGHT 120.0f
+
+#ifdef CORE_USING_HERO
+#define AMMOR_HEIGHT 27.0f // 装甲板高
+
+#else
+#define AMMOR_HEIGHT 20.0f // 装甲板高
+#endif
+
+#define h_max 540.0f      // UI最大的vision_y
+#define angle_max 35.574f // 图传最大的张
+// #define speed0  1500.0f                        //子弹初速度(cm/s)
+
+#define SCOPE_CIRCLE_RADIUS 180       // 中心瞄准圆半径大小，所有界面图形的绘制都与它成正比
+#define OUTER_SCOPE_CIRCLE_RADIUS 340 // 外圈
+
+// 屏幕中心
+#define X_OFFSET 960
+#define Y_OFFSET 540
+// 超级电容
+#define UI_SC_BAR_SIZE 15 // 图形大小
+#define UI_SC_BAR_CENTER_X 650
+#define UI_SC_BAR_CENTER_Y 100
+#define Draw_SC_Bar_WIDTH 2 // 为了方便之后统一将宽度设为2 字体大小与线宽比例为 10:1
+
+// 浮点数 整形数与字符需要考虑字体大小 推荐字体大小与线宽比例为 10:1
+#define UI_Image_Width 2 // 为了方便之后统一将宽度设为2
+
+// 英雄相机位置辅助
+#if defined CORE_USING_NATION_HERO // 国赛老英雄
+#define UI_HERO_CREAM_HELP_CENTER_X_1 384
+#define UI_HERO_CREAM_HELP_CENTER_Y_1 180
+#define UI_HERO_CREAM_HELP_CENTER_X_2 523
+#define UI_HERO_CREAM_HELP_CENTER_Y_2 288
+#endif
+
+#if defined CORE_USING_HERO // 复刻老英雄
+#define UI_HERO_CREAM_HELP_CENTER_X_1 384
+#define UI_HERO_CREAM_HELP_CENTER_Y_1 180
+#define UI_HERO_CREAM_HELP_CENTER_X_2 523
+#define UI_HERO_CREAM_HELP_CENTER_Y_2 288
+#endif
+
+#if defined CORE_USING_BUNCHES_HERO // 双马尾英雄
+// 英雄相机位置辅助矩形框
+#define UI_HERO_CREAM_HELP_CENTER_X_1 384 // 起始
+#define UI_HERO_CREAM_HELP_CENTER_Y_1 180
+#define UI_HERO_CREAM_HELP_CENTER_X_2 523 // 结束
+#define UI_HERO_CREAM_HELP_CENTER_Y_2 288
+#endif
+
+#if defined CORE_USING_2025_INFANTRY_1 // 25赛季步兵1直角
+// 相机位置辅助矩形框
+#define UI_CREAM_HELP_CENTER_X_1 360 // 384 // 起始（左下角）
+#define UI_CREAM_HELP_CENTER_Y_1 150 // 180
+#define UI_CREAM_HELP_CENTER_X_2 650 // 523 // 结束（右上角）
+#define UI_CREAM_HELP_CENTER_Y_2 360 // 288
+#endif
+
+#if defined CORE_USING_2025_INFANTRY_2 // 25赛季步兵2倒角
+// 相机位置辅助矩形框
+#define UI_CREAM_HELP_CENTER_X_1 360 // 384 // 起始
+#define UI_CREAM_HELP_CENTER_Y_1 150 // 180
+#define UI_CREAM_HELP_CENTER_X_2 650 // 523 // 结束
+#define UI_CREAM_HELP_CENTER_Y_2 360 // 288
+#endif
+
+#if defined CORE_USING_2024_INFANTRY_OMNI // 24赛季全向轮步兵（老全向）
+// 相机位置辅助矩形框
+#define UI_CREAM_HELP_CENTER_X_1 384 // 起始
+#define UI_CREAM_HELP_CENTER_Y_1 180
+#define UI_CREAM_HELP_CENTER_X_2 523 // 结束
+#define UI_CREAM_HELP_CENTER_Y_2 288
+#endif
+
+#if defined CORE_USING_OMNI_SENTRY // 24赛季全向轮步兵（老全向）
+// 相机位置辅助矩形框
+#define UI_CREAM_HELP_CENTER_X_1 384 // 起始
+#define UI_CREAM_HELP_CENTER_Y_1 180
+#define UI_CREAM_HELP_CENTER_X_2 523 // 结束
+#define UI_CREAM_HELP_CENTER_Y_2 288
+#endif
+// /*------------------------------------XXX----------------------------------------------------------*/
+
+// 发射子弹颜色
+#define UI_STRIKE_MODE_COLOR GRAPH_COLOR_CYAN
+// 子弹大小
+#define UI_STRIKE_MODE_SIZE 8
+// 子弹中心位置
+#define UI_STRIKE_MODE_CENTER_X 1350
+#define UI_STRIKE_MODE_CENTER_Y 100
+
+// 画出此时车身的姿态(云台与底盘的夹角)
+#define UI_ATTITUDE_ANGLE_COLOR GRAPH_COLOR_GREEN
+#define UI_ATTITUDE_ANGLE_SIZE
+
+#define UI_CHASSIS_IMU_COLOR GRAPH_COLOR_GREEN
+#define UI_CHASSIS_IMU_LENGTH 70
+#define UI_CHASSIS_IMU_X 1600
+#define UI_CHASSIS_IMU_Y 700
+
+// 显示弹速
+#define UI_BULLET_SPEED_COLOR GRAPH_COLOR_GREEN
+#define UI_BULLET_SPEED_SIZE 12
+#define UI_BULLET_SPEED_CENTER_X 1650
+#define UI_BULLET_SPEED_CENTER_Y 800
+
+// 显示剩余弹量
+#define UI_REMAIN_AMMO_COLOR GRAPH_COLOR_GREEN
+#define UI_REMAIN_AMMO_SIZE 12
+#define UI_REMAIN_AMMO_CENTER_X 1650
+#define UI_REMAIN_AMMO_CENTER_Y 750
+
+// 显示弹仓开关
+#define UI_MAGAZINE_STATUS_DYN_COLOR GRAPH_COLOR_CYAN
+#define UI_MAGAZINE_STATUS_BKGD_COLOR GRAPH_COLOR_GREEN
+#define UI_MAGAZINE_STATUS_SIZE 11
+#define UI_MAGAZINE_STATUS_CENTER_X 1650
+#define UI_MAGAZINE_STATUS_CENTER_Y 510
+
+// 显示当前运动模式(跟随/不跟随/陀螺)
+#define UI_MOTION_FOLLOW_DYN_COLOR GRAPH_COLOR_GREEN
+#define UI_MOTION_NOFOLLOW_DYN_COLOR GRAPH_COLOR_YELLOW
+#define UI_MOTION_SLOW_GYRO_DYN_COLOR GRAPH_COLOR_CYAN
+#define UI_MOTION_FAST_GYRO_COLOR GRAPH_COLOR_VIOLET
+#define UI_MOTION_MODE_BKGD_COLOR GRAPH_COLOR_GREEN
+#define UI_MOTION_MODE_BAR_COLOR GRAPH_COLOR_ORANGE
+#define UI_MOTION_MODE_COLOR GRAPH_COLOR_GREEN
+#define UI_MOTION_MODE_SIZE 30
+#define UI_MOTION_MODE_TRANS_SIZE 30
+#define UI_MOTION_MODE_CENTER_X 900
+#define UI_MOTION_MODE_CENTER_Y 1000
+#define UI_MOTION_MODE_BAR_SIZE 12
+#define UI_MOTION_MODE_BAR_X_START 1473
+#define UI_MOTION_MODE_BAR_X_END 1488
+#define UI_MOTION_MODE_BAR_Y 480
+
+#define UI_AUXAIM_CROSSHAIR_COLOR GRAPH_COLOR_YELLOW
+#define UI_AUXAIM_CROSSHAIR_SIZE 12
+
+#if defined CORE_USING_C_BOARD_HERO
+#define UI_AUXAIM_CROSSHAIR_X_OFFSET -9
+#else
+#define UI_AUXAIM_CROSSHAIR_X_OFFSET 0
+#endif
+
+
+#define UI_AIMBOT_PRIO_DYN_COLOR GRAPH_COLOR_CYAN
+#define UI_AIMBOT_PRIO_BKGD_COLOR GRAPH_COLOR_GREEN
+#define UI_AIMBOT_PRIO_SIZE 11
+#define UI_AIMBOT_PRIO_CENTER_X 1600
+#define UI_AIMBOT_PRIO_CENTER_Y 540
+
+#define UI_MONITOR_COLOR GRAPH_COLOR_ORANGE
+#define UI_MONITOR_SIZE 10
+#define UI_MONITOR_CENTER_X 150
+#define UI_MONITOR_CENTER_Y 860
+
+// H绘制敌方单位的信息
+#define UI_ENEMY_COLOR GRAPH_COLOR_ORANGE
+#define UI_ENEMY_SIZE 20
+#define UI_ENEMY_RESERVING_TIME 4000 /// 标识显示时间 单位ms
+
+// 当受攻击时计算敌人位置信息用于下一步出处理
+#define UI_ROTATE_TIPS_COLOR GRAPH_COLOR_ORANGE
+#define UI_ROTATE_TIPS_SIZE 20
+#define UI_ROTATE_TIPS_CENTER_X 860
+#define UI_ROTATE_TIPS_CENTER_Y 800
+#define UI_ROTATE_TIPS_RESERVING_TIME 8000
+
+#define UI_ROTATE_TIPS_CIRCLE_RADIUS 10
+
+#define UI_WALL_COLOR GRAPH_COLOR_YELLOW
+#define UI_WALL_SIZE 40
+
+// 当建筑受到攻击时警告
+#define UI_WARNING_COLOR GRAPH_COLOR_ORANGE
+#define UI_WARNING_SIZE 16
+#define UI_WARNING_CENTER_X 150
+#define UI_WARNING_CENTER_Y 650
+#define UI_WARNING_RESERVING_TIME 6000
+
+#define UI_LANELINE_COLOR GRAPH_COLOR_ORANGE
+
+#define UI_HEATLIMIT_DYN_COLOR GRAPH_COLOR_CYAN
+#define UI_HEATLIMIT_BKGD_COLOR GRAPH_COLOR_GREEN
+#define UI_HEATLIMIT_SIZE 11
+#define UI_HEATLIMIT_CENTER_X 1600
+#define UI_HEATLIMIT_CENTER_Y 600
+
+// 显示当前运动模式(跟随/不跟随/陀螺)
+#define UI_AIMBOT_MODE_DYN_COLOR GRAPH_COLOR_CYAN
+#define UI_AIMBOT_MODE_BKGD_COLOR GRAPH_COLOR_GREEN
+#define UI_AIMBOT_MODE_SIZE 11
+#define UI_AIMBOT_MODE_CENTER_X 1600
+#define UI_AIMBOT_MODE_CENTER_Y 480
+
+// 自瞄
+#define UI_AIMBOT_COLOR_DYN_COLOR GRAPH_COLOR_CYAN
+#define UI_AIMBOT_COLOR_BKGD_COLOR GRAPH_COLOR_GREEN
+#define UI_AIMBOT_COLOR_SIZE 10
+#define UI_AIMBOT_COLOR_CENTER_X 1600
+#define UI_AIMBOT_COLOR_CENTER_Y 520
+
+//能量机关
+#define UI_ENERGY_LINE_LENGTH 75
+#define UI_ENERGY_CENTER_X 200
+#define UI_ENERGY_CENTER_Y 600
+
+// 选项卡菜单位置参数
+#define UI_MENU_START_X 1610    //菜单开始的位置x
+#define UI_MENU_START_Y 860    //菜单开始的位置y
+#define UI_MENU_FONT_SIZE 11    //菜单字体大小
+#define UI_MENU_LINE_SPACE (UI_MENU_FONT_SIZE * 2.0f) //菜单行间距
+
+#define UI_VELOCITY_DYN_COLOR GRAPH_COLOR_CYAN
+#define UI_VELOCITY_BKGD_COLOR GRAPH_COLOR_GREEN
+#define UI_VELOCITY_SIZE 10
+#define UI_VELOCITY_CENTER_X 1400
+#define UI_VELOCITY_CENTER_Y 450
+
+#define UI_HEIGHT_DYN_COLOR GRAPH_COLOR_CYAN
+#define UI_HEIGHT_BKGD_COLOR GRAPH_COLOR_GREEN
+#define UI_HEIGHT_SIZE 11
+#define UI_HEIGHT_CENTER_X 1650
+#define UI_HEIGHT_CENTER_Y 450
+
+// 显示Pitch轴角度
+#define UI_PITCH_DYN_COLOR GRAPH_COLOR_CYAN
+#define UI_PITCH_BKGD_COLOR GRAPH_COLOR_GREEN
+#define UI_PITCH_SIZE 15
+#define UI_ABS_PITCH_CENTER_X 1200
+#define UI_ABS_PITCH_CENTER_Y 450
+#define UI_RELAT_PITCH_CENTER_X 1200
+#define UI_RELAT_PITCH_CENTER_Y 430
+
+// 弹仓开关
+#define UI_Magazine_X 1600
+#define UI_Magazine_Y 380
+
+// 能量机关位置
+#define UI_ENERGY_GUN_X 960
+#define UI_ENERGY_GUN_Y 280
+#define UI_ENERGY_GUN_RADIUS 10
+#define UI_ENERGY_TRANS 30
+
+
+#endif //__CUSTOMUI_GRAPHPARAMETERS_H
