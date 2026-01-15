@@ -4,7 +4,8 @@
 #include "drv_wheel.h"
 #include "Wheel_data.h" //电机功率参数在此h文件末
 #include "SuperCap_Com.h"
-
+#include "RLS.h"
+#include "app_RefSystem.h"
 #define Power_Ctrl_Debug (1) // 功率控制debug
 
 // 分配等级功能开关：0:不使用，1:全部使用，2：只使用限制不使用增益。（不建议只使用加速度增益效果所以没留接口）
@@ -18,7 +19,7 @@
 #define POWER_MAX (80)             //允许底盘在任何情况下的最大功率（包括有超电的情况下）
 #define POWER_REMANI_FLYSLOPE (250) // 飞坡增益后能量缓冲上限
 #define RefPowerBuf (60)            // 底盘初始缓冲能量（单位j）
-
+#define N 3
 /*电机功率计算公式的参数*/
 /****电机功率计算数据****/
 
@@ -42,6 +43,18 @@
 #define K_IC2IA_ANGLE (I_Lim_ANGLE / I_Count_Lim_ANGLE)    // 反馈电流数据(COUNT)转换为安培(A)的转换比
 #define K_IA2Tor_ANGLE (K_IA2Tor_out_ANGLE / K_Vcut_ANGLE) // 扭矩电流（A）转换为转子转矩(N·m)的转换比
 #define K_IC2Tor_ANGLE (K_IC2IA_ANGLE * K_IA2Tor_ANGLE)    // 反馈电流数据(COUNT)转换为转子转矩(N·m)的转换比
+#endif
+
+
+#ifdef STEER_MOTOR_LK_6015
+#define K_IA2Tor_out_ANGLE (0.62f)                        // 输出轴电流扭矩转换比（ N·m/A）
+#define K_Vcut_ANGLE 1                       // 减速比
+#define I_Count_Lim_ANGLE (850)                        // 反馈电流数据最大绝对值
+#define I_Lim_ANGLE (1.1f)                               // 反馈电流数据最大绝对值对应的最大绝对扭矩电流
+#define K_IC2IA_ANGLE (I_Lim_ANGLE / I_Count_Lim_ANGLE)    // 反馈电流数据(COUNT)转换为安培(A)的转换比
+#define K_IA2Tor_ANGLE (K_IA2Tor_out_ANGLE / K_Vcut_ANGLE) // 扭矩电流（A）转换为转子转矩(N·m)的转换比
+//#define K_IC2Tor_ANGLE (K_IC2IA_ANGLE * K_IA2Tor_ANGLE)    // 反馈电流数据(COUNT)转换为转子转矩(N·m)的转换比
+#define K_IC2Tor_ANGLE  0.000673
 #endif
 
 // 超级电容最多输出电流--有一定余量
@@ -94,6 +107,22 @@ typedef struct
     Power_info_Cap_t Cap;
 } Power_info_t;
 
+
+typedef struct
+{
+    float  power_set_run;
+    float  power_set_steer;
+    float  power_set_sum_temp;  // 用于查看计算的电机预输出总功率
+    float  run_power;        //轮向电机预输出功率
+    float  steer_power;     //舵向电机预输出功率
+    float  power_set_sum;   //预输出总功率
+    float  run_ratio[4];    //各电机输出功率的占比
+    float  angle_ratio[4];    //各电机输出功率的占比
+    float  run_err_sum;
+    float angle_err_sum;
+    
+
+} Power_Set_t;
 /*************************功率控制的结构体******************************/
 
 
@@ -110,7 +139,6 @@ typedef struct
     float k_power_allo_wheel_down;   //  坡下方位置的轮向电机功率分配系数
     float nowRemain;         // 当前程序预留能量
 } PowerCtrl_t;
-
 
 
 typedef struct
@@ -134,13 +162,14 @@ typedef struct
 
 extern PowerCtrl_t PowerCtrl;
 extern Power_info_t PowerInfo;
-
+extern RLS_Estimator RunRLS;
 float getScRate(void);
 void Power_Ctrl(Wheel_t wheel[4][2]);
 void powerCtrlInit(void);
 float get_k_power_allo();
 uint8_t get_SuperCap_if_abnormal(void);
 uint8_t get_Super_Cap_if_open(void);
-
+void Power_re_allo(Wheel_t wheel_temp[4][2]);
+void get_true_RLS(void);
 
 #endif
