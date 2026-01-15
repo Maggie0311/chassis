@@ -9,6 +9,7 @@
 #include "mod_motion.h"
 #include "drv_motionSolve.h"
 /*-------------------外部控制单位,xy平移速度矢量,单位mm/s; 自转角速度,单位0.1°/s------------*/
+int a = 0;
 
 /*方便debug (Ctrl_data_info_t *)nowCtrlSrc->data*/
 Ctrl_source_t *nowCtrlSrc = NULL;
@@ -52,7 +53,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     } // switch
     debug_fixctrl = fixCtrl;
     // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
-   fixCtrl.xyw = Set_Plan_Vxyw_Process(fixCtrl);
+    fixCtrl.xyw = Set_Plan_Vxyw_Process(fixCtrl);
     // debug_fixctrl = fixCtrl;
     //  修改pid的设定值
     ExMotMod_Output(&fixCtrl);
