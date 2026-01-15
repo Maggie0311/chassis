@@ -2,7 +2,6 @@
 #define _DRV_SPICANMASTER_H
 
 #include "drv_SPICAN.h"
-#include "drv_HW_SPI.h"
 
 #include "drv_can_com.h"
 #include "drv_motor.h"

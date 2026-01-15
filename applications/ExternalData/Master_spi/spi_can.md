@@ -1,0 +1,2 @@
+如仅使用spi_can的STC从机挂载电机，则无需使用此文件夹下的代码，也不用在menuconfig中配置BSP_CHASSIS_USE_SPI_CAN宏，仅需使用公共库代码、在menuconfig中的公共库->Hardware中开启spi即可
+（瓴控电机无法挂载于spi_can的STC从机）

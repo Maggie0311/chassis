@@ -184,8 +184,7 @@ uint8_t getMotorIsStack(Wheel_Group_e group, Wheel_Local_e wheel_type);
 uint8_t clcStackFlag(Wheel_Group_e group, Wheel_Local_e wheel_type);
 //底盘电机初始化
 rt_err_t Wheels_Init(void);
-//获取舵向电机设置角度零点转化后的值
-float getTargetFixAngle(Wheel_Group_e group);
+
 //获取舵向电机当前角度零点转化后的值
 float getNowFixAngle(Wheel_Group_e group);
 //设置舵向电机目标角度，相对于车体的角度，范围(-1800,1800]
@@ -193,59 +192,7 @@ void Wheel_Angle_Set(Wheel_Group_e group, float angle);
 //设置轮向电机目标速度，单位mm/s
 void Wheel_Speed_Set(Wheel_Group_e group, float speed);
 
-/**
- * @brief 读取轮向电机当前速度(输出车轮转速 mm/s)
- * 
- * @param group 
- * @return float 
- */
-float Wheel_Run_Read_NowSpeed(Wheel_Group_e group);
-/**
- * @brief 读取舵向电机的当前角度
- * 
- * @param group 
- * @return float 范围[-180,180]
- */
-float Wheel_Angele_Read_NowAngle(Wheel_Group_e group);
-/**
- * @brief 读取底盘电机速度PID的速度设定值 
- * 
- * @param group 
- * @param wheel_type 
- * @return float 单位为rpm
- */
-float Motor_Read_Set_Speed(Wheel_Group_e group,Wheel_Local_e wheel_type);
-/**
- * @brief 读取舵向电机角度PID的速度设定值 
- * 
- * @param group 
- * @param wheel_type 
- * @return float 对应为编码器的绝对值
- */
-float Wheel_Read_Set_Angle(Wheel_Group_e group,Wheel_Local_e wheel_type);
-/**
- * @brief 读取电机PID的电流输出 
- * 
- * @param group 
- * @param wheel_type 
- * @return float 
- */
-float Wheel_Read_Out_Speed(Wheel_Group_e group,Wheel_Local_e wheel_type);
-/**
- * @brief 读取电机的速度 PID 结构体
- * 
- * @param group 
- * @param wheel_type 
- * @return * pid_t* 
- */
-//pid_t *Wheel_Read_Speed_PID(Wheel_Group_e group,Wheel_Local_e wheel_type);
-/**
- * @brief 读取电机的角度 PID 结构体
- * 
- * @param group 
- * @param wheel_type 
- * @return * pid_t* 
- */
+
 //pid_t *Wheel_Read_Angele_PID(Wheel_Group_e group,Wheel_Local_e wheel_type);
 /**
  * @brief 读取底盘电机当前的离线情况
@@ -260,9 +207,5 @@ rt_uint8_t Read_Wheels_Offline_State(void);
  * @param EN 
  */
 void Wheel_Enable(Wheel_Local_e wheel_type, rt_uint8_t EN);
-
-float getCtrlSlipComfirK(uint8_t i);
-
-
 
 #endif
