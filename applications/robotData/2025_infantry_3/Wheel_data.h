@@ -59,6 +59,8 @@
 #define FEED_F_C 150
 /*---------------------------平滑相关参数---------------------------------------------*/
 /*底盘速度设定值的平滑，SMOOTH_ADD/SMOOTH_PERIOD m/s^2（或100°/s^2） (类型float)*/
+#define WEIGHT 20.0f            // 质量 kg
+#define rotational_inertia 0.5f // 转动惯量 kg·m²
 #define PLAN_PERIOD (float)0.005 // s,频率为200Hz
 #define VEL_MAX_X (float)5000          //    mm/s
 #define VEL_MAX_Y (float)5000          //    mm/s

@@ -13,7 +13,6 @@
  * VxyW,xyw->速度矢量的xy分量和角速度w;          Pxy->位置坐标点(x,y)      ExMotMod->External Motion Module
  */
 
-
 // 输入限幅参数 底盘坐标系为前进为y轴，右手为x轴的右手坐标系
 #define M_MAX_YSPEED 6000     // 底盘最大移动速度，单位mm/s
 #define M_MAX_XSPEED 6000     // 底盘最大移动速度，单位mm/s

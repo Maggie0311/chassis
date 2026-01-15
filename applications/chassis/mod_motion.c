@@ -12,6 +12,8 @@
 #include "func_smooth_acc.h"
 #include "mod_motion.h"
 #include "Wheel_data.h"
+#include "fun_powerCtrl.h"
+#include "drv_motionSolve.h"
 #include "app_RefSystem.h"
 #include <arm_math.h>
 
@@ -22,6 +24,7 @@ pid_t angfol_pid = PID_INIT(20, 0, 10, 0, 2000, -2000);
 v_lim_t v_angle_lim = {0.f, 50, 30, 0.3f, 0.f, 0.f};
 SmoothRateLimiter smooth_data[SMOOTH_NUM] = {0};
 SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0};
+Mot_base_t Force_xyw = {0};
 #ifndef ANGFOL_KP_MIN
 #define ANGFOL_KP_MIN 33
 #endif
@@ -29,7 +32,8 @@ SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0};
 static uint8_t fol_isReverse = 0; // 从控制坐标系转化到底盘坐标系
 static uint8_t flag_reg = 0;      // isFirst, turn_reg, isIn_1, isIn_2 , trunin_mode_last, trunin
 /*底盘四个车轮(或者说轮毂)的期望线速度 单位mm/s 输出顺序RF-LF-LB-RB*/
-float motorSetData[WHEELS_GROUP_NUM][WHEEL_NUM]; // 经过解算后的数据
+float motorSetData[WHEELS_GROUP_NUM][WHEEL_NUM];  // 经过解算后的数据(速度)
+float motorSetForce[WHEELS_GROUP_NUM][WHEEL_NUM]; // 经过解算后的数据(加速度)
 
 // debug
 Mot_base_t SmoothSpeed;    /*处理过后控制使用设定值*/
@@ -383,13 +387,13 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
 
     /*确保角度为0-360*/
     utils_norm_circle_number(&fol_angle, 0, 360.f);
-    if(fabsf(ctrlMsg->xyw.angvel)>=300)
+    if (fabsf(ctrlMsg->xyw.angvel) >= 300)
     {
-        anglevel_last=ctrlMsg->xyw.angvel;
+        anglevel_last = ctrlMsg->xyw.angvel;
     }
     else
     {
-        anglevel_last=0;
+        anglevel_last = 0;
     }
     // anglevel_last = UTILS_LP_FAST(anglevel_last, ctrlMsg->xyw.angvel, 0.2f); // 对云台角速度进行低通滤波
     if (ctrlMsg->getYawAngel)
@@ -419,7 +423,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     VxyW.angvel = anglevel_last + angfol_pid.out;
     // VxyW.angvel=0;
     /*跟随时，当功率受限时降低平移保证转向*/
-#ifdef POWER_LIMIT_TEST==0
+#ifdef POWER_LIMIT_TEST == 0
     follow_at_powerlim(&VxyW);
 #endif
     // yaw_Omega = Get_GM_Omega(ctrlMsg->arg); // 这里的arg是云台yaw或者pitch轴电机的枚举，在云台接受控制数据处定义
@@ -506,16 +510,16 @@ uint8_t gyro_at_powerlim(Mot_base_t *const VxyW, Ctrl_data_t *const ctrlMsg)
     return ret_0;
 }
 
-
 // 功率限制控制器结构体
-typedef struct {
-    float K_in;              // 当前输入缩放因子(平滑后)
-    float K_in_raw;          // 原始计算的缩放因子(平滑前)
-    float K_out_last;        // 上一次输出端限制比例
-    float max_power;         // 系统最大允许功率(W)
-    float min_K;             // 最小缩放因子(0.01~0.1)
-    float smooth_factor;     // 平滑因子(0.05~0.2)
-    
+typedef struct
+{
+    float K_in;          // 当前输入缩放因子(平滑后)
+    float K_in_raw;      // 原始计算的缩放因子(平滑前)
+    float K_out_last;    // 上一次输出端限制比例
+    float max_power;     // 系统最大允许功率(W)
+    float min_K;         // 最小缩放因子(0.01~0.1)
+    float smooth_factor; // 平滑因子(0.05~0.2)
+
     // PID控制器参数
     pid_t pid_controller;
 } power_input_limiter_t;
@@ -525,32 +529,33 @@ power_input_limiter_t input_limiter = {
     .K_in = 1.0f,
     .K_in_raw = 1.0f,
     .K_out_last = 1.0f,
-    .max_power = 200.0f,     // 根据实际系统调整
+    .max_power = 200.0f, // 根据实际系统调整
     .min_K = 0.05f,
     .smooth_factor = 0.1f,
     .pid_controller = PID_INIT(0.8f, 0.05f, 0.02f, 0.2f, 0.1f, -0.1f) // 调整PID限幅
 };
 
-float update_input_limiter(float K_out) {
+float update_input_limiter(float K_out)
+{
     /* 1. 计算控制误差 */
     float error = 1.0f - K_out;
-    
+
     /* 2. 使用PID计算缩放因子调整量 */
     PID_Calculate(&input_limiter.pid_controller, error);
-    
+
     /* 3. 计算原始K_in */
     input_limiter.K_in_raw = input_limiter.K_in - input_limiter.pid_controller.out;
-    
+
     /* 4. 限制原始K_in范围 */
-    if (input_limiter.K_in_raw > 1.0f) 
+    if (input_limiter.K_in_raw > 1.0f)
         input_limiter.K_in_raw = 1.0f;
-    else if (input_limiter.K_in_raw < input_limiter.min_K) 
+    else if (input_limiter.K_in_raw < input_limiter.min_K)
         input_limiter.K_in_raw = input_limiter.min_K;
-    
+
     /* 5. 应用正确的平滑滤波: 当前值 = 平滑因子×新值 + (1-平滑因子)×旧值 */
-    input_limiter.K_in = input_limiter.smooth_factor * input_limiter.K_in_raw + 
-                        (1 - input_limiter.smooth_factor) * input_limiter.K_in;
-    
+    input_limiter.K_in = input_limiter.smooth_factor * input_limiter.K_in_raw +
+                         (1 - input_limiter.smooth_factor) * input_limiter.K_in;
+
     input_limiter.K_out_last = K_out;
     return input_limiter.K_in;
 }
@@ -560,25 +565,25 @@ float update_input_limiter(float K_out) {
  * @param power_limit_k 当前实际功率限制系数
  *                      计算得出实际在控制端限制的比例
  */
-void apply_input_power_limit(float power_limit_k) {
+void apply_input_power_limit(float power_limit_k)
+{
 
-    power_limit_k=(power_limit_k>1)? 1:power_limit_k;
+    power_limit_k = (power_limit_k > 1) ? 1 : power_limit_k;
     /* 2. 更新缩放因子 */
     update_input_limiter(power_limit_k);
 }
-
 
 Mot_base_t MotPack_Power_Limit(Ctrl_data_t *const ctrlMsg)
 {
 
     Mot_base_t VxyW = ctrlMsg->xyw;
-    apply_input_power_limit(PowerCtrl.k_power_allo_wheel);//这里没有兼容除全向和麦轮以外的底盘
-    if(ctrlMsg->motion_mode == FOLLOW_GIMBAL||ctrlMsg->motion_mode == NO_FOLLOW)
+    apply_input_power_limit(PowerCtrl.k_power_allo_wheel); // 这里没有兼容除全向和麦轮以外的底盘
+    if (ctrlMsg->motion_mode == FOLLOW_GIMBAL || ctrlMsg->motion_mode == NO_FOLLOW)
     {
         VxyW.vel.x *= input_limiter.K_in;
         VxyW.vel.y *= input_limiter.K_in;
     }
-    else if(ctrlMsg->motion_mode == SLOW_GYRO||ctrlMsg->motion_mode == FAST_GYRO)
+    else if (ctrlMsg->motion_mode == SLOW_GYRO || ctrlMsg->motion_mode == FAST_GYRO)
     {
         // VxyW.vel.x *= input_limiter.K_in;
         // VxyW.vel.y *= input_limiter.K_in;
@@ -586,12 +591,6 @@ Mot_base_t MotPack_Power_Limit(Ctrl_data_t *const ctrlMsg)
     }
     return VxyW;
 }
-
-
-
-
-
-
 
 uint8_t if_turn_to_change = 0;
 void gyro_at_hurt(Mot_base_t *const VxyW, Ctrl_data_t *const ctrlMsg)
@@ -698,19 +697,13 @@ int Set_Planner_init(void)
     return 1;
 }
 
-int MotSmooth_Vxyw_init(void)
-{
-    SmoothRateLimiter_init(&smooth_data[WHEEL_XSPEED], ACC_MAX_X, Accel_factor_X, DECEL_FACTOR_X);
-    SmoothRateLimiter_init(&smooth_data[WHEEL_YSPEED], ACC_MAX_Y, Accel_factor_Y, DECEL_FACTOR_Y);
-    SmoothRateLimiter_init(&smooth_data[WHEEL_ACSPEED], ACC_MAX_W, Accel_factor_W, DECEL_FACTOR_W);
-    return 1;
-}
 
 /*新修改的设定值规划s型曲线的速度趋势 并进行云台到底盘的坐标系转换*/
 Mot_base_t Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
 {
     Mot_base_t ret_xyw = {0};
     Mot_base_t plan_xyw = {0};
+    Mot_base_t plan_acc_xyw = {0};
     float angle = 0;
     SecondOrder_Set_Follow_Cal(&set_planner_data[WHEEL_XSPEED], ctrl.xyw.vel.x, 0.0f); // 依据控制源发来的控制量，对线速度和角速度做规划
     SecondOrder_Set_Follow_Cal(&set_planner_data[WHEEL_YSPEED], ctrl.xyw.vel.y, 0.0f);
@@ -718,19 +711,25 @@ Mot_base_t Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     plan_xyw.vel.x = set_planner_data[WHEEL_XSPEED].p;
     plan_xyw.vel.y = set_planner_data[WHEEL_YSPEED].p;
     plan_xyw.angvel = set_planner_data[WHEEL_ACSPEED].p;
+    plan_acc_xyw.vel.x = set_planner_data[WHEEL_XSPEED].v; // 云台发来的控制速度进行规划后的加速度
+    plan_acc_xyw.vel.y = set_planner_data[WHEEL_YSPEED].v;
+    plan_acc_xyw.angvel = set_planner_data[WHEEL_ACSPEED].v;
 
     if (ctrl.getYawAngel)
     {
         // 得到当前控制坐标系和底盘坐标系角度
         angle = ctrl.getYawAngel(ctrl.arg);
     }
+
     ret_xyw.vel = MotModule_Transform(plan_xyw.vel, angle, ctrl.folIsReverse); // 对线速度进行坐标系转换
     ret_xyw.angvel = plan_xyw.angvel;
-
-    // ret_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle, ctrl.folIsReverse);
+    Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle, ctrl.folIsReverse); // 对线加速度进行坐标系转换
+    Force_xyw.angvel = plan_acc_xyw.angvel;
+    // ret_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle, ctrl.folIsReverse);//控制量直接进行转换，不用平滑处理
     // ret_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
     return ret_xyw;
 }
+
 /**
  * @brief    平滑速度规划函数
  * @param    speed 需要平滑的速度
@@ -743,11 +742,10 @@ Mot_base_t MotSmooth_Vxyw_Process(Ctrl_data_t ctrl)
 
     float angle = 0;
     if (ctrl.motion_mode == FOLLOW_GIMBAL) // 跟随模式下，自转也参与加速度规划，这样就不需要管模式切换时的角速度阶跃问题
-    {                                       // 但是需要保证角速度跟随效果不错，还可以平滑控制效果，使底盘控制效果更加丝滑
+    {                                      // 但是需要保证角速度跟随效果不错，还可以平滑控制效果，使底盘控制效果更加丝滑
         smooth_xyw.vel.x = DynamicSmooth_func(&smooth_data[WHEEL_XSPEED], ctrl.xyw.vel.x);
         smooth_xyw.vel.y = DynamicSmooth_func(&smooth_data[WHEEL_YSPEED], ctrl.xyw.vel.y);
         smooth_xyw.angvel = DynamicSmooth_func(&smooth_data[WHEEL_ACSPEED], ctrl.xyw.angvel);
-
     }
     else
     {
@@ -765,7 +763,38 @@ Mot_base_t MotSmooth_Vxyw_Process(Ctrl_data_t ctrl)
     return ret_xyw;
 }
 
+/**
+ * @brief 将雅可比矩阵解算出的电机的力转换为电机的扭矩，进而转换为电流
+ *
+ * @param motorSetForce
+ * @param force_out
+ */
+void Get_force_out(float motorSetForce[4][2], float force_out[4][2])
+{
+    for (int i = 0; i < WHEELS_GROUP_NUM; i++)
+    {
+        if (wheel[i][WHEEL_RUN].motor.dji.reverse_flag == 1)
+        {
 
+            force_out[i][0] = -motorSetForce[i][0] / K_IA2Tor_out_RUN / K_IC2IA_RUN * WHEEL_RADIUS / 1000.f; // 转换为电机的扭矩
+        }
+        else
+        {
+            force_out[i][0] = motorSetForce[i][0] / K_IA2Tor_out_RUN / K_IC2IA_RUN * WHEEL_RADIUS / 1000.f; // 转换为电机的扭矩
+        }
+    }
+}
+static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4][2]) // 进行加速度解算到各个轮子上
+{
+    Mot_base_t tarForce;                                                       // 电机输出轴上的力（N）
+    tarForce.vel.x = Force_xyw.vel.x * WEIGHT / 1000.f;                        // 整个底盘x方向力的平滑后设定值(N)
+    tarForce.vel.y = Force_xyw.vel.y * WEIGHT / 1000.f;                        // 整个底盘Y方向力的平滑后设定值(N)
+    tarForce.angvel = Force_xyw.angvel / 10.f * DAGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
+
+    Force_Resolve(&tarForce, motorSetForce);
+}
+
+float force_out[4][2];
 // 统一的Mot_base_t类型数据输出接口
 void ExMotMod_Output(const Ctrl_data_t *const ctrlData)
 {
@@ -777,6 +806,11 @@ void ExMotMod_Output(const Ctrl_data_t *const ctrlData)
     {
         /*将底盘的设定运动转化到底盘各电机的运动上 即轮子运动解算*/
         Motion_Resolve(&tarSpeed, motorSetData);
+
+        // 底盘的设定的加速度也按照一定比例分解到轮子上（加速度也分为x,y,w三个方向的加速度）
+        Force_Allo_to_wheels(motorSetForce);
+
+        Get_force_out(motorSetForce, force_out); // 获取前馈值
     }
     if (1 == isSetValid[1])
     {
