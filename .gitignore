@@ -42,7 +42,6 @@ settings/
 *.uvguix*
 cconfig.h
 .git
-.config
 project.*
 rtconfig.h
 *.log
