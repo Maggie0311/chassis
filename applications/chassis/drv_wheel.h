@@ -1,13 +1,15 @@
 #ifndef __DRV_WHEEL_H__
 #define __DRV_WHEEL_H__
-#include "drv_motor.h"
+
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <board.h>
-#include "Wheel_data.h"
-#include "drv_SetPlanning.h"
-#include "controlMsg.h"
+#include "ThreadCtrl.h"
+#include "app_monitor.h"
 
+#include "Wheel_data.h"
+#include "controlMsg.h"
+#include "drv_motor.h"
 
 #if defined ARM_MATH_CM4
 #include <arm_math.h>

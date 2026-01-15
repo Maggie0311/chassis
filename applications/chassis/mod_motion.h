@@ -5,6 +5,8 @@
 #include "drv_motionSolve.h"
 #include "controlMsg.h"
 #include "drv_wheel.h"
+#include "drv_SetPlanning.h"
+
 /*
  * 注释缩写指代：
  * Mot->Motion;         incre->increment;      fol->follow;             Vel->velocity             pos->position

@@ -1,13 +1,4 @@
-#include "ThreadCtrl.h"
-#include "drv_motor.h"
 #include "drv_wheel.h"
-#include "app_monitor.h"
-#include "drv_can_com.h"
-#include "drv_utils.h"
-#include "fun_powerCtrl.h"
-#include "func_MonHandling.h"
-#include "app_RefSystem.h"
-#include "mod_motion.h"
 
 #ifdef USE_CAPACITY // 低电量保护
 Scpr_manage_t Scpr_manage;
@@ -72,9 +63,7 @@ rt_err_t Wheels_Init(void)
     rt_thread_t thread = RT_NULL;
 
     // 初始化电机结构体以及PID
-    //res = chassis_motor_Init(0);
-    if (res != RT_EOK)
-        return RT_ERROR;
+
 // 功率控制部分
 #ifdef USE_CAPACITY_2
     powerCtrlInit(&Scpr_manage);
