@@ -1,5 +1,5 @@
 #include "fun_powerCtrl.h"
-#include "SuperCap_Com.h"
+#include "SuperCap_Com_new.h"
 #include "drv_utils.h"
 #include "app_RefSystem.h"
 #include "fun_protocolGim.h"

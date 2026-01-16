@@ -3,7 +3,7 @@
 #include "func_sd_master.h"
 #include "fun_protocolGim.h"
 #include "RLS.h"
-#include  "SuperCap_Com.h"
+#include  "SuperCap_Com_new.h"
 #include "mod_motion.h"
 #include "app_RefSystem.h"
 

@@ -3,7 +3,7 @@
 #include "drv_utf.h"
 #include "fun_powerCtrl.h"
 #include "mod_motion.h"
-#include "SuperCap_Com.h"
+#include "SuperCap_Com_new.h"
 #include "protect.h"
 extern uint8_t power_ctrl_close;
 

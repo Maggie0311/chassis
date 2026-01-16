@@ -1,7 +1,7 @@
 #pragma once
 
 #include "drv_GimMotor.h"
-#include "SuperCap_Com.h"
+#include "SuperCap_Com_new.h"
 #include "fun_protocolGim.h"
 #include "app_RefSystem.h"
 #include "drv_IMU.h"

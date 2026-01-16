@@ -3,7 +3,7 @@
 #include <board.h>
 #include "drv_wheel.h"
 #include "Wheel_data.h" //电机功率参数在此h文件末
-#include "SuperCap_Com.h"
+#include "SuperCap_Com_new.h"
 #include "RLS.h"
 #include "app_RefSystem.h"
 #define Power_Ctrl_Debug (1) // 功率控制debug
@@ -92,7 +92,7 @@ typedef struct
     float V_Cap;           // 超级电容组电压V
     float Voltage;         // 超级电容测量电池电压单位V*
     float Current;         // 超级电容测量电池输出总电流A*
-    Cap_State_e Cap_State; // 超级电容充放电状态*//此项根据底盘与超电两次通讯的电压数据来获取
+    SupCap_State_e Cap_State; // 超级电容充放电状态*//此项根据底盘与超电两次通讯的电压数据来获取
     /**本程序要计算的数据**/
     float SupplyCurrt; // 超级电容当前可以放电电流 单位A
     float Power;       // 超级电容测量底盘总功率单位W

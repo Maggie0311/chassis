@@ -1,47 +1,70 @@
-#include "SuperCap_Com.h"
-#include "drv_canthread.h"
+#include "SuperCap_Com_new.h"
+
 #include "ThreadCtrl.h"
 #include "app_monitor.h"
-#include "fun_protocolGim.h"
+#include "robot_data.h"
+
 #include "app_RefSystem.h"
+#include "fun_protocolGim.h"
 #include "fun_powerctrl.h"
 #include "drv_utils.h"
-#define USED(x) ((void)(x))
-scpr_comRx_t scpr_comRx;
-scpr_ctrlCmd_t scprComData;
-//note:超级电容调试开关；
+
+/*线程定时*/
+static struct rt_semaphore scpr_Tx_sem;
+
+/*超电通信信息*/
+Scpr_ComRx_t scpr_comRx;
+Scpr_ComTx_t scpr_comTx;
+CANInstance scpr_caninstance;
+
+/*超电调试开关；*/
 uint8_t power_ctrl_close = 0;   // 超电是否关闭输出
 uint8_t scprIsDebug = 0;
-#define VCAP_DATA_NUM 10
+
+/*电压记录*/
 uint16_t V_cap_data[VCAP_DATA_NUM]; // mv,本文件用于记录电压值，判断超电状态
 uint8_t V_cap_data_index = 0;
-Cap_State_e Scp_Now_State = (Cap_State_e)0;
+
+/*超电状态*/
+SupCap_State_e Scp_Now_State = (SupCap_State_e)0;
+
+/*监视器ID*/
 static uint8_t suprMontiorID;
-static rt_err_t Send_To_Scpr(scpr_ctrlCmd_t *cmd)
+
+/*----------------------------------------------超电线程-----------------------------------------------*/
+static void Scpr_Tx_IRQHandler(void *parameter)
 {
-    struct rt_can_msg tx_Scpr;
-
-    tx_Scpr.id = SCPR_TX;       // 设置ID
-    tx_Scpr.ide = RT_CAN_STDID; // 标准帧
-    tx_Scpr.rtr = RT_CAN_DTR;   // 数据帧
-    tx_Scpr.priv = 2;           // 报文优先级次次高
-    tx_Scpr.len = 8;            // 长度8
-
-    tx_Scpr.data[0] = (uint8_t)(cmd->Whether_To_Output);
-    tx_Scpr.data[1] = (uint8_t)(cmd->isdataRef);
-    tx_Scpr.data[2] = (uint8_t)(cmd->isFlySlope);
-    tx_Scpr.data[3] = (uint8_t)(cmd->isOverPower);
-    tx_Scpr.data[4] = (uint8_t)((uint16_t)cmd->chassis_powerBuf >> 8);
-    tx_Scpr.data[5] = (uint8_t)(cmd->chassis_powerBuf);
-    tx_Scpr.data[6] = (uint8_t)(uint16_t)(cmd->chassis_powerLim >> 8);
-    tx_Scpr.data[7] = (uint8_t)(cmd->chassis_powerLim);
-
-    CanTrans(SCPR_CAN_DEV, &tx_Scpr);
-
-    return RT_EOK;
+    rt_sem_release(&scpr_Tx_sem);
 }
 
-static void getSuprCapComData(scpr_ctrlCmd_t *Cmd)
+/**
+ * @brief 超电CAN报文接收回调函数
+ * 
+ * @param instance 对应的can实例
+ */
+static void Refresh_Scprdata(CANInstance *instance)
+{
+    // 当没有在发送并且  收到应答
+    if ((1 == instance->rx_buff[0])) // 0
+        scpr_comRx.recvAck = 1;
+
+    SWDG_FEED(suprMontiorID);
+    V_cap_data[V_cap_data_index == VCAP_DATA_NUM ? (V_cap_data_index = 0, V_cap_data_index++) : V_cap_data_index++] = scpr_comRx.V_cap; // 更新前记录上一次数据
+
+    scpr_comRx.cap = (instance->rx_buff[1]) / 100.f;           // 1
+    scpr_comRx.V_cap = *(uint16_t *)(&instance->rx_buff[2]);   // 2-3
+    scpr_comRx.voltage = *(uint16_t *)(&instance->rx_buff[4]); // 4-5
+    scpr_comRx.current = *(uint16_t *)(&instance->rx_buff[6]); // 6-7
+    scpr_comRx.power_cup = scpr_comRx.voltage * scpr_comRx.current / 1000.f/1000.f; // 计算功率，此处功率未进行滤波，在后续使用时需要考虑滤波
+    scpr_comRx.recvTick = rt_tick_get();               //刷新数据接收时刻
+}
+
+/**
+ * @brief 更新数据
+ * 
+ * @param Cmd 
+ */
+static void getSuprCapComData(Scpr_ComTx_t *Cmd)
 {
     // 判断是否更新数据，只置标志位不清除
 #define checkSuprComDataRefresh(now, last) \
@@ -109,9 +132,29 @@ static void getSuprCapComData(scpr_ctrlCmd_t *Cmd)
         Cmd->chassis_powerBuf = (uint16_t)(-1);
     }
 }
-uint8_t Get_if_supercap_output(void)
+
+/**
+ * @brief 发送信息给超电
+ * 
+ * @param cmd 
+ * @return rt_err_t 
+ */
+static rt_err_t Send_To_Scpr(Scpr_ComTx_t *cmd)
 {
-    return !power_ctrl_close;
+    /*更新发送数据*/
+    scpr_caninstance.tx_buff[0] = (uint8_t)(cmd->Whether_To_Output);
+    scpr_caninstance.tx_buff[1] = (uint8_t)(cmd->isdataRef);
+    scpr_caninstance.tx_buff[2] = (uint8_t)(cmd->isFlySlope);
+    scpr_caninstance.tx_buff[3] = (uint8_t)(cmd->isOverPower);
+    scpr_caninstance.tx_buff[4] = (uint8_t)((uint16_t)cmd->chassis_powerBuf >> 8);
+    scpr_caninstance.tx_buff[5] = (uint8_t)(cmd->chassis_powerBuf);
+    scpr_caninstance.tx_buff[6] = (uint8_t)(uint16_t)(cmd->chassis_powerLim >> 8);
+    scpr_caninstance.tx_buff[7] = (uint8_t)(cmd->chassis_powerLim);
+
+    /*发送*/
+    CAN_Transmit(&scpr_caninstance);
+
+    return RT_EOK;
 }
 
 /***
@@ -127,40 +170,66 @@ static void Scpr_Thread(void *parameter)
     SWDG_START(suprMontiorID);
     while (1)
     {
-        if (0 == scprIsDebug)
-            getSuprCapComData(&scprComData);
-        Send_To_Scpr(&scprComData);
+        rt_sem_take(&scpr_Tx_sem, RT_WAITING_FOREVER);
+        if (scprIsDebug == 0)
+            getSuprCapComData(&scpr_comTx);//获取裁判系统相关数据并处理
+        Send_To_Scpr(&scpr_comTx);//发送信息
         SWDG_FEED(id);
-        rt_thread_mdelay(SC_PERIOD);
     }
 }
 
-static void Refresh_Scprdata(struct rt_can_msg *msg);
-
-
-/*------------------------------------RX---------------------------------------------------------*/
-
-/***
- * @brief    处理超级电容端发送报文(接收超级电容数据)
- * @param    msg can2报文
- ***/
-static void Refresh_Scprdata(struct rt_can_msg *msg)
+/**
+ * @brief    初始化与超级电容端通信
+ * @return   true:初始化成功	false:初始化失败
+ * @author   chenhao
+ */
+rt_err_t Scpr_Com_Init(void)
 {
-    // 当没有在发送并且  收到应答
-    if ((1 == msg->data[0])) // 0
-        scpr_comRx.recvAck = 1;
+    rt_thread_t Scpr_handler = RT_NULL; // 线程句柄
 
-    SWDG_FEED(suprMontiorID);
-    V_cap_data[V_cap_data_index == VCAP_DATA_NUM ? (V_cap_data_index = 0, V_cap_data_index++) : V_cap_data_index++] = scpr_comRx.V_cap; // 更新前记录上一次数据
+    /*注册CAN通信*/
+    CAN_Init_Config_s config;
+    config.can_device_name = SCPR_CAN_DEV;
+    config.tx_id = SCPR_TX;
+    config.rx_id = SCPR_RX;
+    config.can_module_callback = Refresh_Scprdata;
+    CAN_Attach(&scpr_caninstance,&config);
 
-    scpr_comRx.cap = (msg->data[1]) / 100.f;           // 1
-    scpr_comRx.V_cap = *(uint16_t *)(&msg->data[2]);   // 2-3
-    scpr_comRx.voltage = *(uint16_t *)(&msg->data[4]); // 4-5
-    scpr_comRx.current = *(uint16_t *)(&msg->data[6]); // 6-7
-    scpr_comRx.power_cup = scpr_comRx.voltage * scpr_comRx.current / 1000.f/1000.f; // 计算功率，此处功率未进行滤波，在后续使用时需要考虑滤波
-    scpr_comRx.recvTick = rt_tick_get();               //刷新数据接收时刻
+    // 初始化超级电容通信线程
+    Scpr_handler = rt_thread_create(
+        "SCR_ctrl",      // 线程名
+        Scpr_Thread,     // 线程入口
+        RT_NULL,         // 入口参数无
+        THREAD_STACK_SC, // 线程栈
+        THREAD_PRIO_SC,  // 线程优先级
+        THREAD_TICK_SC); // 线程时间片大小
+
+    // 线程创建失败返回false
+    if (Scpr_handler == RT_NULL)
+    {
+        return RT_ERROR;
+    }
+
+    // 线程启动失败返回false
+    if (rt_thread_startup(Scpr_handler) != RT_EOK)
+    {
+        return RT_ERROR;
+    }
+
+    // 创建线程定时器 定时释放信号量
+    rt_timer_t timer = rt_timer_create("Scpr_Tx_timer",
+                                       Scpr_Tx_IRQHandler,
+                                       RT_NULL,
+                                       SC_PERIOD,
+                                       RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
+    if (rt_timer_start(timer)!= RT_EOK)
+    {
+        return RT_ERROR;
+    }
+    return RT_EOK;
 }
 
+/*----------------------------------------------外部超电数据获取接口-----------------------------------------------*/
 /**
  * @brief 获取超级电容控制板当前是否在线
  * @author fwlh
@@ -182,7 +251,7 @@ rt_err_t Get_SuprCapVoltage(float *V_cap)
 }
 
 // 获得超级电容充放电状态
-Cap_State_e Get_SuprCapState(void)
+SupCap_State_e Get_SuprCapState(void)
 {
     if (scpr_comRx.recvTick && (rt_tick_get() - scpr_comRx.recvTick < 100))
     {
@@ -243,37 +312,14 @@ rt_bool_t Get_SuprCapPower(float *power)
         return RT_FALSE;
     }
 }
+
 /**
- * @brief    初始化与超级电容端通信
- * @return   true:初始化成功	false:初始化失败
- * @author   chenhao
+ * @brief 获取超电是否输出
+ * 
+ * @return uint8_t 
  */
-rt_err_t Scpr_Com_Init(void)
+uint8_t Get_if_supercap_output(void)
 {
-    rt_thread_t Scpr_handler = RT_NULL; // 线程句柄
-
-    attachCanRXfun(rx_scpr, Refresh_Scprdata); // 注册can接受
-
-    // 初始化超级电容通信线程
-    Scpr_handler = rt_thread_create(
-        "SCR_ctrl",      // 线程名
-        Scpr_Thread,     // 线程入口
-        RT_NULL,         // 入口参数无
-        THREAD_STACK_SC, // 线程栈
-        THREAD_PRIO_SC,  // 线程优先级
-        THREAD_TICK_SC); // 线程时间片大小
-
-    // 线程创建失败返回false
-    if (Scpr_handler == RT_NULL)
-    {
-        return RT_ERROR;
-    }
-
-    // 线程启动失败返回false
-    if (rt_thread_startup(Scpr_handler) != RT_EOK)
-    {
-        return RT_ERROR;
-    }
-
-    return RT_EOK;
+    return !power_ctrl_close;
 }
+

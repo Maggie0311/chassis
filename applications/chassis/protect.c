@@ -14,7 +14,7 @@
 #ifdef MONITOR_NEED_ALARM
 #include "func_Alarm.h"
 #endif
-#include "SuperCap_Com.h"
+#include "SuperCap_Com_new.h"
 
 static rt_thread_t protct_Thread = RT_NULL; // 线程
 static rt_timer_t protect_Timer = RT_NULL;  // 定时器

@@ -1,14 +1,12 @@
 from building import *
 
 cwd = GetCurrentDir()
-src = []
-src += ['SuperCap_Com.c']
-#src = Glob('*.c')
+src = Glob('*.c')
 
 CPPPATH = [cwd]
 
 if GetDepend(['USE_CAPACITY_3']):
-    group = DefineGroup('SuperCapCom', src, depend = [''], CPPPATH = CPPPATH)
+    group = DefineGroup('SuperCap_Com_new', src, depend = [''], CPPPATH = CPPPATH)
 else:
     group = []
 

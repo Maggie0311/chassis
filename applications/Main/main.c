@@ -1,7 +1,7 @@
 #include <rtthread.h>
 #include <board.h>
 
-#include "SuperCap_Com.h"
+#include "SuperCap_Com_new.h"
 #include "mod_GimbalComTx.h"
 #include "app_ChassisCtrl.h"
 #include "func_MonHandling.h"

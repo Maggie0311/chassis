@@ -1,7 +1,6 @@
 #ifndef __ROBOT_DATA_H__
 #define __ROBOT_DATA_H__
 
-/*通信相关参数*/
 /*底盘电机ID*/
 #define RUN_RF_MOTOR_ID 0x201
 #define RUN_LF_MOTOR_ID 0x202
@@ -19,7 +18,7 @@
 #define PITCH_MOTOR_RXID 0x04 
 #endif
 
-/*其他*/
+/*其他通信ID*/
 #define GIMBAL_CCTRL_RX 0x100    // 云台控制底盘相关
 #define GIMBAL_DATA_RX 0x401     // 从云台接收的各类数据
 #define GIMBAL_IMU_DATA_RX 0x402 // 从云台接收的IMU数据
@@ -72,9 +71,9 @@
 
 // #define SCPR_CAN_DEV USED_CAN1          // 超级电容设备
 #if SCPR_CAN_DEVICE_NAME == 1
-#define SCPR_CAN_DEV USED_CAN1
+#define SCPR_CAN_DEV "can1"
 #elif SCPR_CAN_DEVICE_NAME == 2
-#define SCPR_CAN_DEV USED_CAN2
+#define SCPR_CAN_DEV "can2"
 #else 
 #error "SCPR_CAN_DEVICE_NAME is not defined right!"
 #endif
@@ -91,3 +90,4 @@
 
 
 /*PID相关参数部分*/
+#endif

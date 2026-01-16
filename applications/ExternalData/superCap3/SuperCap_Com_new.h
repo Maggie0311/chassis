@@ -1,9 +1,12 @@
 #ifndef __SUPERCAP_COM_H__
 #define __SUPERCAP_COM_H__
 #include <board.h>
+
 #include "can_com_thread.h"
 
 #define SC_PERIOD 10 // 超级电容线程轮询周期，单位ms
+#define VCAP_DATA_NUM 10
+
 /**
  * @brief 超电通信接收数据结构体
  * 
@@ -56,23 +59,6 @@ typedef enum
     CAP_STATE_NO_WORK    // 等待充电/不在工作/进入保护(详细保护类型可参考超电代码)
 } SupCap_State_e;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * @brief    初始化与超级电容端通信
  * @return   true:初始化成功	false:初始化失败
@@ -86,9 +72,8 @@ rt_err_t Scpr_Com_Init(void);
 rt_bool_t Read_Super_Capacity_Online(void);
 // 获得超电电压V
 rt_err_t Get_SuprCapVoltage(float *V_cap);
-uint8_t Get_if_supercap_output(void);
 // 获得超级电容充放电状态
-Cap_State_e Get_SuprCapState(void);
+SupCap_State_e Get_SuprCapState(void);
 // 获得超级电容测得底盘总电流ma，电压mv，还有超级电容电压V
 rt_bool_t getSuprCapMearData(float *volatge, float *current, float *V_Cap);
 /***
@@ -99,4 +84,6 @@ rt_bool_t getSuprCapMearData(float *volatge, float *current, float *V_Cap);
 rt_bool_t Get_RemainCapcity(float *cap);
 //获取超级电容测量底盘功率
 rt_bool_t Get_SuprCapPower(float *power);
+//获取超电是否输出
+uint8_t Get_if_supercap_output(void);
 #endif
