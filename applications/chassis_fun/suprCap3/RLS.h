@@ -19,15 +19,16 @@ typedef struct
     float P[N][N];    // 协方差矩阵
     float lambda;     // 动态遗忘因子
     float last_error;
-	  float error;
-	  float now_tick;
-	  int8_t flag;
+	float error;
+	float now_tick;
+	int8_t flag;
     float  Phi[3];
     float out_power;
     float now_tor;
     float now_spe[4];
     float last_spe[4];
     float repe_speed;//当匀速运动时防止RLS过拟合
+    uint16_t repe_flag;
     float now_power;
     float SetSpeed[4];
 }RLS_Estimator;

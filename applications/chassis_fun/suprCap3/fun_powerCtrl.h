@@ -154,22 +154,22 @@ typedef struct
     float I_now;             // 电机反馈的当前转矩电流（A）
     float I_set;             // 电机预输出的转矩电流（A）
     float V_now;             // 电机反馈的当前转子速度（rpm）
-    float V_last;            // 上一时刻电机反馈的当前转子速度（rpm）
-    float K1;                // 电机功率计算公式的参数
-    float K2;                // 电机功率计算公式的参数
-    float C;                 // 电机功率计算公式的参数
 } Motor_Power_t;
 
 extern PowerCtrl_t PowerCtrl;
 extern Power_info_t PowerInfo;
 extern RLS_Estimator RunRLS;
+
+
 float getScRate(void);
-void Power_Ctrl(Wheel_t wheel[4][2]);
+void Power_Ctrl(void);
 void powerCtrlInit(void);
 float get_k_power_allo();
 uint8_t get_SuperCap_if_abnormal(void);
 uint8_t get_Super_Cap_if_open(void);
-void Power_re_allo(Wheel_t wheel_temp[4][2]);
+void Power_re_allo(void);
 void get_true_RLS(void);
-
+void get_pre_power(void);
+void Power_Motor_Attach(MotorInstance *motor_instance);
+float get_K_IC2Tor(MotorInstance *motor_instance);
 #endif
