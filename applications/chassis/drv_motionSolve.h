@@ -2,6 +2,15 @@
 #define __DRV_MECANOMNI_H__
 #include <rtthread.h>
 #include "controlMsg.h"
+/*------------------------------------位操作和常量定义宏----------------------------------------------------------*/
+#define PI 3.1415926
+#define M_SETBIT(x, y) ((x) |= (1 << y))           // 将X的第Y位置1 标号从0开始
+#define M_CLRBIT(x, y) ((x) &= ~(1 << y))          // 将X的第Y位清0 标号从0开始
+#define M_READBIT(x, y) ((x) & (1 << y))           // 读取某一位 标号从0开始
+#define RPM2RAD_K ((float)((PI) / 30.f))           // rpm转角速度
+#define RAD2RPM_K ((float)(30.0f / PI))            // 角速度转rpm
+#define VCONVERT2W_k ((float)(1.f / WHEEL_RADIUS)) // 车轮速度转电机输出轴角速度 速度的单位为mm/s 角速度单位为rad/s
+#define WCONVERT2V_k ((float)WHEEL_RADIUS)         // 电机输出轴角速度转车轮速度 速度的单位为mm/s 角速度单位为rad/s
 
 #define DAGTORAD ((float)(PI / 180.0f))
 #define RADTODAG ((float)(180.0f / PI))

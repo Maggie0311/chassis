@@ -63,11 +63,9 @@ rt_err_t Wheels_Init(void)
     rt_thread_t thread = RT_NULL;
 
     // 初始化电机结构体以及PID
-
-// 功率控制部分
-#ifdef USE_CAPACITY_2
-    powerCtrlInit(&Scpr_manage);
-#endif
+    chassis_motor_init();
+    if (res != RT_EOK)
+        return RT_ERROR;
 
 #ifdef USE_CAPACITY_3
     powerCtrlInit();

@@ -72,15 +72,7 @@
 #define DOUBLE_ACC_MAX_Y (float)30000  // mm / s³
 #define DOUBLE_ACC_MAX_W (float)200000 // 0.1°/ s³
 
-// #define ACC_MAX_X (float)5         //    m/s
-// #define ACC_MAX_Y (float)5         //    m/s
-// #define ACC_MAX_W (float)20.0      //   10°/s
-#define Accel_factor_X (float)2.f  // 加速平滑系数
-#define Accel_factor_Y (float)2.f  // 加速平滑系数
-#define Accel_factor_W (float)1.5f // 加速平滑系数
-#define DECEL_FACTOR_X (float)0.7f // 减速平滑系数
-#define DECEL_FACTOR_Y (float)0.7f // 减速平滑系数
-#define DECEL_FACTOR_W (float)0.7f // 减速平滑系数
+
 
 #define SMOOTH_DATA_MODE 0       // 0: 默认模式，1：随姿态改变的模式
 #define SMOOTH_IF_USE_KEY_CTRL 0 // 是否使用ctrl键(根据操作手按键改变加速度的模式)
@@ -91,10 +83,7 @@
 #define SMOOTH_MODE SM_NORMAL // X/Y线速度平滑模式 SM_NORMAL/SM_MIRROR
 #define SMOOTH_ADD_UP 7.f     // 1ms增加的速度(mm/s)->(1m/s^2)
 #define SMOOTH_ADD_DOWN 7.f   // 1ms减少的速度(mm/s)->(1m/s^2)
-#elif SMOOTH_DATA_MODE == 0
-#define SMOOTH_MODE SM_NORMAL // X/Y线速度平滑模式 SM_NORMAL/SM_MIRROR
-#define SMOOTH_ADD_UP 6.0f    // 1ms增加的速度(mm/s)->(1m/s^2)
-#define SMOOTH_ADD_DOWN 6.0f  // 1ms减少的速度(mm/s)->(1m/s^2)
+
 #endif
 #define SMOOTH_START 2500.f // 启动区速度大小(mm/s)
 

@@ -5,7 +5,6 @@
 #include "arm_math.h"
 #include "drv_Vector.h"
 
-
 static float Wheel_Azimuth[WHEELS_GROUP_NUM] = {RF_Wheel_Azimuth, LF_Wheel_Azimuth, LB_Wheel_Azimuth, RB_Wheel_Azimuth};
 static float encodeData[WHEELS_GROUP_NUM][WHEEL_NUM];
 
@@ -197,13 +196,13 @@ void Motion_Resolve(Mot_base_t *Vxyw, float motorSetData[4][2])
     }
 }
 
-
+//********************************逆解算部分************************************** */
 /**
  * @brief 全向轮的力解算，使用雅可比矩阵，解算后的结果作为电机的动力前馈
- * 
- * @param tarForce 
- * @param wheel_group 
- * @param resolve_data 
+ *
+ * @param tarForce
+ * @param wheel_group
+ * @param resolve_data
  */
 static void Omni_Force_Resolve(Mot_base_t tarForce, Wheel_Group_e wheel_group, float *resolve_data)
 {
@@ -231,7 +230,8 @@ static void Omni_Force_Resolve(Mot_base_t tarForce, Wheel_Group_e wheel_group, f
         return;
     }
 }
-// TODO 舵轮和全向轮还没有解算的具体实现:
+// TODO 舵轮和全向轮还没有逆解算的具体实现:
+
 void Force_Resolve(Mot_base_t *Fxyw, float motorSetForce[4][2])
 {
     for (int group = 0; group < WHEELS_GROUP_NUM; group++)
@@ -254,8 +254,6 @@ void Force_Resolve(Mot_base_t *Fxyw, float motorSetForce[4][2])
             return;
     }
 }
-
-//********************************逆解算部分************************************** */
 
 //********************************正解算部分************************************** */
 

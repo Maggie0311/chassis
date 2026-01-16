@@ -16,8 +16,6 @@
  */
 
 // 输入限幅参数 底盘坐标系为前进为y轴，右手为x轴的右手坐标系
-#define M_MAX_YSPEED 6000     // 底盘最大移动速度，单位mm/s
-#define M_MAX_XSPEED 6000     // 底盘最大移动速度，单位mm/s
 #define M_MAX_ROTATE_AC 6000  // 底盘最大自旋角速度，单位0.1°/s
 #define M_MAX_POSITION_Y 2000 // 旋转轴坐标最大值，单位mm --暂时去除未用
 #define M_MAX_POSITION_X 2000 // --暂时去除未用
@@ -28,7 +26,8 @@
 #define SMOOTH_VELOCITY_ENABLE 1 // 使能速度平滑
 #define SMOOTH_ANGVEL_ENABLE 0   // 使能角速度平滑
 /*------------------------------------模块宏开关---------------------------------------------------------*/
-
+extern Mot_base_t Speed_xyw;
+extern Mot_base_t Force_xyw;
 extern SecondOrder_Set_Follow_t set_planner_data[];
 
 /*公转运动录制结构体,创建时成员值为0即可*/
@@ -74,9 +73,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
 Mot_base_t MotPack_Power_Limit(Ctrl_data_t *const ctrlMsg);
 
 int Set_Planner_init(void);
-Mot_base_t Set_Plan_Vxyw_Process(Ctrl_data_t ctrl);
-int MotSmooth_Vxyw_init(void);
-Mot_base_t MotSmooth_Vxyw_Process(Ctrl_data_t ctrl);
+void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl);
 
 /**
  * @brief 偏心小陀螺运动
@@ -86,11 +83,7 @@ Mot_base_t MotSmooth_Vxyw_Process(Ctrl_data_t ctrl);
 Mot_base_t MotPack_Offset_SmallTop(const Ctrl_data_t *const ctrlMsg, const Vector2_t *const pos);
 void ExMotMod_Modify_Apid(float kp, float ki, float kd, float i_lim, float lim_up, float lim_down);
 
-// 统一的Mot_base_t类型数据输出接口
-void ExMotMod_Output(const Ctrl_data_t *const ctrlData);
-
 Mot_base_t getSetMotion(void);
 Mot_base_t getRealVel(void);
-void refreshMaxVely_in_a_move(void);
-float getMaxVely_in_a_move(void);
+
 #endif
