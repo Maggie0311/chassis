@@ -49,8 +49,8 @@ void RLS_Update(RLS_Estimator *est, float phi[N], float y_measured)
     for(int i=0; i<N; i++) 
 		{
             float  LastTheta=est->theta[i];
-         est->theta[i] += K[i] * error / denom;
-       //  est->theta[i]=UTILS_HP_FAST(est->theta[i],LastTheta,0.2);
+            est->theta[i] += K[i] * error / denom;
+            // est->theta[i]=UTILS_HP_FAST(est->theta[i],LastTheta,0.2);
 			if(est->theta[i]<1e-20f)est->theta[i]=1e-20f;
 			//else if(est->theta[i]>1500)est->theta[i]=1500;
 		
@@ -61,12 +61,12 @@ void RLS_Update(RLS_Estimator *est, float phi[N], float y_measured)
         for(int j=0; j<N; j++) 
         {
             est->P[i][j] = (est->P[i][j] - K[i]*K[j]/denom);
-					 est->P[i][j]/= est->lambda;
+			est->P[i][j]/= est->lambda;
         }
     }
      //自适应遗忘因子调整（可选）
    float error_change = fabs(error - est->last_error);
-   if(error_change > 0.2f * fabs(error)&&error_change ) 
+   if(error_change > 0.2f * fabs(error)&&error_change) 
    { // 系统突变检测
        est->lambda = 0.96f; // 加速跟踪
    } 
@@ -101,38 +101,42 @@ float Compute_Condition_Number(RLS_Estimator *est)
 int8_t Check_Stability(RLS_Estimator *est) 
 {
     // 检查D的对角元素是否为正
-    for(int i = 0; i < N; i++) {
-        if(est->P[i][i] <= SAFE_MIN) {
+    for(int i = 0; i < N; i++) 
+    {
+        if(est->P[i][i] <= SAFE_MIN) 
             return 0; // 不稳定
-        }
     }   
     // 检查条件数
-    if(Compute_Condition_Number(est) > 1e7f) {
+    if(Compute_Condition_Number(est) > 1e7f) 
         return 0; // 条件数过大
-    }   
+       
     return 1; // 稳定
 }
 void Reconstruct_P(RLS_Estimator *est) 
 {
  
 
-      if(Compute_Condition_Number(est) > 1e8f) { 
+      if(Compute_Condition_Number(est) > 1e8f) 
+      { 
         // 严重膨胀：部分重置
         float reset_ratio = 0.1f; // 只重置10%
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < N; j++) {
+        for(int i = 0; i < N; i++) 
+        {
+            for(int j = 0; j < N; j++) 
+            {
                 est->P[i][j] *= (1.0f - reset_ratio);
-                if(i == j) {
+                if(i == j) 
                     est->P[i][j] += reset_ratio * 1.0f; // 添加小单位矩阵
-                }
+                
             }
         }
-    } else if(Compute_Condition_Number(est) > 1e6f) {
+    } else if(Compute_Condition_Number(est) > 1e6f) 
+    {
         // 轻微膨胀：仅衰减
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < N; j++) {
+        for(int i = 0; i < N; i++) 
+        {
+            for(int j = 0; j < N; j++) 
                 est->P[i][j] *= 0.95f;
-            }
         }
     }
     
