@@ -15,34 +15,22 @@
 #include "fun_powerCtrl.h"
 #include "drv_motionSolve.h"
 #include "app_RefSystem.h"
+#include "robot_data.h"
 #include <arm_math.h>
 
-#define POWER_LIMIT_TEST 0
-// 25赛季修改跟随方法,这里不再使用以前复杂的计算办法,改为简单的pid跟随,既节省能量,又优化了跟随办法,也减少了复杂的计算方式
-// 现在采用两段式PID计算办法,当误差较大时,使用较大的PID参数,当误差较小时,使用较小的PID参数,在每个机器人单独文件中有该PID参数
 pid_t angfol_pid = PID_INIT(20, 0, 10, 0, 2000, -2000);
 v_lim_t v_angle_lim = {0.f, 50, 30, 0.3f, 0.f, 0.f};
+
 SmoothRateLimiter smooth_data[SMOOTH_NUM] = {0};
 SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0};
 Mot_base_t Force_xyw = {0};
-#ifndef ANGFOL_KP_MIN
-#define ANGFOL_KP_MIN 33
-#endif
+Mot_base_t Speed_xyw = {0};
 
+Mot_base_t SmoothSpeed;           /*处理过后控制使用设定值*/
+Mot_base_t Setmotion;             /*未处理原始设定值*/
+Mot_base_t real_xyw;              /*反解算的实际速度*/
 static uint8_t fol_isReverse = 0; // 从控制坐标系转化到底盘坐标系
 static uint8_t flag_reg = 0;      // isFirst, turn_reg, isIn_1, isIn_2 , trunin_mode_last, trunin
-/*底盘四个车轮(或者说轮毂)的期望线速度 单位mm/s 输出顺序RF-LF-LB-RB*/
-float motorSetData[WHEELS_GROUP_NUM][WHEEL_NUM];  // 经过解算后的数据(速度)
-float motorSetForce[WHEELS_GROUP_NUM][WHEEL_NUM]; // 经过解算后的数据(加速度)
-
-// debug
-Mot_base_t SmoothSpeed;    /*处理过后控制使用设定值*/
-Mot_base_t Setmotion;      /*未处理原始设定值*/
-Mot_base_t real_xyw;       /*反解算的实际速度*/
-float debug_yaw_angle = 0; /*跟随角debug*/
-float debug_fol_error = 0;
-uint8_t isSetValid[2] = {1, 1}; /*debug*/
-SetPlanning_Str motionSetPlan[3];
 
 static float range_angle_180(float angle)
 {
@@ -62,8 +50,8 @@ static Mot_base_t MotModule_Clamp_Base(Mot_base_t VxyW)
 {
     Mot_base_t temp =
         {
-            .vel.y = utils_clamp(VxyW.vel.y, -M_MAX_YSPEED, M_MAX_YSPEED),
-            .vel.x = utils_clamp(VxyW.vel.x, -M_MAX_XSPEED, M_MAX_XSPEED),
+            .vel.y = utils_clamp(VxyW.vel.y, -VEL_MAX_Y, VEL_MAX_Y),
+            .vel.x = utils_clamp(VxyW.vel.x, -VEL_MAX_X, VEL_MAX_X),
             .angvel = utils_clamp(VxyW.angvel, -M_MAX_ROTATE_AC, M_MAX_ROTATE_AC)};
     return temp;
 }
@@ -90,151 +78,6 @@ static Vector2_t MotModule_Transform(Vector2_t speed, float theta, uint8_t isRev
         chassis_speed.y = -gimSpeed.x * sinf(theta) + gimSpeed.y * cosf(theta); // y'=ycosθ-xsinθ
     }
     return chassis_speed;
-}
-
-/**
- * @brief  跟随角pid计算模块
- * @param {float} set_angle 设定角度值，单位° 范围(-180~180°]
- * @param {float} now_a ngle 当前yaw角度值，单位° 范围(-180~180°]
- * @param {rt_bool_t} WNeedReverse 当认为云台逆时针转动角度为正增大时则需要reverse,
- *        解释当set=0,now=30,则底盘需要逆时针转动,0-30=-30,因此需要reverse
- * @return {*}角速度：单位0.1°/s
- */
-static float MotModule_FollowPid(float set_angle, float now_angle, rt_bool_t WNeedReverse, uint8_t trunin_mode, Mot_base_t *const VxyW)
-{
-    static uint8_t conuts = 0;
-    static PID_Change_t PID_folang_Change;
-    float error = 0;
-
-    if (READBIT(flag_reg, 0) == 0) //(!isFirst)
-    {
-        PID_folang_Change.err_max = 90.0f;
-        PID_folang_Change.Kp_origin = angfol_pid.kp;
-        PID_folang_Change.P_min = ANGFOL_KP_MIN;
-        PID_folang_Change.P_range = 2 * (PID_folang_Change.Kp_origin - PID_folang_Change.P_min);
-        PID_folang_Change.P_max = PID_folang_Change.P_min + PID_folang_Change.P_range;
-        PID_folang_Change.lim_up_origin = angfol_pid.out_limit_up;
-        PID_folang_Change.lim_down_origin = angfol_pid.out_limit_down;
-        SETBIT(flag_reg, 0); // isFirst = 1;
-    }
-#if IF_USE_FOLLOW_BACK == 1
-    static uint16_t counts_1 = 0;
-    static float set_angle_last = 0;
-    float err_tmp = 0;
-    if (FLOAT_ISEQUAL(set_angle, 0))
-    {
-        error = utils_Circle_Shortest_Dis(now_angle, set_angle, -180.0f, 180.0f);
-        err_tmp = utils_Circle_Shortest_Dis(now_angle, 180, -180.0f, 180.0f);
-        if (fabsf(fabsf(error) - fabsf(err_tmp)) > 45.f)
-            error = (fabsf(err_tmp) < fabsf(error)) ? (SETBIT(flag_reg, 1), err_tmp) : (CLRBIT(flag_reg, 1), error);
-        else
-            error = READBIT(flag_reg, 1) ? err_tmp : error;
-    }
-    else if (FLOAT_ISEQUAL(set_angle, 180.f))
-    {
-        error = utils_Circle_Shortest_Dis(now_angle, set_angle, -180.0f, 180.0f);
-        err_tmp = utils_Circle_Shortest_Dis(now_angle, 0, -180.0f, 180.0f);
-        if (fabsf(fabsf(error) - fabsf(err_tmp)) > 45.f)
-            error = (fabsf(err_tmp) < fabsf(error)) ? (SETBIT(flag_reg, 1), err_tmp) : (CLRBIT(flag_reg, 1), error);
-        else
-            error = READBIT(flag_reg, 1) ? err_tmp : error;
-    }
-    else if (!FLOAT_ISEQUAL(set_angle_last, set_angle) || READBIT(flag_reg, 2) != 0) // isIn_1
-    {
-        set_angle_last = set_angle;
-        if (counts_1++ < 2000)
-            SETBIT(flag_reg, 2); // isIn_1 = 1;
-        else
-        {
-            CLRBIT(flag_reg, 2); // isIn_1 = 0;
-            counts_1 = 0;
-        }
-        error = utils_Circle_Shortest_Dis(now_angle, set_angle, -180.0f, 180.0f);
-    }
-    else /*将error变换到设定值左右的(-180.0°,180.0°]*/
-#endif
-        error = utils_Circle_Shortest_Dis(now_angle, set_angle, -180.0f, 180.0f);
-
-    debug_fol_error = error;
-    if (trunin_mode == 2 && !READBIT(flag_reg, 4))
-    {
-        SETBIT(flag_reg, 5);
-    }
-    if (trunin_mode == 2)
-    {
-        SETBIT(flag_reg, 4);
-        if (READBIT(flag_reg, 5))
-        {
-            float V_angle_turn_in = 0;
-            if (RT_TRUE == WNeedReverse)
-                V_angle_turn_in = -VxyW->angvel;
-            else
-                V_angle_turn_in = VxyW->angvel;
-            if (V_angle_turn_in > 0 && ((fabsf(error) > 60.0f) || error < -20.0f))
-            {
-                angfol_pid.out_limit_up = utils_clamp(V_angle_turn_in, 1500, 3000); // V_angle_turn_in > 2000 ? 2000 : V_angle_turn_in;
-                error = 60.f;
-            }
-            else if (V_angle_turn_in <= 0 && ((fabsf(error) > 60.0f) || error > 20.0f))
-            {
-                angfol_pid.out_limit_down = utils_clamp(V_angle_turn_in, -3000, -1500); // V_angle_turn_in < -2000 ? -2000 : V_angle_turn_in;
-                error = -60.f;
-            }
-            else
-            {
-                if (fabsf(error) < 20.0f)
-                {
-                    CLRBIT(flag_reg, 5);
-                    angfol_pid.out_limit_up = PID_folang_Change.lim_up_origin;
-                    angfol_pid.out_limit_down = PID_folang_Change.lim_down_origin;
-                }
-            }
-        }
-    }
-    else
-    {
-        CLRBIT(flag_reg, 4);
-        angfol_pid.out_limit_up = PID_folang_Change.lim_up_origin;
-        angfol_pid.out_limit_down = PID_folang_Change.lim_down_origin;
-    }
-
-    // 是否进入死区/滞回
-    if (fabsf(VxyW->vel.x) > 1.0f || fabsf(VxyW->vel.y) > 1.0f)
-    {
-        conuts = 0;
-        CLRBIT(flag_reg, 3); // isIn_2 = 0;
-    }
-    else if (fabsf(error) < 0.8f && !READBIT(flag_reg, 3)) // 0.8f//(YAW_COUNT / 3600.f)指0.1度;---isIn_2
-    {
-        if (conuts < 20)
-            conuts++;
-        else
-        {
-            SETBIT(flag_reg, 3); // isIn_2 = 1;
-            conuts = 0;
-        }
-    }
-    else if (fabsf(error) > 1.5f && READBIT(flag_reg, 3))
-    {
-        if (conuts < 3)
-            conuts += fabsf(error);
-        else
-        {
-            CLRBIT(flag_reg, 3); // isIn_2 = 0;
-            conuts = 0;
-        }
-    }
-    if (READBIT(flag_reg, 3)) // isIn_2
-        error = 0;
-
-    /*pid计算*/
-    angfol_pid.kp = (fabsf(error) / PID_folang_Change.err_max) * PID_folang_Change.P_range + PID_folang_Change.P_min;
-    PID_Calculate(&angfol_pid, error);
-
-    if (RT_TRUE == WNeedReverse)
-        return -angfol_pid.out;
-    else
-        return angfol_pid.out;
 }
 
 /**
@@ -290,8 +133,8 @@ Mot_base_t MotPack_Offset_SmallTop(const Ctrl_data_t *const ctrlMsg, const Vecto
     MotModule_Eccentric(&vxyW_input, &posTemp);
 
     /*输出限制*/
-    vxyW_output.vel.x = utils_clamp(vxyW_input.vel.x, -M_MAX_XSPEED, M_MAX_XSPEED);
-    vxyW_output.vel.y = utils_clamp(vxyW_input.vel.y, -M_MAX_YSPEED, M_MAX_YSPEED);
+    vxyW_output.vel.x = utils_clamp(vxyW_input.vel.x, -VEL_MAX_X, VEL_MAX_X);
+    vxyW_output.vel.y = utils_clamp(vxyW_input.vel.y, -VEL_MAX_Y, VEL_MAX_X);
     vxyW_output.angvel = utils_clamp(vxyW_input.angvel, -M_MAX_POSITION_X, M_MAX_POSITION_X);
 
     return vxyW_output;
@@ -418,7 +261,6 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     fol_angle = range_angle_180(fol_angle);
 
     /*计算跟随时的动态角速度大小 fol_angle即表示pid的target*/
-    // VxyW.angvel = MotModule_FollowPid(fol_angle, yaw_angle, fol_isReverse, trunin_mode, &VxyW);
     PID_Calculate(&angfol_pid, yaw_angle);
     VxyW.angvel = anglevel_last + angfol_pid.out;
     // VxyW.angvel=0;
@@ -662,7 +504,7 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     {
         gyro_at_hurt(&VxyW, ctrlMsg); // 陀螺受伤时，开启变速小陀螺
     }
-#ifdef POWER_LIMIT_TEST ==0
+#ifdef POWER_LIMIT_TEST == 0
     gyro_at_powerlim(&VxyW, ctrlMsg); // 功率受限时限制陀螺保证平移性
 #endif
     if (ctrlMsg->getYawAngel)
@@ -697,11 +539,9 @@ int Set_Planner_init(void)
     return 1;
 }
 
-
 /*新修改的设定值规划s型曲线的速度趋势 并进行云台到底盘的坐标系转换*/
-Mot_base_t Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
+void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
 {
-    Mot_base_t ret_xyw = {0};
     Mot_base_t plan_xyw = {0};
     Mot_base_t plan_acc_xyw = {0};
     float angle = 0;
@@ -721,109 +561,12 @@ Mot_base_t Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
         angle = ctrl.getYawAngel(ctrl.arg);
     }
 
-    ret_xyw.vel = MotModule_Transform(plan_xyw.vel, angle, ctrl.folIsReverse); // 对线速度进行坐标系转换
-    ret_xyw.angvel = plan_xyw.angvel;
+    Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle, ctrl.folIsReverse); // 对线速度进行坐标系转换
+    Speed_xyw.angvel = plan_xyw.angvel;
     Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle, ctrl.folIsReverse); // 对线加速度进行坐标系转换
     Force_xyw.angvel = plan_acc_xyw.angvel;
     // ret_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle, ctrl.folIsReverse);//控制量直接进行转换，不用平滑处理
     // ret_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
-    return ret_xyw;
-}
-
-/**
- * @brief    平滑速度规划函数
- * @param    speed 需要平滑的速度
- * @return   返回平滑后的速度
- */
-Mot_base_t MotSmooth_Vxyw_Process(Ctrl_data_t ctrl)
-{
-    Mot_base_t ret_xyw = {0};
-    Mot_base_t smooth_xyw = {0};
-
-    float angle = 0;
-    if (ctrl.motion_mode == FOLLOW_GIMBAL) // 跟随模式下，自转也参与加速度规划，这样就不需要管模式切换时的角速度阶跃问题
-    {                                      // 但是需要保证角速度跟随效果不错，还可以平滑控制效果，使底盘控制效果更加丝滑
-        smooth_xyw.vel.x = DynamicSmooth_func(&smooth_data[WHEEL_XSPEED], ctrl.xyw.vel.x);
-        smooth_xyw.vel.y = DynamicSmooth_func(&smooth_data[WHEEL_YSPEED], ctrl.xyw.vel.y);
-        smooth_xyw.angvel = DynamicSmooth_func(&smooth_data[WHEEL_ACSPEED], ctrl.xyw.angvel);
-    }
-    else
-    {
-        smooth_xyw.vel.x = DynamicSmooth_func(&smooth_data[WHEEL_XSPEED], ctrl.xyw.vel.x);
-        smooth_xyw.vel.y = DynamicSmooth_func(&smooth_data[WHEEL_YSPEED], ctrl.xyw.vel.y);
-        smooth_xyw.angvel = DynamicSmooth_func(&smooth_data[WHEEL_ACSPEED], ctrl.xyw.angvel);
-    }
-    if (ctrl.getYawAngel)
-    {
-        // 得到当前控制坐标系和底盘坐标系角度
-        angle = ctrl.getYawAngel(ctrl.arg);
-    }
-    ret_xyw.vel = MotModule_Transform(smooth_xyw.vel, angle, ctrl.folIsReverse);
-    ret_xyw.angvel = smooth_xyw.angvel; // 角速度不参与平滑规划
-    return ret_xyw;
-}
-
-/**
- * @brief 将雅可比矩阵解算出的电机的力转换为电机的扭矩，进而转换为电流
- *
- * @param motorSetForce
- * @param force_out
- */
-void Get_force_out(float motorSetForce[4][2], float force_out[4][2])
-{
-    for (int i = 0; i < WHEELS_GROUP_NUM; i++)
-    {
-        if (wheel[i][WHEEL_RUN].motor.dji.reverse_flag == 1)
-        {
-
-            force_out[i][0] = -motorSetForce[i][0] / K_IA2Tor_out_RUN / K_IC2IA_RUN * WHEEL_RADIUS / 1000.f; // 转换为电机的扭矩
-        }
-        else
-        {
-            force_out[i][0] = motorSetForce[i][0] / K_IA2Tor_out_RUN / K_IC2IA_RUN * WHEEL_RADIUS / 1000.f; // 转换为电机的扭矩
-        }
-    }
-}
-static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4][2]) // 进行加速度解算到各个轮子上
-{
-    Mot_base_t tarForce;                                                       // 电机输出轴上的力（N）
-    tarForce.vel.x = Force_xyw.vel.x * WEIGHT / 1000.f;                        // 整个底盘x方向力的平滑后设定值(N)
-    tarForce.vel.y = Force_xyw.vel.y * WEIGHT / 1000.f;                        // 整个底盘Y方向力的平滑后设定值(N)
-    tarForce.angvel = Force_xyw.angvel / 10.f * DAGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
-
-    Force_Resolve(&tarForce, motorSetForce);
-}
-
-float force_out[4][2];
-// 统一的Mot_base_t类型数据输出接口
-void ExMotMod_Output(const Ctrl_data_t *const ctrlData)
-{
-    Mot_base_t tarSpeed = ctrlData->xyw;
-    static Mot_base_t last_speed = {0};
-    Setmotion = tarSpeed; // 保存直接控制数据用于debug
-
-    if (1 == isSetValid[0])
-    {
-        /*将底盘的设定运动转化到底盘各电机的运动上 即轮子运动解算*/
-        Motion_Resolve(&tarSpeed, motorSetData);
-
-        // 底盘的设定的加速度也按照一定比例分解到轮子上（加速度也分为x,y,w三个方向的加速度）
-        Force_Allo_to_wheels(motorSetForce);
-
-        Get_force_out(motorSetForce, force_out); // 获取前馈值
-    }
-    if (1 == isSetValid[1])
-    {
-        /*将计算出来的转速设定值写入底盘控制线程*/
-        for (int group = 0; group < (int)WHEELS_GROUP_NUM; group++)
-        {
-            Wheel_Speed_Set((Wheel_Group_e)group, motorSetData[group][WHEEL_RUN]);
-            if (wheel[group]->wheel_kind == STEER_WHEEL)
-            {
-                Wheel_Angle_Set((Wheel_Group_e)group, motorSetData[group][WHEEL_ANGLE]);
-            }
-        }
-    }
 }
 
 // 得到实时的控制速度
@@ -835,27 +578,4 @@ Mot_base_t getSetMotion(void)
 Mot_base_t getRealVel(void)
 {
     return real_xyw;
-}
-
-float max_vely = 0;
-void refreshMaxVely_in_a_move(void)
-{
-    static uint8_t is_clear = 1;
-    if (fabsf(real_xyw.vel.y) > 120)
-    {
-        if (is_clear)
-        {
-            max_vely = 0;
-            is_clear = 0;
-        }
-        if (fabsf(real_xyw.vel.y) > max_vely)
-            max_vely = fabsf(real_xyw.vel.y);
-    }
-    else
-        is_clear = 1;
-}
-
-float getMaxVely_in_a_move(void)
-{
-    return max_vely;
 }

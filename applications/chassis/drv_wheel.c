@@ -160,23 +160,6 @@ uint8_t clcStackFlag(Wheel_Group_e group, Wheel_Local_e wheel_type)
 }
 /*------------------------------------电机堵转 END----------------------------------------------------------*/
 /*------------------------------------轮向电机前馈计算----------------------------------------------------------*/
-// out = -0.000036*set^2 + 0.173347*set + 470.586251 这里set表示期望速度设定值，out代表在该速度下的摩擦力前馈直接设定到电机控制量下的值
-float test_k_feed = 0.4;
-float RUN_wheel_forward_cal(float set)
-{
-    if (set > 200.f)
-    {
-        return -0.000036 * set * set + set * test_k_feed + 470.60; // 0.1734
-    }
-    else if (set < -200.f)
-    {
-        return 0.000036 * set * set + set * test_k_feed - 470.60;
-    }
-    else
-    {
-        return 503.8 * set / 200; // 在-200到200之间返回近似一次斜坡的函数，防止函数不连续导致的抖动问题
-    }
-}
 
 /**
  * @brief 摩擦力前馈的设置
@@ -188,15 +171,14 @@ void RUN_wheel_forward_set()
     {
         if (wheel[i][WHEEL_RUN].motor.dji.reverse_flag)
         {
-            //wheel[i][WHEEL_RUN].motor.spe.feedforward = -RUN_wheel_forward_cal(wheel[i][WHEEL_RUN].motor.spe.set);
+            // wheel[i][WHEEL_RUN].motor.spe.feedforward = -RUN_wheel_forward_cal(wheel[i][WHEEL_RUN].motor.spe.set);
         }
         else
         {
-            //wheel[i][WHEEL_RUN].motor.spe.feedforward = RUN_wheel_forward_cal(wheel[i][WHEEL_RUN].motor.spe.set);
+            // wheel[i][WHEEL_RUN].motor.spe.feedforward = RUN_wheel_forward_cal(wheel[i][WHEEL_RUN].motor.spe.set);
         }
     }
 }
-
 
 /*------------------------------------轮向电机前馈计算----------------------------------------------------------*/
 
@@ -224,8 +206,8 @@ static rt_uint8_t Run_wheel_PID(void)
                 if (fabsf(wheel[group][WHEEL_RUN].motor.spe.err) > RUN_PID_I_THREADHOLD)                                           // 判断误差是否小于阈值
                     wheel[group][WHEEL_RUN].motor.spe.err *= I_CTRL_K;
                 RUN_wheel_forward_set();
-                Motor_SpeedPIDCalculate(&wheel[group][WHEEL_RUN].motor, SpeedNow[group]);                                                                                    // pid计算结果,单位:电流
-//                wheel[group][WHEEL_RUN].motor.spe.out = force_out[group][WHEEL_RUN] + wheel[group][WHEEL_RUN].motor.spe.feedforward + wheel[group][WHEEL_RUN].motor.spe.out; // 动力前馈+摩擦力前馈+pid输出值
+                Motor_SpeedPIDCalculate(&wheel[group][WHEEL_RUN].motor, SpeedNow[group]); // pid计算结果,单位:电流
+                                                                                          //                wheel[group][WHEEL_RUN].motor.spe.out = force_out[group][WHEEL_RUN] + wheel[group][WHEEL_RUN].motor.spe.feedforward + wheel[group][WHEEL_RUN].motor.spe.out; // 动力前馈+摩擦力前馈+pid输出值
             }
             else
             {
@@ -342,26 +324,12 @@ static void PID_Cal_Thread(void)
     {
         rt_sem_take(&Cal_sem, RT_WAITING_FOREVER);
         SWDG_FEED(id);
-        // 如果轮系不全为舵轮，也没有影响
-        if (Wheels_Ctrlinfo[WHEEL_ANGLE].Wheel_Enabled == 1)
-        {
-            Angle_wheel_PID();
-        }
+        Motor_Control_Loop();
+        Motor_Transmit_Loop();
 
-        Run_wheel_PID();
-
-#ifdef USE_CAPACITY_2
-        Power_Ctrl(&Scpr_manage, &wheel[0]);
-#endif
 #ifdef USE_CAPACITY_3
         Power_Ctrl(wheel);
 #endif
-        if (Wheels_Ctrlinfo[WHEEL_ANGLE].Wheel_Enabled == 1)
-        {
-            Angle_wheel_deadzone();
-            Angle_wheel_CanTrans(&txmsg_angle);
-        }
-        Run_wheel_CanTrans(&txmsg_run);
     }
 }
 /*------------------------------------PID计算部分  END----------------------------------------------------------*/
@@ -398,13 +366,9 @@ rt_err_t Wheels_Init(void)
     rt_thread_t thread = RT_NULL;
 
     // 初始化电机结构体以及PID
-    res = chassis_motor_Init(0);
+    chassis_motor_init();
     if (res != RT_EOK)
         return RT_ERROR;
-// 功率控制部分
-#ifdef USE_CAPACITY_2
-    powerCtrlInit(&Scpr_manage);
-#endif
 
 #ifdef USE_CAPACITY_3
     powerCtrlInit();
