@@ -25,7 +25,9 @@ typedef struct
     float  Phi[3];
     float out_power;
     float now_tor;
-    float now_spe;
+    float now_spe[4];
+    float last_spe[4];
+    float repe_speed;//当匀速运动时防止RLS过拟合
     float now_power;
     float SetSpeed[4];
 }RLS_Estimator;
