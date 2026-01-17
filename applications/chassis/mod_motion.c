@@ -1,17 +1,12 @@
 #include "pid.h"
 #include "drv_utils.h"
-// #include "func_ModeTrigger.h"
 #include "drv_Vector.h"
-#include "drv_Setplanning3D.h"
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
-#include "arm_math.h"
 #include "drv_gimCtrlRx.h"
-// #include "drv_AccClamp.h"
 #include "fun_protocolGim.h"
-#include "func_smooth_acc.h"
 #include "mod_motion.h"
-#include "Wheel_data.h"
+#include "robot_data.h"
 #include "fun_powerCtrl.h"
 #include "drv_motionSolve.h"
 #include "app_RefSystem.h"
@@ -21,7 +16,6 @@
 pid_t angfol_pid = PID_INIT(20, 0, 10, 0, 2000, -2000);
 v_lim_t v_angle_lim = {0.f, 50, 30, 0.3f, 0.f, 0.f};
 
-SmoothRateLimiter smooth_data[SMOOTH_NUM] = {0};
 SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0};
 Mot_base_t Force_xyw = {0};
 Mot_base_t Speed_xyw = {0};

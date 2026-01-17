@@ -21,7 +21,7 @@ static rt_timer_t protect_Timer = RT_NULL;  // 定时器
 static struct rt_completion completion;
 
 uint8_t Motorstuck[2][4];
-motorOfflineAlarm_t offlineCtrl[WHEELS_GROUP_NUM][WHEEL_NUM];
+// motorOfflineAlarm_t offlineCtrl[WHEELS_GROUP_NUM][WHEEL_NUM];
 
 // 自定义间隔声音
 #ifdef BSP_USING_BUZZER
@@ -66,127 +66,127 @@ static void getIndexCanID(uint32_t arr[], uint16_t num)
 // 驱动电机掉线检查 根据电机ID响
 static void checkCan(void)
 {
-    int16_t isErr = 0;
-    int group = 0, num = 0;
-    CanRecordID_t data;
+    // int16_t isErr = 0;
+    // int group = 0, num = 0;
+    // CanRecordID_t data;
 
-    //    isErr = SwdgGetIsSErr_Name("Can1_Rx_Thread");
-    uint8_t isfind = 0;
-    if (!isErr)
-    { // 如果只有个别电机通信断掉
-      // 得到当前can线上已经有的id
-    #if !defined BSP_CHASSIS_USE_SPI_CAN &&  RF_CAN_DEVICE_NAME == 1
-        data = *getCanID(Rx_Can1);
-        for (int j = 0; j < data.Cannum; j++)
-        {
-            if (offlineCtrl[WHEEL_RF][WHEEL_RUN].id == data.RXcanDataID[j])
-            { // 找到当前id并且没有离线
-                isfind = 1;
-                if (rt_tick_get() - data.refTick[j] < 500)
-                    offlineCtrl[WHEEL_RF][WHEEL_RUN].isOffline = 0;
-                else
-                    offlineCtrl[WHEEL_RF][WHEEL_RUN].isOffline = 1;
-            }
-        }
-    #endif
-    #if !defined BSP_CHASSIS_USE_SPI_CAN &&  RF_CAN_DEVICE_NAME == 2
-        data = *getCanID(Rx_Can2);
-        for (int j = 0; j < data.Cannum; j++)
-        {
-            if (offlineCtrl[WHEEL_RF][WHEEL_RUN].id == data.RXcanDataID[j])
-            { // 找到当前id并且没有离线
-                isfind = 1;
-                if (rt_tick_get() - data.refTick[j] < 500)
-                    offlineCtrl[WHEEL_RF][WHEEL_RUN].isOffline = 0;
-                else
-                    offlineCtrl[WHEEL_RF][WHEEL_RUN].isOffline = 1;
-            }
-        }
-    #endif
-    #if !defined BSP_CHASSIS_USE_SPI_CAN &&  LF_CAN_DEVICE_NAME == 1
-        data = *getCanID(Rx_Can1);
-        for (int j = 0; j < data.Cannum; j++)
-        {
-            if (offlineCtrl[WHEEL_LF][WHEEL_RUN].id == data.RXcanDataID[j])
-            { // 找到当前id并且没有离线
-                isfind = 1;
-                if (rt_tick_get() - data.refTick[j] < 500)
-                    offlineCtrl[WHEEL_LF][WHEEL_RUN].isOffline = 0;
-                else
-                    offlineCtrl[WHEEL_LF][WHEEL_RUN].isOffline = 1;
-            }
-        }
-    #endif
-    #if !defined BSP_CHASSIS_USE_SPI_CAN &&  LF_CAN_DEVICE_NAME == 2
-        data = *getCanID(Rx_Can2);
-        for (int j = 0; j < data.Cannum; j++)
-        {
-            if (offlineCtrl[WHEEL_LF][WHEEL_RUN].id == data.RXcanDataID[j])
-            { // 找到当前id并且没有离线
-                isfind = 1;
-                if (rt_tick_get() - data.refTick[j] < 500)
-                    offlineCtrl[WHEEL_LF][WHEEL_RUN].isOffline = 0;
-                else
-                    offlineCtrl[WHEEL_LF][WHEEL_RUN].isOffline = 1;
-            }
-        }
-    #endif
-    #if !defined BSP_CHASSIS_USE_SPI_CAN &&  LB_CAN_DEVICE_NAME == 1
-        data = *getCanID(Rx_Can1);
-        for (int j = 0; j < data.Cannum; j++)
-        {
-            if (offlineCtrl[WHEEL_LB][WHEEL_RUN].id == data.RXcanDataID[j])
-            { // 找到当前id并且没有离线
-                isfind = 1;
-                if (rt_tick_get() - data.refTick[j] < 500)
-                    offlineCtrl[WHEEL_LB][WHEEL_RUN].isOffline = 0;
-                else
-                    offlineCtrl[WHEEL_LB][WHEEL_RUN].isOffline = 1;
-            }
-        }
-    #endif
-    #if !defined BSP_CHASSIS_USE_SPI_CAN &&  LB_CAN_DEVICE_NAME == 2
-        data = *getCanID(Rx_Can2);
-        for (int j = 0; j < data.Cannum; j++)
-        {
-            if (offlineCtrl[WHEEL_LB][WHEEL_RUN].id == data.RXcanDataID[j])
-            { // 找到当前id并且没有离线
-                isfind = 1;
-                if (rt_tick_get() - data.refTick[j] < 500)
-                    offlineCtrl[WHEEL_LB][WHEEL_RUN].isOffline = 0;
-                else
-                    offlineCtrl[WHEEL_LB][WHEEL_RUN].isOffline = 1;
-            }
-        }
-    #endif
-    #if !defined BSP_CHASSIS_USE_SPI_CAN &&  RB_CAN_DEVICE_NAME == 1
-        data = *getCanID(Rx_Can1);
-        for (int j = 0; j < data.Cannum; j++)
-        {
-            if (offlineCtrl[WHEEL_RB][WHEEL_RUN].id == data.RXcanDataID[j])
-            { // 找到当前id并且没有离线
-                isfind = 1;
-                if (rt_tick_get() - data.refTick[j] < 500)
-                    offlineCtrl[WHEEL_RB][WHEEL_RUN].isOffline = 0;
-                else
-                    offlineCtrl[WHEEL_RB][WHEEL_RUN].isOffline = 1;
-            }
-        }
-    #endif
-    #if !defined BSP_CHASSIS_USE_SPI_CAN &&  RB_CAN_DEVICE_NAME == 2
-        data = *getCanID(Rx_Can2);
-        for (int j = 0; j < data.Cannum; j++)
-        {
-            if (offlineCtrl[WHEEL_RB][WHEEL_RUN].id == data.RXcanDataID[j])
-            { // 找到当前id并且没有离线
-                isfind = 1;
-                if (rt_tick_get() - data.refTick[j] < 500)
-                    offlineCtrl[WHEEL_RB][WHEEL_RUN].isOffline = 0;
-                else
-                    offlineCtrl[WHEEL_RB][WHEEL_RUN].isOffline = 1;
-            }
-        }
-    #endif
+    // //    isErr = SwdgGetIsSErr_Name("Can1_Rx_Thread");
+    // uint8_t isfind = 0;
+    // if (!isErr)
+    // { // 如果只有个别电机通信断掉
+    //   // 得到当前can线上已经有的id
+    // #if !defined BSP_CHASSIS_USE_SPI_CAN &&  RF_CAN_DEVICE_NAME == 1
+    //     data = *getCanID(Rx_Can1);
+    //     for (int j = 0; j < data.Cannum; j++)
+    //     {
+    //         if (offlineCtrl[WHEEL_RF][WHEEL_RUN].id == data.RXcanDataID[j])
+    //         { // 找到当前id并且没有离线
+    //             isfind = 1;
+    //             if (rt_tick_get() - data.refTick[j] < 500)
+    //                 offlineCtrl[WHEEL_RF][WHEEL_RUN].isOffline = 0;
+    //             else
+    //                 offlineCtrl[WHEEL_RF][WHEEL_RUN].isOffline = 1;
+    //         }
+    //     }
+    // #endif
+    // #if !defined BSP_CHASSIS_USE_SPI_CAN &&  RF_CAN_DEVICE_NAME == 2
+    //     data = *getCanID(Rx_Can2);
+    //     for (int j = 0; j < data.Cannum; j++)
+    //     {
+    //         if (offlineCtrl[WHEEL_RF][WHEEL_RUN].id == data.RXcanDataID[j])
+    //         { // 找到当前id并且没有离线
+    //             isfind = 1;
+    //             if (rt_tick_get() - data.refTick[j] < 500)
+    //                 offlineCtrl[WHEEL_RF][WHEEL_RUN].isOffline = 0;
+    //             else
+    //                 offlineCtrl[WHEEL_RF][WHEEL_RUN].isOffline = 1;
+    //         }
+    //     }
+    // #endif
+    // #if !defined BSP_CHASSIS_USE_SPI_CAN &&  LF_CAN_DEVICE_NAME == 1
+    //     data = *getCanID(Rx_Can1);
+    //     for (int j = 0; j < data.Cannum; j++)
+    //     {
+    //         if (offlineCtrl[WHEEL_LF][WHEEL_RUN].id == data.RXcanDataID[j])
+    //         { // 找到当前id并且没有离线
+    //             isfind = 1;
+    //             if (rt_tick_get() - data.refTick[j] < 500)
+    //                 offlineCtrl[WHEEL_LF][WHEEL_RUN].isOffline = 0;
+    //             else
+    //                 offlineCtrl[WHEEL_LF][WHEEL_RUN].isOffline = 1;
+    //         }
+    //     }
+    // #endif
+    // #if !defined BSP_CHASSIS_USE_SPI_CAN &&  LF_CAN_DEVICE_NAME == 2
+    //     data = *getCanID(Rx_Can2);
+    //     for (int j = 0; j < data.Cannum; j++)
+    //     {
+    //         if (offlineCtrl[WHEEL_LF][WHEEL_RUN].id == data.RXcanDataID[j])
+    //         { // 找到当前id并且没有离线
+    //             isfind = 1;
+    //             if (rt_tick_get() - data.refTick[j] < 500)
+    //                 offlineCtrl[WHEEL_LF][WHEEL_RUN].isOffline = 0;
+    //             else
+    //                 offlineCtrl[WHEEL_LF][WHEEL_RUN].isOffline = 1;
+    //         }
+    //     }
+    // #endif
+    // #if !defined BSP_CHASSIS_USE_SPI_CAN &&  LB_CAN_DEVICE_NAME == 1
+    //     data = *getCanID(Rx_Can1);
+    //     for (int j = 0; j < data.Cannum; j++)
+    //     {
+    //         if (offlineCtrl[WHEEL_LB][WHEEL_RUN].id == data.RXcanDataID[j])
+    //         { // 找到当前id并且没有离线
+    //             isfind = 1;
+    //             if (rt_tick_get() - data.refTick[j] < 500)
+    //                 offlineCtrl[WHEEL_LB][WHEEL_RUN].isOffline = 0;
+    //             else
+    //                 offlineCtrl[WHEEL_LB][WHEEL_RUN].isOffline = 1;
+    //         }
+    //     }
+    // #endif
+    // #if !defined BSP_CHASSIS_USE_SPI_CAN &&  LB_CAN_DEVICE_NAME == 2
+    //     data = *getCanID(Rx_Can2);
+    //     for (int j = 0; j < data.Cannum; j++)
+    //     {
+    //         if (offlineCtrl[WHEEL_LB][WHEEL_RUN].id == data.RXcanDataID[j])
+    //         { // 找到当前id并且没有离线
+    //             isfind = 1;
+    //             if (rt_tick_get() - data.refTick[j] < 500)
+    //                 offlineCtrl[WHEEL_LB][WHEEL_RUN].isOffline = 0;
+    //             else
+    //                 offlineCtrl[WHEEL_LB][WHEEL_RUN].isOffline = 1;
+    //         }
+    //     }
+    // #endif
+    // #if !defined BSP_CHASSIS_USE_SPI_CAN &&  RB_CAN_DEVICE_NAME == 1
+    //     data = *getCanID(Rx_Can1);
+    //     for (int j = 0; j < data.Cannum; j++)
+    //     {
+    //         if (offlineCtrl[WHEEL_RB][WHEEL_RUN].id == data.RXcanDataID[j])
+    //         { // 找到当前id并且没有离线
+    //             isfind = 1;
+    //             if (rt_tick_get() - data.refTick[j] < 500)
+    //                 offlineCtrl[WHEEL_RB][WHEEL_RUN].isOffline = 0;
+    //             else
+    //                 offlineCtrl[WHEEL_RB][WHEEL_RUN].isOffline = 1;
+    //         }
+    //     }
+    // #endif
+    // #if !defined BSP_CHASSIS_USE_SPI_CAN &&  RB_CAN_DEVICE_NAME == 2
+    //     data = *getCanID(Rx_Can2);
+    //     for (int j = 0; j < data.Cannum; j++)
+    //     {
+    //         if (offlineCtrl[WHEEL_RB][WHEEL_RUN].id == data.RXcanDataID[j])
+    //         { // 找到当前id并且没有离线
+    //             isfind = 1;
+    //             if (rt_tick_get() - data.refTick[j] < 500)
+    //                 offlineCtrl[WHEEL_RB][WHEEL_RUN].isOffline = 0;
+    //             else
+    //                 offlineCtrl[WHEEL_RB][WHEEL_RUN].isOffline = 1;
+    //         }
+    //     }
+    // #endif
 
 
         // for (i = 0; i < 4; i++)
@@ -203,27 +203,27 @@ static void checkCan(void)
         //         Buzzer_Diff();
         //     }
         // }
-    }
+    
 }
 uint8_t GetMotorOffline(void)
 {
     uint8_t isoffline=0;
-    if(offlineCtrl[WHEEL_RF][WHEEL_RUN].isOffline == 1)
-    {
-        isoffline |= 1<<0;
-    }
-    if(offlineCtrl[WHEEL_LF][WHEEL_RUN].isOffline == 1)
-    {
-        isoffline |= 1<<1;
-    }
-    if(offlineCtrl[WHEEL_LB][WHEEL_RUN].isOffline == 1)
-    {
-        isoffline|= 1<<2;
-    }
-    if(offlineCtrl[WHEEL_RB][WHEEL_RUN].isOffline == 1)
-    {
-        isoffline|= 1<<3;
-    }
+    // if(offlineCtrl[WHEEL_RF][WHEEL_RUN].isOffline == 1)
+    // {
+    //     isoffline |= 1<<0;
+    // }
+    // if(offlineCtrl[WHEEL_LF][WHEEL_RUN].isOffline == 1)
+    // {
+    //     isoffline |= 1<<1;
+    // }
+    // if(offlineCtrl[WHEEL_LB][WHEEL_RUN].isOffline == 1)
+    // {
+    //     isoffline|= 1<<2;
+    // }
+    // if(offlineCtrl[WHEEL_RB][WHEEL_RUN].isOffline == 1)
+    // {
+    //     isoffline|= 1<<3;
+    // }
     // if(offlineCtrl[WHEEL_RF][WHEEL_ANGLE].isOffline == 1)
     // {
     //     return 5;
@@ -251,17 +251,17 @@ static void protct_Thread_Entry(void *parameter)
     // 初始化电机
     for (int group = 0; group < 8; group++)
     {
-        offlineCtrl[group][WHEEL_RUN].isOffline = 1;
-        offlineCtrl[group][WHEEL_ANGLE].isOffline = 1;
+        // offlineCtrl[group][WHEEL_RUN].isOffline = 1;
+        // offlineCtrl[group][WHEEL_ANGLE].isOffline = 1;
     }
-    offlineCtrl[WHEEL_RF][WHEEL_RUN].id = RUN_RF_MOTOR_ID;
-    offlineCtrl[WHEEL_RF][WHEEL_ANGLE].id = ANGLE_RF_MOTOR_ID;
-    offlineCtrl[WHEEL_LF][WHEEL_RUN].id = RUN_LF_MOTOR_ID;
-    offlineCtrl[WHEEL_LF][WHEEL_ANGLE].id = ANGLE_LF_MOTOR_ID;
-    offlineCtrl[WHEEL_LB][WHEEL_RUN].id = RUN_LB_MOTOR_ID;
-    offlineCtrl[WHEEL_LB][WHEEL_ANGLE].id = ANGLE_LB_MOTOR_ID;
-	offlineCtrl[WHEEL_RB][WHEEL_RUN].id = RUN_RB_MOTOR_ID;
-    offlineCtrl[WHEEL_RB][WHEEL_ANGLE].id = ANGLE_RB_MOTOR_ID;
+    // offlineCtrl[WHEEL_RF][WHEEL_RUN].id = RUN_RF_MOTOR_ID;
+    // offlineCtrl[WHEEL_RF][WHEEL_ANGLE].id = ANGLE_RF_MOTOR_ID;
+    // offlineCtrl[WHEEL_LF][WHEEL_RUN].id = RUN_LF_MOTOR_ID;
+    // offlineCtrl[WHEEL_LF][WHEEL_ANGLE].id = ANGLE_LF_MOTOR_ID;
+    // offlineCtrl[WHEEL_LB][WHEEL_RUN].id = RUN_LB_MOTOR_ID;
+    // offlineCtrl[WHEEL_LB][WHEEL_ANGLE].id = ANGLE_LB_MOTOR_ID;
+	// offlineCtrl[WHEEL_RB][WHEEL_RUN].id = RUN_RB_MOTOR_ID;
+    // offlineCtrl[WHEEL_RB][WHEEL_ANGLE].id = ANGLE_RB_MOTOR_ID;
 #ifdef MONITOR_NEED_ALARM
     // 当监视器没有报警则可以自定义报警
     attachUserAlarmFun(checkCan);

@@ -86,4 +86,6 @@ rt_bool_t Get_RemainCapcity(float *cap);
 rt_bool_t Get_SuprCapPower(float *power);
 //获取超电是否输出
 uint8_t Get_if_supercap_output(void);
+
+extern Scpr_ComRx_t scpr_comRx;
 #endif

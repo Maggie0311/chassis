@@ -13,8 +13,7 @@ rt_err_t Robot_Chassis_Reset(rt_bool_t status)
         return RT_EOK;
 
     //在复位时需要将底盘所有电机失能，这里不管底盘每个轮组类型，全部失能即可
-    Wheel_Enable(WHEEL_RUN, 0);
-    Wheel_Enable(WHEEL_ANGLE, 0);
+    
 
     rt_thread_mdelay(200);
     rt_hw_cpu_reset();

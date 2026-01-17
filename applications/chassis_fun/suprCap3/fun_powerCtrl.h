@@ -6,6 +6,18 @@
 #include "SuperCap_Com_new.h"
 #include "RLS.h"
 #include "app_RefSystem.h"
+#include "fun_powerCtrl.h"
+#include "drv_utils.h"
+#include "func_sd_master.h"
+#include "fun_protocolGim.h"
+#include "RLS.h"
+#include  "SuperCap_Com_new.h"
+#include "mod_motion.h"
+#include "app_RefSystem.h"
+#include "drv_motor_new.h"
+#include "DJI_3508.h"
+#include "DJI_6020.h"
+#include "LK_MF_MG.h"
 #define Power_Ctrl_Debug (1) // 功率控制debug
 
 // 分配等级功能开关：0:不使用，1:全部使用，2：只使用限制不使用增益。（不建议只使用加速度增益效果所以没留接口）
@@ -154,6 +166,7 @@ typedef struct
     float I_now;             // 电机反馈的当前转矩电流（A）
     float I_set;             // 电机预输出的转矩电流（A）
     float V_now;             // 电机反馈的当前转子速度（rpm）
+	  float V_last;
 } Motor_Power_t;
 
 extern PowerCtrl_t PowerCtrl;

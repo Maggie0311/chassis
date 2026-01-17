@@ -208,7 +208,7 @@ static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force
     Mot_base_t tarForce;                                                        // 电机输出轴上的力（N）
     tarForce.vel.x = Force_xyw->vel.x * WEIGHT / 1000.f;                        // 整个底盘x方向力的平滑后设定值(N)
     tarForce.vel.y = Force_xyw->vel.y * WEIGHT / 1000.f;                        // 整个底盘Y方向力的平滑后设定值(N)
-    tarForce.angvel = Force_xyw->angvel / 10.f * DAGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
+    tarForce.angvel = Force_xyw->angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
 
     // Omni_Force_Resolve(*Fxyw, group, motorSetForce[group]);
 }
@@ -255,12 +255,12 @@ static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
 
 static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
 {
-    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
-    {
-        /*由轮子的线速度单位为mm/s,转化为输出轴的角速度，再转化为控制转子的角速度单位为rmp*/
-        motorSetSpeed[i] = motorSetSpeed[i] * VCONVERT2W_k * RAD2RPM_K * wheel_motor->dji3508_motor_measure.RATIO;
-        Motor_Set_Target((MotorInstance*)&wheel_motor[i], motorSetSpeed[i]);
-    }
+    // for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+    // {
+    //     /*由轮子的线速度单位为mm/s,转化为输出轴的角速度，再转化为控制转子的角速度单位为rmp*/
+    //     motorSetSpeed[i] = motorSetSpeed[i] * VCONVERT2W_k * RAD2RPM_K * wheel_motor->dji3508_motor_measure.RATIO;
+    //     Motor_Set_Target((MotorInstance*)&wheel_motor[i], motorSetSpeed[i]);
+    // }
 }
 
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)

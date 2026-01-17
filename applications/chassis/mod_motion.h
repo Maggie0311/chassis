@@ -29,6 +29,16 @@
 extern Mot_base_t Speed_xyw;
 extern Mot_base_t Force_xyw;
 extern SecondOrder_Set_Follow_t set_planner_data[];
+typedef enum
+{
+
+    WHEEL_XSPEED, // 底盘速度的平滑
+    WHEEL_YSPEED,
+
+    WHEEL_ACSPEED, // 底盘角速度的平滑
+    SMOOTH_NUM,
+
+} Smooth_Acc_e;
 
 /*公转运动录制结构体,创建时成员值为0即可*/
 typedef struct

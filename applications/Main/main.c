@@ -19,7 +19,7 @@
 #include "sentry_cmd.h"
 #endif
 #include "protect.h"
-#include "fun_odometer.h"
+
 
 /*公共库模块*/
 #include "app_monitor.h"
