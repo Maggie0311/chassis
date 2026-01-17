@@ -39,6 +39,12 @@ static void Assign_Motor_Data(Motordata_t *motordata, struct rt_can_msg *message
 
     motordata->speed_convers = motordata->speed;    //此处为了适配和DM一样的逻辑，单位为RPM
 }
+
+/**
+ * @brief 判断云台电机是否离线
+ * 
+ * @return uint8_t 
+ */
 uint8_t GetGimMotorOffline(void)
 {
     uint8_t isoffline = 0;

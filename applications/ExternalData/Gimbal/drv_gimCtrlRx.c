@@ -11,7 +11,7 @@ int16_t gimRxMonId = -1; // 云台监视器id
 Ctrl_data_info_t gimbal_ctrl;        // 云台控制数据
 gimbal_msg_t gimbal_msg = {0};       // 云台杂项数据
 imu_euler_t chassis_imu = {0, 0, 0}; // 云台算出的底盘姿态数据
-uint8_t unused[8];
+uint8_t unused[8];//?!
 uint32_t gimRxDebug = 1;
 rt_tick_t gimbal_msg_freshtick = 0; // can接受云台数据刷新
 rt_tick_t imu_data_freshtick = 0;
