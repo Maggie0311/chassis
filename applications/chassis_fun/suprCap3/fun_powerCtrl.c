@@ -258,7 +258,8 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     else if(PowerInfo.Cap.superCap>3)
     {
         if_used_up=0;                                 // 标记超电未被使用完
-
+		
+	
         // if_turn_mode=0;                               // 清除标记
         // power_ctrl_close = 0;                         // 通讯打开超电
         // PowerCtrl_Close_Flag[0] = 0;                  // 打开超电数据使用
@@ -292,10 +293,10 @@ float GYRO_FLAG=0,mode_change_flag=0,last_mode=0;
 void get_true_RLS(void)
 {
     RunRLS.now_tick=rt_tick_get();
-   //if(PowerInfo.Cap.isValid)   
-	//    RunRLS.flag=RunRLS.now_tick-scpr_comRx.recvTick;
-    RunRLS.flag=RunRLS.now_tick-PowerInfo.Ref.refresh_tick;
-    AngleRLS.flag=AngleRLS.now_tick-PowerInfo.Ref.refresh_tick;
+   if(PowerInfo.Cap.isValid)   
+	   RunRLS.flag=RunRLS.now_tick-scpr_comRx.recvTick;
+   // RunRLS.flag=RunRLS.now_tick-PowerInfo.Ref.refresh_tick;
+   // AngleRLS.flag=AngleRLS.now_tick-PowerInfo.Ref.refresh_tick;
     if(Get_Motion_Mode()==SLOW_GYRO||Get_Motion_Mode()==FAST_GYRO||Get_Motion_Mode()==CHANGE_GYRO)
         GYRO_FLAG+=1;
     else 
@@ -305,33 +306,40 @@ void get_true_RLS(void)
          GYRO_FLAG=0;
     last_mode=Get_Motion_Mode();
     
+
+    
+
+
       //以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
-    if(RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power>0&&GYRO_FLAG<100)
+    if(RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power>0&&GYRO_FLAG<100&&RunRLS.repe_speed>200)
     {
-        //RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
+         RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power-AngleRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
       //  RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
     }
-    else if(RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power<0&&GYRO_FLAG<100)
+    else if(RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power<0&&GYRO_FLAG<100&&RunRLS.repe_speed>200)
     {
-       //  RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
+         RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-AngleRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
     }
 
 
       //以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
-    if(PowerInfo.Ref.power_now>30&&AnglePhi[0]&&AnglePhi[1]&&RunRLS.flag==1&&AngleRLS.now_power>0)
+    if(PowerInfo.Ref.power_now>30&&AnglePhi[0]&&AnglePhi[1]&&RunRLS.flag==1&&AngleRLS.now_power>0&&AngleRLS.repe_speed>200)
     {
-        RLS_Update(&AngleRLS, AnglePhi, PowerInfo.Ref.power_now-Power_Set.power_set_run-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
+        //RLS_Update(&AngleRLS, AnglePhi, PowerInfo.Cap.Power- RunRLS.now_power-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
         if(!Check_Stability(&AngleRLS))Reconstruct_P(&AngleRLS);
     }
-    else if(PowerInfo.Ref.power_now>30&&AnglePhi[0]&&AnglePhi[1]&&RunRLS.flag==1&&AngleRLS.now_power<0)
+    else if(PowerInfo.Ref.power_now>30&&AnglePhi[0]&&AnglePhi[1]&&RunRLS.flag==1&&AngleRLS.now_power<0&&AngleRLS.repe_speed>200)
     {
-         RLS_Update(&AngleRLS, AnglePhi, AngleRLS.now_power-Power_Set.run_power-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
+        // RLS_Update(&AngleRLS, AnglePhi, AngleRLS.now_power- RunRLS.now_power-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
         if(!Check_Stability(&AngleRLS))Reconstruct_P(&AngleRLS);
     }
 	RunRLS.now_power=0;
     AngleRLS.now_power=0;
+
+    RunRLS.repe_speed=0;
+
     memset( RunPhi,0,sizeof(RunPhi));
     memset( AnglePhi,0,sizeof(AnglePhi));
 
@@ -339,40 +347,45 @@ void get_true_RLS(void)
 
      for (uint8_t group = 0; group < WHEELS_GROUP_NUM; group++)
      {
+             RunRLS.last_spe[group]=RunRLS.now_spe[group];
              RunRLS.now_tor= Motor_Read_NowTorque(&wheel[group][WHEEL_RUN].motor)*K_IC2Tor_RUN;
-             RunRLS.now_spe= Motor_Read_NowSpeed(&wheel[group][WHEEL_RUN].motor);
+             RunRLS.now_spe[group]= Motor_Read_NowSpeed(&wheel[group][WHEEL_RUN].motor);
+
+             RunRLS.repe_speed+=fabs(RunRLS.now_spe[group]-RunRLS.last_spe[group]);
             
-            //  RunRLS.now_power += fabsf(RunRLS.now_spe)*RunRLS.now_tor/9.55f +
+            //  RunRLS.now_power += fabsf(RunRLS.now_spe[group])*RunRLS.now_tor/9.55f +
             //         RunRLS.theta[0] * SQUARE(RunRLS.now_tor) +
-            //         RunRLS.theta[1] * SQUARE(RunRLS.now_spe) +
+            //         RunRLS.theta[1] * SQUARE(RunRLS.now_spe[group]) +
             //         RunRLS.theta[2]/4.f; // 电机功率模型计算公式（速度项平方）
-             RunRLS.now_power += RunRLS.now_spe*RunRLS.now_tor/9.55f +
+             RunRLS.now_power += RunRLS.now_spe[group]*RunRLS.now_tor/9.55f +
                     RunRLS.theta[0] * SQUARE(RunRLS.now_tor) +
-                    RunRLS.theta[1] * fabsf(RunRLS.now_spe) +
+                    RunRLS.theta[1] * fabsf(RunRLS.now_spe[group]) +
                     RunRLS.theta[2]/4.f; // 电机功率模型计算公式（速度项绝对值）
 
              RunPhi[0]+=SQUARE(RunRLS.now_tor);
-             RunPhi[1]+=fabsf(RunRLS.now_spe);
-             RunPhi[2]+=RunRLS.now_spe * RunRLS.now_tor/ 9.55f;     
+             RunPhi[1]+=fabsf(RunRLS.now_spe[group]);
+             RunPhi[2]+=RunRLS.now_spe[group] * RunRLS.now_tor/ 9.55f;     
      }
      
      for (uint8_t group = 0; group < WHEELS_GROUP_NUM; group++)
      {
+             AngleRLS.last_spe[group]=AngleRLS.now_spe[group];
              AngleRLS.now_tor= Motor_Read_NowTorque(&wheel[group][WHEEL_ANGLE].motor)*  K_IC2Tor_ANGLE;
-             AngleRLS.now_spe= Motor_Read_NowSpeed(&wheel[group][WHEEL_ANGLE].motor);
+             AngleRLS.now_spe[group]= Motor_Read_NowSpeed(&wheel[group][WHEEL_ANGLE].motor);
             
-            //  AngleRLS.now_power += fabsf(AngleRLS.now_spe)*AngleRLS.now_tor/9.55f +
+             AngleRLS.repe_speed=fabsf(AngleRLS.now_spe[group]-AngleRLS.last_spe[group]);
+            //  AngleRLS.now_power += fabsf(AngleRLS.now_spe[group])*AngleRLS.now_tor/9.55f +
             //         AngleRLS.theta[0] * SQUARE(AngleRLS.now_tor) +
-            //         AngleRLS.theta[1] * SQUARE(AngleRLS.now_spe) +
+            //         AngleRLS.theta[1] * SQUARE(AngleRLS.now_spe[group]) +
             //         AngleRLS.theta[2]/4.f; // 电机功率模型计算公式（速度项平方）
-             AngleRLS.now_power += AngleRLS.now_spe*AngleRLS.now_tor/9.55f +
+             AngleRLS.now_power += AngleRLS.now_spe[group]*AngleRLS.now_tor/9.55f +
                     AngleRLS.theta[0] * SQUARE(AngleRLS.now_tor) +
-                    AngleRLS.theta[1] * fabsf(AngleRLS.now_spe) +
+                    AngleRLS.theta[1] * fabsf(AngleRLS.now_spe[group]) +
                     AngleRLS.theta[2]/4.f; // 电机功率模型计算公式（速度项绝对值）
 
              AnglePhi[0]+=SQUARE(AngleRLS.now_tor);
-             AnglePhi[1]+=fabsf(AngleRLS.now_spe);
-             AnglePhi[2]+=AngleRLS.now_spe * AngleRLS.now_tor/ 9.55f;     
+             AnglePhi[1]+=fabsf(AngleRLS.now_spe[group]);
+             AnglePhi[2]+=AngleRLS.now_spe[group] * AngleRLS.now_tor/ 9.55f;     
      }
 	
 }
@@ -730,6 +743,7 @@ static void Power_lim_allo_to_wheels(Wheel_t wheel_temp[4][2])
             if (wheel_temp[group][WHEEL_RUN].motor.dji.reverse_flag == 1)
             {
                 wheel_temp[group][WHEEL_RUN].motor.spe.out = -wheel_temp[group][WHEEL_RUN].motor.spe.out;
+                wheel_temp[group][WHEEL_RUN].motor.spe.out=0;//*电机不输出
             }
         }
         if (if_steer_used[group] == 1)
@@ -738,6 +752,7 @@ static void Power_lim_allo_to_wheels(Wheel_t wheel_temp[4][2])
             if (wheel_temp[group][WHEEL_ANGLE].motor.dji.reverse_flag == 1)
             {
                 wheel_temp[group][WHEEL_ANGLE].motor.spe.out = -wheel_temp[group][WHEEL_ANGLE].motor.spe.out;
+                wheel_temp[group][WHEEL_ANGLE].motor.spe.out=0;//*电机不输出
             }
         }
     }
