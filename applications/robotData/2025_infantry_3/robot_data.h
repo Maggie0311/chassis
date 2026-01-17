@@ -89,6 +89,7 @@
 /*功率控制相关参数*/
 
 /*轮子相关数据*/
+#define USING_MECANUM_RESOLVE
 #define VEHICLE_LONG (342.f)       // 前后轮间距（用于麦轮和舵轮解算），单位mm
 #define VEHICLE_WIDTH (342.f)      // 左右轮间距（用于麦轮和舵轮解算），单位mm
 #define VEHICLE_DIAMETER (483.66f) // 对角轮间距（用于计算全向轮解算），单位mm
