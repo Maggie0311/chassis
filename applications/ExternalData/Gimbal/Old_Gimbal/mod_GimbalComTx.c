@@ -161,11 +161,6 @@ static void getGimData(void)
     else
         TxGimMsg.ourOutpost = 0;
 
-    if (EnemyInfo.outpost_hp)
-        TxGimMsg.ourOutpost = 1;
-    else
-        TxGimMsg.ourOutpost = 0;
-
     //  裁判系统更新弹速就发发送一次数据
     // if (lastBulletT < GetRefDataRefreshTick(Index_shoot_data))
     // {

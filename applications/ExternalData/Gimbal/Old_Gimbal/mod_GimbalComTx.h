@@ -8,7 +8,7 @@
 typedef __packed struct
 {
     // 工作状态数据
-    unsigned isStartGame : 1;   // 是否开始比赛
+    unsigned isStartGame : 1;   // 是否开始比赛(1为开始，0为未开始)
     unsigned hurtID : 3;        // 装甲板ID，未受攻击时为FF
     unsigned tempColor : 1;     // 红蓝方
     unsigned ourOutpost : 1;    // 己方前哨战是否存活

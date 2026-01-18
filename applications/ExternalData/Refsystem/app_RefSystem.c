@@ -20,7 +20,6 @@ Ref_Hurt_t hurt =
     .base_hp = 0,
     .tick = 0,
 };
-EnemyInfo_t EnemyInfo;
 
 /*回调函数*/
 /**
@@ -156,8 +155,6 @@ void Ref_Bulid_If_Hurt(void *data)
             hurt.build_if_attacked |= 1 << 2;
         hurt.base_hp = robot_survivors->ally_base_HP;
         }
-
-    EnemyInfo.outpost_hp = robot_survivors->ally_outpost_HP;
 }
 
 /*裁判系统数据加工*/

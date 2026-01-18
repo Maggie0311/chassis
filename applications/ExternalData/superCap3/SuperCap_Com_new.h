@@ -18,7 +18,6 @@ typedef struct
     uint16_t voltage; // 电池电压单位mV
     uint16_t current; // 电池总电流mA
     float power_cup;    //接收数据后计算得出的功率W（使用电池电压乘以电池电流大小，注意单位W）
-    uint32_t recvTick;
     uint8_t recvAck;
     volatile uint8_t isStartSend;
 } Scpr_ComRx_t;
@@ -59,6 +58,8 @@ typedef enum
     CAP_STATE_NO_WORK    // 等待充电/不在工作/进入保护(详细保护类型可参考超电代码)
 } SupCap_State_e;
 
+//获取上次接收通信时间
+rt_tick_t Get_SuprCap_recTick(void)
 /**
  * @brief    初始化与超级电容端通信
  * @return   true:初始化成功	false:初始化失败

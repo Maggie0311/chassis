@@ -11,7 +11,6 @@ int16_t gimRxMonId = -1; // 云台监视器id
 Ctrl_data_info_t gimbal_ctrl;        // 云台控制数据
 gimbal_msg_t gimbal_msg = {0};       // 云台杂项数据
 imu_euler_t chassis_imu = {0, 0, 0}; // 云台算出的底盘姿态数据
-uint8_t unused[8];//?!
 uint32_t gimRxDebug = 1;
 rt_tick_t gimbal_msg_freshtick = 0; // can接受云台数据刷新
 rt_tick_t imu_data_freshtick = 0;
@@ -100,20 +99,7 @@ float Get_Gim_Chassis_IMU_Data(imu_data_type_e imu_data_type)
         return chassis_imu.roll;
     }
 }
-// 当云台端裁认为裁判系统异常则会给出一个底盘最大功率
-uint8_t GetGimMaxPower(void)
-{
-    return MaxPower;
-}
 
-rt_uint8_t GetGimCtrlDataNum(void) // 常用单独分开
-{
-    return dataNum[Gim_Ctrl];
-}
-rt_uint8_t GetGimDataNum(void)
-{
-    return dataNum[Gim_data];
-}
 uint8_t GetGimbalOffline(void)
 {
     uint8_t gimbleoffline = 0;
