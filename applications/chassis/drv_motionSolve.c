@@ -10,6 +10,25 @@
 J4_3 J_Mecanum_Inv = {0}; // 逆解算雅可比矩阵 (4x3)：轮速 = J_inv * 底盘速度
 J3_4 J_Mecanum_Fwd = {0}; // 正解算雅可比矩阵 (3x4)：底盘速度 = J_fwd * 轮速
 
+
+
+/// <summary>全向轮解算，单个轮组
+///
+/// </summary>
+/// <param name="target_xyw"></param>
+/// <param name="resolve_data"></param>
+void Omni_Resolve(Mot_base_t target_xyw, float *resolve_data)
+{
+    // 角速度单位为0.1°/s，所以角速度系数要除以10
+    static float k_w = VEHICLE_DIAMETER / 20.f * DEGTORAD;
+    static float root2_2 = ROOT2 / 2;
+    /*输出单位为mm/s 输出顺序RF-LF-LB-RB*/
+    resolve_data[0] = root2_2 * (target_xyw.vel.y - target_xyw.vel.x) + target_xyw.angvel * k_w;
+    resolve_data[1] = root2_2 * (target_xyw.vel.y + target_xyw.vel.x) - target_xyw.angvel * k_w;
+    resolve_data[2] = root2_2 * (target_xyw.vel.y - target_xyw.vel.x) - target_xyw.angvel * k_w;
+    resolve_data[3] = root2_2 * (target_xyw.vel.y + target_xyw.vel.x) + target_xyw.angvel * k_w;
+    
+}
 // 麦克纳姆轮正解算函数
 // 输入：四个轮子的转速 (RPM)，顺序：RF-LF-LB-RB
 // 输出：底盘运动速度 (vx, vy单位: mm/s, ω单位: °/s)
