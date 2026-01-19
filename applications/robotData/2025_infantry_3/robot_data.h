@@ -56,9 +56,9 @@
 
 // #define IMU_GIMBAL_CAN_DEV USED_CAN2    // 云台IMUcan设备
 #if IMU_GIMBAL_CAN_DEVICE_NAME == 1
-#define IMU_GIMBAL_CAN_DEV USED_CAN1
+#define IMU_GIMBAL_CAN_DEV "can1"
 #elif IMU_GIMBAL_CAN_DEVICE_NAME == 2
-#define IMU_GIMBAL_CAN_DEV USED_CAN2
+#define IMU_GIMBAL_CAN_DEV "can2"
 #else 
 #error "IMU_GIMBAL_CAN_DEVICE_NAME is not defined right!"
 #endif
