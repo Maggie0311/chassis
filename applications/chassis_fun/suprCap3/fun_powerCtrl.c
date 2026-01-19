@@ -10,6 +10,7 @@
 #include "DJI_3508.h"
 #include "DJI_6020.h"
 #include "LK_MF_MG.h"
+#include "robot_control.h"
 
 #define RunERRhigh 8000
 #define RunERRlow  2000
@@ -332,7 +333,7 @@ void get_true_RLS(void)
 {
     RunRLS.now_tick=rt_tick_get();
     if(PowerInfo.Cap.isValid)   
-	   RunRLS.flag=RunRLS.now_tick-scpr_comRx.recvTick;
+	   RunRLS.flag=RunRLS.now_tick-Get_SuprCap_recTick();
    // RunRLS.flag=RunRLS.now_tick-PowerInfo.Ref.refresh_tick;
    // AngleRLS.flag=AngleRLS.now_tick-PowerInfo.Ref.refresh_tick;
     if(Get_Motion_Mode()==SLOW_GYRO||Get_Motion_Mode()==FAST_GYRO||Get_Motion_Mode()==CHANGE_GYRO)

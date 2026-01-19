@@ -34,7 +34,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type=POWER_CTRL_WHEEL
+            .power_ctrl_type=POWER_CTRL_WHEEL,
             .index = WHEEL_RF,
         },
         .Motor_operate_setting = {
@@ -48,7 +48,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         // TODO:调Pid这堆
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = 15, .Ki = 0.1, .Kd = 0.03, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000},
+            .Speed_pid = {.Kp = 10, .Ki = 0.3, .Kd = 0.1, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -79,7 +79,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type=POWER_CTRL_WHEEL
+            .power_ctrl_type=POWER_CTRL_WHEEL,
             .index = WHEEL_LF,
         },
         .Motor_operate_setting = {
@@ -93,7 +93,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         // TODO:调Pid这堆
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = 15, .Ki = 0.1, .Kd = 0.03, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000},
+            .Speed_pid = {.Kp = 10, .Ki = 0.3, .Kd = 0.1, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -124,7 +124,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type=POWER_CTRL_WHEEL
+            .power_ctrl_type=POWER_CTRL_WHEEL,
             .index = WHEEL_LH,
         },
         .Motor_operate_setting = {
@@ -139,7 +139,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         // TODO:调Pid这堆
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = 15, .Ki = 0.1, .Kd = 0.03, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000},
+            .Speed_pid = {.Kp = 10, .Ki = 0.3, .Kd = 0.1, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -170,7 +170,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type=POWER_CTRL_WHEEL
+            .power_ctrl_type=POWER_CTRL_WHEEL,
             .index = WHEEL_RH,
         },
         .Motor_operate_setting = {
@@ -185,7 +185,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         // TODO:调Pid这堆
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = 15, .Ki = 0.1, .Kd = 0.03, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000},
+            .Speed_pid = {.Kp = 10, .Ki = 0.3, .Kd = 0.1, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -310,7 +310,11 @@ int gim_motor_init()
         {
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
         }
-        Gim_Motor_Attach((MotorInstance *)&gim_motor[i]);
+        ret = Gim_Motor_Attach((MotorInstance *)&gim_motor[i]);
+         if (ret != 0)
+        {
+            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+        }
 
     }
     return ret;

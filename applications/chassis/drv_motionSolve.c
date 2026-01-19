@@ -122,9 +122,9 @@ void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4])
         for (int i = 0; i < 4; i++)
         {
             float a = alpha_deg[i] * DEGTORAD;
-            J_Mecanum_Inv[i][0] = cosf(a) / r;                            // vx系数
-            J_Mecanum_Inv[i][1] = sinf(a) / r;                            // vy系数
-            J_Mecanum_Inv[i][2] = (-cosf(a) * y[i] + sinf(a) * x[i]) / r; // ω系数
+            J_Mecanum_Inv.data[i][0] = cosf(a) / r;                            // vx系数
+            J_Mecanum_Inv.data[i][1] = sinf(a) / r;                            // vy系数
+            J_Mecanum_Inv.data[i][2] = (-cosf(a) * y[i] + sinf(a) * x[i]) / r; // ω系数
         }
 
         // // RF轮 (位置: 前右, 角度: -45°)

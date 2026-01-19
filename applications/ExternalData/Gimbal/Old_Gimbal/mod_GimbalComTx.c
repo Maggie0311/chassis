@@ -238,14 +238,16 @@ static void Gimbal_Com_Thread(void *parameter)
  */
 rt_err_t Gimbal_Com_Init(void)
 {
+    int ret=0;
     rt_thread_t handler = RT_NULL; // 线程句柄
 
     // 注册can接受回调
     attachCanRXfun(rx_gimIMU, Refresh_Chassis_Gimbalcaled_IMU_Data);
 //    attachCanRXfun(rx_gimMotor, Refresh_GimbalMotor);
-    if(!gim_motor_init())
+    ret=gim_motor_init();
+    if(!ret)
     {
-        LOG_E("gim_motor init failed, err=%d",gim_motor_init());
+        LOG_E("gim_motor init failed, err=%d",ret);
         return RT_ERROR;
     }
     attachCanRXfun(rx_gimctrl, Refresh_Ctldata);

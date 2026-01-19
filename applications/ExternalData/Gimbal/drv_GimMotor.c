@@ -11,9 +11,12 @@
 
 MotorInstance *Gim_Motor_Pointer[2];
 uint8_t gim_motor_num=0;
-void Gim_Motor_Attach(MotorInstance *motor_instance)
+int Gim_Motor_Attach(MotorInstance *motor_instance)
 {
+       if(!motor_instance)
+          return 1;
         Gim_Motor_Pointer[gim_motor_num++] = motor_instance; // 注册电机实例指针
+          return 0;
 }
 
 

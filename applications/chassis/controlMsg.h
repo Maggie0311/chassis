@@ -86,7 +86,7 @@ typedef struct
     Vector2_t pos;                      // 偏心坐标点，单位(mm,mm)
     float dot_angvel;                   // 绕点旋转角速度,单位0.1°/s
     float fol_angle;                    // 跟随目标角度,单位°，范围(0,360°](俯视图下，底盘车头在云台枪管的逆时针方位 >0)
-    float (*getYawAngel)(uint16_t arg); // 跟随角时yaw的角度,单位°，范围[-180,180)
+    float getYawAngel;                  // 跟随角时yaw的角度,单位°，范围[-180,180)
     uint16_t arg;                       // 得到角度的参数
     uint8_t folIsReverse;               // 跟随时候，坐标系转化时角度是否取反
 } Ctrl_data_t;

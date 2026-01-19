@@ -3,7 +3,7 @@
 #include "drv_Vector.h"
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
-#include "drv_gimCtrlRx.h"
+#include "drv_Gimbal_Com.h"
 #include "fun_protocolGim.h"
 #include "mod_motion.h"
 #include "robot_data.h"
@@ -113,10 +113,10 @@ Mot_base_t MotPack_Offset_SmallTop(const Ctrl_data_t *const ctrlMsg, const Vecto
     utils_clamp(posTemp.x, -M_MAX_POSITION_X, M_MAX_POSITION_X);
     utils_clamp(posTemp.y, -M_MAX_POSITION_Y, M_MAX_POSITION_Y);
 
-    if (ctrlMsg->getYawAngel)
-    {
-        yaw_angle = ctrlMsg->getYawAngel(ctrlMsg->arg);
-    }
+    // if (ctrlMsg->getYawAngel)
+    // {
+        yaw_angle = ctrlMsg->getYawAngel;
+    // }
     /*本文件暂存*/
     fol_isReverse = ctrlMsg->folIsReverse;
 
@@ -233,10 +233,10 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
         anglevel_last = 0;
     }
     // anglevel_last = UTILS_LP_FAST(anglevel_last, ctrlMsg->xyw.angvel, 0.2f); // 对云台角速度进行低通滤波
-    if (ctrlMsg->getYawAngel)
+    
     {
         /*获取云台和底盘的夹角 数据范围(-180.0°,180.0°]*/ // 得到当前控制坐标系和底盘坐标系角度
-        yaw_angle = ctrlMsg->getYawAngel(ctrlMsg->arg);
+        yaw_angle = ctrlMsg->getYawAngel;
         if (fabs(yaw_angle) <= 0.5f) // 跟随角死区
         {
             yaw_angle = 0;
@@ -501,11 +501,11 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
 #ifdef POWER_LIMIT_TEST == 0
     gyro_at_powerlim(&VxyW, ctrlMsg); // 功率受限时限制陀螺保证平移性
 #endif
-    if (ctrlMsg->getYawAngel)
-    {
+    // if (ctrlMsg->getYawAngel)
+    // {
         // 得到当前控制坐标系和底盘坐标系角度
-        angle = ctrlMsg->getYawAngel(ctrlMsg->arg);
-    }
+        angle = ctrlMsg->getYawAngel;
+    // }
     yawAngleOffset(VxyW.angvel, &angle); // 当小陀螺较快时执行yaw轴电机角度补偿
 
     fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
@@ -549,11 +549,11 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     plan_acc_xyw.vel.y = set_planner_data[WHEEL_YSPEED].v;
     plan_acc_xyw.angvel = set_planner_data[WHEEL_ACSPEED].v;
 
-    if (ctrl.getYawAngel)
-    {
+    // if (ctrl.getYawAngel)
+    // {
         // 得到当前控制坐标系和底盘坐标系角度
-        angle = ctrl.getYawAngel(ctrl.arg);
-    }
+        angle = ctrl.getYawAngel;
+    // }
 
     Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle, ctrl.folIsReverse); // 对线速度进行坐标系转换
     Speed_xyw.angvel = plan_xyw.angvel;

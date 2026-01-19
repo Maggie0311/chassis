@@ -9,7 +9,13 @@
 
 #include "app_RefSystem.h"//Tx数据来源
 #include "controlMsg.h"//云台控制数据去向
-#include "drv_IMU.h"//IMU数据定义
+#include "drv_GimMotor.h"
+
+#ifdef BSP_USING_LOG
+#define LOG_TAG     "gim_com"
+#define LOG_LVL     LOG_LVL_DBG
+#include <ulog.h>
+#endif
 
 /*定时发送信号量*/
 static struct rt_semaphore gimbal_Tx_sem;
@@ -23,6 +29,7 @@ CANInstance gim_caninstance_Rx[Msg_num_Rx];
 Gim_mixData_Rx_t gimbal_mixdata_msg;
 imu_euler_t gimbal_imudata_msg;
 rt_tick_t imu_data_freshtick = 0;
+rt_tick_t gimbal_mixdata_msg_freshtick = 0;
 
 /*---------------------------信息接收-----------------------------------------------------------------------------*/
 /*接收回调*/
@@ -32,7 +39,7 @@ rt_tick_t imu_data_freshtick = 0;
  ***/
 static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
 {
-    Ctrl_data_info_t gimbal_ctrl;
+    static Ctrl_data_info_t gimbal_ctrl;
     gimbal_ctrl.vel_x = (float)MSG_READ_2BYTES(instance->rx_buff[0], instance->rx_buff[1]);
     gimbal_ctrl.vel_y = (float)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
     gimbal_ctrl.mode = (Motion_mode_e)(instance->rx_buff[6]);
@@ -63,7 +70,7 @@ static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
  ***/
 static void Gimbal_MixData_Rx_call(CANInstance *instance)
 {
-    gimbal_mixdata_msg = rt_tick_get();
+    gimbal_mixdata_msg_freshtick = rt_tick_get();
     rt_memcpy(&gimbal_mixdata_msg, instance->rx_buff, sizeof(gimbal_mixdata_msg) < 8 ? sizeof(gimbal_mixdata_msg) : 8);
     // Package_Write(dataNum[Gim_data], gimbal_msg); // 更新数据服务器的数据
     if (gimbal_mixdata_msg.chassis_reset)
@@ -164,16 +171,20 @@ static rt_uint16_t Ref_Bullet_Speed_Limit(void)
 static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
 {
     Gim_Reftrans1_t gim_reftrans_msg1;
+    uint16_t get_temp_16;
     /*枪口热量*/
     gim_reftrans_msg1.cooling_heat = Ref_Shooter_Cooling_Heat();
     /*枪口每秒冷却值*/
-    getRefData(memberGet_parm(gim_reftrans_msg1.cooling_rate,ext_game_robot_status,shooter_cooling_rate));
+    getRefData(memberGet_parm(get_temp_16,ext_game_robot_status,shooter_cooling_rate));
+    gim_reftrans_msg1.cooling_rate = get_temp_16;
     /*枪口热量上限*/
-    getRefData(memberGet_parm(gim_reftrans_msg1.cooling_limit,ext_game_robot_status,shooter_cooling_limit));
+    getRefData(memberGet_parm(get_temp_16,ext_game_robot_status,shooter_cooling_limit));
+    gim_reftrans_msg1.cooling_limit = get_temp_16;
     /*枪口速度上限*/
     gim_reftrans_msg1.speed_limit = Ref_Bullet_Speed_Limit();
     /*枪口冷却具体值*/
-    getRefData(memberGet_parm(gim_reftrans_msg1.cooling_buff,ext_buff_musk,cooling_buff));
+    getRefData(memberGet_parm(get_temp_16,ext_buff_musk,cooling_buff));
+    gim_reftrans_msg1.cooling_buff = get_temp_16;
 
     //!因为协议修改导致字节数超了，暂时没法搞
     //memcpy(instance->tx_buff,&gim_reftrans_msg1,sizeof(gim_reftrans_msg1) < 8 ? sizeof(gim_reftrans_msg1) : 8);
@@ -188,6 +199,7 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
 {
     Gim_Reftrans2_t gim_reftrans_msg2;
     uint8_t get_temp_8;//暂存裁判系统信息
+    uint16_t get_temp_16;
     float get_temp_float;
 
     /*是否开始比赛*/
@@ -235,13 +247,16 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
         gim_reftrans_msg2.speed = 0;
     
     /*哨兵血量*/
-    getRefData(memberGet_parm(gim_reftrans_msg2.SentryHP,ext_game_robot_survivors,ally_7_robot_HP));
+    getRefData(memberGet_parm(get_temp_16,ext_game_robot_survivors,ally_7_robot_HP));
+    gim_reftrans_msg2.SentryHP = get_temp_16;
 
     /*云台手键盘信息*/
-    getRefData(memberGet_parm(gim_reftrans_msg2.commd_keyboard,ext_robot_command_map,commd_keyboard));
+    getRefData(memberGet_parm(get_temp_16,ext_robot_command_map,commd_keyboard));
+    gim_reftrans_msg2.commd_keyboard = get_temp_16;
 
     /*目标机器人ID（多机通信）*/
-    getRefData(memberGet_parm(gim_reftrans_msg2.target_robot_ID,ext_robot_command_map,target_robot_ID));
+    getRefData(memberGet_parm(get_temp_16,ext_robot_command_map,target_robot_ID));
+    gim_reftrans_msg2.target_robot_ID = get_temp_16;
 
     memcpy(instance->tx_buff,&gim_reftrans_msg2,sizeof(gim_reftrans_msg2) < 8 ? sizeof(gim_reftrans_msg2) : 8);//写入报文
 }
@@ -306,6 +321,7 @@ static void Gimbal_comRx_Attach(rt_uint8_t index,unsigned int rx_id,void (*can_m
  */
 rt_err_t Gimbal_Com_Init(void)
 {
+    int res = 0;
     rt_thread_t handler = RT_NULL; // 线程句柄
 
     /*注册发送can通信*/
@@ -316,7 +332,17 @@ rt_err_t Gimbal_Com_Init(void)
     Gimbal_comRx_Attach(Ctrl_msg_Index,GIMBAL_CTRL_RX,Gimbal_CtrlData_Rx_call);
     Gimbal_comRx_Attach(mixData_msg_Index,GIMBAL_DATA_RX,Gimbal_MixData_Rx_call);
     Gimbal_comRx_Attach(Imu_msg_Index,GIMBAL_IMU_DATA_RX,Gimbal_imuData_Rx_call);
-
+    res = rt_sem_init(&gimbal_Tx_sem, "gim_tx_sem", 0, RT_IPC_FLAG_FIFO);
+    if(res)
+    {
+        // LOG_E()
+    }
+    res=gim_motor_init();
+    if(res)
+    {
+        LOG_E("gim_motor init failed, err=%d",res);
+        return RT_ERROR;
+    }
     // 初始化云台控制线程
     handler = rt_thread_create(
         "gimbal_com",       // 线程名

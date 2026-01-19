@@ -55,6 +55,6 @@ float Get_GMtoCH_Speed(void);
 extern rt_bool_t Get_Yaw_Motor_Offline_State(void);
 rt_bool_t Get_Pitch_Motor_Offline_State(void);
 
-void Gim_Motor_Attach(MotorInstance *motor_instance);
+int Gim_Motor_Attach(MotorInstance *motor_instance);
 extern MotorInstance *Gim_Motor_Pointer[2];
 #endif

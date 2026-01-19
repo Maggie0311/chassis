@@ -14,7 +14,7 @@ typedef struct
     float q1;
     float q2;
     float q3;
-} AHRS_Quaternion_t;
+}AHRS_Quaternion_t;
 
 typedef enum
 {

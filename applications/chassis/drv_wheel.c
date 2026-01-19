@@ -49,11 +49,11 @@ static void PID_Cal_Thread(void)
  */
 rt_err_t Wheels_Init(void)
 {
-    rt_err_t res;
+    rt_err_t res = 0;
     rt_thread_t thread = RT_NULL;
 
     // 初始化电机结构体以及PID
-    chassis_motor_init();
+    res = chassis_motor_init();
     if (res != RT_EOK)
         return RT_ERROR;
 

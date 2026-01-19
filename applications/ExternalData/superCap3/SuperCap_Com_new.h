@@ -59,7 +59,7 @@ typedef enum
 } SupCap_State_e;
 
 //获取上次接收通信时间
-rt_tick_t Get_SuprCap_recTick(void)
+rt_tick_t Get_SuprCap_recTick(void);
 /**
  * @brief    初始化与超级电容端通信
  * @return   true:初始化成功	false:初始化失败

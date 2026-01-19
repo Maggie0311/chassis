@@ -221,7 +221,7 @@ uint8_t get_chassis_pitch(float *pitch)
 {//motion
     if (rt_tick_get() - imu_data_freshtick < 100)
     {
-        *pitch = chassis_imu.pitch;
+        *pitch = gimbal_imudata_msg.pitch;
         return 1;
     }
     else
@@ -232,7 +232,7 @@ uint8_t get_chassis_roll(float *roll)
 {//motion
     if (rt_tick_get() - imu_data_freshtick < 100)
     {
-        *roll = chassis_imu.roll;
+        *roll = gimbal_imudata_msg.roll;
         return 1;
     }
     else
@@ -242,7 +242,7 @@ uint8_t get_chassis_roll(float *roll)
 imu_euler_t get_chassis_imu_data(void)
 {//UI
     if (rt_tick_get() - imu_data_freshtick < 100)
-        return chassis_imu;
+        return gimbal_imudata_msg;
     else
         return (imu_euler_t){0, 0, 0};
 }

@@ -2,7 +2,7 @@
 #include <board.h>
 
 #include "SuperCap_Com_new.h"
-#include "mod_GimbalComTx.h"
+#include "drv_Gimbal_Com.h"
 #include "app_ChassisCtrl.h"
 #include "func_MonHandling.h"
 #include "app_UI.h"
@@ -37,7 +37,6 @@
 #define LOG_TAG     "main"
 #define LOG_LVL     LOG_LVL_DBG
 #include <ulog.h>
-#include "mod_Log.h"
 #endif
 
 int main(void)
@@ -111,10 +110,10 @@ int main(void)
     if (Sentry_Data_Send_Init() != RT_EOK)
         Robot_Chassis_Reset(RT_TRUE);
 #else
-    if (UI_Init() != RT_EOK)
-        Robot_Chassis_Reset(RT_TRUE);
-    if (Custom_Message_Data_Send_Init() != RT_EOK)
-        Robot_Chassis_Reset(RT_TRUE);
+    // if (UI_Init() != RT_EOK)
+    //     Robot_Chassis_Reset(RT_TRUE);
+    // if (Custom_Message_Data_Send_Init() != RT_EOK)
+    //     Robot_Chassis_Reset(RT_TRUE);
 #endif
 
     if (protct_ThreadInit() != RT_EOK)

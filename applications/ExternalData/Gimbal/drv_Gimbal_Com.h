@@ -107,11 +107,19 @@ typedef __packed struct
 #endif
 } Gim_mixData_Rx_t; // 杂项数据包
 
+typedef struct
+{
+    float yaw;
+    float pitch;
+    float roll;
+} imu_euler_t;
+
 extern Gim_mixData_Rx_t gimbal_mixdata_msg;
 extern imu_euler_t gimbal_imudata_msg;
 extern rt_tick_t imu_data_freshtick;
+extern rt_tick_t gimbal_mixdata_msg_freshtick;
 
 //云台通信初始化
-rt_err_t Gimbal_Com_Init(void)
+rt_err_t Gimbal_Com_Init(void);
 
 #endif

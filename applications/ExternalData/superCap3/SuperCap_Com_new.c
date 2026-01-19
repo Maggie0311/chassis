@@ -184,6 +184,7 @@ static void Scpr_Thread(void *parameter)
  */
 rt_err_t Scpr_Com_Init(void)
 {
+    int res = 0;
     rt_thread_t Scpr_handler = RT_NULL; // 线程句柄
 
     /*注册CAN通信*/
@@ -192,8 +193,16 @@ rt_err_t Scpr_Com_Init(void)
     config.tx_id = SCPR_TX;
     config.rx_id = SCPR_RX;
     config.can_module_callback = Refresh_Scprdata;
-    CAN_Attach(&scpr_caninstance,&config);
-
+    res=CAN_Attach(&scpr_caninstance,&config);
+    if(res)
+    {
+        // LOG_E()
+    }
+    res = rt_sem_init(&scpr_Tx_sem, "sc_tx_sem", 0, RT_IPC_FLAG_FIFO);
+    if(res)
+    {
+        // LOG_E()
+    }
     // 初始化超级电容通信线程
     Scpr_handler = rt_thread_create(
         "SCR_ctrl",      // 线程名

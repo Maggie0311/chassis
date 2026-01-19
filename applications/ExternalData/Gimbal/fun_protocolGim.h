@@ -2,7 +2,6 @@
 #define __FUN_PROTOCOLGIM_H__
 #include <board.h>
 #include "drv_Gimbal_Com.h"
-#include "drv_IMU.h"
 
 // ui选项显示索引
 typedef enum

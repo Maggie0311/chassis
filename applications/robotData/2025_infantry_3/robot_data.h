@@ -1,6 +1,7 @@
 #ifndef __ROBOT_DATA_H__
 #define __ROBOT_DATA_H__
 
+#include "rtconfig.h"
 /*底盘电机ID*/
 #define RUN_RF_MOTOR_ID 0x201
 #define RUN_LF_MOTOR_ID 0x202
