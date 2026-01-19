@@ -47,6 +47,7 @@ Bullet_remaining_t visual_tx_bullet_remaining; // 给视觉发送子弹剩余发
 Ground_robot_position_t visual_tx_ground_robot_position; // 给视觉发送地面机器人位置数据(除了自身以外的地面机器人数据)
 Sentry_info_t visual_tx_sentry_info; // 给视觉发送哨兵自主决策反馈数据    
 Robot_command_map_t visual_tx_robot_command_map;    //给视觉发送云台手发送给哨兵的信息
+Robot_wheel_odometry_t visual_tx_Robot_wheel_odometry;     //底盘正解算后的x\y方向速度
 static uint8_t visual_com_tx_buff[512]; // 视觉通信发送数据缓冲区
 static uint8_t visual_com_rx_buff[512]; // 视觉通信接收数据缓冲区
 
@@ -354,7 +355,8 @@ rt_err_t VisualInit(void)
     Attach_SendCmd(VisualData_Serial,CMD_ID_Ground_robot_position,CMD_SET_Ground_robot_position,sizeof(visual_tx_ground_robot_position), (void*)&visual_tx_ground_robot_position);
     Attach_SendCmd(VisualData_Serial,CMD_ID_Sentry_info,CMD_SET_Sentry_info,sizeof(visual_tx_sentry_info), (void*)&visual_tx_sentry_info);
     Attach_SendCmd(VisualData_Serial,CMD_ID_Robot_command_map,CMD_SET_Robot_command_map,sizeof(visual_tx_robot_command_map), (void*)&visual_tx_robot_command_map);
-    
+    Attach_SendCmd(VisualData_Serial,CMD_ID_Robot_wheel_odometry,CMD_SET_Robot_wheel_odometry,sizeof(visual_tx_Robot_wheel_odometry),(void*)&visual_tx_Robot_wheel_odometry);
+
     //初始化接收命令ID和回调函数
     Attach_Receive_callback(CMD_ID_VISUAL_CTRL, sizeof(visual_rx_ctrl), (void *)&visual_rx_ctrl, Visual_Ctrl_Receive_callback);
     Attach_Receive_callback(CMD_ID_VISUAL_RADAR, sizeof(visual_rx_radar), (void *)&visual_rx_radar, vsDatadeal);

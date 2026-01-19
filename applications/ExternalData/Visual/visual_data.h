@@ -20,7 +20,8 @@ typedef __packed struct      //关于哨兵自主决策，裁判手册中说，�
     uint32_t exchange_ammo_amount : 11;         // 2-12bit, 将要兑换的发弹量值，从0开始递增
     uint32_t exchange_ammo_request_count : 4;   // 13-16bit, 远程兑换发弹量的请求次数，从0开始递增，每次变化只能是1
     uint32_t exchange_health_request_count : 4; // 17-20bit, 远程兑换血量的请求次数，从0开始递增，每次变化只能是1
-    uint32_t reserved : 11;                     // 21-31bit, 保留位，当前未使用
+    uint32_t sentry_status : 2;                 // 21-22bit, 哨兵当前姿态
+    uint32_t reserved : 9;                     // 23-31bit, 保留位，当前未使用
 } sentry_cmd_info_t;
 
 //底盘转发的雷达数据，从视觉接收
@@ -34,6 +35,11 @@ typedef __packed struct
 
 
 /******************底盘发送，视觉接收*************************************** */
+typedef __packed struct 
+{
+    float vel_x;
+    float vel_y;
+} Robot_wheel_odometry_t;//底盘正解算后的x\y方向速度
 
 typedef __packed struct
 {
@@ -44,22 +50,14 @@ typedef __packed struct
 
 typedef __packed struct
 {
-    uint16_t red_1_robot_HP;  // 红 1 英雄机器人血量，未上场以及罚下血量为 0
-    uint16_t red_2_robot_HP;  // 红 2 工程机器人血量
-    uint16_t red_3_robot_HP;  // 红 3 步兵机器人血量
-    uint16_t red_4_robot_HP;  // 红 4 步兵机器人血量
-    uint16_t red_5_robot_HP_reserve;  // 红 5 步兵机器人血量    // 2024.12.25日新修改的串口协议附录1.70版本将该字段设置为保留字段
-    uint16_t red_7_robot_HP;  // 红 7 哨兵机器人血量
-    uint16_t red_outpost_HP;  // 红方前哨战血量
-    uint16_t red_base_HP;     // 红方基地血量
-    uint16_t blue_1_robot_HP; // 蓝 1 英雄机器人血量
-    uint16_t blue_2_robot_HP; // 蓝 2 工程机器人血量
-    uint16_t blue_3_robot_HP; // 蓝 2 工程机器人血量
-    uint16_t blue_4_robot_HP; // 蓝 2 工程机器人血量
-    uint16_t blue_5_robot_HP_reserve; // 蓝 5 步兵机器人血量
-    uint16_t blue_7_robot_HP; // 蓝 7 哨兵机器人血量
-    uint16_t blue_outpost_HP; // 蓝方前哨站血量
-    uint16_t blue_base_HP;    // 蓝方基地血量
+    uint16_t robot_1_HP;  // 己方 英雄机器人血量，未上场以及罚下血量为 0
+    uint16_t robot_2_HP;   // 己方 工程机器人血量
+    uint16_t robot_3_HP;   // 己方 步兵机器人血量
+    uint16_t robot_4_HP;   // 己方 步兵机器人血量
+    uint16_t reserve;      // 保留位
+    uint16_t robot_7_HP;   // 己方 哨兵机器人血量
+    uint16_t outpost_HP;   // 己方 前哨站血量
+    uint16_t base_HP;      // 己方 基地血量
 }Game_robot_survivors_t; // 比赛机器人血量数据
 
 
@@ -137,6 +135,7 @@ typedef __packed struct
 #define CMD_ID_Ground_robot_position 0x0A // 向视觉发送地面机器人位置信息（自家机器人信息）
 #define CMD_ID_Sentry_info 0x0B // 给视觉发送哨兵自主决策反馈数据（裁判系统反馈信息）
 #define CMD_ID_Robot_command_map 0x0C // 给视觉发送云台手发送给哨兵的点位信息（云台手命令哨兵前往的位置）
+#define CMD_ID_Robot_wheel_odometry 0x0D  // 底盘向导航发送的轮式里程计速度数据ID
 
 //设置 发送次数（有限次就写正整数，无限次发送写-1） 和 每几个周期发送一次
 #define CMD_SET_VISUAL_CTRL -1,2 // 视觉发送控制指令
@@ -151,7 +150,7 @@ typedef __packed struct
 #define CMD_SET_Ground_robot_position -1,200 // 向视觉发送地面机器人位置信息（自家机器人信息）
 #define CMD_SET_Sentry_info -1,100 // 给视觉发送哨兵自主决策反馈数据（裁判系统反馈信息）
 #define CMD_SET_Robot_command_map -1,20 // 给视觉发送云台手发送给哨兵的点位信息（云台手命令哨兵前往的位置）
-
+#define CMD_SET_Robot_wheel_odometry -1,10 // 给视觉发送云台手发送给哨兵的点位信息（云台手命令哨兵前往的位置）
 
 
 
