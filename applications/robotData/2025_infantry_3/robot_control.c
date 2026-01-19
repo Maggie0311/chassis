@@ -10,6 +10,11 @@
 #define WHEEL_MOTOR_NUM 4
 #define GIM_MOTOR_NUM 2
 
+#define WHEEL_RF 0
+#define WHEEL_LF 1
+#define WHEEL_LH 2
+#define WHEEL_RH 3
+
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
 DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
@@ -30,6 +35,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type=POWER_CTRL_WHEEL
+            .index = WHEEL_RF,
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,
@@ -74,6 +80,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type=POWER_CTRL_WHEEL
+            .index = WHEEL_LF,
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,
@@ -118,6 +125,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type=POWER_CTRL_WHEEL
+            .index = WHEEL_LH,
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,
@@ -163,6 +171,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type=POWER_CTRL_WHEEL
+            .index = WHEEL_RH,
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,
@@ -314,7 +323,7 @@ static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force
     tarForce.vel.y = Force_xyw->vel.y * WEIGHT / 1000.f;                        // 整个底盘Y方向力的平滑后设定值(N)
     tarForce.angvel = Force_xyw->angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
 
-    // Omni_Force_Resolve(*Fxyw, group, motorSetForce[group]);
+    // Omni_Force_Resolve(tarForce, motorSetForce);
 }
 
 // 摩擦力前馈计算
@@ -359,23 +368,21 @@ static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
 
 static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
 {
-    // for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
-    // {
-    //     /*由轮子的线速度单位为mm/s,转化为输出轴的角速度，再转化为控制转子的角速度单位为rmp*/
-    //     motorSetSpeed[i] = motorSetSpeed[i] * VCONVERT2W_k * RAD2RPM_K * wheel_motor->dji3508_motor_measure.RATIO;
-    //     Motor_Set_Target((MotorInstance*)&wheel_motor[i], motorSetSpeed[i]);
-    // }
+    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+    {
+        Motor_Set_Target((MotorInstance *)&wheel_motor[i], motorSetSpeed[i]);
+    }
 }
 
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid[0])
     {
-        // Omni_Resolve(Speed_xyw, group, motorSetSpeed[WHEEL_MOTOR_NUM]);//底盘速度解算到各个电机上
+        Mecanum_Inverse_Kinematics(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
 
         Force_Allo_to_wheels(motorSetForce, Force_xyw); // 进行加速度解算到各个电机上
 
-        Get_force_out(motorSetForce); // 获取前馈值
+        // Get_force_out(motorSetForce); // 获取前馈值
     }
     if (1 == isSetValid[1])
     {

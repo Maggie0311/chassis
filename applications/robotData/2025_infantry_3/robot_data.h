@@ -95,11 +95,11 @@
 #define VEHICLE_DIAMETER (483.66f) // 对角轮间距（用于计算全向轮解算），单位mm
 #define WHEEL_RADIUS (63.5f)       // 轮子半径 单位毫米
 
-// 底盘方位角参数,底盘正前方为0°，逆时针为正方向,单位/°，在舵向电机正解算时需要
-#define RF_Wheel_Azimuth (-45.f)
-#define LF_Wheel_Azimuth (45.f)
-#define LB_Wheel_Azimuth (135.f)
-#define RB_Wheel_Azimuth (-135.f)
+// // 底盘方位角参数,底盘正前方为0°，逆时针为正方向,单位/°，在舵向电机正解算时需要
+// #define RF_Wheel_Azimuth (-45.f)
+// #define LF_Wheel_Azimuth (45.f)
+// #define LB_Wheel_Azimuth (135.f)
+// #define RB_Wheel_Azimuth (-135.f)
 
 /*跟随角pid相关参数*/
 #define FOLLOW_PID_1 15, 0, 10, 0, 4000, -4000 // kp, ki, kd, i_lim, out_lim_up, out_lim_down   // 一直在跟随模式下的跟随角pid参数

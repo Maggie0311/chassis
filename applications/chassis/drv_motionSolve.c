@@ -7,8 +7,8 @@
 
 //********************************逆解算部分************************************** */
 #ifdef USING_MECANUM_RESOLVE
-J4_3 J_Mecanum_Inv = { 0 };  // 逆解算雅可比矩阵 (4x3)：轮速 = J_inv * 底盘速度
-J3_4 J_Mecanum_Fwd = { 0 };  // 正解算雅可比矩阵 (3x4)：底盘速度 = J_fwd * 轮速
+J4_3 J_Mecanum_Inv = {0}; // 逆解算雅可比矩阵 (4x3)：轮速 = J_inv * 底盘速度
+J3_4 J_Mecanum_Fwd = {0}; // 正解算雅可比矩阵 (3x4)：底盘速度 = J_fwd * 轮速
 
 // 麦克纳姆轮正解算函数
 // 输入：四个轮子的转速 (RPM)，顺序：RF-LF-LB-RB
@@ -38,38 +38,39 @@ void Mecanum_Forward_Kinematics(float wheel_rpm[4], Mot_base_t* chassis_vel) {
     if(!if_init_J)
     {
         // 方法1：直接使用推导的解析公式
-        float L = VEHICLE_LONG / 1000.0f;   // 转换为米
-        float W = VEHICLE_WIDTH / 1000.0f;  // 转换为米
-        float r = WHEEL_RADIUS / 1000.0f;   // mm -> m
-        float alpha = 45.0f * DEGTORAD;     // 麦克纳姆轮辊子角度
-        
+        float L = VEHICLE_LONG / 1000.0f;  // 转换为米
+        float W = VEHICLE_WIDTH / 1000.0f; // 转换为米
+        float r = WHEEL_RADIUS / 1000.0f;  // mm -> m
+        float alpha = 45.0f * DEGTORAD;    // 麦克纳姆轮辊子角度
+
         // 计算基础系数
         float base_k = (L + W) / (2.0f * 1.41421356f);
-        float k = base_k;  // 旋转半径
-        
+        float k = base_k; // 旋转半径
+
         // 正解算矩阵 (3x4)
-        J_Mecanum_Fwd.data[0][0] = 1.0f / 4.0f;   // vx 对 RF 轮的系数
-        J_Mecanum_Fwd.data[0][1] = 1.0f / 4.0f;   // vx 对 LF 轮的系数
-        J_Mecanum_Fwd.data[0][2] = 1.0f / 4.0f;   // vx 对 LB 轮的系数
-        J_Mecanum_Fwd.data[0][3] = 1.0f / 4.0f;   // vx 对 RB 轮的系数
-        
-        J_Mecanum_Fwd.data[1][0] = -1.0f / 4.0f;  // vy 对 RF 轮的系数
-        J_Mecanum_Fwd.data[1][1] = 1.0f / 4.0f;   // vy 对 LF 轮的系数
-        J_Mecanum_Fwd.data[1][2] = -1.0f / 4.0f;  // vy 对 LB 轮的系数
-        J_Mecanum_Fwd.data[1][3] = 1.0f / 4.0f;   // vy 对 RB 轮的系数
-        
-        J_Mecanum_Fwd.data[2][0] = 1.0f / (4.0f * k);   // ω 对 RF 轮的系数
-        J_Mecanum_Fwd.data[2][1] = -1.0f / (4.0f * k);  // ω 对 LF 轮的系数
-        J_Mecanum_Fwd.data[2][2] = -1.0f / (4.0f * k);  // ω 对 LB 轮的系数
-        J_Mecanum_Fwd.data[2][3] = 1.0f / (4.0f * k);   // ω 对 RB 轮的系数
-        if_init_J=1;
+        J_Mecanum_Fwd.data[0][0] = 1.0f / 4.0f; // vx 对 RF 轮的系数
+        J_Mecanum_Fwd.data[0][1] = 1.0f / 4.0f; // vx 对 LF 轮的系数
+        J_Mecanum_Fwd.data[0][2] = 1.0f / 4.0f; // vx 对 LB 轮的系数
+        J_Mecanum_Fwd.data[0][3] = 1.0f / 4.0f; // vx 对 RB 轮的系数
+
+        J_Mecanum_Fwd.data[1][0] = -1.0f / 4.0f; // vy 对 RF 轮的系数
+        J_Mecanum_Fwd.data[1][1] = 1.0f / 4.0f;  // vy 对 LF 轮的系数
+        J_Mecanum_Fwd.data[1][2] = -1.0f / 4.0f; // vy 对 LB 轮的系数
+        J_Mecanum_Fwd.data[1][3] = 1.0f / 4.0f;  // vy 对 RB 轮的系数
+
+        J_Mecanum_Fwd.data[2][0] = 1.0f / (4.0f * k);  // ω 对 RF 轮的系数
+        J_Mecanum_Fwd.data[2][1] = -1.0f / (4.0f * k); // ω 对 LF 轮的系数
+        J_Mecanum_Fwd.data[2][2] = -1.0f / (4.0f * k); // ω 对 LB 轮的系数
+        J_Mecanum_Fwd.data[2][3] = 1.0f / (4.0f * k);  // ω 对 RB 轮的系数
+        if_init_J = 1;
     }
     // 将RPM转换为线速度(m/s)
     float wheel_speed_mps[4] = {0};
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++)
+    {
         // RPM -> mm/s -> m/s
-        float speed_mmps = wheel_rpm[i] * RPMTORAD * WHEEL_RADIUS ; // mm/s
-        wheel_speed_mps[i] = speed_mmps / 1000.0f;  // m/s
+        float speed_mmps = wheel_rpm[i] * RPMTORAD * WHEEL_RADIUS; // mm/s
+        wheel_speed_mps[i] = speed_mmps / 1000.0f;                 // m/s
     }
     // 使用正解算雅可比矩阵计算底盘速度
     // [vx]   [J11 J12 J13 J14] [v_RF]
@@ -77,9 +78,10 @@ void Mecanum_Forward_Kinematics(float wheel_rpm[4], Mot_base_t* chassis_vel) {
     // [ω]    [J31 J32 J33 J34] [v_LB]
     //                            [v_RB]
     float vx_mps = 0, vy_mps = 0, omega_radps = 0;
-    
+
     // 方法1：使用矩阵乘法
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++)
+    {
         vx_mps += J_Mecanum_Fwd.data[0][i] * wheel_speed_mps[i];
         vy_mps += J_Mecanum_Fwd.data[1][i] * wheel_speed_mps[i];
         omega_radps += J_Mecanum_Fwd.data[2][i] * wheel_speed_mps[i];
@@ -93,63 +95,75 @@ void Mecanum_Forward_Kinematics(float wheel_rpm[4], Mot_base_t* chassis_vel) {
 // 麦克纳姆轮逆解算函数
 // 输入：底盘运动速度 (vx, vy单位: mm/s, ω单位: °/s)
 // 输出：四个轮子的转速 (RPM)，顺序：RF-LF-LB-RB
-void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4]) {
+void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4])
+{
     /*
     雅可比矩阵形式：
     [v_RF]   [J11 J12 J13] [vx]
     [v_LF] = [J21 J22 J23] * [vy]
     [v_LB]   [J31 J32 J33] [ω]
     [v_RB]   [J41 J42 J43]
-    
+
     输出单位为mm/s，顺序：RF-LF-LB-RB
     */
-    static int if_init_J=0;
-    if(!if_init_J){
+    static int if_init_J = 0;
+    if (!if_init_J)
+    {
         // 初始化雅可比矩阵
-        float L = VEHICLE_LONG / 1000.0f;   // 转换为米
-        float W = VEHICLE_WIDTH / 1000.0f;  // 转换为米
-        
+        float L = VEHICLE_LONG / 1000.0f;  // 转换为米
+        float W = VEHICLE_WIDTH / 1000.0f; // 转换为米
+        float r = WHEEL_RADIUS / 1000.0f;  // mm -> m
+
         // 计算每个轮子的k_w系数（米）
         // k_w = (L + W) / 2 * sin(45°) = (L + W) / (2√2)
-        float base_k = (L + W) / (2.0f * 1.41421356f);
-        float r = WHEEL_RADIUS / 1000.0f;  // mm -> m
-        float alpha = 45.0f * DEGTORAD;  // 麦克纳姆轮辊子角度
-        
-        // RF轮 (位置: 前右, 角度: -45°)
-        J_Mecanum_Inv.data[0][0] = cosf(-45.0f * DEGTORAD) / r;
-        J_Mecanum_Inv.data[0][1] = sinf(-45.0f * DEGTORAD) / r;
-        J_Mecanum_Inv.data[0][2] = -base_k * sinf(alpha - 45.0f * DEGTORAD) / r;
-        
-        // LF轮 (位置: 前左, 角度: 45°)
-        J_Mecanum_Inv.data[1][0] = cosf(45.0f * DEGTORAD) / r;
-        J_Mecanum_Inv.data[1][1] = sinf(45.0f * DEGTORAD) / r;
-        J_Mecanum_Inv.data[1][2] = -base_k * sinf(alpha + 45.0f * DEGTORAD) / r;
-        
-        // LB轮 (位置: 后左, 角度: 135°)
-        J_Mecanum_Inv.data[2][0] = cosf(135.0f * DEGTORAD) / r;
-        J_Mecanum_Inv.data[2][1] = sinf(135.0f * DEGTORAD) / r;
-        J_Mecanum_Inv.data[2][2] = -base_k * sinf(alpha + 135.0f * DEGTORAD) / r;
-        
-        // RB轮 (位置: 后右, 角度: -135°)
-        J_Mecanum_Inv.data[3][0] = cosf(-135.0f * DEGTORAD) / r;
-        J_Mecanum_Inv.data[3][1] = sinf(-135.0f * DEGTORAD) / r;
-        J_Mecanum_Inv.data[3][2] = -base_k * sinf(alpha - 135.0f * DEGTORAD) / r;
-        if_init_J=1;
+        float x[4] = {L, -L, -L, L};
+        float y[4] = {W, W, -W, -W};
+        float alpha_deg[4] = {135.0f, 45.0f, 135.0f, 45.0f};
+        for (int i = 0; i < 4; i++)
+        {
+            float a = alpha_deg[i] * DEGTORAD;
+            J_Mecanum_Inv[i][0] = cosf(a) / r;                            // vx系数
+            J_Mecanum_Inv[i][1] = sinf(a) / r;                            // vy系数
+            J_Mecanum_Inv[i][2] = (-cosf(a) * y[i] + sinf(a) * x[i]) / r; // ω系数
+        }
+
+        // // RF轮 (位置: 前右, 角度: -45°)
+        // J_Mecanum_Inv.data[0][0] = cosf(-45.0f * DEGTORAD) / r;
+        // J_Mecanum_Inv.data[0][1] = sinf(-45.0f * DEGTORAD) / r;
+        // J_Mecanum_Inv.data[0][2] = -base_k * sinf(alpha - 45.0f * DEGTORAD) / r;
+
+        // // LF轮 (位置: 前左, 角度: 45°)
+        // J_Mecanum_Inv.data[1][0] = cosf(45.0f * DEGTORAD) / r;
+        // J_Mecanum_Inv.data[1][1] = sinf(45.0f * DEGTORAD) / r;
+        // J_Mecanum_Inv.data[1][2] = -base_k * sinf(alpha + 45.0f * DEGTORAD) / r;
+
+        // // LB轮 (位置: 后左, 角度: 135°)
+        // J_Mecanum_Inv.data[2][0] = cosf(135.0f * DEGTORAD) / r;
+        // J_Mecanum_Inv.data[2][1] = sinf(135.0f * DEGTORAD) / r;
+        // J_Mecanum_Inv.data[2][2] = -base_k * sinf(alpha + 135.0f * DEGTORAD) / r;
+
+        // // RB轮 (位置: 后右, 角度: -135°)
+        // J_Mecanum_Inv.data[3][0] = cosf(-135.0f * DEGTORAD) / r;
+        // J_Mecanum_Inv.data[3][1] = sinf(-135.0f * DEGTORAD) / r;
+        // J_Mecanum_Inv.data[3][2] = -base_k * sinf(alpha - 135.0f * DEGTORAD) / r;
+        if_init_J = 1;
     }
     // 将目标速度从mm/s转换为m/s（内部计算用国际单位）
-    float vx = target_xyw.vel.x / 1000.0f;   // mm/s -> m/s
-    float vy = target_xyw.vel.y / 1000.0f;   // mm/s -> m/s
-    float ω = target_xyw.angvel*DEGTORAD;    // °/s -> rad/s
-    
+    float vx = target_xyw.vel.x / 1000.0f;  // mm/s -> m/s
+    float vy = target_xyw.vel.y / 1000.0f;  // mm/s -> m/s
+    float ω = target_xyw.angvel * DEGTORAD; // °/s -> rad/s
+
     // 使用雅可比矩阵计算轮子线速度（m/s）
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++)
+    {
         resolve_data[i] = (J_Mecanum_Inv.data[i][0] * vx +
-                          J_Mecanum_Inv.data[i][1] * vy +
-                          J_Mecanum_Inv.data[i][2] * ω) * WHEEL_RADIUS / 1000.0f;
+                           J_Mecanum_Inv.data[i][1] * vy +
+                           J_Mecanum_Inv.data[i][2] * ω);
     }
     // 转换为rpm
-    for (int i = 0; i < 4; i++) {
-        resolve_data[i] = resolve_data[i] / WHEEL_RADIUS * RADTORPM;
+    for (int i = 0; i < 4; i++)
+    {
+        resolve_data[i] = resolve_data[i] / WHEEL_RADIUS / 1000.f * RADTORPM;
     }
 }
 #endif
@@ -189,29 +203,24 @@ static void Omni_Resolve(Mot_base_t target_xyw, Wheel_Group_e wheel_group, float
     }
 }
 
-void Omni_Forward_Kinematics(float wheel_rpm[4], Mot_base_t* chassis_vel)
+void Omni_Forward_Kinematics(float wheel_rpm[4], Mot_base_t *chassis_vel)
 {
-
 }
 
 void Omni_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4])
 {
-
 }
 #endif
 
-//舵轮正逆解算
+// 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 
-void Steer_Forward_Kinematics(float wheel_rpm[4], Mot_base_t* chassis_vel)
+void Steer_Forward_Kinematics(float wheel_rpm[4], Mot_base_t *chassis_vel)
 {
-
 }
 void Steer_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4])
 {
-
 }
-
 
 // 舵轮解算
 #define DIR_ANGLE_LIM (900.f) // 单次最大打角理论上应该为90度，单位0.1°,>0
@@ -480,5 +489,3 @@ void Motion_Resolve(Mot_base_t *Vxyw, float motorSetData[4][2])
 //    fromEncoderGetV(real_xyw);
 //}
 //********************************正解算部分************************************** */
-
-
