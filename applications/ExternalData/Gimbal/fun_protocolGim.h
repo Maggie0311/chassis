@@ -1,7 +1,7 @@
 #ifndef __FUN_PROTOCOLGIM_H__
 #define __FUN_PROTOCOLGIM_H__
 #include <board.h>
-#include "drv_gimCtrlRx.h"
+#include "drv_Gimbal_Com.h"
 #include "drv_IMU.h"
 
 // ui选项显示索引
@@ -109,13 +109,6 @@ uint8_t getIsSentryMode(void);
  * @return:  枪管模式
  ***/
 extern strike_mode_e Get_StrikeMode(void);
-
-/***
- * @brief:   获取云台端上一次弹丸射速设定值
- * @param:   None
- * @return:  上一次弹丸射速设定值
- ***/
-extern rt_uint16_t Get_Bullet_Speed_Set(void);
 
 /***
  * @brief 返回底盘运动模式

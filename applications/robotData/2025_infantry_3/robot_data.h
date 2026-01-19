@@ -7,7 +7,8 @@
 #define RUN_LB_MOTOR_ID 0x203
 #define RUN_RB_MOTOR_ID 0x204
 
-/*云台电机ID*/
+/*云台通信ID*/
+/*云台电机ID(仅接收)（rx_gimMotor）*/
 #ifdef YAW_MOTOR_6020
 #define YAW_MOTOR_RXID 0x205  
 #define PITCH_MOTOR_RXID 0x206 
@@ -18,16 +19,9 @@
 #define PITCH_MOTOR_RXID 0x04 
 #endif
 
-/*其他通信ID*/
-#define GIMBAL_CCTRL_RX 0x100    // 云台控制底盘相关
-#define GIMBAL_DATA_RX 0x401     // 从云台接收的各类数据
-#define GIMBAL_IMU_DATA_RX 0x402 // 从云台接收的IMU数据
-
+/*超电通信ID*/
 #define SCPR_RX 0x096 // 从超级电容端接收
 #define SCPR_TX 0x095 // 向超级电容端发送
-
-#define GIMBAL_SHOOT_TX 0x105 // 裁判系统枪管信息
-#define GIMBAL_DATA_TX 0x106  // 向云台发送各类数据
 
 /*CAN设备挂载*/
 #if RF_CAN_DEVICE_NAME == 1
@@ -53,18 +47,18 @@
 
 // #define GIMBAL_CAN_DEV USED_CAN2        // 云台can设备
 #if GIMBAL_CAN_DEVICE_NAME == 1
-#define GIMBAL_CAN_DEV USED_CAN1
+#define GIMBAL_CAN_DEV "can1"
 #elif GIMBAL_CAN_DEVICE_NAME == 2
-#define GIMBAL_CAN_DEV USED_CAN2
+#define GIMBAL_CAN_DEV "can2"
 #else 
 #error "GIMBAL_CAN_DEVICE_NAME is not defined right!"
 #endif
 
 // #define IMU_GIMBAL_CAN_DEV USED_CAN2    // 云台IMUcan设备
 #if IMU_GIMBAL_CAN_DEVICE_NAME == 1
-#define IMU_GIMBAL_CAN_DEV USED_CAN1
+#define IMU_GIMBAL_CAN_DEV "can1"
 #elif IMU_GIMBAL_CAN_DEVICE_NAME == 2
-#define IMU_GIMBAL_CAN_DEV USED_CAN2
+#define IMU_GIMBAL_CAN_DEV "can2"
 #else 
 #error "IMU_GIMBAL_CAN_DEVICE_NAME is not defined right!"
 #endif

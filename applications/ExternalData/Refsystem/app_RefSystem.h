@@ -27,10 +27,9 @@ typedef enum
 // 红蓝方
 typedef enum
 {
-    REF_ERROR,
-    RED_TEAM = 1,
+    RED_TEAM,
     BLUE_TEAM,
-
+    REF_ERROR,
 } Ref_team_color_e;
 
 typedef enum
@@ -113,11 +112,6 @@ typedef struct
     uint32_t tick;
 
 } Ref_Hurt_t;
-
-typedef struct
-{
-    rt_uint16_t outpost_hp; // 敌方前哨站血量
-} EnemyInfo_t;
 
 /*------------------------------------XXX----------------------------------------------------------*/
 
@@ -202,6 +196,5 @@ void Ref_Bulid_If_Hurt(void *data);
 
 rt_err_t DJI_Init(void);
 extern Ref_Hurt_t hurt;
-extern EnemyInfo_t EnemyInfo;
 
 #endif

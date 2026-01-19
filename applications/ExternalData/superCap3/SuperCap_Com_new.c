@@ -56,7 +56,6 @@ static void Refresh_Scprdata(CANInstance *instance)
     scpr_comRx.voltage = *(uint16_t *)(&instance->rx_buff[4]); // 4-5
     scpr_comRx.current = *(uint16_t *)(&instance->rx_buff[6]); // 6-7
     scpr_comRx.power_cup = scpr_comRx.voltage * scpr_comRx.current / 1000.f/1000.f; // 计算功率，此处功率未进行滤波，在后续使用时需要考虑滤波
-    scpr_comRx.recvTick = rt_tick_get();               //刷新数据接收时刻
 }
 
 /**
@@ -230,6 +229,12 @@ rt_err_t Scpr_Com_Init(void)
 }
 
 /*----------------------------------------------外部超电数据获取接口-----------------------------------------------*/
+//获取上次接收通信时间
+rt_tick_t Get_SuprCap_recTick(void)
+{
+    return scpr_caninstance.rx_time;
+}
+
 /**
  * @brief 获取超级电容控制板当前是否在线
  * @author fwlh
@@ -237,14 +242,14 @@ rt_err_t Scpr_Com_Init(void)
  */
 rt_bool_t Read_Super_Capacity_Online(void)
 {
-    return ((scpr_comRx.recvTick && (rt_tick_get() - scpr_comRx.recvTick < 200)) ? RT_TRUE : RT_FALSE);
+    return ((scpr_caninstance.rx_time && (rt_tick_get() - scpr_caninstance.rx_time < 200)) ? RT_TRUE : RT_FALSE);
 }
 
 // 获得超电电压V
 rt_err_t Get_SuprCapVoltage(float *V_cap)
 {
     *V_cap = scpr_comRx.V_cap / 1000.f;
-    if (scpr_comRx.recvTick && (rt_tick_get() - scpr_comRx.recvTick < 100)) 
+    if (scpr_caninstance.rx_time && (rt_tick_get() - scpr_caninstance.rx_time < 100)) 
         return RT_EOK;
     else
         return RT_ERROR;
@@ -253,7 +258,7 @@ rt_err_t Get_SuprCapVoltage(float *V_cap)
 // 获得超级电容充放电状态
 SupCap_State_e Get_SuprCapState(void)
 {
-    if (scpr_comRx.recvTick && (rt_tick_get() - scpr_comRx.recvTick < 100))
+    if (scpr_caninstance.rx_time && (rt_tick_get() - scpr_caninstance.rx_time < 100))
     {
         if (scpr_comRx.V_cap > V_cap_data[V_cap_data_index == VCAP_DATA_NUM ? 0 : V_cap_data_index] + 5) //+x防止ADC数据浮动差影响
             Scp_Now_State = CAP_STATE_CHARGE;
@@ -276,7 +281,7 @@ rt_bool_t getSuprCapMearData(float *volatge, float *current, float *V_Cap)
         *current = scpr_comRx.current;
     if (V_Cap)
         *V_Cap = scpr_comRx.V_cap / 1000.f;
-    if (scpr_comRx.recvTick && (rt_tick_get() - scpr_comRx.recvTick < 100))
+    if (scpr_caninstance.rx_time && (rt_tick_get() - scpr_caninstance.rx_time < 100))
         return RT_TRUE;
     else
         return RT_FALSE;
@@ -290,7 +295,7 @@ rt_bool_t getSuprCapMearData(float *volatge, float *current, float *V_Cap)
 rt_bool_t Get_RemainCapcity(float *cap)
 {
     *cap = scpr_comRx.cap * 100.f;
-    if (scpr_comRx.recvTick && (rt_tick_get() - scpr_comRx.recvTick < 100))
+    if (scpr_caninstance.rx_time && (rt_tick_get() - scpr_caninstance.rx_time < 100))
     {
         return RT_TRUE;
     }
@@ -303,7 +308,7 @@ rt_bool_t Get_RemainCapcity(float *cap)
 rt_bool_t Get_SuprCapPower(float *power)
 {
     *power = scpr_comRx.power_cup;
-    if (scpr_comRx.recvTick && (rt_tick_get() - scpr_comRx.recvTick < 100))
+    if (scpr_caninstance.rx_time && (rt_tick_get() - scpr_caninstance.rx_time < 100))
     {
         return RT_TRUE;
     }

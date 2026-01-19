@@ -69,9 +69,9 @@ typedef enum
 
 // #define GIMBAL_CAN_DEV USED_CAN2        // 云台can设备
 #if GIMBAL_CAN_DEVICE_NAME == 1
-#define GIMBAL_CAN_DEV USED_CAN1
+#define GIMBAL_CAN_DEV "can1"
 #elif GIMBAL_CAN_DEVICE_NAME == 2
-#define GIMBAL_CAN_DEV USED_CAN2
+#define GIMBAL_CAN_DEV "can2"
 #else 
 #error "GIMBAL_CAN_DEVICE_NAME is not defined right!"
 #endif
