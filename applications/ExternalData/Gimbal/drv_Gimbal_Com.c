@@ -161,7 +161,7 @@ static rt_uint16_t Ref_Bullet_Speed_Limit(void)
  * 
  * @param instance 
  */
-static void Gimbal_refdataGet1_Tx(CANInstance *instance)
+static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
 {
     Gim_Reftrans1_t gim_reftrans_msg1;
     /*枪口热量*/
@@ -176,7 +176,7 @@ static void Gimbal_refdataGet1_Tx(CANInstance *instance)
     getRefData(memberGet_parm(gim_reftrans_msg1.cooling_buff,ext_buff_musk,cooling_buff));
 
     //!因为协议修改导致字节数超了，暂时没法搞
-    //memcpy(instance->tx_buff,&gim_reftrans_msg1,8);
+    //memcpy(instance->tx_buff,&gim_reftrans_msg1,sizeof(gim_reftrans_msg1) < 8 ? sizeof(gim_reftrans_msg1) : 8);
 }
 
 /**
@@ -184,7 +184,7 @@ static void Gimbal_refdataGet1_Tx(CANInstance *instance)
  * 
  * @param instance 
  */
-static void Gimbal_refdataGet2_Tx(CANInstance *instance)
+static void Gimbal_RefdataGet_Tx(CANInstance *instance)
 {
     Gim_Reftrans2_t gim_reftrans_msg2;
     uint8_t get_temp_8;//暂存裁判系统信息
@@ -243,7 +243,7 @@ static void Gimbal_refdataGet2_Tx(CANInstance *instance)
     /*目标机器人ID（多机通信）*/
     getRefData(memberGet_parm(gim_reftrans_msg2.target_robot_ID,ext_robot_command_map,target_robot_ID));
 
-    memcpy(instance->tx_buff,&gim_reftrans_msg2,8);//写入报文
+    memcpy(instance->tx_buff,&gim_reftrans_msg2,sizeof(gim_reftrans_msg2) < 8 ? sizeof(gim_reftrans_msg2) : 8);//写入报文
 }
 
 /**
@@ -309,8 +309,8 @@ rt_err_t Gimbal_Com_Init(void)
     rt_thread_t handler = RT_NULL; // 线程句柄
 
     /*注册发送can通信*/
-    Gimbal_comTx_Attach(Shooter_msg_Index,GIMBAL_SHOOT_TX,Gimbal_refdataGet1_Tx);
-    Gimbal_comTx_Attach(Mixed_msg_Index,GIMBAL_MIXDATA_TX,Gimbal_refdataGet2_Tx);
+    Gimbal_comTx_Attach(Shooter_msg_Index,GIMBAL_SHOOT_TX,Gimbal_RefShootdataGet_Tx);
+    Gimbal_comTx_Attach(Mixed_msg_Index,GIMBAL_MIXDATA_TX,Gimbal_RefdataGet_Tx);
 
     /*注册接收can通信*/
     Gimbal_comRx_Attach(Ctrl_msg_Index,GIMBAL_CTRL_RX,Gimbal_CtrlData_Rx_call);
