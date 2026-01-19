@@ -4,6 +4,9 @@
 #include "DJI_6020.h"
 #include "drv_motionSolve.h"
 #include "robot_control.h"
+#include "drv_GimMotor.h"
+#include "fun_powerCtrl.h"
+
 #define WHEEL_MOTOR_NUM 4
 #define GIM_MOTOR_NUM 2
 
@@ -26,6 +29,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type=POWER_CTRL_WHEEL
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,
@@ -69,6 +73,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type=POWER_CTRL_WHEEL
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,
@@ -112,6 +117,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type=POWER_CTRL_WHEEL
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,
@@ -156,6 +162,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type=POWER_CTRL_WHEEL
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,

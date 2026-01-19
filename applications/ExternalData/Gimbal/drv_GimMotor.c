@@ -87,7 +87,7 @@ rt_bool_t Get_Pitch_Motor_Offline_State(void)
     return (((Gim_Motor_Pointer[PITCH_MOTOR]->Motor_obj.can_instance.rx_time && (rt_tick_get() - Gim_Motor_Pointer[PITCH_MOTOR]->Motor_obj.can_instance.rx_time > 200))) ? RT_TRUE : RT_FALSE);
 }
 
-
+//todo 该函数待处理
 uint8_t GetGimMotorOffline(void)
 {
     uint8_t isoffline = 0;
