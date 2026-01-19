@@ -5,6 +5,7 @@
 #include "app_monitor.h"
 #include "mod_motion.h"
 #include "controlMsg.h"
+#include "drv_GimMotor.h"
 
 int16_t gimRxMonId = -1; // 云台监视器id
 
@@ -50,9 +51,9 @@ void Refresh_Ctldata(struct rt_can_msg *msg)
 
     Source_WriteData_s(CS_GIMBAL, &gimbal_ctrl);
 
-    gimbal_ctrl.getYawAngel = (getYawAngelCallBack)Get_GM_ANGLE_360f;
-    gimbal_ctrl.arg = GM_YAW;
-    gimbal_ctrl.folIsReverse = !YAW_ANGLE_REVERSAL;                  /*当底盘在云台的顺时针方向角度为正所以跟随时反向*/
+    gimbal_ctrl.getYawAngel =Get_YAW_ANGLE_360f();
+   // gimbal_ctrl.arg = GM_YAW;
+   // gimbal_ctrl.folIsReverse = !YAW_ANGLE_REVERSAL;                  /*当底盘在云台的顺时针方向角度为正所以跟随时反向*/
     Package_Write(dataNum[Gim_Ctrl], gimbal_ctrl); // 更新数据服务器的数据
 }
 

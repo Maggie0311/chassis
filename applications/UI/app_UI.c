@@ -9,7 +9,7 @@
 #include "drv_send_UI.h"
 #include "app_UI.h"
 #include "CustomUI_GraphParameters.h"
-
+#include "drv_GimMotor.h"
 
 extern rt_device_t serial_UI ;
 static rt_thread_t ui_thread = RT_NULL;
@@ -862,8 +862,8 @@ void Get_UI_Data(void)
 #else
     UiExData.Ch_IMU_Data = get_chassis_imu_data(); // 得到底盘三轴欧拉角--绘制辅助瞄准线
 #endif
-    UiExData.GM_YAW_360F = Get_GM_ANGLE_360f(GM_YAW); // 获取云台,yaw --绘制辅助瞄准线
-    UiExData.GM_Pitch = Get_GM_ANGLE_360f(GM_PITCH);  // 云台电机,pitch--绘制辅助瞄准线
+    UiExData.GM_YAW_360F = Get_YAW_ANGLE_360f(); // 获取云台,yaw --绘制辅助瞄准线
+    UiExData.GM_Pitch = Get_PITCH_ANGLE_360f();  // 云台电机,pitch--绘制辅助瞄准线
 
     UiExData.GM_IMU_Pitch = Get_Gimbal_IMU_Data(IMU_PITCH); // 云台imu pitch--显示云台Pitch轴角度
     UiExData.Strike_Mode = Get_StrikeMode(); // 更新子弹模式,有单发与三连发模式(这里已经不再使用该变量来作为单发和连发的判断依据)

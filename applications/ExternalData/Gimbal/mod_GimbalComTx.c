@@ -8,6 +8,10 @@
 #include "mod_motion.h"
 // #include "func_ModeTrigger.h"
 #include "drv_IMU.h"
+#include "robot_control.h"
+#define LOG_TAG     "gim_motor_Log"
+#include <ulog.h>
+
 
 RefState_TxGimMsg_t TxGimMsg;
 uint8_t gimTxDebug = 1;
@@ -243,7 +247,12 @@ rt_err_t Gimbal_Com_Init(void)
 
     // 注册can接受回调
     attachCanRXfun(rx_gimIMU, Refresh_Chassis_Gimbalcaled_IMU_Data);
-    attachCanRXfun(rx_gimMotor, Refresh_GimbalMotor);
+//    attachCanRXfun(rx_gimMotor, Refresh_GimbalMotor);
+    if(!gim_motor_init())
+    {
+        LOG_E("gim_motor init failed, err=%d",gim_motor_init());
+        return RT_ERROR;
+    }
     attachCanRXfun(rx_gimctrl, Refresh_Ctldata);
     attachCanRXfun(rx_gimData, Refresh_Gimbaldata);
 

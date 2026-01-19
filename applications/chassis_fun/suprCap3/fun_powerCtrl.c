@@ -705,10 +705,10 @@ static void Power_lim_allo_to_wheels()
                 }
                 temp_angle = fabsf(Motor_power[group][WHEEL_ANGLE].allo_tor_set); // 取扭矩绝对值
                 // //todo 转换比待修改
-                if(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output>0)
-                    Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=temp_angle/get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_RUN]);
+                if(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output>0)
+                    Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=temp_angle/get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_ANGLE]);
                 else
-									  Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=-temp_angle/get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_RUN]);
+									  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=-temp_angle/get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_ANGLE]);
                 // if (wheel_temp[group][WHEEL_ANGLE].motor.spe.out >= 0)
                 //     wheel_temp[group][WHEEL_ANGLE].motor.spe.out = temp_angle / K_IC2Tor_ANGLE;
                 // else
@@ -749,12 +749,12 @@ static void Power_lim_allo_to_wheels()
                 }
                 temp_run = fabsf(Motor_power[group][WHEEL_RUN].allo_tor_set); // 取扭矩绝对值
                 //             temp = fabsf(Motor_power[index].allo_tor_set); // 取扭矩绝对值
-                Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output;
+             
                 //             // 转换为输出的扭矩电流(COUNT)，并按正确的方向输出
-                if (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output >= 0)
-                   Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output= temp_run /get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_RUN]);
+                if (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output >= 0)
+                   Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output= temp_run /get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_RUN]);
                 else
-                   Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output = -temp_run /get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_RUN]);
+                   Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output = -temp_run /get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_RUN]);
             }
 
         }
