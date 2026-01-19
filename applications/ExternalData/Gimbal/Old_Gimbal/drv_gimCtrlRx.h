@@ -3,7 +3,6 @@
 
 #include <board.h>
 #include "string.h"
-#include "drv_IMU.h"
 
 #define MSG_READ_2BYTES(lo, hi) ((rt_int16_t)((msg->data[lo] << 8) + msg->data[hi])) // 二字节读取宏
 
