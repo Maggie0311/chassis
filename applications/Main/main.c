@@ -7,6 +7,7 @@
 #include "func_MonHandling.h"
 #include "app_UI.h"
 #include "custom_message.h"
+#include "app_RefSystem.h"
 
 #ifdef BSP_USING_RGB_LIGHT
 #include "func_RGB_Display.h"
@@ -69,7 +70,7 @@ int main(void)
         LOG_I("CAN Init Success!");
     }
 #ifdef BSP_USING_REF
-    result = DJI_Init();
+    result = Ref_Init();
     if (result != RT_EOK)
     {
         LOG_E("DJI Init Failes! Result is %d", result);

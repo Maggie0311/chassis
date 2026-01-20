@@ -54,7 +54,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     } // switch
     // debug_fixctrl = fixCtrl; // 控制源控制数据
     // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
-    Set_Plan_Vxyw_Process(fixCtrl);
+    // Set_Plan_Vxyw_Process(fixCtrl);
     // debug_fixctrl = fixCtrl;
     //  修改pid的设定值
 		chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);

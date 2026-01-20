@@ -64,7 +64,6 @@ static void get_visual_need_ref_data()
     static ext_game_state_t visual_tx_game_state_temp ={0};
     uint16_t getdata_temp_16;
     uint8_t getdata_temp_8;
-    Mot_base_t getdata_temp_mot;
 
     getRefData(structGet_pram(visual_tx_game_state_temp,ext_game_state));
     visual_tx_game_info.game_type = visual_tx_game_state_temp.game_data.game_type;
@@ -111,8 +110,10 @@ static void get_visual_need_ref_data()
     getRefData(structGet_pram(visual_tx_robot_command_map_temp,ext_robot_command_map));
     rt_memcpy(&visual_tx_robot_command_map,&visual_tx_robot_command_map_temp,sizeof(visual_tx_robot_command_map));
     //visual_tx_robot_command_map_temp与visual_tx_robot_command_map仅结构体类型名不同，只是为了区分底盘与裁判机的通信和底盘与视觉的通信
-    getdata_temp_mot = Get_realmotion();
-    visual_tx_Robot_wheel_odometry = getdata_temp_mot.vel;
+
+    visual_tx_Robot_wheel_odometry.vel_x = Get_realmotion().vel.x;
+    visual_tx_Robot_wheel_odometry.vel_y = Get_realmotion().vel.y;
+
 }
 
 #ifdef VISUAL_USART_USING_NORMAL
