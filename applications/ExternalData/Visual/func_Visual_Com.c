@@ -109,6 +109,7 @@ static void get_visual_need_ref_data()
     getRefData(structGet_pram(visual_tx_robot_command_map_temp,ext_robot_command_map));
     rt_memcpy(&visual_tx_robot_command_map,&visual_tx_robot_command_map_temp,sizeof(visual_tx_robot_command_map));
     //visual_tx_robot_command_map_temp与visual_tx_robot_command_map仅结构体类型名不同，只是为了区分底盘与裁判机的通信和底盘与视觉的通信
+    visual_tx_Robot_wheel_odometry = (Robot_wheel_odometry_t)Get_realmotion();
 }
 
 #ifdef VISUAL_USART_USING_NORMAL

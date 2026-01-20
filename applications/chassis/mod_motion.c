@@ -22,7 +22,6 @@ Mot_base_t Speed_xyw = {0};
 
 Mot_base_t SmoothSpeed;           /*处理过后控制使用设定值*/
 Mot_base_t Setmotion;             /*未处理原始设定值*/
-Mot_base_t real_xyw;              /*反解算的实际速度*/
 //static uint8_t fol_isReverse = 0; // 从控制坐标系转化到底盘坐标系
 static uint8_t flag_reg = 0;      // isFirst, turn_reg, isIn_1, isIn_2 , trunin_mode_last, trunin
 
@@ -555,12 +554,7 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
 }
 
 // 得到实时的控制速度
-Mot_base_t getSetMotion(void)
-{
-    return SmoothSpeed;
-}
-
-Mot_base_t getRealVel(void)
-{
-    return real_xyw;
-}
+// Mot_base_t getSetMotion(void)
+// {
+//     return SmoothSpeed;
+// }

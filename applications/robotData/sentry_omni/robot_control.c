@@ -6,6 +6,7 @@
 #include "robot_control.h"
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
+#include "robot_control.h"
 
 #define WHEEL_MOTOR_NUM 4
 #define GIM_MOTOR_NUM 2
@@ -19,7 +20,7 @@
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
 DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
 
-uint8_t isSetValid[2] = {1, 1};       /*debug*,1为开，0为关/
+uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关/
       
       /*底盘四个车轮(或者说轮毂)的期望线速度 单位mm/s 输出顺序RF-LF-LB-RB*/
 float motorSetSpeed[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
@@ -378,7 +379,7 @@ static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
 
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
-    if (1 == isSetValid[0])
+    if (1 == isSetValid_debug[0])
     {
        // Mecanum_Inverse_Kinematics(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
         Omni_Resolve(*Speed_xyw, motorSetSpeed);
@@ -386,7 +387,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 
         // Get_force_out(motorSetForce); // 获取前馈值
     }
-    if (1 == isSetValid[1])
+    if (1 == isSetValid_debug[1])
     {
         Wheel_Speed_Set(motorSetSpeed); // 设置电机速度环设定值
     }

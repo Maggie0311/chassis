@@ -177,7 +177,7 @@ void OdomCalculate(void)
     // (-180-180] 逆时针为正
     Get_Chassis_IMU_Elur((imu_euler_t *)&OdomIMU_Data.euler);
     // 得到当前编码器设定的的速度和角速度
-    motionTmp = getSetMotion();
+    // motionTmp = getSetMotion();
     odom_encoder.motionReal.vel.x = motionTmp.vel.x / 1000.f; // 单位m/s
     odom_encoder.motionReal.vel.y = motionTmp.vel.y / 1000.f; // 单位m/s
     odom_encoder.motionReal.angvel = motionTmp.angvel / 10.f; // 单位°/s

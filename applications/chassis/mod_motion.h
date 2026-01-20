@@ -93,7 +93,6 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl);
 Mot_base_t MotPack_Offset_SmallTop(const Ctrl_data_t *const ctrlMsg, const Vector2_t *const pos);
 void ExMotMod_Modify_Apid(float kp, float ki, float kd, float i_lim, float lim_up, float lim_down);
 
-Mot_base_t getSetMotion(void);
-Mot_base_t getRealVel(void);
+// Mot_base_t getSetMotion(void);
 
 #endif

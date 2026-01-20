@@ -19,12 +19,14 @@
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
 DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
 
-uint8_t isSetValid[2] = {1, 1};       /*debug*,1为开，0为关/
+uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关/
       
       /*底盘四个车轮(或者说轮毂)的期望线速度 单位mm/s 输出顺序RF-LF-LB-RB*/
 float motorSetSpeed[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
 float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 static float encodeData[4];
+
+Mot_base_t real_xyw;//正解算后的底盘真实运动情况
 
 // 底盘四个电机配置参数模板
 DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
@@ -389,7 +391,7 @@ void GetEncode(void)
  * @param {Mot_base_t} *real_xyw 解算出来的车身的速度
  * @return real_xyw->vy 单位m/s real_xyw->vx 单位mm/s  real_xyw->angvel单位0.1°/s
  */
-void fromEncoderGetV(Mot_base_t *real_xyw)
+void fromEncoderGetV()
 {
     // 各个轮组解算的常量系数，按照不同的种类进行划分     该系数考虑距离，角度转弧度，角速度0.1度/s的因素，最终将轮向电机速度直接除以改系数得到角速度值
     static float coefficient_OMNI = VEHICLE_DIAMETER / 20.f * DEGTORAD;
@@ -400,10 +402,10 @@ void fromEncoderGetV(Mot_base_t *real_xyw)
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
         // 单位mm/s
-        real_xyw->vel.y += encodeData[i] * ROOT2 / 4.0f * sign[0][i];
-        real_xyw->vel.x += encodeData[i] * ROOT2 / 4.0f * sign[1][i];
+        real_xyw.vel.y += encodeData[i] * ROOT2 / 4.0f * sign[0][i];
+        real_xyw.vel.x += encodeData[i] * ROOT2 / 4.0f * sign[1][i];
         // 单位rad/s ->0.1°/s
-        real_xyw->angvel += encodeData[i] / 4.0f / coefficient_OMNI * sign[2][i];
+        real_xyw.angvel += encodeData[i] / 4.0f / coefficient_OMNI * sign[2][i];
     }
 }
 /**
@@ -411,15 +413,15 @@ void fromEncoderGetV(Mot_base_t *real_xyw)
  *
  * @param real_xyw 返回底盘实际运动状态，x,y,w的单位分别为mm/s，mm/s，0.1°/s
  */
-void Get_real_motion(Mot_base_t *real_xyw)
+void omni_Forward_Kinematics_temp(void)
 {
     GetEncode();
-    fromEncoderGetV(real_xyw);
+    fromEncoderGetV();
 }
 //**
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
-    if (1 == isSetValid[0])
+    if (1 == isSetValid_debug[0])
     {
        // Mecanum_Inverse_Kinematics(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
         Omni_Resolve(*Speed_xyw, motorSetSpeed);
@@ -427,8 +429,13 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 
         // Get_force_out(motorSetForce); // 获取前馈值
     }
-    if (1 == isSetValid[1])
+    if (1 == isSetValid_debug[1])
     {
         Wheel_Speed_Set(motorSetSpeed); // 设置电机速度环设定值
     }
+}
+
+Mot_base_t Get_realmotion(void)
+{
+    return real_xyw;
 }

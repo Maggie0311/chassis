@@ -41,7 +41,7 @@ static void PID_Cal_Thread(void)
         /*can报文发送*/
         Motor_Transmit_Loop();
 
-        Get_real_motion();
+        omni_Forward_Kinematics_temp();
     }
 }
 

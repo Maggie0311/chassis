@@ -4,6 +4,7 @@
 
 #include "mod_motion.h"
 #include "SuperCap_Com_new.h"
+#include "robot_control.h"
 
 extern uint8_t power_ctrl_close;
 
@@ -53,7 +54,7 @@ void Select_Send_Message(void)
     switch (Message_Select)
     {
     case realvel_single_dyn:
-        float_to_utf16(getRealVel().vel.y, 0, (uint16_t *)message[realvel_single_dyn].message_data_utf16[1], CUSTOM_DATA_NUM / 2);
+        float_to_utf16(Get_realmotion().vel.y, 0, (uint16_t *)message[realvel_single_dyn].message_data_utf16[1], CUSTOM_DATA_NUM / 2);
         message[realvel_single_dyn].message_montage_order[order_index_temp++] = 1;
         message[realvel_single_dyn].message_montage_order[order_index_temp++] = 4;
         float_to_utf16(getMaxVely_in_a_move(), 0, (uint16_t *)message[realvel_single_dyn].message_data_utf16[2], CUSTOM_DATA_NUM / 2);
