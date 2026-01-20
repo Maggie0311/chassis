@@ -23,7 +23,7 @@ Mot_base_t Speed_xyw = {0};
 Mot_base_t SmoothSpeed;           /*处理过后控制使用设定值*/
 Mot_base_t Setmotion;             /*未处理原始设定值*/
 Mot_base_t real_xyw;              /*反解算的实际速度*/
-static uint8_t fol_isReverse = 0; // 从控制坐标系转化到底盘坐标系
+//static uint8_t fol_isReverse = 0; // 从控制坐标系转化到底盘坐标系
 static uint8_t flag_reg = 0;      // isFirst, turn_reg, isIn_1, isIn_2 , trunin_mode_last, trunin
 
 static float range_angle_180(float angle)
@@ -53,24 +53,15 @@ static Mot_base_t MotModule_Clamp_Base(Mot_base_t VxyW)
 /**
  * @brief 矢量坐标转换模块 右手坐标系 y轴为正前方
  * @param {Vector2_t} speed 速度矢量,不改变单位；推荐单位：mm/s
- * @param {float} theta 两个坐标系的夹角 输入单位°，范围(-180°~180°]
- * @param {uint8_t} isReverse 当存在云台时和云台角度匹配即可
+ * @param {float} theta 两个坐标系的夹角 输入单位°，范围(0°~360°]
  */
-static Vector2_t MotModule_Transform(Vector2_t speed, float theta, uint8_t isReverse)
+static Vector2_t MotModule_Transform(Vector2_t speed, float theta)
 {
     Vector2_t chassis_speed;
     Vector2_t gimSpeed = speed;
     theta = theta / 180.0f * PI; // 转化为弧度
-    if (isReverse)
-    {
-        chassis_speed.x = gimSpeed.x * cosf(theta) - gimSpeed.y * sinf(theta); // x=x'cosθ-y'sinθ
-        chassis_speed.y = gimSpeed.x * sinf(theta) + gimSpeed.y * cosf(theta); // y=y'cosθ+x'sinθ
-    }
-    else
-    {
-        chassis_speed.x = gimSpeed.x * cosf(theta) + gimSpeed.y * sinf(theta);  // x'=ysinθ+xcosθ
-        chassis_speed.y = -gimSpeed.x * sinf(theta) + gimSpeed.y * cosf(theta); // y'=ycosθ-xsinθ
-    }
+    chassis_speed.x = gimSpeed.x * cosf(theta) + gimSpeed.y * sinf(theta);  // x'=ysinθ+xcosθ
+    chassis_speed.y = -gimSpeed.x * sinf(theta) + gimSpeed.y * cosf(theta); // y'=ycosθ-xsinθ
     return chassis_speed;
 }
 
@@ -118,10 +109,10 @@ Mot_base_t MotPack_Offset_SmallTop(const Ctrl_data_t *const ctrlMsg, const Vecto
         yaw_angle = ctrlMsg->getYawAngel;
     // }
     /*本文件暂存*/
-    fol_isReverse = ctrlMsg->folIsReverse;
+    //fol_isReverse = ctrlMsg->folIsReverse;
 
     /*将云台的速度矢量转化到底盘坐标系上*/
-    vxyW_input.vel = MotModule_Transform(vxyW_input.vel, yaw_angle, fol_isReverse);
+    vxyW_input.vel = MotModule_Transform(vxyW_input.vel, yaw_angle);
 
     /* 叠加偏心运动 */
     MotModule_Eccentric(&vxyW_input, &posTemp);
@@ -214,7 +205,7 @@ uint8_t follow_at_powerlim(Mot_base_t *const VxyW)
 float anglevel_last = 0; // 记录上次角速度滤波后的值
 Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_mode)
 {
-    fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
+    // fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
     float fol_angle = ctrlMsg->fol_angle;
     float yaw_angle = 0;
     float yaw_Omega = 0;
@@ -266,7 +257,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     // yawAngleOffset(yaw_Omega, &yaw_angle);  // 当旋转较快时执行yaw轴电机角度补偿
 
     /*将云台的控制速度矢量转化到底盘坐标系上*/
-    // VxyW.vel = MotModule_Transform(VxyW.vel, yaw_angle, fol_isReverse);
+    // VxyW.vel = MotModule_Transform(VxyW.vel, yaw_angle);
     return VxyW;
 }
 
@@ -508,7 +499,7 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     // }
     yawAngleOffset(VxyW.angvel, &angle); // 当小陀螺较快时执行yaw轴电机角度补偿
 
-    fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
+    // fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
 
     return VxyW;
 }
@@ -555,11 +546,11 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
         angle = ctrl.getYawAngel;
     // }
 
-    Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle, ctrl.folIsReverse); // 对线速度进行坐标系转换
+    Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
     Speed_xyw.angvel = plan_xyw.angvel;
-    Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle, ctrl.folIsReverse); // 对线加速度进行坐标系转换
+    Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
     Force_xyw.angvel = plan_acc_xyw.angvel;
-    // ret_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle, ctrl.folIsReverse);//控制量直接进行转换，不用平滑处理
+    // ret_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
     // ret_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
 

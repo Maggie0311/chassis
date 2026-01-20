@@ -60,8 +60,10 @@ static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
         gimbal_ctrl.angvel = (float)MSG_READ_2BYTES(instance->rx_buff[4], instance->rx_buff[5]);
         gimbal_ctrl.fol_ang = 0;
     }
+    gimbal_ctrl.getYawAngel =Get_YAW_ANGLE_360f();
     //instance->rx_buff[7]为云台端裁认为裁判系统异常则会给出一个底盘最大功率，底盘这边没用
     Source_WriteData_s(CS_GIMBAL, &gimbal_ctrl);
+
 }
 
 /***
@@ -230,7 +232,8 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
     uint32_t tick = 0;
     static uint32_t lastMapTick;
     tick = GetRefDataRefreshTick(Index_robot_command_map);
-    if (mapData.commd_keyboard == 'F' && tick != lastMapTick)
+    getRefData(memberGet_parm(get_temp_8,ext_robot_command_map,commd_keyboard));
+    if (get_temp_8 == 'F' && tick != lastMapTick)
     {
         lastMapTick = tick;
         gim_reftrans_msg2.SentryIsFire = !gim_reftrans_msg2.SentryIsFire;
@@ -251,8 +254,8 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
     gim_reftrans_msg2.SentryHP = get_temp_16;
 
     /*云台手键盘信息*/
-    getRefData(memberGet_parm(get_temp_16,ext_robot_command_map,commd_keyboard));
-    gim_reftrans_msg2.commd_keyboard = get_temp_16;
+    getRefData(memberGet_parm(get_temp_8,ext_robot_command_map,commd_keyboard));
+    gim_reftrans_msg2.commd_keyboard = get_temp_8;
 
     /*目标机器人ID（多机通信）*/
     getRefData(memberGet_parm(get_temp_16,ext_robot_command_map,target_robot_ID));
