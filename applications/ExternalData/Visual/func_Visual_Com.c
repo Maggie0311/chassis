@@ -60,24 +60,37 @@ static void get_visual_need_ref_data()
     static ext_bullet_remaining_t visual_tx_bullet_remaining_temp={0};
     static ext_sentry_info_t visual_tx_sentry_info_temp={0};
     static ext_robot_command_map_t visual_tx_robot_command_map_temp={0};
+    static ext_game_state_t visual_tx_game_state_temp ={0};
+    uint16_t getdata_temp_16;
+    uint8_t getdata_temp_8;
 
-    getRefData(memberGet_parm(visual_tx_game_info.game_type,ext_game_state,game_type));
-    getRefData(memberGet_parm(visual_tx_game_info.game_progress,ext_game_state,game_progress));
-    getRefData(memberGet_parm(visual_tx_game_info.stage_remain_time,ext_game_state,stage_remain_time));
+    getRefData(structGet_pram(visual_tx_game_state_temp,ext_game_state));
+    visual_tx_game_info.game_type = visual_tx_game_state_temp.game_data.game_type;
+    visual_tx_game_info.game_progress = visual_tx_game_state_temp.game_data.game_progress;
+
+    getRefData(memberGet_parm(getdata_temp_16,ext_game_state,stage_remain_time));
+    visual_tx_game_info.stage_remain_time = getdata_temp_16;
+
     getRefData(structGet_pram(visual_tx_game_robot_survivors_temp,ext_game_robot_survivors));
     rt_memcpy(&visual_tx_game_robot_survivors,&visual_tx_game_robot_survivors_temp,sizeof(visual_tx_game_robot_survivors));
     getRefData(structGet_pram(visual_tx_event_data_temp,ext_event_data));
     rt_memcpy(&visual_tx_event_data,&visual_tx_event_data_temp,sizeof(visual_tx_event_data));
 
-    getRefData(memberGet_parm(visual_tx_robot_info.robot_id,ext_game_robot_status,robot_id));
-    getRefData(memberGet_parm(visual_tx_robot_info.robot_level,ext_game_robot_status,robot_level));
-    getRefData(memberGet_parm(visual_tx_robot_info.remain_HP,ext_game_robot_status,remain_HP));
-    getRefData(memberGet_parm(visual_tx_robot_info.max_HP,ext_game_robot_status,max_HP));
-    getRefData(memberGet_parm(visual_tx_robot_info.shooter_cooling_rate,ext_game_robot_status,shooter_cooling_rate));
-    getRefData(memberGet_parm(visual_tx_robot_info.shooter_cooling_limit,ext_game_robot_status,shooter_cooling_limit));
-    getRefData(memberGet_parm(visual_tx_robot_info.chassis_power_limit,ext_game_robot_status,chassis_power_limit));
+    getRefData(memberGet_parm(getdata_temp_8,ext_game_robot_status,robot_id));
+    visual_tx_robot_info.robot_id = getdata_temp_8;
+    getRefData(memberGet_parm(getdata_temp_8,ext_game_robot_status,robot_level));
+    visual_tx_robot_info.robot_level = getdata_temp_8;
+    getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,remain_HP));
+    visual_tx_robot_info.remain_HP = getdata_temp_16;
+    getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,max_HP));
+    visual_tx_robot_info.max_HP = getdata_temp_16;
+    getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,shooter_cooling_rate));
+    visual_tx_robot_info.shooter_cooling_rate = getdata_temp_16;
+    getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,shooter_cooling_limit));
+    visual_tx_robot_info.shooter_cooling_limit = getdata_temp_16;
+    getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,chassis_power_limit));
+    visual_tx_robot_info.chassis_power_limit = getdata_temp_16;
     getRefData(structGet_pram(visual_tx_robot_pos_temp,ext_game_robot_pos));
-
     rt_memcpy(&visual_tx_robot_pos,&visual_tx_robot_pos_temp,sizeof(visual_tx_robot_pos));
     getRefData(structGet_pram(visual_tx_bullet_remaining_temp,ext_bullet_remaining));
     rt_memcpy(&visual_tx_bullet_remaining,&visual_tx_bullet_remaining_temp,sizeof(visual_tx_bullet_remaining_temp));
@@ -259,9 +272,7 @@ static void Visual_Ctrl_Receive_callback(void* data_p)
         VisualCtrl.ctrlData.angvel = visual_rx_ctrl.w;
     }
 
-    VisualCtrl.ctrlData.getYawAngel = (getYawAngelCallBack)Get_GM_ANGLE_360f;
-    VisualCtrl.ctrlData.arg=GM_YAW;
-    VisualCtrl.ctrlData.folIsReverse = !YAW_ANGLE_REVERSAL;
+    VisualCtrl.ctrlData.getYawAngel = Get_YAW_ANGLE_360f();
     Source_WriteData_s(CS_Visual, (void *)&VisualCtrl.ctrlData);//将数据源写入到控制数据中
 }
 
