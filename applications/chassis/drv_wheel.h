@@ -4,9 +4,6 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <board.h>
-#include "ThreadCtrl.h"
-#include "app_monitor.h"
-#include "robot_data.h"
 
 #if defined ARM_MATH_CM4
 #include <arm_math.h>

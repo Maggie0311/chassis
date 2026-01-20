@@ -1,10 +1,7 @@
 #ifndef __MOD_MOTION_H__
 #define __MOD_MOTION_H__
-#include "drv_GimMotor.h"
-#include "drv_Gimbal_Com.h"
-#include "drv_motionSolve.h"
+
 #include "controlMsg.h"
-#include "drv_wheel.h"
 #include "drv_SetPlanning.h"
 
 /*

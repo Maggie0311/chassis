@@ -6,7 +6,7 @@
 #ifdef BSP_USING_BUZZER
 #include "drv_buzzer.h"
 #endif
-#include "drv_can_com.h"
+// #include "drv_can_com.h"
 #ifdef BSP_CHASSIS_USE_SPI_CAN
 #include "drv_spiCanMaster.h"
 #endif

@@ -374,6 +374,23 @@ static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
     }
 }
 
+//**
+void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
+{
+    if (1 == isSetValid_debug[0])
+    {
+       //Mecanum_Inverse_Kinematics(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
+        Omni_Resolve(*Speed_xyw, motorSetSpeed);
+        Force_Allo_to_wheels(motorSetForce, Force_xyw); // 进行加速度解算到各个电机上
+
+        // Get_force_out(motorSetForce); // 获取前馈值
+    }
+    if (1 == isSetValid_debug[1])
+    {
+        Wheel_Speed_Set(motorSetSpeed); // 设置电机速度环设定值
+    }
+}
+
 // 全向轮正解算
 // 获取底盘目前各个电机状态，轮向电机速度，单位mm/s，舵向电机角度，单位0.1°/s，范围[-1800,+1800],向前为0，向左为负，向右为正
 void GetEncode(void)
@@ -384,6 +401,7 @@ void GetEncode(void)
         encodeData[i] = RPMTORAD * WHEEL_RADIUS * wheel_motor[i].Motor_obj.speed;
     }
 }
+
 /**
  * @brief 麦轮/全向轮底盘正运动解算 此控制坐标系为x轴正方向为右手方向，y轴正方向为正前方
  * @param {坐标系}底盘角速度为正 表示底盘逆时针旋转 输入，输出为正表示车轮带着车身向前运动
@@ -412,6 +430,7 @@ void fromEncoderGetV()
         real_xyw.angvel += encodeData[i] / 4.0f / coefficient_OMNI * sign[2][i];
     }
 }
+
 /**
  * @brief 获得底盘实际运动状态
  *
@@ -422,23 +441,12 @@ void omni_Forward_Kinematics_temp(void)
     GetEncode();
     fromEncoderGetV();
 }
-//**
-void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
-{
-    if (1 == isSetValid_debug[0])
-    {
-       //Mecanum_Inverse_Kinematics(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
-        Omni_Resolve(*Speed_xyw, motorSetSpeed);
-        Force_Allo_to_wheels(motorSetForce, Force_xyw); // 进行加速度解算到各个电机上
 
-        // Get_force_out(motorSetForce); // 获取前馈值
-    }
-    if (1 == isSetValid_debug[1])
-    {
-        Wheel_Speed_Set(motorSetSpeed); // 设置电机速度环设定值
-    }
-}
-
+/**
+ * @brief 获取底盘正解算后数据
+ * 
+ * @return Mot_base_t 
+ */
 Mot_base_t Get_realmotion(void)
 {
     return real_xyw;

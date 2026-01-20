@@ -1,12 +1,11 @@
 #include "app_ChassisCtrl.h"
-// #include "func_ModeTrigger.h"
+
 #include "ThreadCtrl.h"
 #include "app_monitor.h"
+
 #include "mod_motion.h"
 #include "drv_wheel.h"
-#include "controlMsg.h"
 #include "func_MonHandling.h"
-#include "mod_motion.h"
 #include "drv_motionSolve.h"
 #include "robot_control.h"
 /*-------------------外部控制单位,xy平移速度矢量,单位mm/s; 自转角速度,单位0.1°/s------------*/
