@@ -115,4 +115,7 @@
 #define DOUBLE_ACC_MAX_Y (float)30000  // mm / s³
 #define DOUBLE_ACC_MAX_W (float)200000 // 0.1°/ s³
 
+//0x04: 云台达妙电机（大yaw）
+//0x20
+
 #endif
