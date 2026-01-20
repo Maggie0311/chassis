@@ -1,5 +1,5 @@
 #include "drv_wheel.h"
-
+#include "robot_control.h"
 /*所有顺序为转向轮和驱动轮---RF-LF-LB-RB*/
 static struct rt_timer Cal_Timer;   /*线程定时器*/
 static struct rt_semaphore Cal_sem; /*线程信号量*/
@@ -40,6 +40,8 @@ static void PID_Cal_Thread(void)
 
         /*can报文发送*/
         Motor_Transmit_Loop();
+
+        Get_real_motion();
     }
 }
 
