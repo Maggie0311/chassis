@@ -423,14 +423,6 @@ menu "Board function module"
                 config VISUAL_USART_USING_RS485  #RS485串口(不能同时收发)
                     bool "usart-RS485"	
             endchoice
-            choice
-                prompt "select Types of visual usart data" 
-                default USART_DATA_TYPE_VEL
-                config USART_DATA_TYPE_VEL  #速度直控，视觉导航
-                    bool "velxy&angvel"
-                config USART_DATA_TYPE_POS  #位姿通讯，电控导航-古老东西了，内容已经删了-直接用上面的就行了
-                    bool "posxy&yaw"	
-            endchoice
         endif
 endmenu #menu "Board function module"
 
