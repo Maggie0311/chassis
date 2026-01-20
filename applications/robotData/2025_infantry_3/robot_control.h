@@ -13,6 +13,7 @@ int gim_motor_init();
 #define RUN_PID_Kp 320
 #define RUN_PID_Ki 2
 #define RUN_PID_Kd 0.8
+void Get_real_motion(Mot_base_t *real_xyw);//获取正解算后的底盘速度与角速度（视觉通信使用）
 
 #define Power_C_sum (4.0f) // 固定静态功率（换板子也会影响该数据）
 
