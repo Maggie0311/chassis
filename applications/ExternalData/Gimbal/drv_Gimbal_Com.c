@@ -188,8 +188,8 @@ static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
     getRefData(memberGet_parm(get_temp_16,ext_buff_musk,cooling_buff));
     gim_reftrans_msg1.cooling_buff = get_temp_16;
 
-    //!因为协议修改导致字节数超了，暂时没法搞
-    //memcpy(instance->tx_buff,&gim_reftrans_msg1,sizeof(gim_reftrans_msg1) < 8 ? sizeof(gim_reftrans_msg1) : 8);
+    //!因为协议修改导致字节数超了，但暂时配合云台调试
+    memcpy(instance->tx_buff,&gim_reftrans_msg1,sizeof(gim_reftrans_msg1) < 8 ? sizeof(gim_reftrans_msg1) : 8);
 }
 
 /**
@@ -225,6 +225,9 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
         gim_reftrans_msg2.ourOutpost = 1;
     else
         gim_reftrans_msg2.ourOutpost = 0;
+
+    //!配合云台调试
+    gim_reftrans_msg2.enermyOutpost = 0;
 
     /*哨兵：是否开火*/
 #ifdef CORE_USING_SENTRY

@@ -29,23 +29,41 @@ typedef __packed struct
     //!字节超了
 } Gim_Reftrans1_t;        // 发送给云台的枪口数据
 
+//!云台还未修改，暂时保持老版
 typedef __packed struct
 {
-    // 杂项数据
-    unsigned isStartGame : 1;   // 是否开始比赛（1为开始，0为未开始）
+    // 工作状态数据
+    unsigned isStartGame : 1;   // 是否开始比赛(1为开始，0为未开始)
     unsigned hurtID : 3;        // 装甲板ID，未受攻击时为FF
-    unsigned tempColor : 1;     // 红蓝方（0为红方，1为蓝方）
-    unsigned ourOutpost : 1;    // 己方前哨战是否存活（1为存活，0为未存活）
-    //! 新赛季敌方前哨战是否存活已删除
-#ifdef CORE_USING_SENTRY
-    unsigned SentryIsFire : 1;//？
-#endif
+    unsigned tempColor : 1;     // 红蓝方
+    unsigned ourOutpost : 1;    // 己方前哨战是否存活
+    unsigned enermyOutpost : 1; // 敌方前哨战是否存活
     unsigned speed : 16;        // 弹速
-    uint16_t SentryHP : 16;     //! 哨兵的血量 把unsigned改成uint16_t
-//!:烧饼超字节了，往上挪了挪
+    unsigned SentryHP : 16;     // 哨兵的血量
+#ifdef CORE_USING_SENTRY
+    unsigned SentryIsFire : 1;
+#endif
     uint8_t commd_keyboard;   // 发送指令时，云台手按下的键盘信息 无按键按下则为 0
     uint16_t target_robot_ID; // 要作用的目标机器人 ID           当发送位置信息时，该项为 0
 } Gim_Reftrans2_t;        // 发送给云台的裁判系统数据
+
+// typedef __packed struct
+// {
+//     // 杂项数据
+//     unsigned isStartGame : 1;   // 是否开始比赛（1为开始，0为未开始）
+//     unsigned hurtID : 3;        // 装甲板ID，未受攻击时为FF
+//     unsigned tempColor : 1;     // 红蓝方（0为红方，1为蓝方）
+//     unsigned ourOutpost : 1;    // 己方前哨战是否存活（1为存活，0为未存活）
+//     //! 新赛季敌方前哨战是否存活已删除
+// #ifdef CORE_USING_SENTRY
+//     unsigned SentryIsFire : 1;//？
+// #endif
+//     unsigned speed : 16;        // 弹速
+//     uint16_t SentryHP : 16;     //! 哨兵的血量 把unsigned改成uint16_t
+// //!:烧饼超字节了，往上挪了挪
+//     uint8_t commd_keyboard;   // 发送指令时，云台手按下的键盘信息 无按键按下则为 0
+//     uint16_t target_robot_ID; // 要作用的目标机器人 ID,当发送位置信息时，该项为 0
+// } Gim_Reftrans2_t;        // 发送给云台的裁判系统数据
 
 /*Rx*/
 #define MSG_READ_2BYTES(low, high) ((rt_int16_t)(((low) << 8) | high)) // 二字节读取宏
