@@ -6,51 +6,49 @@
 #include "DJI_6020.h"
       // yaw轴数据
 
-MotorInstance *Gim_Motor_Pointer[2];
+#define GIM_MOTOR_MAXNUM 5
+
+MotorInstance *Gim_Motor_Pointer[GIM_MOTOR_MAXNUM];
 uint8_t gim_motor_num=0;
+
+/**
+ * @brief 注册云台电机
+ * 
+ * @param motor_instance 电机实例
+ * @return int 1为错误，0为无错误
+ */
 int Gim_Motor_Attach(MotorInstance *motor_instance)
 {
-       if(!motor_instance)
-          return 1;
+    if(motor_instance == RT_NULL)
+        return 1;
+    else
         Gim_Motor_Pointer[gim_motor_num++] = motor_instance; // 注册电机实例指针
-          return 0;
+    return 0;
 }
-
 
 /***
  * @brief    获取云台电机角度数据 已经将电机零位补偿 当云台正方向和底盘正方向重合时为0
  *           角度为正表示在俯视图底盘坐标系下云台枪管的逆时针旋转的角度
- * @param    kind 云台yaw or pitch电机
- * @return   数据范围(-180.0°,180.0°]
+ * @return   数据范围(0°~360°]
  ***/
 float Get_YAW_ANGLE_360f(void)
 {
-    #ifdef  BIG_YAW
+#ifdef  BIG_YAW
     return Gim_Motor_Pointer[YAW_MOTOR]->Motor_obj.angle+Gim_Motor_Pointer[BIG_YAW]->Motor_obj.angle ;
-    #endif
+#else
     return Gim_Motor_Pointer[YAW_MOTOR]->Motor_obj.angle;
-   
+#endif
 }
 
+/**
+ * @brief 获取云台pitch电机角度数据 已经将电机零位补偿 当云台正方向和底盘正方向重合时为0
+ * 
+ * @return 数据范围(0°~360°] 
+ */
 float Get_PITCH_ANGLE_360f(void)
 {
-
     return Gim_Motor_Pointer[PITCH_MOTOR]->Motor_obj.angle;
-
 }
-/***
- * @brief    获取云台电机角速度数据 
- *           角速度为正表示在俯视图底盘坐标系下云台枪管的逆时针旋转的角速度,向左转速度为正就是正常的情况
- * @param    kind 云台yaw or pitch电机
- * @return   单位：°/s
- *  
- * */
-// 根据传入的电机类型，返回对应的电机转速或角度
-float Get_GM_Omega(MotorInstance *motor_instance)
-{
-      return motor_instance->Motor_obj.speed*60.f;
-}
-
 
 /***
  * @brief    获取云台电机速度数据  yaw轴电机速度为正表示：在俯视图底盘坐标系下云台枪管逆时针旋转
@@ -59,7 +57,7 @@ float Get_GM_Omega(MotorInstance *motor_instance)
  ***/
 float Get_GM_Speed(MotorInstance *motor_instance)
 {
-    return motor_instance->Motor_obj.speed*60.f;
+    return motor_instance->Motor_obj.speed*6.f;
 }
 
 /***
@@ -68,7 +66,11 @@ float Get_GM_Speed(MotorInstance *motor_instance)
  ***/
 float Get_GMtoCH_Speed(void)
 {
+#ifdef  BIG_YAW
+    return ((Get_GM_Speed(Gim_Motor_Pointer[YAW_MOTOR])+Get_GM_Speed(Gim_Motor_Pointer[BIG_YAW])) * 10.0f);
+#else
     return (Get_GM_Speed(Gim_Motor_Pointer[YAW_MOTOR]) * 10.0f);
+#endif
 }
 
 /**

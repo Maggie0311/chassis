@@ -3,8 +3,6 @@ from building import *
 cwd = GetCurrentDir()
 
 src = Glob('*.c')
-src+=['Wheel_data.h']
-src+=['HCanID_data.h']
 
 CPPPATH = [cwd]
 

@@ -20,7 +20,9 @@
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
 // 云台电机实例
-DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
+DJI_6020_MotorInstance gim_DJI_motor[GIM_DJI_MOTOR_NUM];
+DM_MotorInstance gim_DM_motor[GIM_DM_MOTOR_NUM];
+
 
 uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关/
       
@@ -236,7 +238,7 @@ int chassis_motor_init()
 }
 
 DJI_6020_Motor_Init_Config_s gim_dji_motor_init_config[GIM_DJI_MOTOR_NUM] = {
-    // YAW轴电机
+    // YAW轴电机(小)
     {
         .motor_obj_init_config = {
             .name = "SmYaw_M",
@@ -267,7 +269,7 @@ DJI_6020_Motor_Init_Config_s gim_dji_motor_init_config[GIM_DJI_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 5574,
+            .ENCODER_ZERO_OFFSET = 7585,
             .ctrl_mode = CTRL_MODE_VOLTAGE,
         }},
     // pitch轴电机
@@ -308,7 +310,7 @@ DJI_6020_Motor_Init_Config_s gim_dji_motor_init_config[GIM_DJI_MOTOR_NUM] = {
 };
 
 DM_Motor_Init_Config_s  gim_dm_motor_init_config[GIM_DM_MOTOR_NUM]=
-{
+{//大YAW电机
     { .motor_obj_init_config = {
         .name = "BigYaw_M",
         .reverse_flag = MOTOR_DIRECTION_NORMAL,
@@ -350,7 +352,7 @@ DM_Motor_Init_Config_s  gim_dm_motor_init_config[GIM_DM_MOTOR_NUM]=
     .DM_Motor_Measure_Init_Config = {
         .RATIO = 10.0,
         .ENCODER_LEN = 65535,
-        .ENCODER_ZERO_OFFSET = 0.0,
+        .ENCODER_ZERO_OFFSET = 61659,
         .DM_P_MAX=12.5f,
         .DM_P_MIN=-12.5f,
         .DM_V_MAX=45.f,
@@ -370,25 +372,25 @@ int gim_motor_init()
     int ret = 0;
     for (int i = 0; i < GIM_DJI_MOTOR_NUM; i++)
     {
-        ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_motor_init_config[i]);
+        ret = Motor_Attach((MotorInstance *)&gim_DJI_motor[i], (Motor_Init_Config_s *)&gim_dji_motor_init_config[i]);
         if (ret != 0)
         {
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
         }
-        ret = Gim_Motor_Attach((MotorInstance *)&gim_motor[i]);
+        ret = Gim_Motor_Attach((MotorInstance *)&gim_DJI_motor[i]);
         if (ret != 0)
         {
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
         }
     }
-    for(int i=GIM_DJI_MOTOR_NUM;i < GIM_DJI_MOTOR_NUM+GIM_DM_MOTOR_NUM ;i++)
+    for(int i=0;i < GIM_DM_MOTOR_NUM ;i++)
     {
-        ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_motor_init_config[i-GIM_DJI_MOTOR_NUM]);
+        ret = Motor_Attach((MotorInstance *)&gim_DM_motor[i], (Motor_Init_Config_s *)&gim_dm_motor_init_config[i]);
         if (ret != 0)
         {
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
         }
-        ret = Gim_Motor_Attach((MotorInstance *)&gim_motor[i]);
+        ret = Gim_Motor_Attach((MotorInstance *)&gim_DM_motor[i]);
         if (ret != 0)
         {
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
