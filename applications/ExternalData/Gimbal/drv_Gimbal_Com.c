@@ -45,6 +45,8 @@ static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
     gimbal_ctrl.vel_y = (float)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
     gimbal_ctrl.mode = (Motion_mode_e)(instance->rx_buff[6]);
 
+    ulog_d("gim","vx,vy:%.2f,%.2f",gimbal_ctrl.vel_x,gimbal_ctrl.vel_y);
+
     // 云台跟随角外部修改
     if (gimbal_ctrl.mode == NO_FOLLOW)
     {
@@ -174,6 +176,7 @@ static rt_uint16_t Ref_Bullet_Speed_Limit(void)
 static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
 {
     Gim_Reftrans1_t gim_reftrans_msg1;
+    rt_memset(&gim_reftrans_msg1,0,sizeof(gim_reftrans_msg1));
     uint16_t get_temp_16;
     /*枪口热量*/
     gim_reftrans_msg1.cooling_heat = Ref_Shooter_Cooling_Heat();
@@ -201,6 +204,7 @@ static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
 static void Gimbal_RefdataGet_Tx(CANInstance *instance)
 {
     Gim_Reftrans2_t gim_reftrans_msg2;
+    rt_memset(&gim_reftrans_msg2,0,sizeof(gim_reftrans_msg2));
     uint8_t get_temp_8;//暂存裁判系统信息
     uint16_t get_temp_16;
     float get_temp_float;
@@ -281,6 +285,7 @@ static void Gimbal_ComTx_Thread(void *parameter)
         for (int index=0;index<Msg_num_Tx;index++)//遍历发送注册报文
         {
             GetTransData[index](&gim_caninstance_Tx[index]);//获取数据
+            gim_caninstance_Tx[index].tx_len = 8;
             CAN_Transmit(&gim_caninstance_Tx[index]);//发送数据
         }
     }
@@ -295,14 +300,17 @@ static void Gimbal_ComTx_Thread(void *parameter)
  * @param tx_id 发送ID
  * @param get_transdata 获取需要发送的数据的函数
  */
-static void Gimbal_comTx_Attach(rt_uint8_t index,unsigned int tx_id,Gimbal_TransDataGet_ptr get_transdata)
+static int Gimbal_comTx_Attach(rt_uint8_t index,unsigned int tx_id,Gimbal_TransDataGet_ptr get_transdata)
 {
+    int res = 0;
     CAN_Init_Config_s config;
+    rt_memset(&config,0,sizeof(config));
     config.can_device_name = GIMBAL_CAN_DEV;
     config.tx_id = tx_id;
     GetTransData[index] = get_transdata;
     config.can_module_callback = NULL;
-    CAN_Attach(&gim_caninstance_Tx[index],&config);
+    res = CAN_Attach(&gim_caninstance_Tx[index],&config);
+    return res;
 }
 
 /**
@@ -312,13 +320,16 @@ static void Gimbal_comTx_Attach(rt_uint8_t index,unsigned int tx_id,Gimbal_Trans
  * @param rx_id 接收ID
  * @param can_module_callback 对应接收函数
  */
-static void Gimbal_comRx_Attach(rt_uint8_t index,unsigned int rx_id,void (*can_module_callback)(struct CANInstance *))
+static int Gimbal_comRx_Attach(rt_uint8_t index,unsigned int rx_id,void (*can_module_callback)(struct CANInstance *))
 {
+    int res = 0;
     CAN_Init_Config_s config;
+    rt_memset(&config,0,sizeof(config));
     config.can_device_name = GIMBAL_CAN_DEV;
     config.rx_id = rx_id;
     config.can_module_callback = can_module_callback;
-    CAN_Attach(&gim_caninstance_Rx[index],&config);
+    res = CAN_Attach(&gim_caninstance_Rx[index],&config);
+    return res;
 }
 
 /**
@@ -332,24 +343,40 @@ rt_err_t Gimbal_Com_Init(void)
     rt_thread_t handler = RT_NULL; // 线程句柄
 
     /*注册发送can通信*/
-    Gimbal_comTx_Attach(Shooter_msg_Index,GIMBAL_SHOOT_TX,Gimbal_RefShootdataGet_Tx);
-    Gimbal_comTx_Attach(Mixed_msg_Index,GIMBAL_MIXDATA_TX,Gimbal_RefdataGet_Tx);
+    res += Gimbal_comTx_Attach(Shooter_msg_Index,GIMBAL_SHOOT_TX,Gimbal_RefShootdataGet_Tx);
+    res += Gimbal_comTx_Attach(Mixed_msg_Index,GIMBAL_MIXDATA_TX,Gimbal_RefdataGet_Tx);
+    if (res)
+    {
+        LOG_E("gim_Tx_msg init failed, err=%d",res);
+        return RT_ERROR;
+    }
 
     /*注册接收can通信*/
-    Gimbal_comRx_Attach(Ctrl_msg_Index,GIMBAL_CTRL_RX,Gimbal_CtrlData_Rx_call);
-    Gimbal_comRx_Attach(mixData_msg_Index,GIMBAL_DATA_RX,Gimbal_MixData_Rx_call);
-    Gimbal_comRx_Attach(Imu_msg_Index,GIMBAL_IMU_DATA_RX,Gimbal_imuData_Rx_call);
-    res = rt_sem_init(&gimbal_Tx_sem, "gim_tx_sem", 0, RT_IPC_FLAG_FIFO);
-    if(res)
+    res += Gimbal_comRx_Attach(Ctrl_msg_Index,GIMBAL_CTRL_RX,Gimbal_CtrlData_Rx_call);
+    res += Gimbal_comRx_Attach(mixData_msg_Index,GIMBAL_DATA_RX,Gimbal_MixData_Rx_call);
+    res += Gimbal_comRx_Attach(Imu_msg_Index,GIMBAL_IMU_DATA_RX,Gimbal_imuData_Rx_call);
+    if (res)
     {
-        // LOG_E()
+        LOG_E("gim_Rx_msg init failed, err=%d",res);
+        return RT_ERROR;
     }
-    res=gim_motor_init();
+
+    /*注册云台电机*/
+    res = gim_motor_init();
     if(res)
     {
         LOG_E("gim_motor init failed, err=%d",res);
         return RT_ERROR;
     }
+
+    //初始化信号量
+    res = rt_sem_init(&gimbal_Tx_sem, "gim_tx_sem", 0, RT_IPC_FLAG_FIFO);
+    if(res)
+    {
+        LOG_E("gimbal_Tx_sem init failed, err=%d",res);
+        return RT_ERROR;
+    }
+    
     // 初始化云台控制线程
     handler = rt_thread_create(
         "gimbal_com",       // 线程名
@@ -361,11 +388,17 @@ rt_err_t Gimbal_Com_Init(void)
 
     // 线程创建失败返回false
     if (handler == RT_NULL)
+    {
+        LOG_E("gimbal_com_thread create failed");
         return RT_ERROR;
+    }
 
     // 线程启动失败返回false
     if (rt_thread_startup(handler) != RT_EOK)
+    {
+        LOG_E("gimbal_com_thread startup failed");
         return RT_ERROR;
+    }
 
     // 创建线程定时器 定时释放信号量
     rt_timer_t timer = rt_timer_create("Gimbal_Tx_timer",
@@ -375,6 +408,7 @@ rt_err_t Gimbal_Com_Init(void)
                                        RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
     if (rt_timer_start(timer)!= RT_EOK)
     {
+        LOG_E("gimbal_com_timer start failed");
         return RT_ERROR;
     }
 
