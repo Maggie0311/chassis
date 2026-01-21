@@ -1,20 +1,15 @@
 #ifndef __HCANID_DATA_H__
 #define __HCANID_DATA_H__
 #include "board.h"
+// 2025_INFANTRY_3
 /*************************************CAN ID**********************************************************/
-typedef enum
-{
-    USED_CAN1,
-    USED_CAN2,
-    USED_CAN3,
-    USED_CAN4,
-} canDev_e;
-
 typedef enum _CanSendID_e
-{
-    STDID_6020_1 = 0x1FF,
-    STDID_6020_2 = 0x2FF,
-
+{                                    //note 
+    STDID_6020_1 = 0x1FE,            //6020电机在电流控制模式下的控制ID为0x1FE,电压控制模式下ID为0x1FF
+    STDID_6020_2 = 0x2FE,            //6020电机在电流控制模式下的控制ID为0x2FE,电压控制模式下ID为0x2FF,
+    //STDID_6020_1 = 0x1FF,            //6020电机在电流控制模式下的控制ID为0x1FE,电压控制模式下ID为0x1FF
+    //STDID_6020_2 = 0x2FF,            //6020电机在电流控制模式下的控制ID为0x2FE,电压控制模式下ID为0x2FF,
+                                     
     STDID_3508_1 = 0x200,
     STDID_3508_2 = 0x1FF,
 
@@ -23,15 +18,6 @@ typedef enum _CanSendID_e
 
 } CanSendID_e;
 
-// 复刻老英雄
-
-#ifdef USING_MECANUM_WHEEL
-#define RF_MOTOR_ID 0x201
-#define LF_MOTOR_ID 0x202 // 底盘电机电调 ID
-#define LB_MOTOR_ID 0x203
-#define RB_MOTOR_ID 0x204
-
-#elif defined USING_STEER_WHEEL
 #define ANGLE_RF_MOTOR_ID 0x206 // 底盘电机电调 ID
 #define ANGLE_LF_MOTOR_ID 0x205
 #define ANGLE_LB_MOTOR_ID 0x207
@@ -40,15 +26,20 @@ typedef enum _CanSendID_e
 #define RUN_LF_MOTOR_ID 0x202
 #define RUN_LB_MOTOR_ID 0x203
 #define RUN_RB_MOTOR_ID 0x204
-#endif
 
 #define CHASSIS_IMU_ANGLE_RX 0x001 // 从底盘IMU接收的角度数据
 #define CHASSIS_IMU_W_RX 0x002     // 从底盘IMU接收的角速度数据
 #define CHASSIS_IMU_ACCEL_RX 0x003 // 从底盘IMU接收的加速度数据
 #define CHASSIS_IMU_Quaternion_RX 0x004
 
+#ifdef YAW_MOTOR_6020
 #define YAW_MOTOR_RXID 0x205   // 云台电机反馈报文 ID
 #define PITCH_MOTOR_RXID 0x206 // 云台电机反馈报文 ID
+#endif
+#ifdef YAW_MOTOR_DM
+#define YAW_MOTOR_RXID 0x03   // 云台电机反馈报文 ID
+#define PITCH_MOTOR_RXID 0x04 // 云台电机反馈报文 ID
+#endif
 
 #define GIMBAL_CCTRL_RX 0x100    // 云台控制底盘相关
 #define GIMBAL_DATA_RX 0x401     // 从云台接收的各类数据
@@ -59,12 +50,75 @@ typedef enum _CanSendID_e
 
 #define GIMBAL_SHOOT_TX 0x105 // 裁判系统枪管信息
 #define GIMBAL_DATA_TX 0x106  // 向云台发送各类数据
+/*------------------------------------CAN ID----------------------------------------------------------*/
 
-#define GIMBAL_CAN_DEV USED_CAN2        // 云台can设备
-#define IMU_GIMBAL_CAN_DEV USED_CAN2    // 云台IMUcan设备
-#define SCPR_CAN_DEV USED_CAN2          // 超级电容设备
-#define IMU_CHASSIS_CAN_DEV USED_CAN1   // 底盘IMUcan设备
-#define CHASSIS_MOTOR_CAN_DEV USED_CAN1 // 底盘电机设备
+/*------------------------------------CAN 设备----------------------------------------------------------*/
+typedef enum
+{
+    USED_CAN1,
+    USED_CAN2,
+    USED_CAN_1_2,
+    USED_CAN_all,
+} canDev_e;
+//底盘电机逻辑和这部分略有不同
+#if RF_CAN_DEVICE_NAME == 1
+#define RF_CAN_DEV USED_CAN1
+#elif RF_CAN_DEVICE_NAME == 2
+#define RF_CAN_DEV USED_CAN2
+#endif
+#if LF_CAN_DEVICE_NAME == 1
+#define LF_CAN_DEV USED_CAN1
+#elif LF_CAN_DEVICE_NAME == 2
+#define LF_CAN_DEV USED_CAN2
+#endif
+#if LB_CAN_DEVICE_NAME == 1
+#define LB_CAN_DEV USED_CAN1
+#elif LB_CAN_DEVICE_NAME == 2
+#define LB_CAN_DEV USED_CAN2
+#endif
+#if RB_CAN_DEVICE_NAME == 1
+#define RB_CAN_DEV USED_CAN1
+#elif RB_CAN_DEVICE_NAME == 2
+#define RB_CAN_DEV USED_CAN2
+#endif
+
+
+// #define GIMBAL_CAN_DEV USED_CAN2        // 云台can设备
+#if GIMBAL_CAN_DEVICE_NAME == 1
+#define GIMBAL_CAN_DEV USED_CAN1
+#elif GIMBAL_CAN_DEVICE_NAME == 2
+#define GIMBAL_CAN_DEV USED_CAN2
+#else 
+#error "GIMBAL_CAN_DEVICE_NAME is not defined right!"
+#endif
+
+// #define IMU_GIMBAL_CAN_DEV USED_CAN2    // 云台IMUcan设备
+#if IMU_GIMBAL_CAN_DEVICE_NAME == 1
+#define IMU_GIMBAL_CAN_DEV USED_CAN1
+#elif IMU_GIMBAL_CAN_DEVICE_NAME == 2
+#define IMU_GIMBAL_CAN_DEV USED_CAN2
+#else 
+#error "IMU_GIMBAL_CAN_DEVICE_NAME is not defined right!"
+#endif
+
+// #define SCPR_CAN_DEV USED_CAN1          // 超级电容设备
+#if SCPR_CAN_DEVICE_NAME == 1
+#define SCPR_CAN_DEV USED_CAN1
+#elif SCPR_CAN_DEVICE_NAME == 2
+#define SCPR_CAN_DEV USED_CAN2
+#else 
+#error "SCPR_CAN_DEVICE_NAME is not defined right!"
+#endif
+
+// #define IMU_CHASSIS_CAN_DEV USED_CAN1   // 底盘IMUcan设备
+#if IMU_CHASSIS_CAN_DEVICE_NAME == 1
+#define IMU_CHASSIS_CAN_DEV USED_CAN1
+#elif IMU_CHASSIS_CAN_DEVICE_NAME == 2
+#define IMU_CHASSIS_CAN_DEV USED_CAN2
+#else 
+#error "IMU_CHASSIS_CAN_DEVICE_NAME is not defined right!"
+#endif
+/*------------------------------------CAN 设备----------------------------------------------------------*/
 
 /*------------------------------------CAN 过滤表设置----------------------------------------------------------*/
 /*当增加原过滤表没有的can接收ID时，需在下面宏内加上相对应的过滤表项和数量*/
