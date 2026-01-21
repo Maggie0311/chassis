@@ -539,7 +539,7 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     // if (ctrl.getYawAngel)
     // {
         // 得到当前控制坐标系和底盘坐标系角度
-        angle = 0;//ctrl.getYawAngel;
+    angle = ctrl.getYawAngel;
     // }
 
     // Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
@@ -549,9 +549,3 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
      Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
      Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
-
-// 得到实时的控制速度
-// Mot_base_t getSetMotion(void)
-// {
-//     return SmoothSpeed;
-// }

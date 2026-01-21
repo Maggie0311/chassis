@@ -31,7 +31,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
     debug_fixctrl=Cctrl;
-    //Cctrl=debug_fixctrl;
+
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
     case CHASS_AUTO: // 底盘自主
@@ -58,7 +58,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
      //debug_fixctrl = fixCtrl;
     //  修改pid的设定值
 	//	chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
-   chassis_ctrl(&Speed_xyw, &Force_xyw);
+    chassis_ctrl(&Speed_xyw, &Force_xyw);
 }
 float angle_vel = 5000;
 uint32_t rt_tick = 0;
