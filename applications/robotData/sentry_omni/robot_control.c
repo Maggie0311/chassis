@@ -2,13 +2,15 @@
 #include "drv_motor_new.h"
 #include "DJI_3508.h"
 #include "DJI_6020.h"
+#include "DM_Motor.h"
 #include "drv_motionSolve.h"
 #include "robot_control.h"
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
 
 #define WHEEL_MOTOR_NUM 4
-#define GIM_MOTOR_NUM 2
+#define GIM_DJI_MOTOR_NUM 2
+#define GIM_DM_MOTOR_NUM 1
 
 #define WHEEL_RF 0
 #define WHEEL_LF 1
@@ -232,11 +234,11 @@ int chassis_motor_init()
     return ret;
 }
 
-DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
+DJI_6020_Motor_Init_Config_s gim_dji_motor_init_config[GIM_DJI_MOTOR_NUM] = {
     // YAW轴电机
     {
         .motor_obj_init_config = {
-            .name = "Yaw_M",
+            .name = "SmYaw_M",
             .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = GM6020,
             .state = MOTOR_STATE_NEED_INIT,
@@ -304,10 +306,68 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
 
 };
 
+DM_Motor_Init_Config_s  gim_dm_motor_init_config[GIM_DM_MOTOR_NUM]=
+{
+    { .motor_obj_init_config = {
+        .name = "BigYaw_M",
+        .reverse_flag = MOTOR_DIRECTION_NORMAL,
+        .motor_type = DM4310,
+        .state = MOTOR_STATE_NOTCTRL,
+    },
+    .Motor_operate_setting = {
+        .Motor_Init = DM_Motor_Init,
+        .Motor_Enable = DM_Motor_Enable,
+        .Motor_Disable = DM_Motor_Disable,
+        .Motor_ErrorHandle = DM_Motor_ErrorHandle,
+        .Motor_RefreshData = DM_Motor_RefreshData,
+        .Motor_Control = NULL,
+        .Motor_Transmit = DM_Motor_Transmit,
+    },
+    .controller_param_init_config = {
+        .Angle_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .CoefA = 0, .CoefB = 0
+
+        },
+        .Speed_pid = {.Kp = 5, .Kd = 0, .Ki = 0.5, .CoefA = 0, .CoefB = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 1000, .MaxOut = 25000
+
+        },
+        .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .CoefA = 0, .CoefB = 0
+
+        },
+        .Closeloop_Type = SPEED_LOOP,
+        .Calc_Pre = {
+            .speed_calc_Prescaler = 1,
+        },
+        .Feedforward_Type = FEEDFORWARD_NONE,
+    },
+    .can_init_config = {
+        .can_device_name = "can2",
+        .rx_id = 0x04,
+        .tx_id = NULL,
+        .can_module_callback = DM_Motor_RefreshData,
+        .parent = NULL,
+    },
+    .DM_Motor_Measure_Init_Config = {
+        .RATIO = 10.0,
+        .ENCODER_LEN = 65535,
+        .ENCODER_ZERO_OFFSET = 0.0,
+        .DM_P_MAX=12.5f,
+        .DM_P_MIN=-12.5f,
+        .DM_V_MAX=45.f,
+        .DM_V_MIN=-45.f,
+        .DM_T_MAX=18.f,
+        .DM_T_MIN=-18.f,
+    },
+    }
+
+};
+
+
+
+
 int gim_motor_init()
 {
     int ret = 0;
-    for (int i = 0; i < GIM_MOTOR_NUM; i++)
+    for (int i = 0; i < GIM_DJI_MOTOR_NUM; i++)
     {
         ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_motor_init_config[i]);
         if (ret != 0)
@@ -319,6 +379,20 @@ int gim_motor_init()
         {
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
         }
+    }
+    for(int i=GIM_DJI_MOTOR_NUM;i < GIM_DJI_MOTOR_NUM+GIM_DM_MOTOR_NUM ;i++)
+    {
+        ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_motor_init_config[i-GIM_DJI_MOTOR_NUM]);
+        if (ret != 0)
+        {
+            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+        }
+        ret = Gim_Motor_Attach((MotorInstance *)&gim_motor[i]);
+        if (ret != 0)
+        {
+            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+        }
+
     }
     return ret;
 }
