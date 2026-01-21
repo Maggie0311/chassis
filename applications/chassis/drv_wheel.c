@@ -1,6 +1,7 @@
 #include "drv_wheel.h"
 #include "ThreadCtrl.h"
 #include "app_monitor.h"
+#include "mod_Log.h"
 #include "robot_data.h"
 #include "robot_control.h"
 /*所有顺序为转向轮和驱动轮---RF-LF-LB-RB*/

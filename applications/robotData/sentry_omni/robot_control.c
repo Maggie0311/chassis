@@ -17,6 +17,7 @@
 
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
+// 云台电机实例
 DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
 
 uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关/

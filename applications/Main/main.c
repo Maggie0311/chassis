@@ -23,6 +23,7 @@
 
 /*公共库模块*/
 #include "app_monitor.h"
+#include "mod_Log.h"
 #include "can_com_thread.h"
 #ifdef BSP_USING_BUZZER
 #include "drv_buzzer.h"

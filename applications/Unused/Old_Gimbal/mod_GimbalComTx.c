@@ -9,9 +9,12 @@
 // #include "func_ModeTrigger.h"
 #include "drv_IMU.h"
 #include "robot_control.h"
+#include "mod_Log.h"
+
+#ifdef BSP_USING_LOG
 #define LOG_TAG     "gim_motor_Log"
 #include <ulog.h>
-
+#endif
 
 RefState_TxGimMsg_t TxGimMsg;
 uint8_t gimTxDebug = 1;

@@ -2,6 +2,7 @@
 
 #include "ThreadCtrl.h"
 #include "app_monitor.h"
+#include "mod_Log.h"
 
 #include "mod_motion.h"
 #include "drv_wheel.h"
