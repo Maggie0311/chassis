@@ -6,9 +6,16 @@
 #include "drv_wheel.h"
 #include "pid.h"
 #include "app_monitor.h"
+#include "mod_Log.h"
 #include "fun_protocolGim.h"
 #include "drv_cmd_com.h"
 #include "robot_control.h"
+
+#ifdef BSP_USING_LOG
+#define LOG_TAG     "Visual_com"
+#define LOG_LVL     LOG_LVL_DBG
+#include <ulog.h>
+#endif
 
 struct RttUartMsg
 {
@@ -35,20 +42,21 @@ VisualCtrl_t VisualCtrl;        //视觉发送的控制相关数据最终转化�
 
 //接收视觉发送的数据
 Ctrl_info_t visual_rx_ctrl;     //视觉发送的控制原数据，经过处理后设置到VisualCtrl中
-visual_data_t visual_rx_radar[6];
 sentry_cmd_info_t visual_rx_sentry_cmd_info; //视觉发送来的哨兵自主决策指令
+// visual_data_t visual_rx_radar[6];
 
 //给视觉发送的数据
 Game_info_t visual_tx_game_info;        //给视觉发送的比赛信息
 Game_robot_survivors_t visual_tx_game_robot_survivors;//给视觉发送的机器人血量信息
-Event_data_t visual_tx_event_data;      //给视觉发送的场地事件信息
 Robot_info_t visual_tx_robot_info;      //给视觉发送的机器人数据（自己的数据）
-Robot_position_t visual_tx_robot_pos;   //给视觉发送本机器人位置相关数据
 Bullet_remaining_t visual_tx_bullet_remaining; // 给视觉发送子弹剩余发射数和剩余金币数量
-Ground_robot_position_t visual_tx_ground_robot_position; // 给视觉发送地面机器人位置数据(除了自身以外的地面机器人数据)
-Sentry_info_t visual_tx_sentry_info; // 给视觉发送哨兵自主决策反馈数据    
-Robot_command_map_t visual_tx_robot_command_map;    //给视觉发送云台手发送给哨兵的信息
 Robot_wheel_odometry_t visual_tx_Robot_wheel_odometry;     //底盘正解算后的x\y方向速度
+// Event_data_t visual_tx_event_data;      //给视觉发送的场地事件信息
+// Robot_position_t visual_tx_robot_pos;   //给视觉发送本机器人位置相关数据
+// Ground_robot_position_t visual_tx_ground_robot_position; // 给视觉发送地面机器人位置数据(除了自身以外的地面机器人数据)
+// Sentry_info_t visual_tx_sentry_info; // 给视觉发送哨兵自主决策反馈数据    
+// Robot_command_map_t visual_tx_robot_command_map;    //给视觉发送云台手发送给哨兵的信息
+
 static uint8_t visual_com_tx_buff[512]; // 视觉通信发送数据缓冲区
 static uint8_t visual_com_rx_buff[512]; // 视觉通信接收数据缓冲区
 
@@ -56,27 +64,22 @@ static void get_visual_need_ref_data()
 {
     //这里使用静态局部变量来保存刷新的数据，由于结构体类型名称不同，但内容是一样的，所以直接使用rt_memcpy来赋值到需要发送的数据中
     static ext_game_robot_survivors_t visual_tx_game_robot_survivors_temp={0};
-    static ext_event_data_t visual_tx_event_data_temp={0};
-    static ext_game_robot_pos_t visual_tx_robot_pos_temp={0};
     static ext_bullet_remaining_t visual_tx_bullet_remaining_temp={0};
-    static ext_sentry_info_t visual_tx_sentry_info_temp={0};
-    static ext_robot_command_map_t visual_tx_robot_command_map_temp={0};
     static ext_game_state_t visual_tx_game_state_temp ={0};
+    // static ext_event_data_t visual_tx_event_data_temp={0};
+    // static ext_game_robot_pos_t visual_tx_robot_pos_temp={0};
+    // static ext_sentry_info_t visual_tx_sentry_info_temp={0};
+    // static ext_robot_command_map_t visual_tx_robot_command_map_temp={0};
     uint16_t getdata_temp_16;
     uint8_t getdata_temp_8;
 
     getRefData(structGet_pram(visual_tx_game_state_temp,ext_game_state));
     visual_tx_game_info.game_type = visual_tx_game_state_temp.game_data.game_type;
     visual_tx_game_info.game_progress = visual_tx_game_state_temp.game_data.game_progress;
-
     getRefData(memberGet_parm(getdata_temp_16,ext_game_state,stage_remain_time));
     visual_tx_game_info.stage_remain_time = getdata_temp_16;
-
     getRefData(structGet_pram(visual_tx_game_robot_survivors_temp,ext_game_robot_survivors));
     rt_memcpy(&visual_tx_game_robot_survivors,&visual_tx_game_robot_survivors_temp,sizeof(visual_tx_game_robot_survivors));
-    getRefData(structGet_pram(visual_tx_event_data_temp,ext_event_data));
-    rt_memcpy(&visual_tx_event_data,&visual_tx_event_data_temp,sizeof(visual_tx_event_data));
-
     getRefData(memberGet_parm(getdata_temp_8,ext_game_robot_status,robot_id));
     visual_tx_robot_info.robot_id = getdata_temp_8;
     getRefData(memberGet_parm(getdata_temp_8,ext_game_robot_status,robot_level));
@@ -91,25 +94,26 @@ static void get_visual_need_ref_data()
     visual_tx_robot_info.shooter_cooling_limit = getdata_temp_16;
     getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,chassis_power_limit));
     visual_tx_robot_info.chassis_power_limit = getdata_temp_16;
-    getRefData(structGet_pram(visual_tx_robot_pos_temp,ext_game_robot_pos));
-    rt_memcpy(&visual_tx_robot_pos,&visual_tx_robot_pos_temp,sizeof(visual_tx_robot_pos));
     getRefData(structGet_pram(visual_tx_bullet_remaining_temp,ext_bullet_remaining));
     rt_memcpy(&visual_tx_bullet_remaining,&visual_tx_bullet_remaining_temp,sizeof(visual_tx_bullet_remaining_temp));
 
-    visual_tx_ground_robot_position.hero_x=get_robot_pos(pos_x, robot_hero);
-    visual_tx_ground_robot_position.hero_y=get_robot_pos(pos_y, robot_hero);
-    visual_tx_ground_robot_position.engineer_x=get_robot_pos(pos_x, robot_engineer);
-    visual_tx_ground_robot_position.engineer_y=get_robot_pos(pos_y, robot_engineer);
-    visual_tx_ground_robot_position.standard_3_x=get_robot_pos(pos_x, robot_standard_3);
-    visual_tx_ground_robot_position.standard_3_y=get_robot_pos(pos_y, robot_standard_3);
-    visual_tx_ground_robot_position.standard_4_x=get_robot_pos(pos_x, robot_standard_4);
-    visual_tx_ground_robot_position.standard_4_y=get_robot_pos(pos_y, robot_standard_4);
+    // getRefData(structGet_pram(visual_tx_event_data_temp,ext_event_data));
+    // rt_memcpy(&visual_tx_event_data,&visual_tx_event_data_temp,sizeof(visual_tx_event_data));
+    // getRefData(structGet_pram(visual_tx_robot_pos_temp,ext_game_robot_pos));
+    // rt_memcpy(&visual_tx_robot_pos,&visual_tx_robot_pos_temp,sizeof(visual_tx_robot_pos));
+    // visual_tx_ground_robot_position.hero_x=get_robot_pos(pos_x, robot_hero);
+    // visual_tx_ground_robot_position.hero_y=get_robot_pos(pos_y, robot_hero);
+    // visual_tx_ground_robot_position.engineer_x=get_robot_pos(pos_x, robot_engineer);
+    // visual_tx_ground_robot_position.engineer_y=get_robot_pos(pos_y, robot_engineer);
+    // visual_tx_ground_robot_position.standard_3_x=get_robot_pos(pos_x, robot_standard_3);
+    // visual_tx_ground_robot_position.standard_3_y=get_robot_pos(pos_y, robot_standard_3);
+    // visual_tx_ground_robot_position.standard_4_x=get_robot_pos(pos_x, robot_standard_4);
+    // visual_tx_ground_robot_position.standard_4_y=get_robot_pos(pos_y, robot_standard_4);
 
-    getRefData(structGet_pram(visual_tx_sentry_info_temp,ext_sentry_info));
-    rt_memcpy(&visual_tx_sentry_info,&visual_tx_sentry_info_temp,sizeof(visual_tx_sentry_info));
-    getRefData(structGet_pram(visual_tx_robot_command_map_temp,ext_robot_command_map));
-    rt_memcpy(&visual_tx_robot_command_map,&visual_tx_robot_command_map_temp,sizeof(visual_tx_robot_command_map));
-    //visual_tx_robot_command_map_temp与visual_tx_robot_command_map仅结构体类型名不同，只是为了区分底盘与裁判机的通信和底盘与视觉的通信
+    // getRefData(structGet_pram(visual_tx_sentry_info_temp,ext_sentry_info));
+    // rt_memcpy(&visual_tx_sentry_info,&visual_tx_sentry_info_temp,sizeof(visual_tx_sentry_info));
+    // getRefData(structGet_pram(visual_tx_robot_command_map_temp,ext_robot_command_map));
+    // rt_memcpy(&visual_tx_robot_command_map,&visual_tx_robot_command_map_temp,sizeof(visual_tx_robot_command_map));
 
     visual_tx_Robot_wheel_odometry.vel_x = Get_realmotion().vel.x;
     visual_tx_Robot_wheel_odometry.vel_y = Get_realmotion().vel.y;
@@ -249,8 +253,6 @@ rt_err_t Visual_rtt_uart_Init(const char *name, rt_err_t (*rx_cb)(rt_device_t de
 
 //数据
 VisualComRX_t ComRxdata_temp;
-
-#ifdef USART_DATA_TYPE_VEL
 /**
  * @brief 有视觉导航时使用的电控处理
  */
@@ -295,8 +297,6 @@ static void vsDatadeal(void*data_p)
     //             continue;
     //     };
 }
-
-#endif
 
 static void visualRxThread(void *parameter)
 {
@@ -364,19 +364,21 @@ rt_err_t VisualInit(void)
     //初始化发送命令码ID
     Attach_SendCmd(VisualData_Serial,CMD_ID_GAME_INFO,CMD_SET_GAME_INFO,sizeof(visual_tx_game_info), (void*)&visual_tx_game_info);
     Attach_SendCmd(VisualData_Serial,CMD_ID_GAME_ROBOT_survivors,CMD_SET_GAME_ROBOT_survivors,sizeof(visual_tx_game_robot_survivors), (void*)&visual_tx_game_robot_survivors);
-    Attach_SendCmd(VisualData_Serial,CMD_ID_EVENT_DATA,CMD_SET_EVENT_DATA,sizeof(visual_tx_event_data), (void*)&visual_tx_event_data);
     Attach_SendCmd(VisualData_Serial,CMD_ID_ROBOT_INFO,CMD_SET_ROBOT_INFO,sizeof(visual_tx_robot_info), (void*)&visual_tx_robot_info);
-    Attach_SendCmd(VisualData_Serial,CMD_ID_ROBOT_POSITION,CMD_SET_ROBOT_POSITION,sizeof(visual_tx_robot_pos), (void*)&visual_tx_robot_pos);
     Attach_SendCmd(VisualData_Serial,CMD_ID_Bullet_remaining,CMD_SET_Bullet_remaining,sizeof(visual_tx_bullet_remaining), (void*)&visual_tx_bullet_remaining);
-    Attach_SendCmd(VisualData_Serial,CMD_ID_Ground_robot_position,CMD_SET_Ground_robot_position,sizeof(visual_tx_ground_robot_position), (void*)&visual_tx_ground_robot_position);
-    Attach_SendCmd(VisualData_Serial,CMD_ID_Sentry_info,CMD_SET_Sentry_info,sizeof(visual_tx_sentry_info), (void*)&visual_tx_sentry_info);
-    Attach_SendCmd(VisualData_Serial,CMD_ID_Robot_command_map,CMD_SET_Robot_command_map,sizeof(visual_tx_robot_command_map), (void*)&visual_tx_robot_command_map);
     Attach_SendCmd(VisualData_Serial,CMD_ID_Robot_wheel_odometry,CMD_SET_Robot_wheel_odometry,sizeof(visual_tx_Robot_wheel_odometry),(void*)&visual_tx_Robot_wheel_odometry);
+    //Attach_SendCmd(VisualData_Serial,CMD_ID_EVENT_DATA,CMD_SET_EVENT_DATA,sizeof(visual_tx_event_data), (void*)&visual_tx_event_data);
+    //Attach_SendCmd(VisualData_Serial,CMD_ID_ROBOT_POSITION,CMD_SET_ROBOT_POSITION,sizeof(visual_tx_robot_pos), (void*)&visual_tx_robot_pos);
+    //Attach_SendCmd(VisualData_Serial,CMD_ID_Ground_robot_position,CMD_SET_Ground_robot_position,sizeof(visual_tx_ground_robot_position), (void*)&visual_tx_ground_robot_position);
+    //Attach_SendCmd(VisualData_Serial,CMD_ID_Sentry_info,CMD_SET_Sentry_info,sizeof(visual_tx_sentry_info), (void*)&visual_tx_sentry_info);
+    //Attach_SendCmd(VisualData_Serial,CMD_ID_Robot_command_map,CMD_SET_Robot_command_map,sizeof(visual_tx_robot_command_map), (void*)&visual_tx_robot_command_map);
+    
 
     //初始化接收命令ID和回调函数
     Attach_Receive_callback(CMD_ID_VISUAL_CTRL, sizeof(visual_rx_ctrl), (void *)&visual_rx_ctrl, Visual_Ctrl_Receive_callback);
-    Attach_Receive_callback(CMD_ID_VISUAL_RADAR, sizeof(visual_rx_radar), (void *)&visual_rx_radar, vsDatadeal);
     Attach_Receive_callback(CMD_ID_SENTRY_CMD_INFO, sizeof(visual_rx_sentry_cmd_info), (void *)&visual_rx_sentry_cmd_info, NULL);
+    //Attach_Receive_callback(CMD_ID_VISUAL_RADAR, sizeof(visual_rx_radar), (void *)&visual_rx_radar, vsDatadeal);
+    
 
     // 先初始化接收线程以及串口初始化
     ret = VisualRxThreadInit();

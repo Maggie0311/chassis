@@ -6,6 +6,7 @@
 
 #include "ThreadCtrl.h"
 #include "app_monitor.h"
+#include "mod_Log.h"
 
 #include "app_RefSystem.h"//Tx数据来源
 #include "controlMsg.h"//云台控制数据去向

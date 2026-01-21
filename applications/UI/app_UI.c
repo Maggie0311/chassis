@@ -884,7 +884,7 @@ void Get_UI_Data(void)
     // UiExData.Local_Chassis_Mode = Get_Local_Chassis_Type(); // 当前的本地底盘模式(0功率优先 1血量优先)
     UiExData.Robot_Hurted = hurt.robot_if_hurt;
 
-    UiExData.Bullet_Speed = Get_Bullet_Speed(); // 获得弹速 未使用
+    // UiExData.Bullet_Speed = Get_Bullet_Speed(); // 获得弹速 未使用
     UiExData.Ref_AmmoRemain = Ref_AmmoRemain(); // 剩余弹量 未使用
 
     UiExData.Magazine_Status = Get_Magazine_Status();   // 显示弹仓状态

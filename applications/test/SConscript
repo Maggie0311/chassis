@@ -3,7 +3,7 @@ from building import *
 cwd = GetCurrentDir()
 
 src = []
-
+src += ['cmd.c']
 
 if GetDepend(['CORE_USING_REMOTE']):
     src+=['drv_remote.c']
@@ -14,10 +14,6 @@ if GetDepend(['CORE_USING_TEST']):
         src+=['vofa.c']
 CPPPATH = [cwd]
 
-if GetDepend(['CORE_USING_TEST'])or GetDepend(['CORE_USING_REMOTE']):
-    group = DefineGroup('test', src, depend = [''], CPPPATH = CPPPATH)
-else:
-    group = []
-    
+group = DefineGroup('test', src, depend = [''], CPPPATH = CPPPATH)
 
 Return('group')

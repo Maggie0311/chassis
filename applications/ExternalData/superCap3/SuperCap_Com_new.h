@@ -7,6 +7,10 @@
 #define SC_PERIOD 10 // 超级电容线程轮询周期，单位ms
 #define VCAP_DATA_NUM 10
 
+/*超电通信ID*/
+#define SCPR_RX 0x096 // 从超级电容端接收
+#define SCPR_TX 0x095 // 向超级电容端发送
+
 /**
  * @brief 超电通信接收数据结构体
  * 

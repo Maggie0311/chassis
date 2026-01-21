@@ -10,8 +10,6 @@
 /*视觉目前ROS坐标系为前方为x轴，左边为y轴 底盘坐标系为x轴为右方，y轴为前方*/
 
 // 接收的视觉数据
-#ifdef USART_DATA_TYPE_VEL
-
 typedef __packed struct
 {
     uint8_t head[4]; // = {0x00, 0x00, 0x80, 0x7f}; // 帧头
@@ -71,7 +69,7 @@ typedef __packed struct
     visual_data_t radar_data[VISUAL_DATA_NUM_MAX + 1]; // 识别车辆数据-雷达包-不定长(0号位为包数量，每包长度为9字节)
     uint8_t sum;                                       // 校验和
 } VisualComRX_t;
-#endif
+
 typedef struct
 {
     Ctrl_data_info_t ctrlData; // 转化后视觉的控制数据
@@ -84,8 +82,6 @@ typedef struct
     uint32_t rxTick;
     uint32_t txTick;
 } VisualComInfo_t;
-
-rt_err_t VisualComInit(void);
 
 // 与视觉通信线程
 rt_err_t VisualInit(void);

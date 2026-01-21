@@ -21,9 +21,9 @@
 #endif
 #include "protect.h"
 
-
 /*公共库模块*/
 #include "app_monitor.h"
+#include "mod_Log.h"
 #include "can_com_thread.h"
 #ifdef BSP_USING_BUZZER
 #include "drv_buzzer.h"
@@ -70,6 +70,7 @@ int main(void)
         LOG_I("CAN Init Success!");
     }
 #ifdef BSP_USING_REF
+    /*裁判系统*/
     result = Ref_Init();
     if (result != RT_EOK)
     {
@@ -82,24 +83,62 @@ int main(void)
         LOG_I("DJI Init Success!");
     }
 #endif
+    /*超电通信*/
+    result = Scpr_Com_Init();
+    if (result != RT_EOK)
+    {
+        LOG_E("Scpr_Com Init Failes! Result is %d", result);
+        LOG_E("Robot Reset!");
+        Robot_Chassis_Reset(RT_TRUE);
+    }
+    else 
+    {
+        LOG_I("Scpr_Com Init Success!");
+    }
 
-    if (Scpr_Com_Init() != RT_EOK)
+    /*云台通信*/
+    result = Gimbal_Com_Init();
+    if (result != RT_EOK)
+    {
+        LOG_E("Gimbal_Com Init Failes! Result is %d", result);
+        LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
-    if (Gimbal_Com_Init() != RT_EOK)
-        Robot_Chassis_Reset(RT_TRUE);
+    }
+    else 
+    {
+        LOG_I("Gimbal_Com Init Success!");
+    }
 
     /* 控制 */
-    if (Chassis_Ctrl_Init() != RT_EOK)
+    result = Chassis_Ctrl_Init();
+    if (result != RT_EOK)
+    {
+        LOG_E("Chassis_Ctrl Init Failes! Result is %d", result);
+        LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
+    }
+    else 
+    {
+        LOG_I("Chassis_Ctrl Init Success!");
+    }
 
 #ifdef BSP_USING_CHASSIS_IMU
-    if (ChassisIMU_Init() != RT_EOK)
-        Robot_Chassis_Reset(RT_TRUE);
+    // if (ChassisIMU_Init() != RT_EOK)
+    //     Robot_Chassis_Reset(RT_TRUE);
 #endif
 
 #ifdef BSP_USING_VISUAL_USART
-    if (VisualInit() != RT_EOK)
+    result = VisualInit();
+    if (result != RT_EOK)
+    {
+        LOG_E("Visual_com Init Failes! Result is %d", result);
+        LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
+    }
+    else 
+    {
+        LOG_I("Visual_com Init Success!");
+    }
 #endif
 
 #ifdef CORE_USING_REMOTE
@@ -108,17 +147,34 @@ int main(void)
 #endif
 
 #ifdef CORE_USING_SENTRY
-    if (Sentry_Data_Send_Init() != RT_EOK)
+    result = Sentry_Data_Send_Init();
+    if (result != RT_EOK)
+    {
+        LOG_E("Sentry_Data_Send Init Failes! Result is %d", result);
+        LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
+    }
+    else 
+    {
+        LOG_I("Sentry_Data_Send Init Success!");
+    }
 #else
     // if (UI_Init() != RT_EOK)
     //     Robot_Chassis_Reset(RT_TRUE);
     // if (Custom_Message_Data_Send_Init() != RT_EOK)
     //     Robot_Chassis_Reset(RT_TRUE);
 #endif
-
-    if (protct_ThreadInit() != RT_EOK)
+    result = protct_ThreadInit();
+    if (result != RT_EOK)
+    {
+        LOG_E("protct_Thread Init Failes! Result is %d", result);
+        LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
+    }
+    else 
+    {
+        LOG_I("protct_Thread Init Success!");
+    }
 
     return RT_EOK;
 }
