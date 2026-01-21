@@ -5,8 +5,6 @@
 #include "drv_motor_new.h"
 #include "DJI_6020.h"
       // yaw轴数据
-#define YAW_MOTOR 0
-#define PITCH_MOTOR 1
 
 MotorInstance *Gim_Motor_Pointer[2];
 uint8_t gim_motor_num=0;
@@ -27,8 +25,11 @@ int Gim_Motor_Attach(MotorInstance *motor_instance)
  ***/
 float Get_YAW_ANGLE_360f(void)
 {
-
+    #ifdef  BIG_YAW
+    return Gim_Motor_Pointer[YAW_MOTOR]->Motor_obj.angle+Gim_Motor_Pointer[BIG_YAW]->Motor_obj.angle ;
+    #endif
     return Gim_Motor_Pointer[YAW_MOTOR]->Motor_obj.angle;
+   
 }
 
 float Get_PITCH_ANGLE_360f(void)

@@ -9,6 +9,12 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw);
 
 int gim_motor_init();
 
+//云台电机是否大小yaw
+#define YAW_MOTOR 0
+#define PITCH_MOTOR 1
+
+
+
 // TODO:调Pid这堆
 #define RUN_PID_Kp 320
 #define RUN_PID_Ki 2
