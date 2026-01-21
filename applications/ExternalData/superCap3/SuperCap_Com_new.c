@@ -149,7 +149,7 @@ static rt_err_t Send_To_Scpr(Scpr_ComTx_t *cmd)
     scpr_caninstance.tx_buff[5] = (uint8_t)(cmd->chassis_powerBuf);
     scpr_caninstance.tx_buff[6] = (uint8_t)(uint16_t)(cmd->chassis_powerLim >> 8);
     scpr_caninstance.tx_buff[7] = (uint8_t)(cmd->chassis_powerLim);
-
+    scpr_caninstance.tx_len = 8;
     /*发送*/
     CAN_Transmit(&scpr_caninstance);
 
@@ -189,6 +189,7 @@ rt_err_t Scpr_Com_Init(void)
 
     /*注册CAN通信*/
     CAN_Init_Config_s config;
+    rt_memset(&config,0,sizeof(config));
     config.can_device_name = SCPR_CAN_DEV;
     config.tx_id = SCPR_TX;
     config.rx_id = SCPR_RX;
