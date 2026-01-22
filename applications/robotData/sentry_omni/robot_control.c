@@ -343,9 +343,9 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_DM_MOTOR_NUM] =
         .parent = NULL,
     },
     .DM_Motor_Measure_Init_Config = {
-        .RATIO = 10.0,
+        .RATIO = 1.0,
         .ENCODER_LEN = 65535,
-        .ENCODER_ZERO_OFFSET = 61659,
+        .ENCODER_ZERO_OFFSET = 55016,
         .DM_P_MAX=12.5f,
         .DM_P_MIN=-12.5f,
         .DM_V_MAX=45.f,

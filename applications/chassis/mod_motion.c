@@ -221,26 +221,24 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     }
     // anglevel_last = UTILS_LP_FAST(anglevel_last, ctrlMsg->xyw.angvel, 0.2f); // 对云台角速度进行低通滤波
     
+    yaw_angle = ctrlMsg->getYawAngel;
+    if (fabs(yaw_angle) <= 0.5f) // 跟随角死区
     {
-        /*获取云台和底盘的夹角 数据范围(-180.0°,180.0°]*/ // 得到当前控制坐标系和底盘坐标系角度
-        yaw_angle = 0;//ctrlMsg->getYawAngel;
-        if (fabs(yaw_angle) <= 0.5f) // 跟随角死区
-        {
-            yaw_angle = 0;
-        }
-        if (fabs(yaw_angle) >= 15.f) // 跟随角较大时，修改跟随角PID为较大参数
-        {
-            ExMotMod_Modify_Apid(FOLLOW_PID_2);
-        }
-        else // 跟随角较小时，修改跟随角PID为较小参数
-        {
-            ExMotMod_Modify_Apid(FOLLOW_PID_1);
-        }
+        yaw_angle = 0;
+    }
+    if (fabs(yaw_angle) >= 15.f) // 跟随角较大时，修改跟随角PID为较大参数
+    {
+        ExMotMod_Modify_Apid(FOLLOW_PID_2);
+    }
+    else // 跟随角较小时，修改跟随角PID为较小参数
+    {
+        ExMotMod_Modify_Apid(FOLLOW_PID_1);
     }
 
     /*将fol_angle转化为(-180.0°,180.0°]度*/
     fol_angle = range_angle_180(fol_angle);
-
+    yaw_angle = range_angle_180(yaw_angle);
+    
     /*计算跟随时的动态角速度大小 fol_angle即表示pid的target*/
     PID_Calculate(&angfol_pid, yaw_angle);
     VxyW.angvel = anglevel_last + angfol_pid.out;
@@ -539,7 +537,7 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     // if (ctrl.getYawAngel)
     // {
         // 得到当前控制坐标系和底盘坐标系角度
-        angle = 0;//ctrl.getYawAngel;
+    angle = ctrl.getYawAngel;
     // }
 
     // Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
@@ -549,9 +547,3 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
      Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
      Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
-
-// 得到实时的控制速度
-// Mot_base_t getSetMotion(void)
-// {
-//     return SmoothSpeed;
-// }
