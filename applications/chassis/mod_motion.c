@@ -13,6 +13,8 @@
 pid_t angfol_pid = PID_INIT(20, 0, 10, 0, 2000, -2000);
 v_lim_t v_angle_lim = {0.f, 50, 30, 0.3f, 0.f, 0.f};
 
+extern PIDInstance follow_pid_fast,follow_pid_slow;
+
 SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0};
 Mot_base_t Force_xyw = {0};
 Mot_base_t Speed_xyw = {0};
@@ -226,22 +228,22 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     {
         yaw_angle = 0;
     }
-    if (fabs(yaw_angle) >= 15.f) // 跟随角较大时，修改跟随角PID为较大参数
-    {
-        ExMotMod_Modify_Apid(FOLLOW_PID_2);
-    }
-    else // 跟随角较小时，修改跟随角PID为较小参数
-    {
-        ExMotMod_Modify_Apid(FOLLOW_PID_1);
-    }
+    // if (fabs(yaw_angle) >= 15.f) // 跟随角较大时，修改跟随角PID为较大参数
+    // {
+    // }
+    // else // 跟随角较小时，修改跟随角PID为较小参数
+    // {
+    //     pid = follow_pid_slow;
+    // }
 
     /*将fol_angle转化为(-180.0°,180.0°]度*/
     fol_angle = range_angle_180(fol_angle);
     yaw_angle = range_angle_180(yaw_angle);
     
     /*计算跟随时的动态角速度大小 fol_angle即表示pid的target*/
-    PID_Calculate(&angfol_pid, yaw_angle);
-    VxyW.angvel = anglevel_last + angfol_pid.out;
+    
+    // PID_Calculate(&angfol_pid, yaw_angle);
+    VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_fast,0,yaw_angle);
     // VxyW.angvel=0;
     /*跟随时，当功率受限时降低平移保证转向*/
 #ifdef POWER_LIMIT_TEST == 0

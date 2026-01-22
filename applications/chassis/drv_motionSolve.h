@@ -35,9 +35,12 @@ void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4]);
 #endif
 //全向轮正逆解算
 #ifdef USING_OMNI_RESOLVE
-void Omni_Forward_Kinematics(float wheel_rpm[4], Mot_base_t* chassis_vel);
+void Omni_Forward_Kinematics_120(float wheel_rpm[4], Mot_base_t* chassis_vel);
 
-void Omni_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4]);
+void Omni_Inverse_Kinematics_120(Mot_base_t target_xyw, float resolve_data[4]);
+void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4]);
+void Omni_Forward_Kinematics_45(float wheel_rpm[4], Mot_base_t *chassis_velocity);
+
 
 #endif
 //舵轮正逆解算

@@ -22,6 +22,8 @@ DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
 // 云台电机实例
 DJI_6020_MotorInstance gim_DJI_motor[GIM_DJI_MOTOR_NUM];
 DM_MotorInstance gim_DM_motor[GIM_DM_MOTOR_NUM];
+// 跟随角pid实例
+PIDInstance follow_pid_fast,follow_pid_slow;
 
 
 uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关/
@@ -31,7 +33,8 @@ float motorSetSpeed[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
 float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 static float encodeData[4];
 
-Mot_base_t real_xyw;//正解算后的底盘真实运动情况
+Mot_base_t Chassis_solve_xyw; // 正解算后的底盘真实运动情况
+
 
 // 底盘四个电机配置参数模板
 DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
@@ -352,7 +355,7 @@ DM_Motor_Init_Config_s  gim_dm_motor_init_config[GIM_DM_MOTOR_NUM]=
     .DM_Motor_Measure_Init_Config = {
         .RATIO = 1.0,
         .ENCODER_LEN = 65535,
-        .ENCODER_ZERO_OFFSET = 55016,
+        .ENCODER_ZERO_OFFSET = 44000,
         .DM_P_MAX=12.5f,
         .DM_P_MIN=-12.5f,
         .DM_V_MAX=45.f,
@@ -398,6 +401,29 @@ int gim_motor_init()
 
     }
     return ret;
+}
+
+void Follow_pid_init(void)
+{
+    PID_Init_Config_s pid_config;
+    rt_memset(&pid_config,0,sizeof(pid_config));
+    pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
+
+    pid_config.Kp = 70;
+    pid_config.Ki = 0.1;
+    pid_config.Kd = 10;
+    pid_config.MaxOut = 11000;
+    pid_config.DeadBand = 10;
+    pid_config.IntegralLimit = 400;
+    
+    PIDInit(&follow_pid_fast,&pid_config);
+
+    pid_config.Kp = 20;
+    pid_config.Ki = 0;
+    pid_config.Kd = 10;
+    pid_config.IntegralLimit = 0;
+    pid_config.MaxOut = 2000;
+    PIDInit(&follow_pid_slow,&pid_config);
 }
 
 static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force_xyw) // 进行加速度解算到各个轮子上
@@ -487,10 +513,10 @@ void fromEncoderGetV()
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
         // 单位mm/s
-        real_xyw.vel.y += encodeData[i] * ROOT2 / 4.0f * sign[0][i];
-        real_xyw.vel.x += encodeData[i] * ROOT2 / 4.0f * sign[1][i];
+        Chassis_solve_xyw.vel.y += encodeData[i] * ROOT2 / 4.0f * sign[0][i];
+        Chassis_solve_xyw.vel.x += encodeData[i] * ROOT2 / 4.0f * sign[1][i];
         // 单位rad/s ->0.1°/s
-        real_xyw.angvel += encodeData[i] / 4.0f / coefficient_OMNI * sign[2][i];
+        Chassis_solve_xyw.angvel += encodeData[i] / 4.0f / coefficient_OMNI * sign[2][i];
     }
 }
 /**
@@ -500,17 +526,20 @@ void fromEncoderGetV()
  */
 void omni_Forward_Kinematics_temp(void)
 {
-    GetEncode();
-    fromEncoderGetV();
+    float temp[WHEEL_MOTOR_NUM]={0};
+    for(int i=0;i<WHEEL_MOTOR_NUM;i++)
+    {
+        temp[i]=wheel_motor[i].Motor_obj.speed;
+    }
+    Omni_Forward_Kinematics_45(temp , &Chassis_solve_xyw);
 }
 //**
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
-       // Mecanum_Inverse_Kinematics(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
-        Omni_Resolve(*Speed_xyw, motorSetSpeed);
-        Force_Allo_to_wheels(motorSetForce, Force_xyw); // 进行加速度解算到各个电机上
+        Omni_Inverse_Kinematics_45(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
+        Force_Allo_to_wheels(motorSetForce, Force_xyw);           // 进行加速度解算到各个电机上
 
         // Get_force_out(motorSetForce); // 获取前馈值
     }
@@ -520,7 +549,12 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
     }
 }
 
+/**
+ * @brief 获取底盘正解算后数据
+ *
+ * @return Mot_base_t
+ */
 Mot_base_t Get_realmotion(void)
 {
-    return real_xyw;
+    return Chassis_solve_xyw;
 }
