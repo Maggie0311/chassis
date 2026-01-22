@@ -11,6 +11,7 @@
 #define RADTORPM ((float)(30.0f / PI))
 #define RPMTORAD ((float)(PI / 30.0f))
 #define ROOT2 ((float)(1.41421f))
+#define ROOT3 ((float)1.73205f)
 
 typedef struct J3_3 {
     float data[3][3];  // 3x3 矩阵
