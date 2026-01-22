@@ -77,7 +77,6 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg);
  * @return   输出到Resolve函数的VxyW
  */
 Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_mode);
-Mot_base_t MotPack_Power_Limit(Ctrl_data_t *const ctrlMsg);
 
 int Set_Planner_init(void);
 void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl);
@@ -88,8 +87,5 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl);
  * @param {Vector2_t} *pos 偏心坐标点，单位(mm,mm)
  */
 Mot_base_t MotPack_Offset_SmallTop(const Ctrl_data_t *const ctrlMsg, const Vector2_t *const pos);
-void ExMotMod_Modify_Apid(float kp, float ki, float kd, float i_lim, float lim_up, float lim_down);
-
-// Mot_base_t getSetMotion(void);
 
 #endif

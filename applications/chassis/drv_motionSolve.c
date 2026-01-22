@@ -348,7 +348,7 @@ void Mecanum_Forward_Kinematics(float wheel_rpm[4], Mot_base_t *chassis_vel)
 void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4])
 {
 }
-
+#endif
 // 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 

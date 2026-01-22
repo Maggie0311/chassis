@@ -12,8 +12,7 @@
 /*-------------------外部控制单位,xy平移速度矢量,单位mm/s; 自转角速度,单位0.1°/s------------*/
 
 /*方便debug (Ctrl_data_info_t *)nowCtrlSrc->data*/
-Ctrl_source_t *nowCtrlSrc = NULL;
-Vector2_t fixpos = {.x = 0, .y = 10};
+Ctrl_source_t *nowCtrlSrc = NULL;//当前数据源全局变量
 
 /*线程定时器*/
 static struct rt_semaphore ChassCtrl_sem;
@@ -22,7 +21,9 @@ static void ChassCtrl_IRQHandler(void *parameter)
     rt_sem_release(&ChassCtrl_sem);
 }
 
+//debug
 Ctrl_data_t debug_fixctrl;
+
 /**
  * @brief    模式状态调度 总的来说就是根据云台控制的运动方式，得到底盘坐标系下的Vx,Vy矢量
  * @param    Cctrl    Ctrldata_t指针
@@ -51,16 +52,15 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     default: // 底盘自主
         fixCtrl.xyw = MotPack_Only_Chass(fixCtrl.xyw);
         break;
-    } // switch
+    }
     // debug_fixctrl = fixCtrl; // 控制源控制数据
-     //fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
     Set_Plan_Vxyw_Process(fixCtrl);
      //debug_fixctrl = fixCtrl;
     //  修改pid的设定值
-		//chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
-    chassis_ctrl(&Speed_xyw, &Force_xyw);
+	//chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
+    chassis_ctrl(&Speed_xyw, &Force_xyw);//将解算后的数据设定到电机上
 }
-float angle_vel = 5000;
+
 uint32_t rt_tick = 0;
 // 该线程总的来说是根据云台发来的数据进行处理转化为底盘轮子的设定值--其中考虑调度模式等细节问题
 static void Chassis_Ctrl_Thread(void *parameter)
@@ -80,16 +80,10 @@ static void Chassis_Ctrl_Thread(void *parameter)
         // 哨兵模式下的特殊处理，防止串口掉线后底盘不动
         if (getIsSentryMode() && ctrl_source[CS_Visual].if_valid == 0 && ctrl_source[CS_Visual].if_used == 1)
         {
-            // rt_tick=ctrl_source[CS_Visual].lastTick;
-            // if(ctrl_source[CS_Visual].tick==rt_tick)
-            // {
-            //     angle_vel=300;
-            // }
-            // else if()
             if (nowCtrlSrc->data)
             {
                 Ctrl_data = (Ctrl_data_t *)nowCtrlSrc->data; /*得到原始设定值*/
-                Ctrl_data->xyw.angvel = angle_vel;
+                Ctrl_data->xyw.angvel = 5000;//视觉控制掉线时默认转速
             }
         }
 #endif

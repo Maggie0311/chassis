@@ -1,28 +1,19 @@
 #include "mod_motion.h"
-#include "pid.h"
+#include "pid_new.h"
 #include "drv_utils.h"
 #include "drv_Vector.h"
-#include "drv_GimMotor.h"
-#include "fun_powerCtrl.h"
-#include "fun_protocolGim.h"
-#include "drv_motionSolve.h"
 #include "app_RefSystem.h"
 #include "robot_data.h"
 #include <arm_math.h>
 
-pid_t angfol_pid = PID_INIT(20, 0, 10, 0, 2000, -2000);
-v_lim_t v_angle_lim = {0.f, 50, 30, 0.3f, 0.f, 0.f};
+extern PIDInstance follow_pid_fast,follow_pid_slow;//跟随角pid实例
 
-extern PIDInstance follow_pid_fast,follow_pid_slow;
-
-SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0};
+SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0};//设定值规划
 Mot_base_t Force_xyw = {0};
 Mot_base_t Speed_xyw = {0};
 
 Mot_base_t SmoothSpeed;           /*处理过后控制使用设定值*/
 Mot_base_t Setmotion;             /*未处理原始设定值*/
-//static uint8_t fol_isReverse = 0; // 从控制坐标系转化到底盘坐标系
-static uint8_t flag_reg = 0;      // isFirst, turn_reg, isIn_1, isIn_2 , trunin_mode_last, trunin
 
 static float range_angle_180(float angle)
 {
@@ -155,42 +146,6 @@ void yawAngleOffset(const float angvel, float *const yawAngel)
     // *yawAngel = temp;
 }
 
-// 跟随时，当功率受限时降低平移保证转向
-v_lim_t v_vel_lim = {0.f, 65, 50, 1.0f, 0.f, 0.f};
-uint8_t follow_at_powerlim(Mot_base_t *const VxyW)
-{
-    uint8_t ret = 0;
-    v_vel_lim.lim_I = 0;
-    if (PowerCtrl.power_allo_flag != 0 && fabsf(VxyW->angvel) > 1000.0f) // && PowerCtrl.Power_Maxlim_sum - PowerInfo.Ref.Power_Maxlim < 100.f)
-    {
-        // if(PowerCtrl.k_power_allo)
-        v_vel_lim.lim_out += fabsf((1.0f - get_k_power_allo()) * v_vel_lim.lim_k);
-        if (PowerCtrl.power_allo_flag == 2)
-            v_vel_lim.lim_I = v_vel_lim.lim_max * fabsf(PowerCtrl.Power_Allo_level) / 100.f;
-    }
-    else
-    {
-        if (v_vel_lim.lim_out > 5.0f)
-            v_vel_lim.lim_out -= 5.0f;
-        else
-            v_vel_lim.lim_out = 0;
-    }
-    if (fabsf(VxyW->angvel) > 450.0f)
-    {
-        v_vel_lim.lim_out += 0.1f * fabsf(VxyW->angvel) / 450.f;
-    }
-    v_vel_lim.lim_out = utils_clamp(v_vel_lim.lim_out, 0.f, v_vel_lim.lim_max);
-    v_vel_lim.lim_level = v_vel_lim.lim_out + v_vel_lim.lim_I;
-    if (v_vel_lim.lim_level >= v_vel_lim.lim_max - 0.001f)
-    {
-        v_vel_lim.lim_level = v_vel_lim.lim_max;
-        ret = 1;
-    }
-    VxyW->vel.x *= (1.0f - v_vel_lim.lim_level / 100.f);
-    VxyW->vel.y *= (1.0f - v_vel_lim.lim_level / 100.f);
-    return ret;
-}
-
 /**
  * @brief    底盘跟随云台运动,即所有控制方向都是以云台坐标系而言的 正前方为云台枪管方向
  * @note     输入的VxyW.angvel没有使用 该函数不改变也不限制输入速度单位
@@ -200,10 +155,10 @@ uint8_t follow_at_powerlim(Mot_base_t *const VxyW)
  * @param    fol_angle 范围：[0-360°]单位度
  * @return   输出到Resolve函数的VxyW
  */
-float anglevel_last = 0; // 记录上次角速度滤波后的值
 Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_mode)
 {
     // fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
+    static float anglevel_last = 0; // 记录上次角速度滤波后的值
     float fol_angle = ctrlMsg->fol_angle;
     float yaw_angle = 0;
     float yaw_Omega = 0;
@@ -241,14 +196,12 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     yaw_angle = range_angle_180(yaw_angle);
     
     /*计算跟随时的动态角速度大小 fol_angle即表示pid的target*/
-    
     // PID_Calculate(&angfol_pid, yaw_angle);
+
+    //新的pid计算，yaw_angle本身即为误差，所以“反馈值”参数写0
     VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_fast,0,yaw_angle);
-    // VxyW.angvel=0;
+
     /*跟随时，当功率受限时降低平移保证转向*/
-#ifdef POWER_LIMIT_TEST == 0
-    follow_at_powerlim(&VxyW);
-#endif
     // yaw_Omega = Get_GM_Omega(ctrlMsg->arg); // 这里的arg是云台yaw或者pitch轴电机的枚举，在云台接受控制数据处定义
     // yawAngleOffset(yaw_Omega, &yaw_angle);  // 当旋转较快时执行yaw轴电机角度补偿
 
@@ -284,140 +237,15 @@ uint8_t move_at_no_follow(Ctrl_data_t *const fixCtrl)
     return ret;
 }
 
-// 陀螺时，当功率受限时降低陀螺转速保证平移性
-uint8_t gyro_at_powerlim(Mot_base_t *const VxyW, Ctrl_data_t *const ctrlMsg)
-{
-    static uint8_t ret_0 = 0;
-    v_angle_lim.lim_I = 0;
-    if ((fabsf(VxyW->vel.y) > 80.0f || fabsf(VxyW->vel.x) > 80.0f) && PowerCtrl.Power_Maxlim_sum - PowerInfo.Ref.Power_Maxlim < 180.f)
-    {
-        if (PowerCtrl.power_allo_flag == 1)
-            v_angle_lim.lim_out += fabsf((1.0f - get_k_power_allo()) * v_angle_lim.lim_k);
-        else if (PowerCtrl.power_allo_flag == 2)
-        {
-            v_angle_lim.lim_out += fabsf((1.0f - get_k_power_allo()) * v_angle_lim.lim_k);
-            v_angle_lim.lim_I = v_angle_lim.lim_max * fabsf(PowerCtrl.Power_Allo_level) / 100.f;
-        }
-    }
-    else
-    {
-        if (v_angle_lim.lim_out > 1.0f)
-            v_angle_lim.lim_out -= 1.0f;
-        else
-            v_angle_lim.lim_out = 0;
-    }
-    // debug
-    //    if (fabsf(VxyW->vel.x) > 500.0f)
-    //        v_angle_lim.lim_out += 0.5f * (fabsf(VxyW->vel.x) / 1000.f + 9);
-    //    if (fabsf(VxyW->vel.y) > 500.0f)
-    //        v_angle_lim.lim_out += 0.5f * (fabsf(VxyW->vel.y) / 1000.f + 9);
-
-    float pitch = 0, roll = 0;
-    if ((fabsf(VxyW->vel.y) > 500.0f && (get_chassis_pitch(&pitch)) ? fabsf(pitch) > GYRO_ANGEL_MINLIM : 0))
-        if (VxyW->vel.y * pitch > 0) // 此判断实现只针对上坡
-            v_angle_lim.lim_out += 0.2f * (fabsf(VxyW->vel.y) / 1000.f + (fabsf(pitch) - GYRO_ANGEL_MINLIM));
-    if ((fabsf(VxyW->vel.x) > 500.0f && (get_chassis_roll(&roll)) ? fabsf(roll) > GYRO_ANGEL_MINLIM : 0))
-        if (VxyW->vel.x * roll > 0) // 此判断实现只针对上坡
-            v_angle_lim.lim_out += 0.2f * (fabsf(VxyW->vel.x) / 1000.f + (fabsf(roll) - GYRO_ANGEL_MINLIM));
-
-    v_angle_lim.lim_out = utils_clamp(v_angle_lim.lim_out, 0, v_angle_lim.lim_max);
-    v_angle_lim.lim_level = v_angle_lim.lim_out + v_angle_lim.lim_I;
-    if (v_angle_lim.lim_level >= v_angle_lim.lim_max - 0.001f)
-    {
-        v_angle_lim.lim_level = v_angle_lim.lim_max;
-        ret_0 = 2;
-    }
-    else if (v_angle_lim.lim_level < v_angle_lim.lim_down)
-        ret_0 = 0;
-    VxyW->angvel *= (1.0f - v_angle_lim.lim_level / 100.f);
-    return ret_0;
-}
-
-// 功率限制控制器结构体
-typedef struct
-{
-    float K_in;          // 当前输入缩放因子(平滑后)
-    float K_in_raw;      // 原始计算的缩放因子(平滑前)
-    float K_out_last;    // 上一次输出端限制比例
-    float max_power;     // 系统最大允许功率(W)
-    float min_K;         // 最小缩放因子(0.01~0.1)
-    float smooth_factor; // 平滑因子(0.05~0.2)
-
-    // PID控制器参数
-    pid_t pid_controller;
-} power_input_limiter_t;
-
-// 全局实例初始化
-power_input_limiter_t input_limiter = {
-    .K_in = 1.0f,
-    .K_in_raw = 1.0f,
-    .K_out_last = 1.0f,
-    .max_power = 200.0f, // 根据实际系统调整
-    .min_K = 0.05f,
-    .smooth_factor = 0.1f,
-    .pid_controller = PID_INIT(0.8f, 0.05f, 0.02f, 0.2f, 0.1f, -0.1f) // 调整PID限幅
-};
-
-float update_input_limiter(float K_out)
-{
-    /* 1. 计算控制误差 */
-    float error = 1.0f - K_out;
-
-    /* 2. 使用PID计算缩放因子调整量 */
-    PID_Calculate(&input_limiter.pid_controller, error);
-
-    /* 3. 计算原始K_in */
-    input_limiter.K_in_raw = input_limiter.K_in - input_limiter.pid_controller.out;
-
-    /* 4. 限制原始K_in范围 */
-    if (input_limiter.K_in_raw > 1.0f)
-        input_limiter.K_in_raw = 1.0f;
-    else if (input_limiter.K_in_raw < input_limiter.min_K)
-        input_limiter.K_in_raw = input_limiter.min_K;
-
-    /* 5. 应用正确的平滑滤波: 当前值 = 平滑因子×新值 + (1-平滑因子)×旧值 */
-    input_limiter.K_in = input_limiter.smooth_factor * input_limiter.K_in_raw +
-                         (1 - input_limiter.smooth_factor) * input_limiter.K_in;
-
-    input_limiter.K_out_last = K_out;
-    return input_limiter.K_in;
-}
-
 /**
- * @brief 应用输入端功率限制
- * @param power_limit_k 当前实际功率限制系数
- *                      计算得出实际在控制端限制的比例
+ * @brief 受伤时变速小陀螺
+ * 
+ * @param VxyW 
+ * @param ctrlMsg 
  */
-void apply_input_power_limit(float power_limit_k)
-{
-
-    power_limit_k = (power_limit_k > 1) ? 1 : power_limit_k;
-    /* 2. 更新缩放因子 */
-    update_input_limiter(power_limit_k);
-}
-
-Mot_base_t MotPack_Power_Limit(Ctrl_data_t *const ctrlMsg)
-{
-
-    Mot_base_t VxyW = ctrlMsg->xyw;
-    apply_input_power_limit(PowerCtrl.k_power_allo_wheel); // 这里没有兼容除全向和麦轮以外的底盘
-    if (ctrlMsg->motion_mode == FOLLOW_GIMBAL || ctrlMsg->motion_mode == NO_FOLLOW)
-    {
-        VxyW.vel.x *= input_limiter.K_in;
-        VxyW.vel.y *= input_limiter.K_in;
-    }
-    else if (ctrlMsg->motion_mode == SLOW_GYRO || ctrlMsg->motion_mode == FAST_GYRO)
-    {
-        // VxyW.vel.x *= input_limiter.K_in;
-        // VxyW.vel.y *= input_limiter.K_in;
-        VxyW.angvel *= input_limiter.K_in;
-    }
-    return VxyW;
-}
-
-uint8_t if_turn_to_change = 0;
 void gyro_at_hurt(Mot_base_t *const VxyW, Ctrl_data_t *const ctrlMsg)
 {
+    static uint8_t if_turn_to_change = 0;
     static rt_uint32_t last_time = 0;
     static float A = 0.5f; // 增加或者减小的幅度为50%
     static float T = 4.f;  // 周期为2s
@@ -479,15 +307,11 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
         ctrlMsg->motion_mode = FOLLOW_GIMBAL;
         return MotPack_Follow_Gim(ctrlMsg, if_turn_to_follow);
     }
-    else
-        CLRBIT(flag_reg, 4);
+
     if (ctrlMsg->motion_mode == CHANGE_GYRO)
     {
         gyro_at_hurt(&VxyW, ctrlMsg); // 陀螺受伤时，开启变速小陀螺
     }
-#ifdef POWER_LIMIT_TEST == 0
-    gyro_at_powerlim(&VxyW, ctrlMsg); // 功率受限时限制陀螺保证平移性
-#endif
     // if (ctrlMsg->getYawAngel)
     // {
         // 得到当前控制坐标系和底盘坐标系角度
@@ -498,17 +322,6 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     // fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
 
     return VxyW;
-}
-
-/**
- * @brief    修改跟随的角度pid参数,暂时用在test调试上
- * @param    kp-ki-kd    pid参数
- */
-void ExMotMod_Modify_Apid(float kp, float ki, float kd, float i_lim, float lim_up, float lim_down)
-{
-    angfol_pid.kp = kp;
-    angfol_pid.ki = ki;
-    angfol_pid.kd = kd;
 }
 
 /*新修改的设定值规划函数初始化 */
@@ -549,3 +362,138 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
      Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
      Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
+
+// float update_input_limiter(float K_out)
+// {
+//     /* 1. 计算控制误差 */
+//     float error = 1.0f - K_out;
+
+//     /* 2. 使用PID计算缩放因子调整量 */
+//     PID_Calculate(&input_limiter.pid_controller, error);
+
+//     /* 3. 计算原始K_in */
+//     input_limiter.K_in_raw = input_limiter.K_in - input_limiter.pid_controller.out;
+
+//     /* 4. 限制原始K_in范围 */
+//     if (input_limiter.K_in_raw > 1.0f)
+//         input_limiter.K_in_raw = 1.0f;
+//     else if (input_limiter.K_in_raw < input_limiter.min_K)
+//         input_limiter.K_in_raw = input_limiter.min_K;
+
+//     /* 5. 应用正确的平滑滤波: 当前值 = 平滑因子×新值 + (1-平滑因子)×旧值 */
+//     input_limiter.K_in = input_limiter.smooth_factor * input_limiter.K_in_raw +
+//                          (1 - input_limiter.smooth_factor) * input_limiter.K_in;
+
+//     input_limiter.K_out_last = K_out;
+//     return input_limiter.K_in;
+// }
+
+// // 功率限制控制器结构体
+// typedef struct
+// {
+//     float K_in;          // 当前输入缩放因子(平滑后)
+//     float K_in_raw;      // 原始计算的缩放因子(平滑前)
+//     float K_out_last;    // 上一次输出端限制比例
+//     float max_power;     // 系统最大允许功率(W)
+//     float min_K;         // 最小缩放因子(0.01~0.1)
+//     float smooth_factor; // 平滑因子(0.05~0.2)
+
+//     // PID控制器参数
+//     pid_t pid_controller;
+// } power_input_limiter_t;
+
+// // 全局实例初始化
+// power_input_limiter_t input_limiter = {
+//     .K_in = 1.0f,
+//     .K_in_raw = 1.0f,
+//     .K_out_last = 1.0f,
+//     .max_power = 200.0f, // 根据实际系统调整
+//     .min_K = 0.05f,
+//     .smooth_factor = 0.1f,
+//     .pid_controller = PID_INIT(0.8f, 0.05f, 0.02f, 0.2f, 0.1f, -0.1f) // 调整PID限幅
+// };
+
+// // 陀螺时，当功率受限时降低陀螺转速保证平移性
+// uint8_t gyro_at_powerlim(Mot_base_t *const VxyW, Ctrl_data_t *const ctrlMsg)
+// {
+//     static uint8_t ret_0 = 0;
+//     v_angle_lim.lim_I = 0;
+//     if ((fabsf(VxyW->vel.y) > 80.0f || fabsf(VxyW->vel.x) > 80.0f) && PowerCtrl.Power_Maxlim_sum - PowerInfo.Ref.Power_Maxlim < 180.f)
+//     {
+//         if (PowerCtrl.power_allo_flag == 1)
+//             v_angle_lim.lim_out += fabsf((1.0f - get_k_power_allo()) * v_angle_lim.lim_k);
+//         else if (PowerCtrl.power_allo_flag == 2)
+//         {
+//             v_angle_lim.lim_out += fabsf((1.0f - get_k_power_allo()) * v_angle_lim.lim_k);
+//             v_angle_lim.lim_I = v_angle_lim.lim_max * fabsf(PowerCtrl.Power_Allo_level) / 100.f;
+//         }
+//     }
+//     else
+//     {
+//         if (v_angle_lim.lim_out > 1.0f)
+//             v_angle_lim.lim_out -= 1.0f;
+//         else
+//             v_angle_lim.lim_out = 0;
+//     }
+//     // debug
+//     //    if (fabsf(VxyW->vel.x) > 500.0f)
+//     //        v_angle_lim.lim_out += 0.5f * (fabsf(VxyW->vel.x) / 1000.f + 9);
+//     //    if (fabsf(VxyW->vel.y) > 500.0f)
+//     //        v_angle_lim.lim_out += 0.5f * (fabsf(VxyW->vel.y) / 1000.f + 9);
+
+//     float pitch = 0, roll = 0;
+//     if ((fabsf(VxyW->vel.y) > 500.0f && (get_chassis_pitch(&pitch)) ? fabsf(pitch) > GYRO_ANGEL_MINLIM : 0))
+//         if (VxyW->vel.y * pitch > 0) // 此判断实现只针对上坡
+//             v_angle_lim.lim_out += 0.2f * (fabsf(VxyW->vel.y) / 1000.f + (fabsf(pitch) - GYRO_ANGEL_MINLIM));
+//     if ((fabsf(VxyW->vel.x) > 500.0f && (get_chassis_roll(&roll)) ? fabsf(roll) > GYRO_ANGEL_MINLIM : 0))
+//         if (VxyW->vel.x * roll > 0) // 此判断实现只针对上坡
+//             v_angle_lim.lim_out += 0.2f * (fabsf(VxyW->vel.x) / 1000.f + (fabsf(roll) - GYRO_ANGEL_MINLIM));
+
+//     v_angle_lim.lim_out = utils_clamp(v_angle_lim.lim_out, 0, v_angle_lim.lim_max);
+//     v_angle_lim.lim_level = v_angle_lim.lim_out + v_angle_lim.lim_I;
+//     if (v_angle_lim.lim_level >= v_angle_lim.lim_max - 0.001f)
+//     {
+//         v_angle_lim.lim_level = v_angle_lim.lim_max;
+//         ret_0 = 2;
+//     }
+//     else if (v_angle_lim.lim_level < v_angle_lim.lim_down)
+//         ret_0 = 0;
+//     VxyW->angvel *= (1.0f - v_angle_lim.lim_level / 100.f);
+//     return ret_0;
+// }
+
+// // 跟随时，当功率受限时降低平移保证转向
+// v_lim_t v_vel_lim = {0.f, 65, 50, 1.0f, 0.f, 0.f};
+// uint8_t follow_at_powerlim(Mot_base_t *const VxyW)
+// {
+//     uint8_t ret = 0;
+//     v_vel_lim.lim_I = 0;
+//     if (PowerCtrl.power_allo_flag != 0 && fabsf(VxyW->angvel) > 1000.0f) // && PowerCtrl.Power_Maxlim_sum - PowerInfo.Ref.Power_Maxlim < 100.f)
+//     {
+//         // if(PowerCtrl.k_power_allo)
+//         v_vel_lim.lim_out += fabsf((1.0f - get_k_power_allo()) * v_vel_lim.lim_k);
+//         if (PowerCtrl.power_allo_flag == 2)
+//             v_vel_lim.lim_I = v_vel_lim.lim_max * fabsf(PowerCtrl.Power_Allo_level) / 100.f;
+//     }
+//     else
+//     {
+//         if (v_vel_lim.lim_out > 5.0f)
+//             v_vel_lim.lim_out -= 5.0f;
+//         else
+//             v_vel_lim.lim_out = 0;
+//     }
+//     if (fabsf(VxyW->angvel) > 450.0f)
+//     {
+//         v_vel_lim.lim_out += 0.1f * fabsf(VxyW->angvel) / 450.f;
+//     }
+//     v_vel_lim.lim_out = utils_clamp(v_vel_lim.lim_out, 0.f, v_vel_lim.lim_max);
+//     v_vel_lim.lim_level = v_vel_lim.lim_out + v_vel_lim.lim_I;
+//     if (v_vel_lim.lim_level >= v_vel_lim.lim_max - 0.001f)
+//     {
+//         v_vel_lim.lim_level = v_vel_lim.lim_max;
+//         ret = 1;
+//     }
+//     VxyW->vel.x *= (1.0f - v_vel_lim.lim_level / 100.f);
+//     VxyW->vel.y *= (1.0f - v_vel_lim.lim_level / 100.f);
+//     return ret;
+// }
