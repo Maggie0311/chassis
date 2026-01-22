@@ -26,7 +26,7 @@
 /*功率控制相关参数*/
 
 /*轮子相关数据*/
-#define USING_MECANUM_RESOLVE
+#define USING_OMNI_RESOLVE
 #define VEHICLE_LONG (430.f)       // 前后轮间距（用于麦轮和舵轮解算），单位mm
 #define VEHICLE_WIDTH (430.f)      // 左右轮间距（用于麦轮和舵轮解算），单位mm
 #define VEHICLE_DIAMETER (608.f) // 对角轮间距（用于计算全向轮解算），单位mm
@@ -39,8 +39,8 @@
 // #define RB_Wheel_Azimuth (-135.f)
 
 /*跟随角pid相关参数*/
-#define FOLLOW_PID_1 15, 0, 10, 0, 4000, -4000 // kp, ki, kd, i_lim, out_lim_up, out_lim_down   // 一直在跟随模式下的跟随角pid参数
-#define FOLLOW_PID_2 40, 0, 10, 0, 4000, -4000 // 由非跟随进入跟随时的跟随角pid参数，目的是为了实现非跟随模式下响应能够较快
+// #define FOLLOW_PID_1 15, 0, 10, 0, 4000, -4000 // kp, ki, kd, i_lim, out_lim_up, out_lim_down   // 一直在跟随模式下的跟随角pid参数
+// #define FOLLOW_PID_2 40, 0, 10, 0, 4000, -4000 // 由非跟随进入跟随时的跟随角pid参数，目的是为了实现非跟随模式下响应能够较快
 
 /*设定值规划及前馈相关参数*/
 /*底盘速度设定值的平滑，SMOOTH_ADD/SMOOTH_PERIOD m/s^2（或100°/s^2） (类型float)*/

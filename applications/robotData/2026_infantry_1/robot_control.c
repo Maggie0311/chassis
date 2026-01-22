@@ -26,6 +26,8 @@ float motorSetSpeed[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
 float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 
 static float encodeData[4];
+// 跟随角pid实例
+PIDInstance follow_pid_fast,follow_pid_slow;
 
 Mot_base_t Chassis_solve_xyw; // 正解算后的底盘真实运动情况
 
@@ -314,6 +316,29 @@ int gim_motor_init()
         }
     }
     return ret;
+}
+
+void Follow_pid_init(void)//TODO：
+{
+    PID_Init_Config_s pid_config;
+    rt_memset(&pid_config,0,sizeof(pid_config));
+    pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
+
+    pid_config.Kp = 70;
+    pid_config.Ki = 0.1;
+    pid_config.Kd = 10;
+    pid_config.MaxOut = 11000;
+    pid_config.DeadBand = 10;
+    pid_config.IntegralLimit = 400;
+    
+    PIDInit(&follow_pid_fast,&pid_config);
+
+    pid_config.Kp = 20;
+    pid_config.Ki = 0;
+    pid_config.Kd = 10;
+    pid_config.IntegralLimit = 0;
+    pid_config.MaxOut = 2000;
+    PIDInit(&follow_pid_slow,&pid_config);
 }
 
 static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force_xyw) // 进行加速度解算到各个轮子上
