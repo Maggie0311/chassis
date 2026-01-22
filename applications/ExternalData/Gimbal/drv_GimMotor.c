@@ -34,7 +34,7 @@ int Gim_Motor_Attach(MotorInstance *motor_instance)
 float Get_YAW_ANGLE_360f(void)
 {
 #ifdef  BIG_YAW
-    return Gim_Motor_Pointer[YAW_MOTOR]->Motor_obj.angle+Gim_Motor_Pointer[BIG_YAW]->Motor_obj.angle ;
+    return Gim_Motor_Pointer[BIG_YAW]->Motor_obj.angle ;
 #else
     return Gim_Motor_Pointer[YAW_MOTOR]->Motor_obj.angle;
 #endif
@@ -67,7 +67,7 @@ float Get_GM_Speed(MotorInstance *motor_instance)
 float Get_GMtoCH_Speed(void)
 {
 #ifdef  BIG_YAW
-    return ((Get_GM_Speed(Gim_Motor_Pointer[YAW_MOTOR])+Get_GM_Speed(Gim_Motor_Pointer[BIG_YAW])) * 10.0f);
+    return ((Get_GM_Speed(Gim_Motor_Pointer[YAW_MOTOR])+Get_GM_Speed(Gim_Motor_Pointer[BIG_YAW])) * 10.0f);//TODO:
 #else
     return (Get_GM_Speed(Gim_Motor_Pointer[YAW_MOTOR]) * 10.0f);
 #endif
