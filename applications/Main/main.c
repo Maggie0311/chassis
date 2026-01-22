@@ -84,7 +84,7 @@ int main(void)
     }
 #endif
     /*超电通信*/
-    result = Scpr_Com_Init();
+    // result = Scpr_Com_Init();
     if (result != RT_EOK)
     {
         LOG_E("Scpr_Com Init Failes! Result is %d", result);
@@ -97,7 +97,7 @@ int main(void)
     }
 
     /*云台通信*/
-    result = Gimbal_Com_Init();
+    // result = Gimbal_Com_Init();
     if (result != RT_EOK)
     {
         LOG_E("Gimbal_Com Init Failes! Result is %d", result);

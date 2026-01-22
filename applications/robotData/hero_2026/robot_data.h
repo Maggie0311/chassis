@@ -2,49 +2,8 @@
 #define __ROBOT_DATA_H__
 
 #include "rtconfig.h"
-/*底盘电机ID*/
-#define RUN_RF_MOTOR_ID 0x201
-#define RUN_LF_MOTOR_ID 0x202
-#define RUN_LB_MOTOR_ID 0x203
-#define RUN_RB_MOTOR_ID 0x204
-
-/*云台通信ID*/
-/*云台电机ID(仅接收)（rx_gimMotor）*/
-#ifdef YAW_MOTOR_6020
-#define YAW_MOTOR_RXID 0x205  
-#define PITCH_MOTOR_RXID 0x206 
-#endif
-
-#ifdef YAW_MOTOR_DM
-#define YAW_MOTOR_RXID 0x03
-#define PITCH_MOTOR_RXID 0x04 
-#endif
-
-/*超电通信ID*/
-#define SCPR_RX 0x096 // 从超级电容端接收
-#define SCPR_TX 0x095 // 向超级电容端发送
 
 /*CAN设备挂载*/
-#if RF_CAN_DEVICE_NAME == 1
-#define RF_CAN_DEV USED_CAN1
-#elif RF_CAN_DEVICE_NAME == 2
-#define RF_CAN_DEV USED_CAN2
-#endif
-#if LF_CAN_DEVICE_NAME == 1
-#define LF_CAN_DEV USED_CAN1
-#elif LF_CAN_DEVICE_NAME == 2
-#define LF_CAN_DEV USED_CAN2
-#endif
-#if LB_CAN_DEVICE_NAME == 1
-#define LB_CAN_DEV USED_CAN1
-#elif LB_CAN_DEVICE_NAME == 2
-#define LB_CAN_DEV USED_CAN2
-#endif
-#if RB_CAN_DEVICE_NAME == 1
-#define RB_CAN_DEV USED_CAN1
-#elif RB_CAN_DEVICE_NAME == 2
-#define RB_CAN_DEV USED_CAN2
-#endif
 
 // #define GIMBAL_CAN_DEV USED_CAN2        // 云台can设备
 #if GIMBAL_CAN_DEVICE_NAME == 1
@@ -55,15 +14,6 @@
 #error "GIMBAL_CAN_DEVICE_NAME is not defined right!"
 #endif
 
-// #define IMU_GIMBAL_CAN_DEV USED_CAN2    // 云台IMUcan设备
-#if IMU_GIMBAL_CAN_DEVICE_NAME == 1
-#define IMU_GIMBAL_CAN_DEV "can1"
-#elif IMU_GIMBAL_CAN_DEVICE_NAME == 2
-#define IMU_GIMBAL_CAN_DEV "can2"
-#else 
-#error "IMU_GIMBAL_CAN_DEVICE_NAME is not defined right!"
-#endif
-
 // #define SCPR_CAN_DEV USED_CAN1          // 超级电容设备
 #if SCPR_CAN_DEVICE_NAME == 1
 #define SCPR_CAN_DEV "can1"
@@ -71,15 +21,6 @@
 #define SCPR_CAN_DEV "can2"
 #else 
 #error "SCPR_CAN_DEVICE_NAME is not defined right!"
-#endif
-
-// #define IMU_CHASSIS_CAN_DEV USED_CAN1   // 底盘IMUcan设备
-#if IMU_CHASSIS_CAN_DEVICE_NAME == 1
-#define IMU_CHASSIS_CAN_DEV USED_CAN1
-#elif IMU_CHASSIS_CAN_DEVICE_NAME == 2
-#define IMU_CHASSIS_CAN_DEV USED_CAN2
-#else 
-#error "IMU_CHASSIS_CAN_DEVICE_NAME is not defined right!"
 #endif
 /*功率控制相关参数*/
 

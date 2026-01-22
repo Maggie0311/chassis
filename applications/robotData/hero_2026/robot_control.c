@@ -30,7 +30,7 @@ static float encodeData[4];
 
 Mot_base_t real_xyw;//正解算后的底盘真实运动情况
 
-// 底盘四个电机配置参数模板
+// 底盘四个轮向电机配置参数模板
 DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     // 右前轮
     {
@@ -218,6 +218,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .ENCODER_ZERO_OFFSET = 0.0,
         },
     }};
+// 底盘四个舵向电机配置参数模板
 LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
     //右前轮
     {
@@ -266,12 +267,12 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .parent = NULL,
         },
         .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0012375, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
+            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
             .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
             .RATIO = 1.0,
-            .ENCODER_LEN = 65535,
+            .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 设置控制模式为单圈角度控制
+            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
             .ENCODER_ZERO_OFFSET = 0,
         },
 
@@ -324,12 +325,12 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .parent = NULL,
         },
         .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0012375, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
+            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
             .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
             .RATIO = 1.0,
-            .ENCODER_LEN = 65535,
+            .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 设置控制模式为单圈角度控制
+            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
             .ENCODER_ZERO_OFFSET = 0,
         },
 
@@ -381,12 +382,12 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .parent = NULL,
         },
         .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0012375, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
+            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
             .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
             .RATIO = 1.0,
-            .ENCODER_LEN = 65535,
+            .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 设置控制模式为单圈角度控制
+            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
             .ENCODER_ZERO_OFFSET = 0,
         },
     },
@@ -437,12 +438,12 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .parent = NULL,
         },
         .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0012375, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
+            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
             .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
             .RATIO = 1.0,
-            .ENCODER_LEN = 65535,
+            .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 设置控制模式为单圈角度控制
+            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
             .ENCODER_ZERO_OFFSET = 0,
         }
 
@@ -451,15 +452,15 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
 int chassis_motor_init()
 {
     int ret = 0;
-    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
-    {
-        ret = Motor_Attach((MotorInstance *)&wheel_motor[i], (Motor_Init_Config_s *)&wheel_motor_init_config[i]);
-        Power_Motor_Attach((MotorInstance *)&wheel_motor[i]);
-        if (ret != 0)
-        {
-            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-        }
-    }
+    // for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+    // {
+    //     ret = Motor_Attach((MotorInstance *)&wheel_motor[i], (Motor_Init_Config_s *)&wheel_motor_init_config[i]);
+    //     Power_Motor_Attach((MotorInstance *)&wheel_motor[i]);
+    //     if (ret != 0)
+    //     {
+    //         return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+    //     }
+    // }
 
     for (int i = 0; i < STEER_MOTOR_NUM; i++)
     {
