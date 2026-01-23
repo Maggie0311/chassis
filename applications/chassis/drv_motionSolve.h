@@ -41,6 +41,7 @@ void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4]);
 void Omni_Inverse_Kinematics_60(Mot_base_t target_xyw, float resolve_data[4]);
 void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4]);
 void Omni_Forward_Kinematics(float speed[4]);//全向轮正解算
+
 #endif
 // 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE

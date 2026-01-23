@@ -609,7 +609,6 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
-        Mecanum_Inverse_Kinematics(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
         // Omni_Resolve(*Speed_xyw, motorSetSpeed);
         Force_Allo_to_wheels(motorSetForce, Force_xyw); // 进行加速度解算到各个电机上
 

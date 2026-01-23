@@ -10,6 +10,7 @@
 #include "fun_protocolGim.h"
 #include "drv_cmd_com.h"
 #include "robot_control.h"
+#include "drv_motionSolve.h"
 
 #ifdef BSP_USING_LOG
 #define LOG_TAG     "Visual_com"

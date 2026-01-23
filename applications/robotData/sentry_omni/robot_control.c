@@ -467,14 +467,13 @@ static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
     }
 }
 
-
 //**
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
         Omni_Inverse_Kinematics_45(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
-        Force_Allo_to_wheels(motorSetForce, Force_xyw);           // 进行加速度解算到各个电机上
+        Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
 
         // Get_force_out(motorSetForce); // 获取前馈值
     }
@@ -492,5 +491,7 @@ void Forward_Kinematics(void)
     {
         temp[i] = wheel_motor[i].Motor_obj.speed;
     }
+    // Omni_Forward_Kinematics(temp);
     Omni_Forward_Kinematics(temp);
+    // Omni_Forward_Kinematics_test(temp);
 }

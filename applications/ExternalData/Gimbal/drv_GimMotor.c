@@ -1,9 +1,6 @@
 #include "drv_GimMotor.h"
-#include "WHeel_data.h"
-#include "drv_utils.h"
 #include "robot_control.h"
-#include "drv_motor_new.h"
-#include "DJI_6020.h"
+
       // yaw轴数据
 
 #define GIM_MOTOR_MAXNUM 5

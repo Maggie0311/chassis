@@ -53,11 +53,11 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
         break;
     } // switch
     // debug_fixctrl = fixCtrl; // 控制源控制数据
-     //fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
+    // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
     Set_Plan_Vxyw_Process(fixCtrl);
-     //debug_fixctrl = fixCtrl;
+    // debug_fixctrl = fixCtrl;
     //  修改pid的设定值
-		//chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
+    // chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
     chassis_ctrl(&Speed_xyw, &Force_xyw);
 }
 float angle_vel = 5000;
@@ -117,7 +117,7 @@ static rt_err_t chassisCtrlInit(void)
     // MotSmooth_Vxyw_init(); /*初始化平滑和模式及切换时的基本数据*/
     Set_Planner_init(); // 新修改的设定值规划结构体初始化
 
-    //跟随模式PID初始化
+    // 跟随模式PID初始化
     Follow_pid_init();
 
     // 初始化信号量

@@ -145,86 +145,26 @@ void Omni_Inverse_Kinematics_60(Mot_base_t target_xyw, float resolve_data[4])
 
 void Omni_Forward_Kinematics(float speed[4])
 {
+    real_xyw.vel.x = 0.0f;
+    real_xyw.vel.y = 0.0f;
+    real_xyw.angvel = 0.0f;
     for (int i = 0; i < 4; i++)
     {
         // 单位mm / s      计算过程：快转子rpm->快转子rad / s->输出轴rad / s->轮子mm / s
         encodeData[i] = RPMTORAD * WHEEL_RADIUS * speed[i];
     }
     // 各个轮组解算的常量系数，按照不同的种类进行划分     该系数考虑距离，角度转弧度，角速度0.1度/s的因素，最终将轮向电机速度直接除以改系数得到角速度值
-    static float coefficient_OMNI = VEHICLE_DIAMETER / 20.f * DEGTORAD;
-    static float coefficient_MECANUM = (VEHICLE_LONG + VEHICLE_WIDTH) / 20.f * DEGTORAD;
-    static float coefficient_STEER = VEHICLE_DIAMETER / 20.f * DEGTORAD;
+    static float coefficient_OMNI = VEHICLE_DIAMETER / 2; // 底盘半径 mm
     // 三个方向速度的符号，顺序为[3]:y,x,w,[WHEELS_GROUP_NUM]:右前,左前，左后，右后，适用于全向轮和麦克纳姆轮，不适用于舵轮
-    static int sign[3][4] = {{1, 1, 1, 1}, {-1, 1, -1, 1}, {1, -1, -1, 1}};
+    // static int sign[3][4] = {{1, 1, 1, 1}, {-1, 1, -1, 1}, {1, -1, -1, 1}};
+    static int sign[3][4] = {{1, 1, 1, 1}, {1, -1, 1, -1}, {1, -1, -1, 1}};
     for (int i = 0; i < 4; i++)
     {
         // 单位mm/s
-        real_xyw.vel.y += encodeData[i] * ROOT2 / 4.0f * sign[0][i];
-        real_xyw.vel.x += encodeData[i] * ROOT2 / 4.0f * sign[1][i];
-        // 单位rad/s ->0.1°/s
-        real_xyw.angvel += encodeData[i] / 4.0f / coefficient_OMNI * sign[2][i];
-    }
-}
-
-// 麦克纳姆轮正解算函数（向前为X，向左为Y）
-// 输入：四个轮子的转速 (RPM)，顺序：RF-LF-LB-RB
-// 输出：底盘速度存储到 real_xyw 结构体
-void Omni_Forward_Kinematics_ForwardX(float speed[4])
-{
-    // 1. 将RPM转换为轮子线速度(mm/s)
-    for (int i = 0; i < 4; i++)
-    {
-        // 单位mm/s: RPM -> rad/s -> mm/s
-        encodeData[i] = RPMTORAD * WHEEL_RADIUS * speed[i];
-    }
-
-    // 2. 初始化系数（只执行一次）
-    static int if_init = 0;
-    static float coefficient = 0.0f;
-    static int sign[3][4]; // 符号矩阵：[3]: x,y,w; [4]: RF, LF, LB, RB
-
-    if (!if_init)
-    {
-        // 根据你的代码，全向轮系数
-        coefficient = VEHICLE_DIAMETER / 20.f * DEGTORAD;
-
-        // RF(0), LF(1), LB(2), RB(3) 轮子顺序
-        sign[0][0] = 1;  // RF对X速度贡献为正
-        sign[0][1] = -1; // LF对X速度贡献为负
-        sign[0][2] = -1; // LB对X速度贡献为负
-        sign[0][3] = 1;  // RB对X速度贡献为正
-
-        sign[1][0] = 1;  // RF对Y速度贡献为正（左为正）
-        sign[1][1] = 1;  // LF对Y速度贡献为正
-        sign[1][2] = -1; // LB对Y速度贡献为负
-        sign[1][3] = -1; // RB对Y速度贡献为负
-
-        sign[2][0] = 1;  // RF对角速度贡献为正（逆时针为正）
-        sign[2][1] = -1; // LF对角速度贡献为负
-        sign[2][2] = 1;  // LB对角速度贡献为正
-        sign[2][3] = -1; // RB对角速度贡献为负
-
-        if_init = 1;
-    }
-
-    // 3. 清零累加器
-    real_xyw.vel.x = 0.0f;
-    real_xyw.vel.y = 0.0f;
-    real_xyw.angvel = 0.0f;
-
-    // 4. 计算底盘速度
-    for (int i = 0; i < 4; i++)
-    {
-        // 注意：你的原代码中系数是 ROOT2/4.0f，这是针对45°麦克纳姆轮的
-
-        real_xyw.vel.x += encodeData[i] * ROOT2 / 4.0f * sign[0][i];
-
-        // Y方向速度（向左）：vy = Σ(轮速 * ROOT2/4 * sign_y)
+        real_xyw.vel.x += encodeData[i] * ROOT2 / 4.0f * sign[0][i]; // 底盘的速度单位是mm
         real_xyw.vel.y += encodeData[i] * ROOT2 / 4.0f * sign[1][i];
-
-        // 角速度：ω = Σ(轮速 / (4*coefficient) * sign_w)
-        // 注意：你的原代码中角速度单位已经是 0.1°/s
-        real_xyw.angvel += encodeData[i] / 4.0f / coefficient * sign[2][i];
+        // 单位rad/s ->0.1°/s
+        real_xyw.angvel += encodeData[i] / 4.0f / coefficient_OMNI * sign[2][i] * RADTODEG * 10.0f;
     }
 }
 
