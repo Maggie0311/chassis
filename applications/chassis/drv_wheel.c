@@ -6,7 +6,7 @@
 #include "robot_control.h"
 /*所有顺序为转向轮和驱动轮---RF-LF-LB-RB*/
 static struct rt_timer Cal_Timer;   /*线程定时器*/
-static struct rt_semaphore Cal_sem; /*线程信号量*/
+static struct rt_semaphore Cal_sem; /*线程信号量*/  
 
 /**
  * @brief 定时器回调,用于唤醒电机pid计算线程
@@ -46,7 +46,7 @@ static void PID_Cal_Thread(void)
         Motor_Transmit_Loop();
 
         /*进行正解算*/
-        omni_Forward_Kinematics_temp();
+        Forward_Kinematics();
     }
 }
 

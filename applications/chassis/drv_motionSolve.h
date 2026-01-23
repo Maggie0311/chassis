@@ -13,44 +13,44 @@
 #define ROOT2 ((float)(1.41421f))
 #define ROOT3 ((float)1.73205f)
 
-typedef struct J3_3 {
-    float data[3][3];  // 3x3 矩阵
+typedef struct J3_3
+{
+    float data[3][3]; // 3x3 矩阵
 } J3_3;
 
-typedef struct J4_3  //4*3矩阵
+typedef struct J4_3 // 4*3矩阵
 {
     float data[4][3];
-}J4_3;
+} J4_3;
 
-typedef struct J3_4 {
-    float data[3][4];  // 3x4 矩阵
+typedef struct J3_4
+{
+    float data[3][4]; // 3x4 矩阵
 } J3_4;
 
-//麦克纳姆轮正逆解算
+// 麦克纳姆轮正逆解算
 #ifdef USING_MECANUM_RESOLVE
 
-void Mecanum_Forward_Kinematics(float wheel_rpm[4], Mot_base_t* chassis_vel);
+void Mecanum_Forward_Kinematics(float wheel_rpm[4], Mot_base_t *chassis_vel);
 
 void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4]);
 
 #endif
-//全向轮正逆解算
+// 全向轮正逆解算
 #ifdef USING_OMNI_RESOLVE
-void Omni_Forward_Kinematics_120(float wheel_rpm[4], Mot_base_t* chassis_vel);
-
-void Omni_Inverse_Kinematics_120(Mot_base_t target_xyw, float resolve_data[4]);
+void Omni_Inverse_Kinematics_60(Mot_base_t target_xyw, float resolve_data[4]);
 void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4]);
-void Omni_Forward_Kinematics_45(float wheel_rpm[4], Mot_base_t *chassis_velocity);
-
+void Omni_Forward_Kinematics(float speed[4]);//全向轮正解算
 
 #endif
-//舵轮正逆解算
+// 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 
-void Steer_Forward_Kinematics(float wheel_rpm[4], Mot_base_t* chassis_vel);
+    void Steer_Forward_Kinematics(float wheel_rpm[4], Mot_base_t *chassis_vel);
 
 void Steer_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4]);
 
 #endif
+Mot_base_t Get_realmotion(void);
 
 #endif
