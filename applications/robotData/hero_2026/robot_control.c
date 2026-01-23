@@ -41,6 +41,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
             .index = WHEEL_RF,
+            
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,
@@ -49,6 +50,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Motor_ErrorHandle = DJI_3508_Motor_ErrorHandle,
             .Motor_RefreshData = DJI_3508_Motor_RefreshData,
             .Motor_Control = NULL,
+            
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
         
@@ -70,6 +72,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
+            .spi_slave=0,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -115,6 +118,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
+            .spi_slave=0,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -162,6 +166,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
+            .spi_slave=0,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -209,6 +214,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
+            .spi_slave=0,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -452,15 +458,15 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
 int chassis_motor_init()
 {
     int ret = 0;
-    // for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
-    // {
-    //     ret = Motor_Attach((MotorInstance *)&wheel_motor[i], (Motor_Init_Config_s *)&wheel_motor_init_config[i]);
-    //     Power_Motor_Attach((MotorInstance *)&wheel_motor[i]);
-    //     if (ret != 0)
-    //     {
-    //         return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-    //     }
-    // }
+    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+    {
+        ret = Motor_Attach((MotorInstance *)&wheel_motor[i], (Motor_Init_Config_s *)&wheel_motor_init_config[i]);
+        Power_Motor_Attach((MotorInstance *)&wheel_motor[i]);
+        if (ret != 0)
+        {
+            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+        }
+    }
 
     for (int i = 0; i < STEER_MOTOR_NUM; i++)
     {
@@ -530,7 +536,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
 
      .can_init_config = {
          .can_device_name = "can2",
-         .rx_id = 0x206, // TODO:设置ID
+         .rx_id = 0x208, // TODO:设置ID
          .tx_id = NULL,
          .can_module_callback = DJI_6020_Motor_RefreshData,
          .parent = NULL,
