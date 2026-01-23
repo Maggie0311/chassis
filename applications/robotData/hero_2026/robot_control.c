@@ -227,7 +227,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .Motor_ErrorHandle = LK_Motor_ErrorHandle,
             .Motor_RefreshData = LK_Motor_RefreshData,
             .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit,
+            .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
             // todo pid参数
@@ -276,7 +276,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .Motor_ErrorHandle = LK_Motor_ErrorHandle,
             .Motor_RefreshData = LK_Motor_RefreshData,
             .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit,
+            .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
             // todo pid参数
@@ -324,7 +324,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .Motor_ErrorHandle = LK_Motor_ErrorHandle,
             .Motor_RefreshData = LK_Motor_RefreshData,
             .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit,
+            .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
             // todo pid参数
@@ -362,15 +362,23 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         },
     },
     // 右后
-    {.motor_obj_init_config = {.name = "steer_RF", .reverse_flag = MOTOR_DIRECTION_NORMAL, .motor_type = LK_ms6015, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER}, .Motor_operate_setting = {
-                                                                                                                                                                                              .Motor_Init = LK_Motor_Init,
-                                                                                                                                                                                              .Motor_Enable = LK_Motor_Enable,
-                                                                                                                                                                                              .Motor_Disable = LK_Motor_Disable,
-                                                                                                                                                                                              .Motor_ErrorHandle = LK_Motor_ErrorHandle,
-                                                                                                                                                                                              .Motor_RefreshData = LK_Motor_RefreshData,
-                                                                                                                                                                                              .Motor_Control = LK_Motor_Ctrl,
-                                                                                                                                                                                              .Motor_Transmit = LK_Motor_Transmit,
-                                                                                                                                                                                          },
+    {
+        .motor_obj_init_config = {
+            .name = "steer_RF", 
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .motor_type = LK_ms6015,
+            .state = MOTOR_STATE_NEED_INIT, 
+            .power_ctrl_type = POWER_CTRL_STEER
+        }, 
+        .Motor_operate_setting = {
+            .Motor_Init = LK_Motor_Init,
+            .Motor_Enable = LK_Motor_Enable,
+            .Motor_Disable = LK_Motor_Disable,
+            .Motor_ErrorHandle = LK_Motor_ErrorHandle,
+            .Motor_RefreshData = LK_Motor_RefreshData,
+            .Motor_Control = LK_Motor_Ctrl,
+            .Motor_Transmit = LK_Motor_Transmit_Mult,
+        },
      .controller_param_init_config = {
          // todo pid参数
          .Angle_pid = {
@@ -488,7 +496,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
 
      .can_init_config = {
          .can_device_name = "can2",
-         .rx_id = 0x206, // TODO:设置ID
+         .rx_id = 0x208, // TODO:设置ID
          .tx_id = NULL,
          .can_module_callback = DJI_6020_Motor_RefreshData,
          .parent = NULL,
@@ -628,5 +636,5 @@ void Forward_Kinematics(void)
     {
         temp[i] = wheel_motor[i].Motor_obj.speed;
     }
-    Omni_Forward_Kinematics(temp);
+    //Omni_Forward_Kinematics(temp);
 }
