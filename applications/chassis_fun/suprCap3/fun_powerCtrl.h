@@ -166,7 +166,7 @@ typedef struct
     float I_now;             // 电机反馈的当前转矩电流（A）
     float I_set;             // 电机预输出的转矩电流（A）
     float V_now;             // 电机反馈的当前转子速度（rpm）
-	  float V_last;
+	float V_last;
 } Motor_Power_t;
 
 extern PowerCtrl_t PowerCtrl;

@@ -12,4 +12,4 @@ openocd -f interface/%INTERFACE% ^
          -c "rtt start" ^
          -c "rtt server start 8880 0" ^
          -c "rtt server start 8881 1" ^
-         -c "rtt server start 8882 2"
+         -c "rtt server start 8882 2" ^

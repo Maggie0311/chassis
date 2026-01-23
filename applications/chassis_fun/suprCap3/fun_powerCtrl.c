@@ -11,6 +11,9 @@
 #include "DJI_6020.h"
 #include "LK_MF_MG.h"
 #include "robot_control.h"
+#define LOG_TAG     "power_Log"
+#include <ulog.h>
+
 
 #define RunERRhigh 8000
 #define RunERRlow  2000
@@ -78,21 +81,42 @@ float get_K_IC2Tor(MotorInstance *motor_instance)
     case M3508:
         DJI_3508_Motor_Measure_s *P_3508 = (DJI_3508_Motor_Measure_s*)measure_p;
         if(P_3508)
-         return (P_3508->current_to_real)* (P_3508->current_to_torque)* (P_3508->RATIO);
+         return (P_3508->current_to_real)* (P_3508->current_to_torque)/(P_3508->RATIO);
     case GM6020:
         DJI_6020_Motor_Measure_s* P_6020 = (DJI_6020_Motor_Measure_s*)measure_p;
         if(P_6020)
-         return (P_6020->current_to_real)*(P_6020->current_to_torque)*(P_6020->RATIO);
+         return (P_6020->current_to_real)*(P_6020->current_to_torque)/(P_6020->RATIO);
     case LK_ms6015:
      LK_Motor_Measure_s* LK_p = (LK_Motor_Measure_s*)measure_p;
         if(LK_p)
-         return (LK_p->current_to_real)*(LK_p->current_to_torque)*(LK_p->RATIO);
+         return (LK_p->current_to_real)*(LK_p->current_to_torque)/(LK_p->RATIO);
     default:
         break;
-    } 
-    
+    }    
 }
 
+
+float get_Ratio(MotorInstance *motor_instance)
+{
+    void * measure_p=(void* )(motor_instance->Motor_obj.motor_measure);
+    switch (motor_instance->Motor_obj.motor_type)
+    {
+    case M3508:
+        DJI_3508_Motor_Measure_s *P_3508 = (DJI_3508_Motor_Measure_s*)measure_p;
+        if(P_3508)
+         return (P_3508->RATIO);
+    case GM6020:
+        DJI_6020_Motor_Measure_s* P_6020 = (DJI_6020_Motor_Measure_s*)measure_p;
+        if(P_6020)
+         return (P_6020->RATIO);
+    case LK_ms6015:
+     LK_Motor_Measure_s* LK_p = (LK_Motor_Measure_s*)measure_p;
+        if(LK_p)
+         return (LK_p->RATIO);
+    default:
+        break;
+    }    
+}
 void powerCtrlInit(void)
 {
     rt_memset(&PowerInfo, 0, sizeof(PowerInfo));
@@ -359,13 +383,13 @@ void get_true_RLS(void)
       //以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
     if(PowerInfo.Cap.Power>5&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power>0&&GYRO_FLAG<100&&RunRLS.repe_speed>200)
     {
-         RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power-AngleRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
+         RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power-RunRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
       //  RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );    
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
     }
-    else if(RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power<0&&GYRO_FLAG<100&&RunRLS.repe_speed>200)
+    else if(PowerInfo.Cap.Power>5&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power<0&&GYRO_FLAG<100&&RunRLS.repe_speed>200)
     {
-         RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-AngleRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
+         RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-RunRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
     }
 
@@ -376,10 +400,10 @@ void get_true_RLS(void)
     for (uint8_t group = 0; group < WHEELS_GROUP_NUM; group++)
     {
              RunRLS.last_spe[group]=RunRLS.now_spe[group];
-             RunRLS.now_tor=Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.torque; // Motor_Read_NowTorque(&wheel[group][WHEEL_RUN].motor)*K_IC2Tor_RUN;
-             RunRLS.now_spe[group]= Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.speed;//(&wheel[group][WHEEL_RUN].motor);
+             RunRLS.now_tor=Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.torque/get_Ratio(Motor_Power_Pointer[WHEEL_RUN][group]); // Motor_Read_NowTorque(&wheel[group][WHEEL_RUN].motor)*K_IC2Tor_RUN;
+             RunRLS.now_spe[group]= Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.speed*get_Ratio(Motor_Power_Pointer[WHEEL_RUN][group]);//(&wheel[group][WHEEL_RUN].motor);
 
-             RunRLS.repe_speed+=fabs(RunRLS.now_spe[group]-RunRLS.last_spe[group]);
+             RunRLS.repe_speed+=fabsf(RunRLS.now_spe[group]-RunRLS.last_spe[group]);
             
             //  RunRLS.now_power += fabsf(RunRLS.now_spe[group])*RunRLS.now_tor/9.55f +
             //         RunRLS.theta[0] * SQUARE(RunRLS.now_tor) +
@@ -389,7 +413,7 @@ void get_true_RLS(void)
                     RunRLS.theta[0] * SQUARE(RunRLS.now_tor) +
                     RunRLS.theta[1] * fabsf(RunRLS.now_spe[group]) +
                     RunRLS.theta[2]/4.f; // 电机功率模型计算公式（速度项绝对值）
-
+            ulog_d("pow","RLS_p,cap,ex_p,:%.2f,%.2f,%.2f",RunRLS.now_power,PowerInfo.Cap.Power,Power_Set.power_set_sum);
              RunPhi[0]+=SQUARE(RunRLS.now_tor);
              RunPhi[1]+=fabsf(RunRLS.now_spe[group]);
              RunPhi[2]+=RunRLS.now_spe[group] * RunRLS.now_tor/ 9.55f;     
@@ -421,8 +445,8 @@ void get_true_RLS(void)
         for (uint8_t group = 0; group < WHEELS_GROUP_NUM; group++)
         {
                 AngleRLS.last_spe[group]=AngleRLS.now_spe[group];
-                AngleRLS.now_tor=Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.torque;// Motor_Read_NowTorque(&wheel[group][WHEEL_ANGLE].motor)*  K_IC2Tor_ANGLE;
-                AngleRLS.now_spe[group]= Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.speed;//Motor_Read_NowSpeed(&wheel[group][WHEEL_ANGLE].motor);
+                AngleRLS.now_tor=Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.torque/get_Ratio(Motor_Power_Pointer[WHEEL_ANGLE][group]);// Motor_Read_NowTorque(&wheel[group][WHEEL_ANGLE].motor)*  K_IC2Tor_ANGLE;
+                AngleRLS.now_spe[group]= Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.speed*get_Ratio(Motor_Power_Pointer[WHEEL_ANGLE][group]);//Motor_Read_NowSpeed(&wheel[group][WHEEL_ANGLE].motor);
                 
 
 
@@ -533,20 +557,20 @@ void get_pre_power(void)
         {
             // 舵向电机速度刷新至
             Motor_power[group][WHEEL_ANGLE].V_last = Motor_power[group][WHEEL_ANGLE].V_now;
-            Motor_power[group][WHEEL_ANGLE].V_now =Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.speed;// Motor_Read_NowSpeed(&wheel[group][WHEEL_ANGLE].motor); // 原始转子转速数据(rpm)
+            Motor_power[group][WHEEL_ANGLE].V_now =Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.speed*get_Ratio(Motor_Power_Pointer[WHEEL_ANGLE][group]);// Motor_Read_NowSpeed(&wheel[group][WHEEL_ANGLE].motor); // 原始转子转速数据(rpm)
         }
         if (if_wheel_used[group] == 1)
         {
             // 轮向电机速度刷新至
             Motor_power[group][WHEEL_RUN].V_last = Motor_power[group][WHEEL_RUN].V_now;
-            Motor_power[group][WHEEL_RUN].V_now = Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.speed;//Motor_Read_NowSpeed(&wheel[group][WHEEL_RUN].motor); // 原始转子转速数据(rpm)
+            Motor_power[group][WHEEL_RUN].V_now = Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.speed*get_Ratio(Motor_Power_Pointer[WHEEL_RUN][group]);//Motor_Read_NowSpeed(&wheel[group][WHEEL_RUN].motor); // 原始转子转速数据(rpm)
         }
 
         if (if_steer_used[group] == 1)
         {
             // 舵向电机
-       //     Motor_power[group][WHEEL_ANGLE].initial_tor_set = fabsf(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output)*
-        //    get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_RUN]);//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算;//(wheel_temp[group][WHEEL_ANGLE].motor.spe.out * K_IC2Tor_ANGLE); // 转子扭矩计算
+           Motor_power[group][WHEEL_ANGLE].initial_tor_set = fabsf(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output)*
+           get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_RUN]);//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算;//(wheel_temp[group][WHEEL_ANGLE].motor.spe.out * K_IC2Tor_ANGLE); // 转子扭矩计算
             // 功率分配前的预输出功率
        /*     Motor_power[group][WHEEL_ANGLE].initial_power_set = fabsf(Motor_power[group][WHEEL_ANGLE].V_now) * Motor_power[group][WHEEL_ANGLE].initial_tor_set / 9.55f +
                                                                 Motor_power[group][WHEEL_ANGLE].K1 * SQUARE(Motor_power[group][WHEEL_ANGLE].initial_tor_set) +
@@ -579,7 +603,7 @@ void get_pre_power(void)
                     RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
                     RunRLS.theta[1] * fabsf(Motor_power[group][WHEEL_RUN].V_now) +
                     RunRLS.theta[2]/4.f; // 电机功率模型计算公式
-
+                //todo
             Power_Set.power_set_run += Motor_power[group][WHEEL_RUN].initial_power_set;
     
         }
