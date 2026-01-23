@@ -79,7 +79,6 @@ typedef enum
     Imu_msg_Index,      //IMU数据
     Msg_num_Rx,        //报文种数
 } GimCom_Rx_index_e;   //接收报文索引
-
 typedef __packed struct
 {
     // 工作状态数据

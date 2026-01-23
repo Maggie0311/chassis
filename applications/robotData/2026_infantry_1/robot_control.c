@@ -462,7 +462,12 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 //  */
 void omni_Forward_Kinematics_temp(void)
 {
-    Omni_Forward_Kinematics_120(wheel_motor[WHEEL_MOTOR_NUM].Motor_obj.speed, &Chassis_solve_xyw);
+    float temp[WHEEL_MOTOR_NUM]={0};
+    for(int i=0;i<WHEEL_MOTOR_NUM;i++)
+    {
+        temp[i]=wheel_motor[i].Motor_obj.speed;
+    }
+    Omni_Forward_Kinematics_45(temp , &Chassis_solve_xyw);
 }
 
 /**

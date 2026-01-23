@@ -180,7 +180,7 @@ void Omni_Inverse_Kinematics_120(Mot_base_t target_xyw, float resolve_data[4])
             float a = alpha_deg[i] * DEGTORAD;
             J_Mecanum_Inv.data[i][0] = sin(a) / r;                            // vx系数      -6.25
             J_Mecanum_Inv.data[i][1] = cos(a) / r;                            // vy系数      10.625
-            J_Mecanum_Inv.data[i][2] = (cosf(a) * y[i] - sinf(a) * x[i]) / r; // ω系数       0.94
+            J_Mecanum_Inv.data[i][2] = (cosf(a) * y[i]+ sinf(a) * x[i]) / r; // ω系数       0.94
         }
         if_init_J = 1;
     }
@@ -348,7 +348,7 @@ void Mecanum_Forward_Kinematics(float wheel_rpm[4], Mot_base_t *chassis_vel)
 void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4])
 {
 }
-
+#endif
 // 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 
