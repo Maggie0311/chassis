@@ -236,7 +236,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .Motor_ErrorHandle = LK_Motor_ErrorHandle,
             .Motor_RefreshData = LK_Motor_RefreshData,
             .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit,
+            .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
             //todo pid参数
@@ -294,7 +294,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .Motor_ErrorHandle = LK_Motor_ErrorHandle,
             .Motor_RefreshData = LK_Motor_RefreshData,
             .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit,
+            .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
             //todo pid参数
@@ -351,7 +351,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .Motor_ErrorHandle = LK_Motor_ErrorHandle,
             .Motor_RefreshData = LK_Motor_RefreshData,
             .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit,
+            .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
             //todo pid参数
@@ -407,7 +407,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .Motor_ErrorHandle = LK_Motor_ErrorHandle,
             .Motor_RefreshData = LK_Motor_RefreshData,
             .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit,
+            .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
             //todo pid参数
