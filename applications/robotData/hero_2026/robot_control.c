@@ -211,15 +211,17 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .ENCODER_ZERO_OFFSET = 0.0,
         },
     }};
-LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
-    // 右前轮
+// 底盘四个舵向电机配置参数模板
+LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
+    //右前轮
     {
         .motor_obj_init_config = {
             .name = "steer_RF",
             .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = LK_ms6015,
             .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type = POWER_CTRL_STEER},
+            .power_ctrl_type=POWER_CTRL_STEER
+        },
         .Motor_operate_setting = {
             .Motor_Init = LK_Motor_Init,
             .Motor_Enable = LK_Motor_Enable,
@@ -230,12 +232,15 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
-            // todo pid参数
+            //todo pid参数
             .Angle_pid = {
                 .Kp = 0.6, .Kd = 0.1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300, .CoefA = 10, .CoefB = 1},
+            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850,
+                .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300 , 
+                .CoefA=10, .CoefB=1},
+
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
 
@@ -255,20 +260,26 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .parent = NULL,
         },
         .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0012375, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-            .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
+            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
+            .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
             .RATIO = 1.0,
-            .ENCODER_LEN = 65535,
+            .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 设置控制模式为单圈角度控制
+            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
             .ENCODER_ZERO_OFFSET = 0,
         },
 
     },
 
-    // 左前
-    {
-        .motor_obj_init_config = {.name = "steer_RF", .reverse_flag = MOTOR_DIRECTION_NORMAL, .motor_type = LK_ms6015, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER},
+    //左前
+      {
+        .motor_obj_init_config = {
+            .name = "steer_RF",
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .motor_type = LK_ms6015,
+            .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type=POWER_CTRL_STEER
+        },
         .Motor_operate_setting = {
             .Motor_Init = LK_Motor_Init,
             .Motor_Enable = LK_Motor_Enable,
@@ -279,12 +290,15 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
-            // todo pid参数
+            //todo pid参数
             .Angle_pid = {
                 .Kp = 0.6, .Kd = 0.1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300, .CoefA = 10, .CoefB = 1},
+            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850,
+                .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300 , 
+                .CoefA=10, .CoefB=1},
+
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
 
@@ -304,19 +318,25 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .parent = NULL,
         },
         .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0012375, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-            .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
+            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
+            .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
             .RATIO = 1.0,
-            .ENCODER_LEN = 65535,
+            .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 设置控制模式为单圈角度控制
+            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
             .ENCODER_ZERO_OFFSET = 0,
         },
 
     },
-    // 左后
-    {
-        .motor_obj_init_config = {.name = "steer_RF", .reverse_flag = MOTOR_DIRECTION_NORMAL, .motor_type = LK_ms6015, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER},
+    //左后
+      {
+        .motor_obj_init_config = {
+            .name = "steer_RF",
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .motor_type = LK_ms6015,
+            .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type=POWER_CTRL_STEER
+        },
         .Motor_operate_setting = {
             .Motor_Init = LK_Motor_Init,
             .Motor_Enable = LK_Motor_Enable,
@@ -327,12 +347,15 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
-            // todo pid参数
+            //todo pid参数
             .Angle_pid = {
                 .Kp = 0.6, .Kd = 0.1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300, .CoefA = 10, .CoefB = 1},
+            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850,
+                .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300 , 
+                .CoefA=10, .CoefB=1},
+
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
 
@@ -352,24 +375,24 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .parent = NULL,
         },
         .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0012375, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-            .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
+            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
+            .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
             .RATIO = 1.0,
-            .ENCODER_LEN = 65535,
+            .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 设置控制模式为单圈角度控制
+            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
             .ENCODER_ZERO_OFFSET = 0,
         },
     },
-    // 右后
-    {
+    //右后
+      {
         .motor_obj_init_config = {
-            .name = "steer_RF", 
+            .name = "steer_RF",
             .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = LK_ms6015,
-            .state = MOTOR_STATE_NEED_INIT, 
-            .power_ctrl_type = POWER_CTRL_STEER
-        }, 
+            .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type=POWER_CTRL_STEER
+        },
         .Motor_operate_setting = {
             .Motor_Init = LK_Motor_Init,
             .Motor_Enable = LK_Motor_Enable,
@@ -379,54 +402,58 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .Motor_Control = LK_Motor_Ctrl,
             .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
-     .controller_param_init_config = {
-         // todo pid参数
-         .Angle_pid = {
-             .Kp = 0.6, .Kd = 0.1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
+        .controller_param_init_config = {
+            //todo pid参数
+            .Angle_pid = {
+                .Kp = 0.6, .Kd = 0.1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
-         },
-         .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300, .CoefA = 10, .CoefB = 1},
+            },
+            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850,
+                .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300 , 
+                .CoefA=10, .CoefB=1},
 
-         .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
 
-         },
-         .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
-         .Calc_Pre = {
-             .speed_calc_Prescaler = 1,
-             .angle_calc_Prescaler = 2,
-         },
-         .Feedforward_Type = FEEDFORWARD_NONE,
-     },
-     .can_init_config = {
-         .can_device_name = "can1",
-         .rx_id = 0x144, // TODO:设置ID
-         .tx_id = 0x280,
-         .can_module_callback = LK_Motor_RefreshData,
-         .parent = NULL,
-     },
-     .LK_Motor_Measure_Init_Config = {
-         .current_to_real = 0.0012375, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-         .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
-         .RATIO = 1.0,
-         .ENCODER_LEN = 65535,
-         .ENCODER_ZERO_OFFSET = 0.0,
-         .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 设置控制模式为单圈角度控制
-         .ENCODER_ZERO_OFFSET = 0,
-     }
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
 
-    }};
+            },
+            .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
+            .Calc_Pre = {
+                .speed_calc_Prescaler = 1,
+                .angle_calc_Prescaler = 2,
+            },
+            .Feedforward_Type = FEEDFORWARD_NONE,
+        },
+        .can_init_config = {
+            .can_device_name = "can1",
+            .rx_id = 0x144, // TODO:设置ID
+            .tx_id = 0x280,
+            .can_module_callback = LK_Motor_RefreshData,
+            .parent = NULL,
+        },
+        .LK_Motor_Measure_Init_Config = {
+            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
+            .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
+            .RATIO = 1.0,
+            .ENCODER_LEN = 32767,
+            .ENCODER_ZERO_OFFSET = 0.0,
+            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
+            .ENCODER_ZERO_OFFSET = 0,
+        }
+
+    }
+};
 int chassis_motor_init()
 {
     int ret = 0;
-    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
-    {
-        ret = Motor_Attach((MotorInstance *)&wheel_motor[i], (Motor_Init_Config_s *)&wheel_motor_init_config[i]);
-        Power_Motor_Attach((MotorInstance *)&wheel_motor[i]);
-        if (ret != 0)
-        {
-            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-        }
-    }
+    // for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+    // {
+    //     ret = Motor_Attach((MotorInstance *)&wheel_motor[i], (Motor_Init_Config_s *)&wheel_motor_init_config[i]);
+    //     Power_Motor_Attach((MotorInstance *)&wheel_motor[i]);
+    //     if (ret != 0)
+    //     {
+    //         return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+    //     }
+    // }
 
     for (int i = 0; i < STEER_MOTOR_NUM; i++)
     {
