@@ -323,10 +323,10 @@ void Follow_pid_init(void) // TODO：
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 70;
-    pid_config.Ki = 0.1;
+    pid_config.Kp = 30;
+    pid_config.Ki = 0.05;
     pid_config.Kd = 10;
-    pid_config.MaxOut = 11000;
+    pid_config.MaxOut = 7000;
     pid_config.DeadBand = 10;
     pid_config.IntegralLimit = 400;
 

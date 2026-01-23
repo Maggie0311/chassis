@@ -15,8 +15,8 @@
 #include <ulog.h>
 
 
-#define RunERRhigh 8000
-#define RunERRlow  2000
+#define RunERRhigh 200
+#define RunERRlow  20
 
 #define AngleERRhigh 4000
 #define AngleERRlow  1000
@@ -381,15 +381,15 @@ void get_true_RLS(void)
 
 
       //以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
-    if(PowerInfo.Cap.Power>5&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power>0&&GYRO_FLAG<100&&RunRLS.repe_speed>200)
+    if(PowerInfo.Cap.Power>5&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power>0&&GYRO_FLAG<100)//&&RunRLS.repe_speed>200)
     {
-         RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power-RunRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
+         RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
       //  RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );    
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
     }
-    else if(PowerInfo.Cap.Power>5&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power<0&&GYRO_FLAG<100&&RunRLS.repe_speed>200)
+    else if(PowerInfo.Cap.Power>5&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power<0&&GYRO_FLAG<100)//&&RunRLS.repe_speed>200)
     {
-         RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-RunRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
+         RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
     }
 
