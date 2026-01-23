@@ -46,7 +46,7 @@ static void PID_Cal_Thread(void)
         Motor_Transmit_Loop();
 
         /*进行正解算*/
-        omni_Forward_Kinematics_temp();
+        Forward_Kinematics();
     }
 }
 

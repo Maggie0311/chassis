@@ -3,14 +3,14 @@
 
 #include "controlMsg.h"
 #include "robot_data.h"
-
+#define USING_OMNI_RESOLVE
 int chassis_motor_init();
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw);
 
 int gim_motor_init();
 void Follow_pid_init(void);
 
-//云台电机是否大小yaw
+// 云台电机是否大小yaw
 #define YAW_MOTOR 0
 #define PITCH_MOTOR 1
 
@@ -35,6 +35,6 @@ void Follow_pid_init(void);
 int chassis_motor_init();
 int gim_motor_init();
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw);
-void omni_Forward_Kinematics_temp(void);//对底盘速度与角速度正解算
-Mot_base_t Get_realmotion(void);//获取正解算后数据
+void Forward_Kinematics(void);
+
 #endif
