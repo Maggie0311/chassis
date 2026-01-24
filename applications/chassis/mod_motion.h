@@ -88,4 +88,5 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl);
  */
 Mot_base_t MotPack_Offset_SmallTop(const Ctrl_data_t *const ctrlMsg, const Vector2_t *const pos);
 
+Vector2_t MotModule_Transform(Vector2_t speed, float theta);
 #endif

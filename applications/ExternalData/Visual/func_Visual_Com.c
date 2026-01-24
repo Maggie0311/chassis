@@ -4,13 +4,14 @@
 #include "app_RefSystem.h"
 #include "drv_utils.h"
 #include "drv_wheel.h"
-#include "pid.h"
 #include "app_monitor.h"
 #include "mod_Log.h"
 #include "fun_protocolGim.h"
 #include "drv_cmd_com.h"
 #include "robot_control.h"
 #include "drv_motionSolve.h"
+#include "drv_GimMotor.h"
+#include "mod_motion.h"
 
 #ifdef BSP_USING_LOG
 #define LOG_TAG     "Visual_com"
@@ -115,9 +116,10 @@ static void get_visual_need_ref_data()
     // rt_memcpy(&visual_tx_sentry_info,&visual_tx_sentry_info_temp,sizeof(visual_tx_sentry_info));
     // getRefData(structGet_pram(visual_tx_robot_command_map_temp,ext_robot_command_map));
     // rt_memcpy(&visual_tx_robot_command_map,&visual_tx_robot_command_map_temp,sizeof(visual_tx_robot_command_map));
-
-    visual_tx_Robot_wheel_odometry.vel_x = Get_realmotion().vel.x;
-    visual_tx_Robot_wheel_odometry.vel_y = Get_realmotion().vel.y;
+    static Mot_base_t chass_xyw={0};
+    chass_xyw.vel=MotModule_Transform(Get_realmotion().vel,-Get_YAW_ANGLE_360f());
+    visual_tx_Robot_wheel_odometry.vel_x = chass_xyw.vel.x;
+    visual_tx_Robot_wheel_odometry.vel_y = chass_xyw.vel.y;
 
 }
 
