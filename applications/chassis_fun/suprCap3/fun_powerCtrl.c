@@ -413,7 +413,7 @@ void get_true_RLS(void)
                     RunRLS.theta[0] * SQUARE(RunRLS.now_tor) +
                     RunRLS.theta[1] * fabsf(RunRLS.now_spe[group]) +
                     RunRLS.theta[2]/4.f; // 电机功率模型计算公式（速度项绝对值）
-            ulog_d("pow","RLS_p,cap,ex_p,:%.2f,%.2f,%.2f",RunRLS.now_power,PowerInfo.Cap.Power,Power_Set.power_set_sum);
+            //ulog_d("pow","RLS_p,cap,ex_p,:%.2f,%.2f,%.2f",RunRLS.now_power,PowerInfo.Cap.Power,Power_Set.power_set_sum);
              RunPhi[0]+=SQUARE(RunRLS.now_tor);
              RunPhi[1]+=fabsf(RunRLS.now_spe[group]);
              RunPhi[2]+=RunRLS.now_spe[group] * RunRLS.now_tor/ 9.55f;     

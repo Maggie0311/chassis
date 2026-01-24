@@ -531,17 +531,17 @@ int gim_motor_init()
     return ret;
 }
 
-void Follow_pid_init(void) // TODO：
+void Follow_pid_init(void)
 {
     PID_Init_Config_s pid_config;
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 70;
+    pid_config.Kp = 40;
     pid_config.Ki = 0.1;
     pid_config.Kd = 10;
     pid_config.MaxOut = 11000;
-    pid_config.DeadBand = 10;
+    pid_config.DeadBand = 0.1;
     pid_config.IntegralLimit = 400;
 
     PIDInit(&follow_pid_fast, &pid_config);
@@ -549,8 +549,9 @@ void Follow_pid_init(void) // TODO：
     pid_config.Kp = 20;
     pid_config.Ki = 0;
     pid_config.Kd = 10;
-    pid_config.IntegralLimit = 0;
-    pid_config.MaxOut = 2000;
+    pid_config.MaxOut = 11000;
+    pid_config.DeadBand = 0.1;
+    pid_config.IntegralLimit = 400;
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
