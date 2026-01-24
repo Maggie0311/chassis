@@ -43,6 +43,7 @@
 int main(void)
 {
     int result=0;
+
     /*上电提示音*/ 
 #ifdef BSP_USING_BUZZER
     set_buzzer(2000, 1);

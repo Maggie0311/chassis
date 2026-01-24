@@ -181,7 +181,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     // 右后轮
     {
         .motor_obj_init_config = {
-            .name = "Wheel_LR",
+            .name = "Wheel_RB",
             .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
