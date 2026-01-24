@@ -45,7 +45,7 @@ static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
     gimbal_ctrl.vel_y = (float)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
     gimbal_ctrl.mode = (Motion_mode_e)(instance->rx_buff[6]);
 
-    ulog_d("gim","vx,vy:%.2f,%.2f",gimbal_ctrl.vel_x,gimbal_ctrl.vel_y);
+   // ulog_d("gim","vx,vy:%.2f,%.2f",gimbal_ctrl.vel_x,gimbal_ctrl.vel_y);
 
     // 云台跟随角外部修改
     if (gimbal_ctrl.mode == NO_FOLLOW)
@@ -307,6 +307,7 @@ static int Gimbal_comTx_Attach(rt_uint8_t index,unsigned int tx_id,Gimbal_TransD
     rt_memset(&config,0,sizeof(config));
     config.can_device_name = GIMBAL_CAN_DEV;
     config.tx_id = tx_id;
+    // config.spi_slave = SpicanSlave_2;
     GetTransData[index] = get_transdata;
     config.can_module_callback = NULL;
     res = CAN_Attach(&gim_caninstance_Tx[index],&config);
@@ -327,6 +328,7 @@ static int Gimbal_comRx_Attach(rt_uint8_t index,unsigned int rx_id,void (*can_mo
     rt_memset(&config,0,sizeof(config));
     config.can_device_name = GIMBAL_CAN_DEV;
     config.rx_id = rx_id;
+    // config.spi_slave = SpicanSlave_2;
     config.can_module_callback = can_module_callback;
     res = CAN_Attach(&gim_caninstance_Rx[index],&config);
     return res;
