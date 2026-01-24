@@ -307,7 +307,7 @@ static int Gimbal_comTx_Attach(rt_uint8_t index,unsigned int tx_id,Gimbal_TransD
     rt_memset(&config,0,sizeof(config));
     config.can_device_name = GIMBAL_CAN_DEV;
     config.tx_id = tx_id;
-    // config.spi_slave = SpicanSlave_2;
+    config.spi_slave = GIMBAL_SPI_USE;
     GetTransData[index] = get_transdata;
     config.can_module_callback = NULL;
     res = CAN_Attach(&gim_caninstance_Tx[index],&config);
@@ -328,7 +328,7 @@ static int Gimbal_comRx_Attach(rt_uint8_t index,unsigned int rx_id,void (*can_mo
     rt_memset(&config,0,sizeof(config));
     config.can_device_name = GIMBAL_CAN_DEV;
     config.rx_id = rx_id;
-    // config.spi_slave = SpicanSlave_2;
+    config.spi_slave = GIMBAL_SPI_USE;
     config.can_module_callback = can_module_callback;
     res = CAN_Attach(&gim_caninstance_Rx[index],&config);
     return res;

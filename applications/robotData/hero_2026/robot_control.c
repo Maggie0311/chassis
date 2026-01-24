@@ -87,7 +87,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LF",
-            .reverse_flag=MOTOR_DIRECTION_NORMAL,
+            .reverse_flag=MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -134,7 +134,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LB",
-            .reverse_flag=MOTOR_DIRECTION_NORMAL,
+            .reverse_flag=MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -248,12 +248,12 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         .controller_param_init_config = {
             //todo pid参数
             .Angle_pid = {//3.5   1   0
-                .Kp = 0.6, .Kd = 0.1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
+                .Kp = 3.8, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850,    //3    0.3    0 
-                .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300 , 
-                .CoefA=10, .CoefB=1},
+            .Speed_pid = {.Kp = 3, .Kd = 0, .Ki = 0.36, .MaxOut = 850,    //3    0.3    0 
+                .Improve = PID_Integral_Limit , .IntegralLimit = 300 , 
+                },
 
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
@@ -280,7 +280,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
             .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
-            .ENCODER_ZERO_OFFSET = 0,
+            .ENCODER_ZERO_OFFSET = 10280,
         },
 
     },
@@ -306,12 +306,12 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         .controller_param_init_config = {
             //todo pid参数
             .Angle_pid = {
-                .Kp = 0.6, .Kd = 0.1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
+                .Kp = 3.8, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850,
-                .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300 , 
-                .CoefA=10, .CoefB=1},
+            .Speed_pid = {.Kp = 3, .Kd = 0, .Ki = 0.3, .MaxOut = 850,
+                .Improve = PID_Integral_Limit , .IntegralLimit = 300 , 
+                },
 
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
@@ -338,7 +338,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
             .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
-            .ENCODER_ZERO_OFFSET = 0,
+            .ENCODER_ZERO_OFFSET = 31900,
         },
 
     },
@@ -363,12 +363,12 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         .controller_param_init_config = {
             //todo pid参数
             .Angle_pid = {
-                .Kp = 0.6, .Kd = 0.1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
+                .Kp = 3.8, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850,
-                .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300 , 
-                .CoefA=10, .CoefB=1},
+            .Speed_pid = {.Kp = 3, .Kd = 0, .Ki = 0.3, .MaxOut = 850,
+                .Improve = PID_Integral_Limit , .IntegralLimit = 300 , 
+                },
 
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
@@ -395,7 +395,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
             .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
-            .ENCODER_ZERO_OFFSET = 0,
+            .ENCODER_ZERO_OFFSET = 4811,
         },
     },
     //右后
@@ -419,12 +419,12 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         .controller_param_init_config = {
             //todo pid参数
             .Angle_pid = {
-                .Kp = 0.6, .Kd = 0.1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
+                .Kp = 3.8, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 0.7, .Kd = 0, .Ki = 0.1, .MaxOut = 850,
-                .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .IntegralLimit = 300 , 
-                .CoefA=10, .CoefB=1},
+            .Speed_pid = {.Kp = 3, .Kd = 0, .Ki = 0.3, .MaxOut = 850,
+                .Improve = PID_Integral_Limit , .IntegralLimit = 300 , 
+                },
 
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
@@ -451,7 +451,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
             .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
-            .ENCODER_ZERO_OFFSET = 0,
+            .ENCODER_ZERO_OFFSET = 24654,
         }
 
     }
@@ -486,7 +486,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Yaw_M",
-            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = GM6020,
             .state = MOTOR_STATE_NOTCTRL,
         },
@@ -514,7 +514,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 7248,
+            .ENCODER_ZERO_OFFSET = 6472,
             .ctrl_mode = MOTOR_STATE_NOTCTRL,
         }},
     // pitch轴电机

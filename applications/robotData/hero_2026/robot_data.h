@@ -22,6 +22,10 @@
 #else 
 #error "SCPR_CAN_DEVICE_NAME is not defined right!"
 #endif
+
+#define GIMBAL_SPI_USE 2//使用从机2
+#define SCPR_SPI_USE 2//使用从机2
+
 /*功率控制相关参数*/
 
 /*轮子相关数据*/
