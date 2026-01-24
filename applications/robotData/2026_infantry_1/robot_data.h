@@ -21,6 +21,11 @@
 #error "SCPR_CAN_DEVICE_NAME is not defined right!"
 #endif
 
+//不使用spi
+#define GIMBAL_SPI_USE 0
+#define SCPR_SPI_USE 0
+
+
 /*功率控制相关参数*/
 
 /*轮子相关数据*/

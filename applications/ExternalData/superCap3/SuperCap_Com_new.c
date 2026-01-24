@@ -193,6 +193,7 @@ rt_err_t Scpr_Com_Init(void)
     config.can_device_name = SCPR_CAN_DEV;
     config.tx_id = SCPR_TX;
     config.rx_id = SCPR_RX;
+    config.spi_slave = SCPR_SPI_USE;
     config.can_module_callback = Refresh_Scprdata;
     res=CAN_Attach(&scpr_caninstance,&config);
     if(res)
