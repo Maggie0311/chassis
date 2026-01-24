@@ -39,7 +39,7 @@ static void PID_Cal_Thread(void)
         Motor_Control_Loop();
 
 #ifdef USE_CAPACITY_3
-        Power_Ctrl();
+    //    Power_Ctrl();
 #endif
 
         /*can报文发送*/
@@ -65,7 +65,7 @@ rt_err_t Wheels_Init(void)
         return RT_ERROR;
 
 #ifdef USE_CAPACITY_3
-    powerCtrlInit();
+   // powerCtrlInit();
 #endif
 
     // 初始化信号量

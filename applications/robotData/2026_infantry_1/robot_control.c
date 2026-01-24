@@ -28,8 +28,6 @@ float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
 
-Mot_base_t Chassis_solve_xyw; // 正解算后的底盘真实运动情况
-
 // 底盘四个电机配置参数模板
 DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     // 右前轮

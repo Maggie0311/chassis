@@ -45,7 +45,7 @@ static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
     gimbal_ctrl.vel_y = (float)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
     gimbal_ctrl.mode = (Motion_mode_e)(instance->rx_buff[6]);
 
-    ulog_d("gim","vx,vy:%.2f,%.2f",gimbal_ctrl.vel_x,gimbal_ctrl.vel_y);
+    //ulog_d("gim","vx,vy:%.2f,%.2f",gimbal_ctrl.vel_x,gimbal_ctrl.vel_y);
 
     // 云台跟随角外部修改
     if (gimbal_ctrl.mode == NO_FOLLOW)

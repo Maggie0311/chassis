@@ -31,7 +31,7 @@ Ctrl_data_t debug_fixctrl;
 static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
-    // debug_fixctrl=Cctrl;
+    debug_fixctrl=Cctrl;
 
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
@@ -55,10 +55,10 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     }
      //debug_fixctrl = fixCtrl; // 控制源控制数据
     // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
-    Set_Plan_Vxyw_Process(fixCtrl);
-     debug_fixctrl = fixCtrl;
+   Set_Plan_Vxyw_Process(fixCtrl);
+    // debug_fixctrl = fixCtrl;
     //  修改pid的设定值
-    // chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
+    //  chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
     chassis_ctrl(&Speed_xyw, &Force_xyw);
 }
 

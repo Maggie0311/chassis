@@ -229,36 +229,38 @@ void Omni_Forward_Kinematics_test(float speed[4])
 // 舵轮逆解算
 void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4])
 {
-    // 使用的单位均为标准单位
-    float L = VEHICLE_LONG / 1000.0f;              // 转换为米
-    float W = VEHICLE_WIDTH / 1000.0f;             // 转换为米
-    float s = WHEEL_RADIUS / 1000.0f;              // mm -> m
-    float r = VEHICLE_DIAMETER / 2;                // 转换为m
-    float vx = target_xyw.vel.x / 1000.0f;         // mm/s -> m/s
-    float vy = target_xyw.vel.y / 1000.0f;         // mm/s -> m/s
+    // 使用的单位均为标准单位 
+    static float s = WHEEL_RADIUS;
+    float vx = target_xyw.vel.x;         // mm/s -> m/s
+    float vy = target_xyw.vel.y;         // mm/s -> m/s
     float w = target_xyw.angvel * 0.1f * DEGTORAD; // °/s -> rad/s
-    float root2_2 = ROOT2 / 2;
 
-    float wx[4] = {0};
-    float wy[4] = {0};
+    static float rx[4]={VEHICLE_LONG/2,VEHICLE_LONG/2,-VEHICLE_LONG/2,-VEHICLE_LONG/2};
+		static float ry[4]={-VEHICLE_WIDTH/2,VEHICLE_WIDTH/2,VEHICLE_WIDTH/2,-VEHICLE_WIDTH/2};
+    static float wx[4]={0,0,0,0},wy[4]={0,0,0,0};
     static float angle_steer_last[4] = {0};
     static float delta[4];
     for (int i = 0; i < 4; i++)
     {
-        wx[i] = (vx - root2_2 * r) / s; // rad/s
-        wy[i] = (vy + root2_2 * r) / s;
+        // wx[i] = (vx - root2_2 * r*w) / s; // rad/s
+        // wy[i] = (vy + root2_2 * r*w) / s;
+        
+        wx[i] = (vx - ry[i]*w) / s; // rad/s
+        wy[i] = (vy + rx[i]*w) / s;
+        //resolve_data_steer[i] = atan2f(wy[i], wx[i]) * RADTODEG; // 舵向电机设定的角度（单位是°）返回的角度是-180°到180°
         resolve_data_steer[i] = atan2f(wy[i], wx[i]) * RADTODEG; // 舵向电机设定的角度（单位是°）返回的角度是-180°到180°
+
         delta[i] = resolve_data_steer[i] - angle_steer_last[i];
-        if (fabsf(delta[i]) < 90.0f)
+        if (fabsf(delta[i]) <= 90.0f)
         {
             resolve_data_run[i] = hypot(wx[i], wy[i]) * RADTORPM; // 取模，得到轮向电机速度（单位为rpm)
         }
-        else if (delta[i] > 90.0f)
+        else if (delta[i] >= 90.0f)
         {
             resolve_data_run[i] = -hypot(wx[i], wy[i]) * RADTORPM;  // 取模，得到轮向电机速度（单位为rpm)
             resolve_data_steer[i] = resolve_data_steer[i] - 180.0f; // 角度
         }
-        else if (delta[i] < -90.0f)
+        else if (delta[i] <= -90.0f)
         {
             resolve_data_run[i] = -hypot(wx[i], wy[i]) * RADTORPM;  // 取模，得到轮向电机速度（单位为rpm)
             resolve_data_steer[i] = 180.0f + resolve_data_steer[i]; // 角度
@@ -273,128 +275,128 @@ void Steer_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel)
 {
 }
 
-// 舵轮解算
-#define DIR_ANGLE_LIM (900.f) // 单次最大打角理论上应该为90度，单位0.1°,>0
+// // 舵轮解算
+// #define DIR_ANGLE_LIM (900.f) // 单次最大打角理论上应该为90度，单位0.1°,>0
 
-static float range_1800(float angel)
-{
-    float tm = angel;
-    while (tm > 1800)
-        tm -= 3600;
-    while (tm < -1800)
-        tm += 3600;
-    return tm;
-}
-/*两个输入的角度单位均为0.1°/s 范围为-1800-1800*/
-static VectorXYA_Str StWheel_Dir_Limit(VectorXYA_Str output, float nowangel)
-{
-    float now, target, delta_angle1;
-    now = range_1800(nowangel);
-    target = range_1800(output.theta);
-    delta_angle1 = range_1800(target - now); // 限制为180度以内
+// static float range_1800(float angel)
+// {
+//     float tm = angel;
+//     while (tm > 1800)
+//         tm -= 3600;
+//     while (tm < -1800)
+//         tm += 3600;
+//     return tm;
+// }
+// /*两个输入的角度单位均为0.1°/s 范围为-1800-1800*/
+// static VectorXYA_Str StWheel_Dir_Limit(VectorXYA_Str output, float nowangel)
+// {
+//     float now, target, delta_angle1;
+//     now = range_1800(nowangel);
+//     target = range_1800(output.theta);
+//     delta_angle1 = range_1800(target - now); // 限制为180度以内
 
-    //  单次最大打角理论上应该为90度，单位0.1°,>0
-    if (delta_angle1 > DIR_ANGLE_LIM)
-    {
-        output.A = -output.A;
-        output.theta -= 1800.0f;
-    }
-    else if (delta_angle1 < -DIR_ANGLE_LIM)
-    {
-        output.A = -output.A;
-        output.theta += 1800.0f;
-    }
-    return output;
-}
-/// <summary>
-/// 舵轮解算改进版,要求底盘轮系所在位置必须为正方形底盘
-/// </summary>
-static void SteerWheel_Resolve(Mot_base_t target_xyw, Wheel_Group_e wheel_group, float *resolve_data)
-{
-    // 容易理解的系数，对计算不友好
-    // static float k_w = ROOT2 * VEHICLE_LONG / 20.f * DEGTORAD;
-    // static float root2_2 = ROOT2 / 2.f;
-    // 将系数合在一起后的系数，方便计算
-    static float k_w = VEHICLE_LONG / 20.f * DEGTORAD;
-    static float angle_temp[WHEELS_GROUP_NUM] = {0, 0, 0, 0}; // 保存舵向电机的角度数据
-    VectorXYA_Str temp_v = {0};
-    /*输出单位为mm/s 输出顺序RF-LF-LB-RB  先计算每个轮组的x和y方向的速度分量*/
-    if (wheel_group == WHEEL_RF)
-    {
-        temp_v.xy.x = (target_xyw.vel.x - target_xyw.angvel * k_w);
-        temp_v.xy.y = (target_xyw.vel.y + target_xyw.angvel * k_w);
-    }
-    else if (wheel_group == WHEEL_LF)
-    {
-        temp_v.xy.x = (target_xyw.vel.x - target_xyw.angvel * k_w);
-        temp_v.xy.y = (target_xyw.vel.y - target_xyw.angvel * k_w);
-    }
-    else if (wheel_group == WHEEL_LB)
-    {
-        temp_v.xy.x = (target_xyw.vel.x + target_xyw.angvel * k_w);
-        temp_v.xy.y = (target_xyw.vel.y - target_xyw.angvel * k_w);
-    }
-    else if (wheel_group == WHEEL_RB)
-    {
-        temp_v.xy.x = (target_xyw.vel.x + target_xyw.angvel * k_w);
-        temp_v.xy.y = (target_xyw.vel.y + target_xyw.angvel * k_w);
-    }
-    else
-    {
-        return;
-    }
-    // 后计算轮向速度大小和舵向角度
-    Vector2D_Mod(&temp_v.xy, &temp_v.A);
-    temp_v.theta = atan2f(-temp_v.xy.x, temp_v.xy.y) * RADTODAG * 10;
-    // 判断舵向角度是否大于90°，设置最优转动方向和速度方向
-    // wheel_3v = StWheel_Dir_Limit(wheel_3v, getNowAngel[i] = getNowFixAngle((Wheel_local_e)i) * 10);
-    temp_v = StWheel_Dir_Limit(temp_v, 0);
-    // 后续优化处理
-    // 速度大于10mm/s时，刷新角度，否则保持原角度，目的是解决停车的时候舵轮还归零的情况
-    if (temp_v.A >= 10.0 || temp_v.A <= -10.0)
-    {
-        angle_temp[wheel_group] = temp_v.theta;
-    }
-    // 速度太小，认为停车，设置角度为之前的保留的角度，速度设置为0
-    if (temp_v.A <= 1.0 && temp_v.A >= -1.0)
-    {
-        temp_v.A = 0;
-        temp_v.theta = angle_temp[wheel_group];
-    }
-    else
-    {
-        temp_v.theta = angle_temp[wheel_group];
-    }
-    // 将解算结果设置到解算数据中
-    resolve_data[WHEEL_RUN] = temp_v.A;
-    resolve_data[WHEEL_ANGLE] = temp_v.theta;
-}
-/**
- * @brief 底盘运动解算函数，输入底盘的速度和角速度，输出各个电机的速度
- *      * 该函数会根据底盘的轮系类型进行不同的解算
- *      * 向右为x轴正方向，向前为y轴正方向，底盘角速度为正表示底盘逆时针旋转
- * @param Vxyw 速度和角速度，单位mm/s和0.1°/s
- */
-void Motion_Resolve(Mot_base_t *Vxyw, float motorSetData[4][2])
-{
-    for (int group = 0; group < WHEELS_GROUP_NUM; group++)
-    {
-        if (wheel[group][WHEEL_RUN].wheel_kind == MECANUM_WHEEL)
-        {
-            Mecan_Resolve(*Vxyw, group, motorSetData[group]);
-        }
-        else if (wheel[group][WHEEL_RUN].wheel_kind == OMNI_WHEEL)
-        {
-            Omni_Resolve(*Vxyw, group, motorSetData[group]);
-        }
-        else if (wheel[group][WHEEL_RUN].wheel_kind == STEER_WHEEL)
-        {
-            SteerWheel_Resolve(*Vxyw, group, motorSetData[group]);
-        }
-        else
-            return;
-    }
-}
+//     //  单次最大打角理论上应该为90度，单位0.1°,>0
+//     if (delta_angle1 > DIR_ANGLE_LIM)
+//     {
+//         output.A = -output.A;
+//         output.theta -= 1800.0f;
+//     }
+//     else if (delta_angle1 < -DIR_ANGLE_LIM)
+//     {
+//         output.A = -output.A;
+//         output.theta += 1800.0f;
+//     }
+//     return output;
+// }
+// /// <summary>
+// /// 舵轮解算改进版,要求底盘轮系所在位置必须为正方形底盘
+// /// </summary>
+// static void SteerWheel_Resolve(Mot_base_t target_xyw, Wheel_Group_e wheel_group, float *resolve_data)
+// {
+//     // 容易理解的系数，对计算不友好
+//     // static float k_w = ROOT2 * VEHICLE_LONG / 20.f * DEGTORAD;
+//     // static float root2_2 = ROOT2 / 2.f;
+//     // 将系数合在一起后的系数，方便计算
+//     static float k_w = VEHICLE_LONG / 20.f * DEGTORAD;
+//     static float angle_temp[WHEELS_GROUP_NUM] = {0, 0, 0, 0}; // 保存舵向电机的角度数据
+//     VectorXYA_Str temp_v = {0};
+//     /*输出单位为mm/s 输出顺序RF-LF-LB-RB  先计算每个轮组的x和y方向的速度分量*/
+//     if (wheel_group == WHEEL_RF)
+//     {
+//         temp_v.xy.x = (target_xyw.vel.x - target_xyw.angvel * k_w);
+//         temp_v.xy.y = (target_xyw.vel.y + target_xyw.angvel * k_w);
+//     }
+//     else if (wheel_group == WHEEL_LF)
+//     {
+//         temp_v.xy.x = (target_xyw.vel.x - target_xyw.angvel * k_w);
+//         temp_v.xy.y = (target_xyw.vel.y - target_xyw.angvel * k_w);
+//     }
+//     else if (wheel_group == WHEEL_LB)
+//     {
+//         temp_v.xy.x = (target_xyw.vel.x + target_xyw.angvel * k_w);
+//         temp_v.xy.y = (target_xyw.vel.y - target_xyw.angvel * k_w);
+//     }
+//     else if (wheel_group == WHEEL_RB)
+//     {
+//         temp_v.xy.x = (target_xyw.vel.x + target_xyw.angvel * k_w);
+//         temp_v.xy.y = (target_xyw.vel.y + target_xyw.angvel * k_w);
+//     }
+//     else
+//     {
+//         return;
+//     }
+//     // 后计算轮向速度大小和舵向角度
+//     Vector2D_Mod(&temp_v.xy, &temp_v.A);
+//     temp_v.theta = atan2f(-temp_v.xy.x, temp_v.xy.y) * RADTODAG * 10;
+//     // 判断舵向角度是否大于90°，设置最优转动方向和速度方向
+//     // wheel_3v = StWheel_Dir_Limit(wheel_3v, getNowAngel[i] = getNowFixAngle((Wheel_local_e)i) * 10);
+//     temp_v = StWheel_Dir_Limit(temp_v, 0);
+//     // 后续优化处理
+//     // 速度大于10mm/s时，刷新角度，否则保持原角度，目的是解决停车的时候舵轮还归零的情况
+//     if (temp_v.A >= 10.0 || temp_v.A <= -10.0)
+//     {
+//         angle_temp[wheel_group] = temp_v.theta;
+//     }
+//     // 速度太小，认为停车，设置角度为之前的保留的角度，速度设置为0
+//     if (temp_v.A <= 1.0 && temp_v.A >= -1.0)
+//     {
+//         temp_v.A = 0;
+//         temp_v.theta = angle_temp[wheel_group];
+//     }
+//     else
+//     {
+//         temp_v.theta = angle_temp[wheel_group];
+//     }
+//     // 将解算结果设置到解算数据中
+//     resolve_data[WHEEL_RUN] = temp_v.A;
+//     resolve_data[WHEEL_ANGLE] = temp_v.theta;
+// }
+// /**
+//  * @brief 底盘运动解算函数，输入底盘的速度和角速度，输出各个电机的速度
+//  *      * 该函数会根据底盘的轮系类型进行不同的解算
+//  *      * 向右为x轴正方向，向前为y轴正方向，底盘角速度为正表示底盘逆时针旋转
+//  * @param Vxyw 速度和角速度，单位mm/s和0.1°/s
+//  */
+// void Motion_Resolve(Mot_base_t *Vxyw, float motorSetData[4][2])
+// {
+//     for (int group = 0; group < WHEELS_GROUP_NUM; group++)
+//     {
+//         if (wheel[group][WHEEL_RUN].wheel_kind == MECANUM_WHEEL)
+//         {
+//             Mecan_Resolve(*Vxyw, group, motorSetData[group]);
+//         }
+//         else if (wheel[group][WHEEL_RUN].wheel_kind == OMNI_WHEEL)
+//         {
+//             Omni_Resolve(*Vxyw, group, motorSetData[group]);
+//         }
+//         else if (wheel[group][WHEEL_RUN].wheel_kind == STEER_WHEEL)
+//         {
+//             SteerWheel_Resolve(*Vxyw, group, motorSetData[group]);
+//         }
+//         else
+//             return;
+//     }
+// }
 #endif
 
 //********************************逆解算部分（麦轮）************************************** */
