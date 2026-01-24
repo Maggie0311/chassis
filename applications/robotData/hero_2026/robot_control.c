@@ -24,9 +24,10 @@ DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
 uint8_t isSetValid_debug[2] = {1, 1}; /*debug*,1为开，0为关/
 
 /*底盘四个车轮(或者说轮毂)的期望线速度 单位mm/s 输出顺序RF-LF-LB-RB*/
-float motorSetSpeed[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
+float motorSetSpeed_steer[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
+float motorSetSpeed_run[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
+
 float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
-static float encodeData[4];
 
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
@@ -631,12 +632,12 @@ static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
     }
 }
 
-static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
+static void Wheel_Speed_Set(float motorSetSpeed_run[WHEEL_MOTOR_NUM], float motorSetSpeed_steer[WHEEL_MOTOR_NUM])
 {
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
-        motorSetSpeed[i] = motorSetSpeed[i] / WHEEL_RADIUS * RADTORPM;
-        Motor_Set_Target((MotorInstance *)&wheel_motor[i], motorSetSpeed[i]);
+        Motor_Set_Target((MotorInstance *)&wheel_motor[i], motorSetSpeed_run[i]);
+        Motor_Set_Target((MotorInstance *)&steer_motor[i], motorSetSpeed_steer[i]);
     }
 }
 
@@ -644,14 +645,14 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
-        // Omni_Resolve(*Speed_xyw, motorSetSpeed);
+        Steer_Inverse_Kinematics_test(*Speed_xyw, motorSetSpeed_run,motorSetSpeed_steer);
         Force_Allo_to_wheels(motorSetForce, Force_xyw); // 进行加速度解算到各个电机上
 
         // Get_force_out(motorSetForce); // 获取前馈值
     }
     if (1 == isSetValid_debug[1])
     {
-        Wheel_Speed_Set(motorSetSpeed); // 设置电机速度环设定值
+        Wheel_Speed_Set(motorSetSpeed_run, motorSetSpeed_steer); // 设置电机速度环设定值
     }
 }
 

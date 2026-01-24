@@ -42,13 +42,13 @@ void Omni_Inverse_Kinematics_60(Mot_base_t target_xyw, float resolve_data[4]);
 void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4]);
 void Omni_Forward_Kinematics(float speed[4]);//全向轮正解算
 
+void Omni_Inverse_Kinematics_45_test(Mot_base_t target_xyw, float resolve_data[4]);
+void Omni_Forward_Kinematics_test(float speed[4]);
 #endif
 // 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 
-    void Steer_Forward_Kinematics(float wheel_rpm[4], Mot_base_t *chassis_vel);
-
-void Steer_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4]);
+void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4]);
 
 #endif
 Mot_base_t Get_realmotion(void);

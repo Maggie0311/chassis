@@ -12,6 +12,32 @@ J3_4 J_Omni_Fwd_45 = {0}; // 正解算雅可比矩阵 (3x4)：底盘速度 = J_f
 J4_3 J_Omni_Inv_60 = {0}; // 逆解算雅可比矩阵 (4x3)：轮速 = J_inv * 底盘速度(电机轴向为60度)
 J3_4 J_Omni_Fwd_60 = {0}; // 正解算雅可比矩阵 (3x4)：底盘速度 = J_fwd * 轮速
 
+// 新改的逆解算（中科大）--全向  底盘的正方向为逆时针  电机顺序右前--左前-左后-右后
+void Omni_Inverse_Kinematics_45_test(Mot_base_t target_xyw, float resolve_data[4])
+{
+    // 使用的单位均为标准单位
+    float L = VEHICLE_LONG / 1000.0f;              // 转换为米
+    float W = VEHICLE_WIDTH / 1000.0f;             // 转换为米
+    float s = WHEEL_RADIUS / 1000.0f;              // mm -> m
+    float r = VEHICLE_DIAMETER / 2;                // 转换为m
+    float vx = target_xyw.vel.x / 1000.0f;         // mm/s -> m/s
+    float vy = target_xyw.vel.y / 1000.0f;         // mm/s -> m/s
+    float w = target_xyw.angvel * 0.1f * DEGTORAD; // °/s -> rad/s
+    float root2_2 = ROOT2 / 2;
+    resolve_data[0] = (root2_2 * vx + root2_2 * vy + w * r) / s;
+    resolve_data[1] = (-root2_2 * vx + root2_2 * vy + w * r) / s;
+    resolve_data[2] = (-root2_2 * vx - root2_2 * vy + w * r) / s;
+    resolve_data[3] = (root2_2 * vx - root2_2 * vy + w * r) / s; // 单位是rad/s
+
+    // 转换为电机的rpm
+    for (int i = 0; i < 4; i++)
+    {
+        resolve_data[i] = resolve_data[i] * RADTORPM;
+    }
+}
+
+//
+
 // 全向轮逆解算函数（现在已经改成了向前为x轴，向左为y轴）
 //  输入：底盘运动速度 (vx, vy单位: mm/s, ω单位: °/s)
 //  输出：四个轮子的转速 (RPM)，顺序：RF-LF-LB-RB
@@ -168,30 +194,82 @@ void Omni_Forward_Kinematics(float speed[4])
     }
 }
 
+// 新的正解算 中科大
+void Omni_Forward_Kinematics_test(float speed[4])
+{
+    real_xyw.vel.x = 0.0f;
+    real_xyw.vel.y = 0.0f;
+    real_xyw.angvel = 0.0f;
+    for (int i = 0; i < 4; i++)
+    {
+        // 单位mm / s      计算过程：快转子rpm->快转子rad / s->输出轴rad / s->轮子mm / s
+        encodeData[i] = RPMTORAD * WHEEL_RADIUS * speed[i];
+    }
+    static float coefficient_OMNI = VEHICLE_DIAMETER / 2; // 底盘半径 mm
+    static int sign[3][4] = {{1, -1, -1, 1}, {1, 1, -1, -1}, {1, 1, 1, 1}};
+
+    for (int i = 0; i < 4; i++)
+    {
+        // 单位mm/s
+        real_xyw.vel.x += encodeData[i] * ROOT2 / 4.0f * sign[0][i]; // 底盘的速度单位是mm
+        real_xyw.vel.y += encodeData[i] * ROOT2 / 4.0f * sign[1][i];
+        // 单位rad/s ->0.1°/s
+        real_xyw.angvel += encodeData[i] / 4.0f / coefficient_OMNI * sign[2][i] * RADTODEG * 10.0f;
+    }
+}
+
 #endif
-// todo:麦轮解算没有改
-//  #ifdef USING_MECANUM_RESOLVE
 
-// todo:舵轮解算没有改
-
-#ifdef USING_MECANUM_RESOLVE
-
-// void Mecanum_Forward_Kinematics(float wheel_rpm[4], Mot_base_t *chassis_vel)
-// {
-// }
-
-// void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4])
-// {
-// }
-#endif
+//********************************逆解算部分（舵轮）************************************** */
+#define USING_STEER_RESOLVE
 
 // 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 
-void Steer_Forward_Kinematics(float wheel_rpm[4], Mot_base_t *chassis_vel)
+// 舵轮逆解算
+void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4])
 {
+    // 使用的单位均为标准单位
+    float L = VEHICLE_LONG / 1000.0f;              // 转换为米
+    float W = VEHICLE_WIDTH / 1000.0f;             // 转换为米
+    float s = WHEEL_RADIUS / 1000.0f;              // mm -> m
+    float r = VEHICLE_DIAMETER / 2;                // 转换为m
+    float vx = target_xyw.vel.x / 1000.0f;         // mm/s -> m/s
+    float vy = target_xyw.vel.y / 1000.0f;         // mm/s -> m/s
+    float w = target_xyw.angvel * 0.1f * DEGTORAD; // °/s -> rad/s
+    float root2_2 = ROOT2 / 2;
+
+    float wx[4] = {0};
+    float wy[4] = {0};
+    static float angle_steer_last[4] = {0};
+    static float delta[4];
+    for (int i = 0; i < 4; i++)
+    {
+        wx[i] = (vx - root2_2 * r) / s; // rad/s
+        wy[i] = (vy + root2_2 * r) / s;
+        resolve_data_steer[i] = atan2f(wy[i], wx[i]) * RADTODEG; // 舵向电机设定的角度（单位是°）返回的角度是-180°到180°
+        delta[i] = resolve_data_steer[i] - angle_steer_last[i];
+        if (fabsf(delta[i]) < 90.0f)
+        {
+            resolve_data_run[i] = hypot(wx[i], wy[i]) * RADTORPM; // 取模，得到轮向电机速度（单位为rpm)
+        }
+        else if (delta[i] > 90.0f)
+        {
+            resolve_data_run[i] = -hypot(wx[i], wy[i]) * RADTORPM;  // 取模，得到轮向电机速度（单位为rpm)
+            resolve_data_steer[i] = resolve_data_steer[i] - 180.0f; // 角度
+        }
+        else if (delta[i] < -90.0f)
+        {
+            resolve_data_run[i] = -hypot(wx[i], wy[i]) * RADTORPM;  // 取模，得到轮向电机速度（单位为rpm)
+            resolve_data_steer[i] = 180.0f + resolve_data_steer[i]; // 角度
+        }
+        angle_steer_last[i] = resolve_data_steer[i]; // 记录保存上次舵向设定值
+    }
 }
-void Steer_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4])
+
+// 舵轮正解算
+
+void Steer_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel)
 {
 }
 
@@ -319,6 +397,21 @@ void Motion_Resolve(Mot_base_t *Vxyw, float motorSetData[4][2])
 }
 #endif
 
+//********************************逆解算部分（麦轮）************************************** */
+
+// todo:舵轮解算没有改
+
+#ifdef USING_MECANUM_RESOLVE
+
+void Mecanum_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel)
+{
+}
+//********************************正解算部分（麦轮）************************************** */
+
+void Mecanum_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data[4])
+{
+}
+#endif
 // 返回正解算后底盘的运动状态
 Mot_base_t Get_realmotion(void)
 {
