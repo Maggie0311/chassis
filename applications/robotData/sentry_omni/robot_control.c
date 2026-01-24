@@ -342,9 +342,9 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_DM_MOTOR_NUM] =
             .DM_Motor_Measure_Init_Config = {
                 .RATIO = 1.0,
                 .ENCODER_LEN = 65535,
-                .ENCODER_ZERO_OFFSET = 44000,
-                .DM_P_MAX = 12.5f,
-                .DM_P_MIN = -12.5f,
+                .ENCODER_ZERO_OFFSET = 21495,
+                .DM_P_MAX = 3.1415926f,
+                .DM_P_MIN = -3.1415926f,
                 .DM_V_MAX = 45.f,
                 .DM_V_MIN = -45.f,
                 .DM_T_MAX = 18.f,
@@ -392,11 +392,11 @@ void Follow_pid_init(void)
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 70;
+    pid_config.Kp = 40;
     pid_config.Ki = 0.1;
     pid_config.Kd = 10;
     pid_config.MaxOut = 11000;
-    pid_config.DeadBand = 10;
+    pid_config.DeadBand = 0.1;
     pid_config.IntegralLimit = 400;
 
     PIDInit(&follow_pid_fast, &pid_config);
@@ -404,8 +404,9 @@ void Follow_pid_init(void)
     pid_config.Kp = 20;
     pid_config.Ki = 0;
     pid_config.Kd = 10;
-    pid_config.IntegralLimit = 0;
-    pid_config.MaxOut = 2000;
+    pid_config.MaxOut = 11000;
+    pid_config.DeadBand = 0.1;
+    pid_config.IntegralLimit = 400;
     PIDInit(&follow_pid_slow, &pid_config);
 }
 

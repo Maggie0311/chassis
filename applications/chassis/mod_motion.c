@@ -5,6 +5,7 @@
 #include "app_RefSystem.h"
 #include "robot_data.h"
 #include <arm_math.h>
+#include "drv_GimMotor.h"
 
 extern PIDInstance follow_pid_fast,follow_pid_slow;//跟随角pid实例
 
@@ -40,17 +41,17 @@ static Mot_base_t MotModule_Clamp_Base(Mot_base_t VxyW)
 }
 
 /**
- * @brief 矢量坐标转换模块 右手坐标系 y轴为正前方
+ * @brief 矢量坐标转换模块 右手坐标系 x轴为正前方
  * @param {Vector2_t} speed 速度矢量,不改变单位；推荐单位：mm/s
  * @param {float} theta 两个坐标系的夹角 输入单位°，范围(0°~360°]
  */
-static Vector2_t MotModule_Transform(Vector2_t speed, float theta)
+Vector2_t MotModule_Transform(Vector2_t speed, float theta)
 {
     Vector2_t chassis_speed;
     Vector2_t gimSpeed = speed;
     theta = theta / 180.0f * PI; // 转化为弧度
-    chassis_speed.x = gimSpeed.x * cosf(theta) + gimSpeed.y * sinf(theta);  // x'=ysinθ+xcosθ
-    chassis_speed.y = -gimSpeed.x * sinf(theta) + gimSpeed.y * cosf(theta); // y'=ycosθ-xsinθ
+    chassis_speed.x = gimSpeed.x * cosf(theta) - gimSpeed.y * sinf(theta);  // x'=ysinθ+xcosθ
+    chassis_speed.y = gimSpeed.x * sinf(theta) + gimSpeed.y * cosf(theta); // y'=ycosθ-xsinθ
     return chassis_speed;
 }
 
