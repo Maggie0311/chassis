@@ -227,7 +227,7 @@ void Omni_Forward_Kinematics_test(float speed[4])
 #ifdef USING_STEER_RESOLVE
 
 //线速度死区（rpm）
-#define v_DEAD_ZONE 45
+#define v_DEAD_ZONE 30
 
 // 舵轮逆解算
 void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4])
@@ -243,6 +243,9 @@ void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run
     static float angle_steer_last[4] = {0};//记录上次打角
     static float angle_steer_remain[4] = {0};//记录线速度进入死区前的打角
     float wx = 0,wy = 0,delta = 0;//临时变量
+
+    w = w * 0.1f * DEGTORAD; // 掳/s -> rad/s
+
     for (int i = 0; i < 4; i++)
     {
         //计算线速度分量（mm/s）
@@ -270,12 +273,10 @@ void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run
         }
 
         /*处理使线速度为零时舵轮方向不归零*/
-        if (resolve_data_run[i]< v_DEAD_ZONE)
-            resolve_data_steer[i] = angle_steer_remain[i];
+        if (fabsf(resolve_data_run[i])< v_DEAD_ZONE)
+            resolve_data_steer[i] = angle_steer_last[i];// 保持上次设定值
         else
-            angle_steer_remain[i] = resolve_data_steer[i];
-
-        angle_steer_last[i] = resolve_data_steer[i]; // 记录保存上次舵向设定值
+            angle_steer_last[i] = resolve_data_steer[i];// 记录保存上次舵向设定值
     }
 }
 
