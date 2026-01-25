@@ -226,45 +226,57 @@ void Omni_Forward_Kinematics_test(float speed[4])
 // 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 
+//线速度死区（rpm）
+#define v_DEAD_ZONE 30
+
 // 舵轮逆解算
 void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4])
 {
     // 使用的单位均为标准单位 
-    static float s = WHEEL_RADIUS;
-    float vx = target_xyw.vel.x;         // mm/s -> m/s
-    float vy = target_xyw.vel.y;         // mm/s -> m/s
+    float vx = target_xyw.vel.x;//mm/s
+    float vy = target_xyw.vel.y;
     float w = target_xyw.angvel * 0.1f * DEGTORAD; // °/s -> rad/s
 
-    static float rx[4]={VEHICLE_LONG/2,VEHICLE_LONG/2,-VEHICLE_LONG/2,-VEHICLE_LONG/2};
-		static float ry[4]={-VEHICLE_WIDTH/2,VEHICLE_WIDTH/2,VEHICLE_WIDTH/2,-VEHICLE_WIDTH/2};
-    static float wx[4]={0,0,0,0},wy[4]={0,0,0,0};
-    static float angle_steer_last[4] = {0};
-    static float delta[4];
+    static float s = WHEEL_RADIUS;//轮半径
+    static float rx[4]={VEHICLE_LONG/2,VEHICLE_LONG/2,-VEHICLE_LONG/2,-VEHICLE_LONG/2};//轮坐标
+	static float ry[4]={-VEHICLE_WIDTH/2,VEHICLE_WIDTH/2,VEHICLE_WIDTH/2,-VEHICLE_WIDTH/2};
+    static float angle_steer_last[4] = {0};//记录上次打角
+    static float angle_steer_remain[4] = {0};//记录线速度进入死区前的打角
+    float wx = 0,wy = 0,delta = 0;//临时变量
+
+    w = w * 0.1f * DEGTORAD; // 掳/s -> rad/s
+
     for (int i = 0; i < 4; i++)
     {
-        // wx[i] = (vx - root2_2 * r*w) / s; // rad/s
-        // wy[i] = (vy + root2_2 * r*w) / s;
-        
-        wx[i] = (vx - ry[i]*w) / s; // rad/s
-        wy[i] = (vy + rx[i]*w) / s;
-        //resolve_data_steer[i] = atan2f(wy[i], wx[i]) * RADTODEG; // 舵向电机设定的角度（单位是°）返回的角度是-180°到180°
-        resolve_data_steer[i] = atan2f(wy[i], wx[i]) * RADTODEG; // 舵向电机设定的角度（单位是°）返回的角度是-180°到180°
+        //计算线速度分量（mm/s）
+        wx = (vx - ry[i]*w);
+        wy = (vy + rx[i]*w);
+        // 舵向电机设定的角度（单位是°）返回的角度是-180°到180°
+        resolve_data_steer[i] = atan2f(wy, wx) * RADTODEG; 
 
-        delta[i] = resolve_data_steer[i] - angle_steer_last[i];
-        if (delta[i] > 180.0f)
-            delta[i] = 360.0f - delta[i];
-        else if (delta[i] < -180.f)
-            delta[i] += 360.0f;
-        if (fabsf(delta[i]) <= 90.0f)
+        /*处理使打角<90°*/
+        delta = resolve_data_steer[i] - angle_steer_last[i];//计算打角差值
+        //将差值限制在-180~180
+        if (delta > 180.0f)
+            delta= 360.0f - delta;
+        else if (delta < -180.f)
+            delta+= 360.0f;
+        //判断打角是否大于90°
+        if (fabsf(delta) <= 90.0f)//小于90°，不做处理
         {
-            resolve_data_run[i] = hypot(wx[i], wy[i]) * RADTORPM; // 取模，得到轮向电机速度（单位为rpm)
+            resolve_data_run[i] = hypot(wx, wy) / s * RADTORPM; // 取模，得到轮向电机速度（单位为rpm)
         }
-        else if (fabsf(delta[i]) >= 90.0f)
+        else if (fabsf(delta) >= 90.0f)//大于90°，线速度取反，打角<90°
         {
-            resolve_data_run[i] = -hypot(wx[i], wy[i]) * RADTORPM;  // 取模，得到轮向电机速度（单位为rpm)
+            resolve_data_run[i] = -hypot(wx, wy) / s * RADTORPM;  // 取模，得到轮向电机速度（单位为rpm)
             resolve_data_steer[i] = resolve_data_steer[i] - 180.0f; // 角度
         }
-        angle_steer_last[i] = resolve_data_steer[i]; // 记录保存上次舵向设定值
+
+        /*处理使线速度为零时舵轮方向不归零*/
+        if (fabsf(resolve_data_run[i])< v_DEAD_ZONE)
+            resolve_data_steer[i] = angle_steer_last[i];// 保持上次设定值
+        else
+            angle_steer_last[i] = resolve_data_steer[i];// 记录保存上次舵向设定值
     }
 }
 
