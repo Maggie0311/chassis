@@ -244,8 +244,6 @@ void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run
     static float angle_steer_remain[4] = {0};//记录线速度进入死区前的打角
     float wx = 0,wy = 0,delta = 0;//临时变量
 
-    w = w * 0.1f * DEGTORAD; // 掳/s -> rad/s
-
     for (int i = 0; i < 4; i++)
     {
         //计算线速度分量（mm/s）
@@ -281,7 +279,6 @@ void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run
 }
 
 // 舵轮正解算
-
 void Steer_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel)
 {
 }
