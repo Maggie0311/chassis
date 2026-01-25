@@ -152,19 +152,19 @@ typedef __packed struct
 // #define CMD_SET_Robot_command_map -1,20 // 给视觉发送云台手发送给哨兵的点位信息（云台手命令哨兵前往的位置）
 // #define CMD_SET_Robot_wheel_odometry -1,10 // 给视觉发送地盘姿态正解算后的x、y方向速度数据数据
 
-#define CMD_SET_VISUAL_CTRL -1,100 // 视觉发送控制指令
-#define CMD_SET_VISUAL_RADAR -1,100 // 视觉发送雷达数据ID
-#define CMD_SET_SENTRY_CMD_INFO -1,100 // 视觉发送哨兵数据ID（视觉发送给底盘）
-#define CMD_SET_GAME_INFO -1,100 // 向视觉发送比赛信息
-#define CMD_SET_GAME_ROBOT_survivors -1,100// 向视觉发送机器人血量信息
-#define CMD_SET_EVENT_DATA -1,100 // 向视觉发送场地事件信息
-#define CMD_SET_ROBOT_INFO -1,100 // 向视觉发送机器人信息（自身信息）
-#define CMD_SET_ROBOT_POSITION -1,100 // 向视觉发送本机器人位置信息（自身位置信息）
-#define CMD_SET_Bullet_remaining -1,100 // 向视觉发送剩余子弹数和剩余金币数量
-#define CMD_SET_Ground_robot_position -1,100 // 向视觉发送地面机器人位置信息（自家机器人信息）
-#define CMD_SET_Sentry_info -1,100 // 给视觉发送哨兵自主决策反馈数据（裁判系统反馈信息）
-#define CMD_SET_Robot_command_map -1,100 // 给视觉发送云台手发送给哨兵的点位信息（云台手命令哨兵前往的位置）
-#define CMD_SET_Robot_wheel_odometry -1,10 // 给视觉发送地盘姿态正解算后的x、y方向速度数据数据
+#define CMD_SET_VISUAL_CTRL -1,20 // 视觉发送控制指令
+#define CMD_SET_VISUAL_RADAR -1,20 // 视觉发送雷达数据ID
+#define CMD_SET_SENTRY_CMD_INFO -1,20 // 视觉发送哨兵数据ID（视觉发送给底盘）
+#define CMD_SET_GAME_INFO -1,20 // 向视觉发送比赛信息
+#define CMD_SET_GAME_ROBOT_survivors -1,20// 向视觉发送机器人血量信息
+#define CMD_SET_EVENT_DATA -1,20 // 向视觉发送场地事件信息
+#define CMD_SET_ROBOT_INFO -1,20 // 向视觉发送机器人信息（自身信息）
+#define CMD_SET_ROBOT_POSITION -1,20 // 向视觉发送本机器人位置信息（自身位置信息）
+#define CMD_SET_Bullet_remaining -1,20 // 向视觉发送剩余子弹数和剩余金币数量
+#define CMD_SET_Ground_robot_position -1,20 // 向视觉发送地面机器人位置信息（自家机器人信息）
+#define CMD_SET_Sentry_info -1,20 // 给视觉发送哨兵自主决策反馈数据（裁判系统反馈信息）
+#define CMD_SET_Robot_command_map -1,20 // 给视觉发送云台手发送给哨兵的点位信息（云台手命令哨兵前往的位置）
+#define CMD_SET_Robot_wheel_odometry -1,1 // 给视觉发送地盘姿态正解算后的x、y方向速度数据数据
 
 
 #endif
