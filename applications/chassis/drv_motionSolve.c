@@ -251,19 +251,18 @@ void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run
         resolve_data_steer[i] = atan2f(wy[i], wx[i]) * RADTODEG; // 舵向电机设定的角度（单位是°）返回的角度是-180°到180°
 
         delta[i] = resolve_data_steer[i] - angle_steer_last[i];
+        if (delta[i] > 180.0f)
+            delta[i] = 360.0f - delta[i];
+        else if (delta[i] < -180.f)
+            delta[i] += 360.0f;
         if (fabsf(delta[i]) <= 90.0f)
         {
             resolve_data_run[i] = hypot(wx[i], wy[i]) * RADTORPM; // 取模，得到轮向电机速度（单位为rpm)
         }
-        else if (delta[i] >= 90.0f)
+        else if (fabsf(delta[i]) >= 90.0f)
         {
             resolve_data_run[i] = -hypot(wx[i], wy[i]) * RADTORPM;  // 取模，得到轮向电机速度（单位为rpm)
             resolve_data_steer[i] = resolve_data_steer[i] - 180.0f; // 角度
-        }
-        else if (delta[i] <= -90.0f)
-        {
-            resolve_data_run[i] = -hypot(wx[i], wy[i]) * RADTORPM;  // 取模，得到轮向电机速度（单位为rpm)
-            resolve_data_steer[i] = 180.0f + resolve_data_steer[i]; // 角度
         }
         angle_steer_last[i] = resolve_data_steer[i]; // 记录保存上次舵向设定值
     }
