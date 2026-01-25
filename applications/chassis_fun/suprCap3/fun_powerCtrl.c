@@ -15,11 +15,11 @@
 #include <ulog.h>
 
 
-#define RunERRhigh 200
-#define RunERRlow  20
+#define RunERRhigh 2000
+#define RunERRlow  500
 
-#define AngleERRhigh 4000
-#define AngleERRlow  1000
+#define AngleERRhigh 200
+#define AngleERRlow  50
 #define fabs(x) (x > 0 ? x : -x)
 #define SIGNAL(x) (x / x)
 #define SAFE_MIN 1e-12f // 防止除零的最小值
@@ -67,7 +67,7 @@ void Power_Motor_Attach(MotorInstance *motor_instance)
     }
     else if(motor_instance->Motor_obj.power_ctrl_type==POWER_CTRL_STEER)
     {
-        if_wheel_used[angle_count]=1;
+        if_steer_used[angle_count]=1;
         Motor_Power_Pointer[WHEEL_ANGLE][angle_count++] = motor_instance; // 注册电机实例指针
     }
 }
@@ -381,13 +381,13 @@ void get_true_RLS(void)
 
 
       //以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
-    if(PowerInfo.Cap.Power>5&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power>0&&GYRO_FLAG<100)//&&RunRLS.repe_speed>200)
+    if(PowerInfo.Cap.Power>20&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power>0&&GYRO_FLAG<100)//&&RunRLS.repe_speed>200)
     {
          RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
       //  RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );    
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
     }
-    else if(PowerInfo.Cap.Power>5&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power<0&&GYRO_FLAG<100)//&&RunRLS.repe_speed>200)
+    else if(PowerInfo.Cap.Power>20&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power<0&&GYRO_FLAG<100)//&&RunRLS.repe_speed>200)
     {
          RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
@@ -427,14 +427,14 @@ void get_true_RLS(void)
         else 
             AngleRLS.repe_speed=0;  
         //以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
-        if(PowerInfo.Ref.power_now>30&&AnglePhi[0]&&AnglePhi[1]&&RunRLS.flag==1&&AngleRLS.now_power>0&&AngleRLS.repe_flag<100)
+        if(PowerInfo.Cap.Power>10&&AnglePhi[0]&&AnglePhi[1]&&RunRLS.flag==1&&AngleRLS.now_power>0)
         {
             //RLS_Update(&AngleRLS, AnglePhi, PowerInfo.Cap.Power- RunRLS.now_power-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
             if(!Check_Stability(&AngleRLS))Reconstruct_P(&AngleRLS);
         }
-        else if(PowerInfo.Ref.power_now>30&&AnglePhi[0]&&AnglePhi[1]&&RunRLS.flag==1&&AngleRLS.now_power<0&&AngleRLS.repe_flag<100)
+        else if(PowerInfo.Cap.Power>10&&AnglePhi[0]&&AnglePhi[1]&&RunRLS.flag==1&&AngleRLS.now_power<0)
         {
-            // RLS_Update(&AngleRLS, AnglePhi, AngleRLS.now_power- RunRLS.now_power-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
+             //RLS_Update(&AngleRLS, AnglePhi, AngleRLS.now_power- RunRLS.now_power-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
             if(!Check_Stability(&AngleRLS))Reconstruct_P(&AngleRLS);
         }
         
@@ -570,7 +570,7 @@ void get_pre_power(void)
         {
             // 舵向电机
            Motor_power[group][WHEEL_ANGLE].initial_tor_set = fabsf(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output)*
-           get_K_IC2Tor(Motor_Power_Pointer[group][WHEEL_RUN]);//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算;//(wheel_temp[group][WHEEL_ANGLE].motor.spe.out * K_IC2Tor_ANGLE); // 转子扭矩计算
+           get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算;//(wheel_temp[group][WHEEL_ANGLE].motor.spe.out * K_IC2Tor_ANGLE); // 转子扭矩计算
             // 功率分配前的预输出功率
        /*     Motor_power[group][WHEEL_ANGLE].initial_power_set = fabsf(Motor_power[group][WHEEL_ANGLE].V_now) * Motor_power[group][WHEEL_ANGLE].initial_tor_set / 9.55f +
                                                                 Motor_power[group][WHEEL_ANGLE].K1 * SQUARE(Motor_power[group][WHEEL_ANGLE].initial_tor_set) +
@@ -590,7 +590,7 @@ void get_pre_power(void)
         if (if_wheel_used[group] == 1)
         {
             // 轮向电机
-            Motor_power[group][WHEEL_RUN].initial_tor_set =fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*
+            Motor_power[group][WHEEL_RUN].initial_tor_set =fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output*
             get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]));//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算
             // 功率分配前的预输出功率
 
@@ -645,7 +645,7 @@ static void Power_lim_allo_to_wheels()
     {
 //        轮向电机调整方向
         if (if_wheel_used[group] == 1)
-                Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*=Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag;  
+                Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output*=(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);  
                 // 舵向电机调整方向
         if (if_steer_used[group] == 1)
                  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*=Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag;
@@ -689,11 +689,11 @@ static void Power_lim_allo_to_wheels()
         {
             if (if_wheel_used[group] == 1)
             {
-                Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output = 0;
+                Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = 0;
             }
             if (if_steer_used[group] == 1)
             {
-                Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output = 0;
+                Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = 0;
             }
         }
     }
@@ -734,14 +734,11 @@ static void Power_lim_allo_to_wheels()
                 }
                 temp_angle = fabsf(Motor_power[group][WHEEL_ANGLE].allo_tor_set); // 取扭矩绝对值
                 // //todo 转换比待修改
-                if(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output>0)
-                    Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=temp_angle/get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
-                else
-									  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=-temp_angle/get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
-                // if (wheel_temp[group][WHEEL_ANGLE].motor.spe.out >= 0)
-                //     wheel_temp[group][WHEEL_ANGLE].motor.spe.out = temp_angle / K_IC2Tor_ANGLE;
+                // if(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output>0)
+                //     Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=temp_angle/get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
                 // else
-                //     wheel_temp[group][WHEEL_ANGLE].motor.spe.out = -temp_angle / K_IC2Tor_ANGLE;
+				// 					  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=-temp_angle/get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
+               
             }
 
 
@@ -780,17 +777,21 @@ static void Power_lim_allo_to_wheels()
                 //             temp = fabsf(Motor_power[index].allo_tor_set); // 取扭矩绝对值
              
                 //             // 转换为输出的扭矩电流(COUNT)，并按正确的方向输出
-                if (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output >= 0)
-                   Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output= temp_run /get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]);
+                if (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output >= 0)
+                   Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output= temp_run /get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]);
                 else
-                   Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output = -temp_run /get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]);
+                   Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = -temp_run /get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]);
             }
 
         }
     }
 
         
-
+    for (group = 0; group < WHEELS_GROUP_NUM; group++)
+    {
+        //Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=0;
+        Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
+    }
 
 
     for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
@@ -798,15 +799,15 @@ static void Power_lim_allo_to_wheels()
 //        轮向电机调整方向
         if (if_wheel_used[group] == 1)
         {
-                Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*=Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag;  
-                //Motor_Power[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=0;//*电机不输出
+                Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output=Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output*(-Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);  
+               // Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
         }
 
          // 舵向电机调整方向
         if (if_steer_used[group] == 1)
         {
-                 Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*=Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag;
-                // Motor_Power[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=0;//*电机不输出
+             //    Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag;
+
         }
     }
 
