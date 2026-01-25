@@ -38,6 +38,53 @@ void Omni_Inverse_Kinematics_45_test(Mot_base_t target_xyw, float resolve_data[4
 
 //
 
+/**
+ * @brief 适应不同角度安装轮子的全向轮逆解算
+ * 
+ * @param alpha 右前轮与右手系x正方向的夹角
+ * @param resolve_data 
+ */
+void Omni_Inverse_Kinematics_(Mot_base_t target_xyw,float alpha,float* resolve_data) 
+{
+    // 初始化雅可比矩阵
+    static uint8_t if_init = 0;
+    static float data[4][3];
+    static float L = VEHICLE_LONG/2;
+    static float W = VEHICLE_WIDTH/2;
+    static float r = WHEEL_RADIUS;
+    static float k1[4] = {1,-1,-1,1},k2[4]={1,1,-1,-1};
+    if (!if_init)
+    {
+        float a= alpha * DEGTORAD;
+        float cos_a = cosf(a),sin_a = sinf(a); 
+        float k3 = cos_a * W + sin_a * L;
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            data[i][0] = k1[i] * cos_a/ r;
+            data[i][1] = k2[i] * sin_a / r;
+            data[i][2] = k3 / r;
+        }
+        if_init = 1;
+    }
+    
+    target_xyw.angvel = target_xyw.angvel * 0.1f * DEGTORAD; // °/s -> rad/s
+
+    // 使用雅可比矩阵计算轮子角速度（rad/s）
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        resolve_data[i] = (data[i][0] * target_xyw.vel.x +
+                           data[i][1] * target_xyw.vel.y +
+                           data[i][2] * target_xyw.angvel);
+    }
+    
+    // 转换为rpm
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        resolve_data[i] = resolve_data[i] * RADTORPM;
+    }
+}
+
+
 // 全向轮逆解算函数（现在已经改成了向前为x轴，向左为y轴）
 //  输入：底盘运动速度 (vx, vy单位: mm/s, ω单位: °/s)
 //  输出：四个轮子的转速 (RPM)，顺序：RF-LF-LB-RB
@@ -216,6 +263,47 @@ void Omni_Forward_Kinematics_test(float speed[4])
         // 单位rad/s ->0.1°/s
         real_xyw.angvel += encodeData[i] / 4.0f / coefficient_OMNI * sign[2][i] * RADTODEG * 10.0f;
     }
+}
+
+void Omni_Forward_Kinematics_(float *speed,float alpha)//正解算 
+{
+    // 初始化雅可比伪逆矩阵
+    static uint8_t if_init = 0;
+    static float data[3][4];
+    static float L = VEHICLE_LONG/2;
+    static float W = VEHICLE_WIDTH/2;
+	static float k1[4] = {1,-1,-1,1},k2[4]={1,1,-1,-1};
+	if (!if_init)
+    {
+        float a = alpha * DEGTORAD;
+        float cos_a = cosf(a),sin_a = sinf(a); 
+        float k3 = 1/(cos_a * W + sin_a * L);
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            data[0][i] = (k1[i] / cos_a) / 4;
+            data[1][i] = (k2[i] / sin_a) / 4;
+            data[2][i] = k3 / 4;
+        }
+        if_init = 1;
+    }
+
+    //转换单位 rpm -> mm/s 
+    for (uint8_t i = 0; i < 4; i++)
+    { 
+        speed[i] = RPMTORAD * WHEEL_RADIUS * speed[i];
+    }
+    
+    //使用伪逆矩阵求底盘实际运动情况 
+    float x_temp = 0,y_temp = 0,w_temp = 0;
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        x_temp += data[0][i] * speed[i];
+        y_temp += data[1][i] * speed[i];
+        w_temp += data[2][i] * speed[i];
+    }
+    real_xyw.vel.x = x_temp;
+    real_xyw.vel.y = y_temp;
+    real_xyw.angvel = w_temp * RADTODEG * 10.0f;//rad/s -> °/s
 }
 
 #endif

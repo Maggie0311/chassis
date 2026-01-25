@@ -75,7 +75,7 @@ menu "Choose Car model Config"
     if  CORE_USING_HERO
         choice
             prompt "select Types of hero robot" 
-            default CORE_USING_BUNCHES_HERO
+            default CORE_USING_2026_HERO
           
             #2024英雄-骁将
             config CORE_USING_2026_HERO

@@ -11,9 +11,10 @@
 #include "DJI_6020.h"
 #include "LK_MF_MG.h"
 #include "robot_control.h"
+#ifdef BSP_USING_LOG 
 #define LOG_TAG     "power_Log"
 #include <ulog.h>
-
+#endif
 
 #define RunERRhigh 200
 #define RunERRlow  20

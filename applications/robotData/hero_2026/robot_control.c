@@ -73,7 +73,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
-            .spi_slave=SpicanSlave_2,
+            .spi_slave=SpicanSlave_1,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -119,7 +119,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
-            .spi_slave=SpicanSlave_2,
+            .spi_slave=SpicanSlave_1,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -167,7 +167,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
-            .spi_slave=SpicanSlave_2,
+            .spi_slave=SpicanSlave_1,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -215,7 +215,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
-            .spi_slave=SpicanSlave_2,
+            .spi_slave=SpicanSlave_1,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -583,7 +583,7 @@ void Follow_pid_init(void)
     pid_config.Kp = 40;
     pid_config.Ki = 0.1;
     pid_config.Kd = 10;
-    pid_config.MaxOut = 11000;
+    pid_config.MaxOut = 0;
     pid_config.DeadBand = 0.1;
     pid_config.IntegralLimit = 400;
 
