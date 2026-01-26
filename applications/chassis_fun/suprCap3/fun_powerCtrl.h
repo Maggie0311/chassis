@@ -131,6 +131,7 @@ typedef struct
     float  run_ratio[4];    //各电机输出功率的占比
     float  angle_ratio[4];    //各电机输出功率的占比
     float  run_err_sum;
+    float  run_err_sq_sum;
     float angle_err_sum;
     
 

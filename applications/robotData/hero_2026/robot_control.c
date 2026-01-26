@@ -8,6 +8,7 @@
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
 #include "drv_SPICAN.h"
+#include <arm_math.h>
 
 #define WHEEL_MOTOR_NUM 4
 #define STEER_MOTOR_NUM 4
@@ -25,7 +26,7 @@ DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
 uint8_t isSetValid_debug[2] = {1, 1}; /*debug*,1为开，0为关/
       
       /*底盘四个车轮(或者说轮毂)的期望线速度 单位mm/s 输出顺序RF-LF-LB-RB*/
-float motorSetSpeed_steer[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
+float motorSetAngle_steer[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
 float motorSetSpeed_run[WHEEL_MOTOR_NUM]; // 经过解算后的数据()
 
 float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
@@ -248,7 +249,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         .controller_param_init_config = {
             //todo pid参数
             .Angle_pid = {//3.5   1   0
-                .Kp = 3.5, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
+                .Kp = 4, .Kd = 1.2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
             .Speed_pid = {.Kp = 3, .Kd = 0, .Ki = 0.36, .MaxOut = 850,    //3    0.3    0 
@@ -363,10 +364,10 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         .controller_param_init_config = {
             //todo pid参数
             .Angle_pid = {
-                .Kp = 3.6, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
+                .Kp = 3, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 3, .Kd = 0, .Ki = 0.36, .MaxOut = 850,
+            .Speed_pid = {.Kp = 1.3, .Kd = 0, .Ki = 0.2, .MaxOut = 850,
                 .Improve = PID_Integral_Limit , .IntegralLimit = 300 , 
                 },
 
@@ -419,10 +420,10 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         .controller_param_init_config = {
             //todo pid参数
             .Angle_pid = {
-                .Kp = 3.6, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
+                .Kp = 3.6, .Kd = 1.2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 3, .Kd = 0, .Ki = 0.36, .MaxOut = 850,
+            .Speed_pid = {.Kp = 3.2, .Kd = 0, .Ki = 0.5, .MaxOut = 850,
                 .Improve = PID_Integral_Limit , .IntegralLimit = 300 , 
                 },
 
@@ -580,11 +581,11 @@ void Follow_pid_init(void)
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 40;
+    pid_config.Kp = 35;
     pid_config.Ki = 0.1;
     pid_config.Kd = 10;
     pid_config.MaxOut = 11000;
-    pid_config.DeadBand = 0.1;
+    pid_config.DeadBand = 5;
     pid_config.IntegralLimit = 400;
 
     PIDInit(&follow_pid_fast, &pid_config);
@@ -648,12 +649,13 @@ static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
     }
 }
 
-static void Wheel_Speed_Set(float motorSetSpeed_run[WHEEL_MOTOR_NUM], float motorSetSpeed_steer[WHEEL_MOTOR_NUM])
+static void Wheel_Speed_Set(float motorSetSpeed_run[WHEEL_MOTOR_NUM], float motorSetAngle_steer[WHEEL_MOTOR_NUM])
 {
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
+        motorSetSpeed_run[i]*=cos(steer_motor[i].Motor_obj.Motor_ctrl.Angle_pid.Err * 0.0174533);
         Motor_Set_Target((MotorInstance *)&wheel_motor[i], motorSetSpeed_run[i]);
-        Motor_Set_Target((MotorInstance *)&steer_motor[i], motorSetSpeed_steer[i]);
+        Motor_Set_Target((MotorInstance *)&steer_motor[i], motorSetAngle_steer[i]);
     }
 }
 
@@ -663,14 +665,14 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
-        Steer_Inverse_Kinematics_test(*Speed_xyw, motorSetSpeed_run,motorSetSpeed_steer);
+        Steer_Inverse_Kinematics_test(*Speed_xyw, motorSetSpeed_run,motorSetAngle_steer);
         Force_Allo_to_wheels(motorSetForce, Force_xyw); // 进行加速度解算到各个电机上
 
         // Get_force_out(motorSetForce); // 获取前馈值
     }
     if (1 == isSetValid_debug[1])
     {
-        Wheel_Speed_Set(motorSetSpeed_run, motorSetSpeed_steer); // 设置电机速度环设定值
+        Wheel_Speed_Set(motorSetSpeed_run, motorSetAngle_steer); // 设置电机速度环设定值
     }
 }
 

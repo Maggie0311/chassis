@@ -16,9 +16,9 @@ void Follow_pid_init(void);
 #define PITCH_MOTOR 1
 
 // TODO:调Pid这堆
-#define RUN_PID_Kp 200
-#define RUN_PID_Ki 1
-#define RUN_PID_Kd 0.8
+#define RUN_PID_Kp 80
+#define RUN_PID_Ki 0.5
+#define RUN_PID_Kd 5
 
 #define Power_C_sum (4.0f) // 固定静态功率（换板子也会影响该数据）
 

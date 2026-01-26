@@ -16,8 +16,8 @@
 #include <ulog.h>
 #endif
 
-#define RunERRhigh 2000
-#define RunERRlow  500
+#define RunERRhigh 1800
+#define RunERRlow  400
 
 #define AngleERRhigh 200
 #define AngleERRlow  50
@@ -390,7 +390,7 @@ void get_true_RLS(void)
     }
     else if(PowerInfo.Cap.Power>13&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power<0&&GYRO_FLAG<100)//&&RunRLS.repe_speed>200)
     {
-         RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
+        RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
     }
 
@@ -832,10 +832,11 @@ void Power_re_allo(void)
 
     Power_Set.run_err_sum=0;
     Power_Set.angle_err_sum=0;
-     
+     Power_Set.run_err_sq_sum=0;
     for (uint8_t group = 0; group < 4; group++)
     {
          Power_Set.run_err_sum += fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err);
+         Power_Set.run_err_sq_sum+=SQUARE(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err);
          Power_Set.angle_err_sum += fabsf(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Err);
     }
 
@@ -860,7 +861,7 @@ void Power_re_allo(void)
             // 按照误差比例的置信度分配
         if (if_wheel_used[group] == 1)
             Motor_power[group][WHEEL_RUN].allo_power_set=
-                RunKcoe * fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sum * Power_Set.power_set_run
+                RunKcoe * SQUARE(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sq_sum * Power_Set.power_set_run
                 +(1-RunKcoe)* Power_Set.run_ratio[group]*Power_Set.power_set_run;
 
 
