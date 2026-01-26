@@ -23,7 +23,7 @@
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
 LK_MotorInstance steer_motor[STEER_MOTOR_NUM];
 DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
-uint8_t isSetValid_debug[2] = {1, 1}; /*debug*,1为开，0为关/
+uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关/
       
       /*底盘四个车轮(或者说轮毂)的期望线速度 单位mm/s 输出顺序RF-LF-LB-RB*/
 float motorSetAngle_steer[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
@@ -55,11 +55,9 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Motor_Control = NULL,
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
-        
+
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, 
-                .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, 
-                .IntegralLimit = 3000, .MaxOut = 7000,.DeadBand=0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -88,7 +86,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LF",
-            .reverse_flag=MOTOR_DIRECTION_NORMAL,
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -104,9 +102,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd,
-                 .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, 
-                 .IntegralLimit = 3000, .MaxOut = 7000,.DeadBand=0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -135,7 +131,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LB",
-            .reverse_flag=MOTOR_DIRECTION_NORMAL,
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -152,9 +148,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd,
-                 .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, 
-                 .IntegralLimit = 3000, .MaxOut = 7000,.DeadBand=0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -200,9 +194,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, 
-                .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, 
-                .IntegralLimit = 3000, .MaxOut = 7000,.DeadBand=0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -227,16 +219,15 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
     }};
 // 底盘四个舵向电机配置参数模板
-LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
-    //右前轮
+LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
+    // 右前轮
     {
         .motor_obj_init_config = {
             .name = "steer_RF",
             .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = LK_ms6015,
             .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type=POWER_CTRL_STEER
-        },
+            .power_ctrl_type = POWER_CTRL_STEER},
         .Motor_operate_setting = {
             .Motor_Init = LK_Motor_Init,
             .Motor_Enable = LK_Motor_Enable,
@@ -252,10 +243,14 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
                 .Kp = 4, .Kd = 1.2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 3, .Kd = 0, .Ki = 0.36, .MaxOut = 850,    //3    0.3    0 
-                .Improve = PID_Integral_Limit , .IntegralLimit = 300 , 
-                },
-
+            .Speed_pid = {
+                .Kp = 3,
+                .Kd = 0,
+                .Ki = 0.36,
+                .MaxOut = 850, // 3    0.3    0
+                .Improve = PID_Integral_Limit,
+                .IntegralLimit = 300,
+            },
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
 
@@ -276,7 +271,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         },
         .LK_Motor_Measure_Init_Config = {
             .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-            .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
+            .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
@@ -286,15 +281,9 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
 
     },
 
-    //左前
-      {
-        .motor_obj_init_config = {
-            .name = "steer_RF",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
-            .motor_type = LK_ms6015,
-            .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type=POWER_CTRL_STEER
-        },
+    // 左前
+    {
+        .motor_obj_init_config = {.name = "steer_RF", .reverse_flag = MOTOR_DIRECTION_REVERSE, .motor_type = LK_ms6015, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER},
         .Motor_operate_setting = {
             .Motor_Init = LK_Motor_Init,
             .Motor_Enable = LK_Motor_Enable,
@@ -305,15 +294,19 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
-            //todo pid参数
+            // todo pid参数
             .Angle_pid = {
                 .Kp = 3, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 1.3, .Kd = 0, .Ki = 0.2, .MaxOut = 850,
-                .Improve = PID_Integral_Limit , .IntegralLimit = 300 , 
-                },
-
+            .Speed_pid = {
+                .Kp = 1.3,
+                .Kd = 0,
+                .Ki = 0.2,
+                .MaxOut = 850,
+                .Improve = PID_Integral_Limit,
+                .IntegralLimit = 300,
+            },
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
 
@@ -334,7 +327,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         },
         .LK_Motor_Measure_Init_Config = {
             .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-            .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
+            .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
@@ -343,15 +336,9 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         },
 
     },
-    //左后
-      {
-        .motor_obj_init_config = {
-            .name = "steer_RF",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
-            .motor_type = LK_ms6015,
-            .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type=POWER_CTRL_STEER
-        },
+    // 左后
+    {
+        .motor_obj_init_config = {.name = "steer_RF", .reverse_flag = MOTOR_DIRECTION_REVERSE, .motor_type = LK_ms6015, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER},
         .Motor_operate_setting = {
             .Motor_Init = LK_Motor_Init,
             .Motor_Enable = LK_Motor_Enable,
@@ -362,7 +349,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
             .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
-            //todo pid参数
+            // todo pid参数
             .Angle_pid = {
                 .Kp = 3, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
@@ -391,7 +378,7 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
         },
         .LK_Motor_Measure_Init_Config = {
             .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-            .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
+            .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 32767,
             .ENCODER_ZERO_OFFSET = 0.0,
@@ -428,35 +415,34 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM]={
                 },
 
 
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
+         .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
 
-            },
-            .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
-            .Calc_Pre = {
-                .speed_calc_Prescaler = 1,
-                .angle_calc_Prescaler = 2,
-            },
-            .Feedforward_Type = FEEDFORWARD_NONE,
-        },
-        .can_init_config = {
-            .can_device_name = "can1",
-            .rx_id = 0x144, // TODO:设置ID
-            .tx_id = 0x280,
-            .can_module_callback = LK_Motor_RefreshData,
-            .parent = NULL,
-        },
-        .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-            .current_to_torque = 0.61,   // MS6015_15T电机的电流转扭矩系数
-            .RATIO = 1.0,
-            .ENCODER_LEN = 32767,
-            .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
-            .ENCODER_ZERO_OFFSET = 24654,
-        }
+         },
+         .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
+         .Calc_Pre = {
+             .speed_calc_Prescaler = 1,
+             .angle_calc_Prescaler = 2,
+         },
+         .Feedforward_Type = FEEDFORWARD_NONE,
+     },
+     .can_init_config = {
+         .can_device_name = "can1",
+         .rx_id = 0x144, // TODO:设置ID
+         .tx_id = 0x280,
+         .can_module_callback = LK_Motor_RefreshData,
+         .parent = NULL,
+     },
+     .LK_Motor_Measure_Init_Config = {
+         .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
+         .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
+         .RATIO = 1.0,
+         .ENCODER_LEN = 32767,
+         .ENCODER_ZERO_OFFSET = 0.0,
+         .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
+         .ENCODER_ZERO_OFFSET = 24654,
+     }
 
-    }
-};
+    }};
 int chassis_motor_init()
 {
     int ret = 0;
@@ -508,7 +494,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
             .tx_id = NULL,
             .can_module_callback = DJI_6020_Motor_RefreshData,
             .parent = NULL,
-            .spi_slave=SpicanSlave_2,
+            .spi_slave = SpicanSlave_2,
         },
         .DJI6020_Motor_Measure_Init_Config = {
             .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
@@ -559,7 +545,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
 int gim_motor_init()
 {
     int ret = 0;
-    for (int i = 0; i < GIM_MOTOR_NUM-1; i++)
+    for (int i = 0; i < GIM_MOTOR_NUM - 1; i++)
     {
         ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_motor_init_config[i]);
         if (ret != 0)
@@ -659,7 +645,6 @@ static void Wheel_Speed_Set(float motorSetSpeed_run[WHEEL_MOTOR_NUM], float moto
     }
 }
 
-
 //**
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
@@ -684,5 +669,5 @@ void Forward_Kinematics(void)
     {
         temp[i] = wheel_motor[i].Motor_obj.speed;
     }
-    //Omni_Forward_Kinematics(temp);
+    // Omni_Forward_Kinematics(temp);
 }

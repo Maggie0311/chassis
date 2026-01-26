@@ -150,6 +150,24 @@ void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4])
     }
 }
 
+// 全向轮力解算函数
+void Omni_Force_Resolve_45(Mot_base_t target_force, float *resolve_data)
+{
+    // 初始化雅可比矩阵
+    static float L = VEHICLE_LONG / 1000.0f;                               // 转换为米
+    static float W = VEHICLE_WIDTH / 1000.0f;                              // 转换为米
+    static float s = WHEEL_RADIUS / 1000.0f;                               // mm -> m
+    Mot_base_t tarForce;                                                   // 电机输出轴上的力（N）
+    float Fx = target_force.vel.x * WEIGHT / 1000.f;                       // 整个底盘x方向力的平滑后设定值(N)
+    float Fy = target_force.vel.y * WEIGHT / 1000.f;                       // 整个底盘Y方向力的平滑后设定值(N)
+    float Tw = target_force.angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
+
+    resolve_data[0] = (Fx + Fy) * 0.25f * s + Tw * s / (4.0f * (L + W));  // RF 计算出来的为扭矩（单位N·m)
+    resolve_data[1] = (-Fx + Fy) * 0.25f * s + Tw * s / (4.0f * (L + W)); // LF
+    resolve_data[2] = (-Fx - Fy) * 0.25f * s + Tw * s / (4.0f * (L + W)); //  LB
+    resolve_data[3] = (Fx - Fy) * 0.25f * s + Tw * s / (4.0f * (L + W));  // RF
+}
+
 // 全向轮逆解算函数  （现在已经改成了向前为x轴，向左为y轴）
 // 输入：底盘运动速度 (vx, vy单位: mm/s, ω单位: °/s)
 // 输出：四个轮子的转速 (RPM)，顺序：RF-LF-LB-RB
@@ -314,14 +332,14 @@ void Omni_Forward_Kinematics_(float *speed,float alpha)//正解算
 // 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 
-//线速度死区（rpm）
+// 线速度死区（rpm）
 #define v_DEAD_ZONE 30
 
 // 舵轮逆解算
 void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4])
 {
-    // 使用的单位均为标准单位 
-    float vx = target_xyw.vel.x;//mm/s
+    // 使用的单位均为标准单位
+    float vx = target_xyw.vel.x; // mm/s
     float vy = target_xyw.vel.y;
     float w = target_xyw.angvel * 0.1f * DEGTORAD; // °/s -> rad/s
 
@@ -334,37 +352,39 @@ void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run
 
     for (int i = 0; i < 4; i++)
     {
-        //计算线速度分量（mm/s）
-        wx = (vx - ry[i]*w);
-        wy = (vy + rx[i]*w);
+        // 计算线速度分量（mm/s）
+        wx = (vx - ry[i] * w);
+        wy = (vy + rx[i] * w);
         // 舵向电机设定的角度（单位是°）返回的角度是-180°到180°
-        resolve_data_steer[i] = atan2f(wy, wx) * RADTODEG; 
+        resolve_data_steer[i] = atan2f(wy, wx) * RADTODEG;
 
         /*处理使打角<90°*/
-        delta = resolve_data_steer[i] - angle_steer_last[i];//计算打角差值
-        //将差值限制在-180~180
+        delta = resolve_data_steer[i] - angle_steer_last[i]; // 计算打角差值
+        // 将差值限制在-180~180
         if (delta > 180.0f)
-            delta= 360.0f - delta;
+            delta = 360.0f - delta;
         else if (delta < -180.f)
-            delta+= 360.0f;
-        //判断打角是否大于90°
-        if (fabsf(delta) <= 90.0f)//小于90°，不做处理
+            delta += 360.0f;
+        // 判断打角是否大于90°
+        if (fabsf(delta) <= 90.0f) // 小于90°，不做处理
         {
             resolve_data_run[i] = hypot(wx, wy) / s * RADTORPM; // 取模，得到轮向电机速度（单位为rpm)
         }
-        else if (fabsf(delta) >= 90.0f)//大于90°，线速度取反，打角<90°
+        else if (fabsf(delta) >= 90.0f) // 大于90°，线速度取反，打角<90°
         {
-            resolve_data_run[i] = -hypot(wx, wy) / s * RADTORPM;  // 取模，得到轮向电机速度（单位为rpm)
+            resolve_data_run[i] = -hypot(wx, wy) / s * RADTORPM;    // 取模，得到轮向电机速度（单位为rpm)
             resolve_data_steer[i] = resolve_data_steer[i] - 180.0f; // 角度
         }
 
         /*处理使线速度为零时舵轮方向不归零*/
-        if (fabsf(resolve_data_run[i])< v_DEAD_ZONE)
-            resolve_data_steer[i] = angle_steer_last[i];// 保持上次设定值
+        if (fabsf(resolve_data_run[i]) < v_DEAD_ZONE)
+            resolve_data_steer[i] = angle_steer_last[i]; // 保持上次设定值
         else
-            angle_steer_last[i] = resolve_data_steer[i];// 记录保存上次舵向设定值
+            angle_steer_last[i] = resolve_data_steer[i]; // 记录保存上次舵向设定值
     }
 }
+
+//舵轮力逆解算
 
 // 舵轮正解算
 void Steer_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel)
