@@ -54,7 +54,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
         fixCtrl.xyw = MotPack_Only_Chass(fixCtrl.xyw);
         break;
     }
-     //debug_fixctrl = fixCtrl; // 控制源控制数据
+     debug_fixctrl = fixCtrl; // 控制源控制数据
     // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
    Set_Plan_Vxyw_Process(fixCtrl);
     // debug_fixctrl = fixCtrl;

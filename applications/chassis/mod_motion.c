@@ -340,28 +340,28 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     Mot_base_t plan_xyw = {0};
     Mot_base_t plan_acc_xyw = {0};
     float angle = 0;
-    //SecondOrder_Set_Follow_Cal(&set_planner_data[WHEEL_XSPEED], ctrl.xyw.vel.x, 0.0f); // 依据控制源发来的控制量，对线速度和角速度做规划
-    //SecondOrder_Set_Follow_Cal(&set_planner_data[WHEEL_YSPEED], ctrl.xyw.vel.y, 0.0f);
-    //SecondOrder_Set_Follow_Cal(&set_planner_data[WHEEL_ACSPEED], ctrl.xyw.angvel, 0.0f);
-    // plan_xyw.vel.x = set_planner_data[WHEEL_XSPEED].p;
-    // plan_xyw.vel.y = set_planner_data[WHEEL_YSPEED].p;
-    // plan_xyw.angvel = set_planner_data[WHEEL_ACSPEED].p;
-    // plan_acc_xyw.vel.x = set_planner_data[WHEEL_XSPEED].v; // 云台发来的控制速度进行规划后的加速度
-    // plan_acc_xyw.vel.y = set_planner_data[WHEEL_YSPEED].v;
-    // plan_acc_xyw.angvel = set_planner_data[WHEEL_ACSPEED].v;
+    SecondOrder_Set_Follow_Cal(&set_planner_data[WHEEL_XSPEED], ctrl.xyw.vel.x, 0.0f); // 依据控制源发来的控制量，对线速度和角速度做规划
+    SecondOrder_Set_Follow_Cal(&set_planner_data[WHEEL_YSPEED], ctrl.xyw.vel.y, 0.0f);
+    SecondOrder_Set_Follow_Cal(&set_planner_data[WHEEL_ACSPEED], ctrl.xyw.angvel, 0.0f);
+    plan_xyw.vel.x = set_planner_data[WHEEL_XSPEED].p;
+    plan_xyw.vel.y = set_planner_data[WHEEL_YSPEED].p;
+    plan_xyw.angvel = set_planner_data[WHEEL_ACSPEED].p;
+    plan_acc_xyw.vel.x = set_planner_data[WHEEL_XSPEED].v; // 云台发来的控制速度进行规划后的加速度
+    plan_acc_xyw.vel.y = set_planner_data[WHEEL_YSPEED].v;
+    plan_acc_xyw.angvel = set_planner_data[WHEEL_ACSPEED].v;
 
-    // if (ctrl.getYawAngel)
-    // {
-        // 得到当前控制坐标系和底盘坐标系角度
+    if (ctrl.getYawAngel)
+    {
+        //得到当前控制坐标系和底盘坐标系角度
     angle = ctrl.getYawAngel;
-    // }
+    }
 
-    // Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
-    // Speed_xyw.angvel = plan_xyw.angvel;
-    // Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
-    // Force_xyw.angvel = plan_acc_xyw.angvel;
-     Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
-     Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
+    Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
+    Speed_xyw.angvel = plan_xyw.angvel;
+    Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
+    Force_xyw.angvel = plan_acc_xyw.angvel;
+    //  Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
+    //  Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
 
 // float update_input_limiter(float K_out)
