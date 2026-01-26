@@ -476,5 +476,4 @@ void Forward_Kinematics(void)
     }
     // Omni_Forward_Kinematics(temp);
     Omni_Forward_Kinematics(temp);
-    // Omni_Forward_Kinematics_test(temp);
 }
