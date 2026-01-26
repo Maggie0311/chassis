@@ -9,6 +9,14 @@
 #include "func_MonHandling.h"
 #include "drv_motionSolve.h"
 #include "robot_control.h"
+#include "drv_GimMotor.h"
+
+#ifdef BSP_USING_LOG
+#define LOG_TAG     "Ctrl"
+#define LOG_LVL     LOG_LVL_DBG
+#include <ulog.h>
+#endif
+
 /*-------------------外部控制单位,xy平移速度矢量,单位mm/s; 自转角速度,单位0.1°/s------------*/
 
 /*方便debug (Ctrl_data_info_t *)nowCtrlSrc->data*/
@@ -79,6 +87,14 @@ static void Chassis_Ctrl_Thread(void *parameter)
         /* 获得当前控制源--主要为了获得其数据*/
         nowCtrlSrc = getNowCtrlSrc_s();
 #ifdef CORE_USING_SENTRY // 如果是哨兵
+        static Ctrl_data_t* last_Ctrl_src = nowCtrlSrc;
+
+        if (nowCtrlSrc != last_Ctrl_src && ctrl_source[CS_Visual].if_used == 1 && getIsSentryMode())
+        {
+            LOG_I("Visual_mod,yaw_angle:%f", Get_YAW_ANGLE_360f());
+            last_Ctrl_src = nowCtrlSrc;
+        }
+
         // 哨兵模式下的特殊处理，防止串口掉线后底盘不动
         if (getIsSentryMode() && ctrl_source[CS_Visual].if_valid == 0 && ctrl_source[CS_Visual].if_used == 1)
         {

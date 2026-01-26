@@ -313,11 +313,10 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     {
         gyro_at_hurt(&VxyW, ctrlMsg); // 陀螺受伤时，开启变速小陀螺
     }
-    // if (ctrlMsg->getYawAngel)
-    // {
-        // 得到当前控制坐标系和底盘坐标系角度
-        angle = ctrlMsg->getYawAngel;
-    // }
+
+    // 得到当前控制坐标系和底盘坐标系角度
+    angle = ctrlMsg->getYawAngel;
+
     yawAngleOffset(VxyW.angvel, &angle); // 当小陀螺较快时执行yaw轴电机角度补偿
 
     // fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
