@@ -11,6 +11,8 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw);
 int gim_motor_init();
 void Follow_pid_init(void);
 
+float get_power_lim_speed(float power_max);
+
 // 云台电机是否大小yaw
 #define YAW_MOTOR 0
 #define PITCH_MOTOR 1
