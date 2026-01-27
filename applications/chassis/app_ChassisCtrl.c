@@ -39,8 +39,8 @@ Ctrl_data_t debug_fixctrl;
 static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
-    // debug_fixctrl=Cctrl;
-    // fixCtrl = debug_fixctrl;
+     debug_fixctrl=Cctrl;
+     //fixCtrl = debug_fixctrl;
 
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
@@ -87,14 +87,6 @@ static void Chassis_Ctrl_Thread(void *parameter)
         /* 获得当前控制源--主要为了获得其数据*/
         nowCtrlSrc = getNowCtrlSrc_s();
 #ifdef CORE_USING_SENTRY // 如果是哨兵
-        static Ctrl_data_t* last_Ctrl_src = nowCtrlSrc;
-
-        if (nowCtrlSrc != last_Ctrl_src && ctrl_source[CS_Visual].if_used == 1 && getIsSentryMode())
-        {
-            LOG_I("Visual_mod,yaw_angle:%f", Get_YAW_ANGLE_360f());
-            last_Ctrl_src = nowCtrlSrc;
-        }
-
         // 哨兵模式下的特殊处理，防止串口掉线后底盘不动
         if (getIsSentryMode() && ctrl_source[CS_Visual].if_valid == 0 && ctrl_source[CS_Visual].if_used == 1)
         {

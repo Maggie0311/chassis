@@ -180,10 +180,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     // anglevel_last = UTILS_LP_FAST(anglevel_last, ctrlMsg->xyw.angvel, 0.2f); // 对云台角速度进行低通滤波
     
     yaw_angle = ctrlMsg->getYawAngel;
-    if (fabs(yaw_angle) <= 0.5f) // 跟随角死区
-    {
-        yaw_angle = 0;
-    }
+    
     // if (fabs(yaw_angle) >= 15.f) // 跟随角较大时，修改跟随角PID为较大参数
     // {
     // }
@@ -291,10 +288,6 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     if (VxyW.vel.y <= 1 && VxyW.vel.y >= -1)
     {
         VxyW.vel.y = 0;
-    }
-    if (VxyW.angvel <= 1 && VxyW.angvel >= -1)
-    {
-        VxyW.angvel = 0;
     }
 
     float angle = 0;
