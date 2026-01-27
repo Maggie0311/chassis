@@ -180,10 +180,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     // anglevel_last = UTILS_LP_FAST(anglevel_last, ctrlMsg->xyw.angvel, 0.2f); // 对云台角速度进行低通滤波
     
     yaw_angle = ctrlMsg->getYawAngel;
-    if (fabs(yaw_angle) <= 0.5f) // 跟随角死区
-    {
-        yaw_angle = 0;
-    }
+    
     // if (fabs(yaw_angle) >= 15.f) // 跟随角较大时，修改跟随角PID为较大参数
     // {
     // }
@@ -292,10 +289,6 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     {
         VxyW.vel.y = 0;
     }
-    if (VxyW.angvel <= 1 && VxyW.angvel >= -1)
-    {
-        VxyW.angvel = 0;
-    }
 
     float angle = 0;
     float yaw_Omega = 0;
@@ -313,11 +306,10 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     {
         gyro_at_hurt(&VxyW, ctrlMsg); // 陀螺受伤时，开启变速小陀螺
     }
-    // if (ctrlMsg->getYawAngel)
-    // {
-        // 得到当前控制坐标系和底盘坐标系角度
-        angle = ctrlMsg->getYawAngel;
-    // }
+
+    // 得到当前控制坐标系和底盘坐标系角度
+    angle = ctrlMsg->getYawAngel;
+
     yawAngleOffset(VxyW.angvel, &angle); // 当小陀螺较快时执行yaw轴电机角度补偿
 
     // fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
