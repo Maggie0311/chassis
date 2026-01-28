@@ -19,6 +19,8 @@ void Follow_pid_init(void);
 #define RUN_PID_Ki 2
 #define RUN_PID_Kd 0.8
 
+#define POWER_CTRL 0//功率控制开关，1为开启，0为不开
+
 #define Power_C_sum (4.0f) // 固定静态功率（换板子也会影响该数据）
 
 #define Wheel_Power_K1 (240.f)     //(4.5e+02) //(1.15e+02) //(1.0e+02)

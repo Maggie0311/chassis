@@ -39,7 +39,8 @@ static void PID_Cal_Thread(void)
         Motor_Control_Loop();
 
 #ifdef USE_CAPACITY_3
-        // Power_Ctrl();
+        if(POWER_CTRL)
+            Power_Ctrl();
 #endif
 
         /*can报文发送*/

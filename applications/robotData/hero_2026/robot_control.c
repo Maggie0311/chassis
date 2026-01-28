@@ -671,3 +671,12 @@ void Forward_Kinematics(void)
     }
     // Omni_Forward_Kinematics(temp);
 }
+float get_power_lim_speed(float power_max)
+{
+    float speed_max=0;
+    speed_max=7.02*power_max-238.6;
+    if(speed_max>3000)speed_max=3000;
+    else if(speed_max<1000)speed_max=1000;
+    return speed_max;
+
+}

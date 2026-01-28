@@ -9,6 +9,14 @@
 #include "func_MonHandling.h"
 #include "drv_motionSolve.h"
 #include "robot_control.h"
+#include "drv_GimMotor.h"
+
+#ifdef BSP_USING_LOG
+#define LOG_TAG     "Ctrl"
+#define LOG_LVL     LOG_LVL_DBG
+#include <ulog.h>
+#endif
+
 /*-------------------外部控制单位,xy平移速度矢量,单位mm/s; 自转角速度,单位0.1°/s------------*/
 
 /*方便debug (Ctrl_data_info_t *)nowCtrlSrc->data*/

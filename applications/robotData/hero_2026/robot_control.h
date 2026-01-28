@@ -11,6 +11,8 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw);
 int gim_motor_init();
 void Follow_pid_init(void);
 
+float get_power_lim_speed(float power_max);
+
 // 云台电机是否大小yaw
 #define YAW_MOTOR 0
 #define PITCH_MOTOR 1
@@ -19,6 +21,8 @@ void Follow_pid_init(void);
 #define RUN_PID_Kp 80
 #define RUN_PID_Ki 0.5
 #define RUN_PID_Kd 5
+
+#define POWER_CTRL 1//功率控制开关，1为开启，0为不开
 
 #define Power_C_sum (4.0f) // 固定静态功率（换板子也会影响该数据）
 
