@@ -326,14 +326,13 @@ void Omni_Forward_Kinematics_(float *speed, float alpha) // 正解算
 #endif
 
 //********************************逆解算部分（舵轮）************************************** */
-#define USING_STEER_RESOLVE
 
 // 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 
+extern float motorSetAngle_steer[4];
 // 线速度死区（rpm）
 #define v_DEAD_ZONE 30
-
 // 舵轮逆解算
 void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4])
 {
@@ -384,6 +383,35 @@ void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run
 }
 
 // 舵轮力逆解算
+void Steer_Force_Resolve(Mot_base_t target_force, float *resolve_data)
+{
+    // 初始化雅可比矩阵
+    static float s = WHEEL_RADIUS / 1000.0f; // mm -> m
+    static float r = VEHICLE_DIAMETER / 2 / 1000.0f;
+    static float root2_2 = ROOT2 / 2;
+    Mot_base_t tarForce;                                                   // 电机输出轴上的力（N）
+    float Fx = target_force.vel.x * WEIGHT / 1000.f;                       // 整个底盘x方向力的平滑后设定值(N)
+    float Fy = target_force.vel.y * WEIGHT / 1000.f;                       // 整个底盘Y方向力的平滑后设定值(N)
+    float Tw = target_force.angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
+
+    float tx[4] = {0};
+    float ty[4] = {0};
+
+    tx[0] = Fx / 4 * s + Tw / 4 / r * s * root2_2;
+    tx[1] = Fx / 4 * s - Tw / 4 / r * s * root2_2;
+    tx[2] = Fx / 4 * s - Tw / 4 / r * s * root2_2;
+    tx[3] = Fx / 4 * s + Tw / 4 / r * s * root2_2;
+
+    ty[0] = Fy / 4 * s + Tw / 4 / r * s * root2_2;
+    ty[1] = Fy / 4 * s + Tw / 4 / r * s * root2_2;
+    ty[2] = Fy / 4 * s - Tw / 4 / r * s * root2_2;
+    ty[3] = Fy / 4 * s - Tw / 4 / r * s * root2_2;
+
+    resolve_data[0] = tx[0] * cos(motorSetAngle_steer[0]) + ty[0] * sin(motorSetAngle_steer[0]); // RF 计算出来的为扭矩（单位N·m)
+    resolve_data[1] = tx[1] * sin(motorSetAngle_steer[1]) - ty[1] * cos(motorSetAngle_steer[1]); // LF
+    resolve_data[2] = tx[2] * cos(motorSetAngle_steer[2]) + ty[2] * sin(motorSetAngle_steer[2]); // LB
+    resolve_data[3] = tx[3] * sin(motorSetAngle_steer[3]) - ty[3] * cos(motorSetAngle_steer[3]); // RF
+}
 
 // 舵轮正解算
 void Steer_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel)

@@ -27,9 +27,10 @@ uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关/
       
       /*底盘四个车轮(或者说轮毂)的期望线速度 单位mm/s 输出顺序RF-LF-LB-RB*/
 float motorSetAngle_steer[WHEEL_MOTOR_NUM]; // 经过解算后的数据(速度)
-float motorSetSpeed_run[WHEEL_MOTOR_NUM]; // 经过解算后的数据()
+float motorSetSpeed_run[WHEEL_MOTOR_NUM];   // 经过解算后的数据()
 
 float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
+float debug_feedforward_set_run[WHEEL_MOTOR_NUM];
 
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
@@ -64,7 +65,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
                 .speed_calc_Prescaler = 1,
 
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -72,7 +73,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
-            .spi_slave=SpicanSlave_1,
+            .spi_slave = SpicanSlave_1,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -108,7 +109,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -116,7 +117,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
-            .spi_slave=SpicanSlave_1,
+            .spi_slave = SpicanSlave_1,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -154,7 +155,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -162,7 +163,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
-            .spi_slave=SpicanSlave_1,
+            .spi_slave = SpicanSlave_1,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -200,7 +201,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -208,7 +209,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
-            .spi_slave=SpicanSlave_1,
+            .spi_slave = SpicanSlave_1,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
@@ -585,16 +586,6 @@ void Follow_pid_init(void)
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
-static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force_xyw) // 进行加速度解算到各个轮子上
-{
-    Mot_base_t tarForce;                                                        // 电机输出轴上的力（N）
-    tarForce.vel.x = Force_xyw->vel.x * WEIGHT / 1000.f;                        // 整个底盘x方向力的平滑后设定值(N)
-    tarForce.vel.y = Force_xyw->vel.y * WEIGHT / 1000.f;                        // 整个底盘Y方向力的平滑后设定值(N)
-    tarForce.angvel = Force_xyw->angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
-
-    // Omni_Force_Resolve(tarForce, motorSetForce);
-}
-
 // 摩擦力前馈计算 这里的数值是采集数据后在matlab中进行回归拟合得到的
 float test_k_feed = 0.4;
 static float RUN_wheel_forward_cal(float set)
@@ -614,7 +605,7 @@ static float RUN_wheel_forward_cal(float set)
 }
 
 /**
- * @brief 将雅可比矩阵解算出的电机的力转换为电机的扭矩，进而转换为电流
+ * @brief 将雅可比矩阵解算出的电机的扭矩转换为电流
  *
  * @param motorSetForce
  * @param force_out
@@ -623,15 +614,10 @@ static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
 {
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
-        if (wheel_motor[i].Motor_obj.reverse_flag == 1)
-        {
+        // wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real; // 转换为电机的扭矩
+        debug_feedforward_set_run[i] = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real; // 转换为电机的扭矩
 
-            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
-        }
-        else
-        {
-            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = -motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f - RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
-        }
+        // + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target);暂时不加摩擦
     }
 }
 
@@ -639,7 +625,7 @@ static void Wheel_Speed_Set(float motorSetSpeed_run[WHEEL_MOTOR_NUM], float moto
 {
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
-        motorSetSpeed_run[i]*=cos(steer_motor[i].Motor_obj.Motor_ctrl.Angle_pid.Err * 0.0174533);
+        motorSetSpeed_run[i] *= cos(steer_motor[i].Motor_obj.Motor_ctrl.Angle_pid.Err * 0.0174533);
         Motor_Set_Target((MotorInstance *)&wheel_motor[i], motorSetSpeed_run[i]);
         Motor_Set_Target((MotorInstance *)&steer_motor[i], motorSetAngle_steer[i]);
     }
@@ -650,10 +636,10 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
-        Steer_Inverse_Kinematics_test(*Speed_xyw, motorSetSpeed_run,motorSetAngle_steer);
-        Force_Allo_to_wheels(motorSetForce, Force_xyw); // 进行加速度解算到各个电机上
+        Steer_Inverse_Kinematics_test(*Speed_xyw, motorSetSpeed_run, motorSetAngle_steer);
+        Steer_Force_Resolve(*Force_xyw, motorSetForce); // 进行力解算到各个电机上，输出为扭矩
 
-        // Get_force_out(motorSetForce); // 获取前馈值
+        Get_force_out(motorSetForce); // 获取前馈值
     }
     if (1 == isSetValid_debug[1])
     {

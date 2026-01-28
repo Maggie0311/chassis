@@ -3,6 +3,7 @@
 #include <rtthread.h>
 #include "controlMsg.h"
 #include "robot_data.h"
+#include "robot_control.h"
 
 /*------------------------------------位操作和常量定义宏----------------------------------------------------------*/
 #define PI (3.1415926f)
@@ -40,7 +41,7 @@ void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4]);
 #ifdef USING_OMNI_RESOLVE
 void Omni_Inverse_Kinematics_60(Mot_base_t target_xyw, float resolve_data[4]);
 void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4]);
-void Omni_Forward_Kinematics(float speed[4]);//全向轮正解算
+void Omni_Forward_Kinematics(float speed[4]); // 全向轮正解算
 
 void Omni_Inverse_Kinematics_45_test(Mot_base_t target_xyw, float resolve_data[4]);
 void Omni_Forward_Kinematics_test(float speed[4]);
@@ -48,7 +49,9 @@ void Omni_Forward_Kinematics_test(float speed[4]);
 // 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 
-void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4]);
+void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4]); // 逆解算
+void Steer_Force_Resolve(Mot_base_t target_force, float *resolve_data);                                            // 力解算
+void Steer_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel);                                   // 正解算
 
 #endif
 Mot_base_t Get_realmotion(void);
