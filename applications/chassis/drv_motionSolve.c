@@ -56,7 +56,7 @@ void Omni_Inverse_Kinematics_(Mot_base_t target_xyw, float alpha, float *resolve
     if (!if_init)
     {
         float a = alpha * DEGTORAD;
-        float cos_a = cosf(a), sin_a = sinf(a);
+        float cos_a = arm_cos_f32(a), sin_a = arm_sin_f32(a);
         float k3 = cos_a * W + sin_a * L;
         for (uint8_t i = 0; i < 4; i++)
         {
@@ -112,9 +112,9 @@ void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4])
         // for (int i = 0; i < 4; i++)
         // {
         //     float a = alpha_deg[i] * DEGTORAD;
-        //     J_Omni_Inv_45.data[i][0] = cosf(a) / r;                            // vx系数      -6.25
-        //     J_Omni_Inv_45.data[i][1] = sinf(a) / r;                            // vy系数      10.625
-        //     J_Omni_Inv_45.data[i][2] = (-cosf(a) * y[i] + sinf(a) * x[i]) / r; // ω系数       0.94
+        //     J_Omni_Inv_45.data[i][0] = arm_cos_f32(a) / r;                            // vx系数      -6.25
+        //     J_Omni_Inv_45.data[i][1] = arm_sin_f32(a) / r;                            // vy系数      10.625
+        //     J_Omni_Inv_45.data[i][2] = (-arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
         // }
         // if_init_J = 1;
 
@@ -124,9 +124,9 @@ void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4])
         for (int i = 0; i < 4; i++)
         {
             float a = alpha_deg[i] * DEGTORAD;
-            J_Omni_Inv_45.data[i][0] = sin(a) / r;                            // vx系数      -6.25
-            J_Omni_Inv_45.data[i][1] = cos(a) / r;                            // vy系数      10.625
-            J_Omni_Inv_45.data[i][2] = (cosf(a) * y[i] + sinf(a) * x[i]) / r; // ω系数       0.94
+            J_Omni_Inv_45.data[i][0] = arm_sin_f32(a) / r;                                  // vx系数      -6.25
+            J_Omni_Inv_45.data[i][1] = arm_cos_f32(a) / r;                                  // vy系数      10.625
+            J_Omni_Inv_45.data[i][2] = (arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
         }
         if_init_J = 1;
     }
@@ -195,9 +195,9 @@ void Omni_Inverse_Kinematics_60(Mot_base_t target_xyw, float resolve_data[4])
         // for (int i = 0; i < 4; i++)
         // {
         //     float a = alpha_deg[i] * DEGTORAD;
-        //     J_Omni_Inv_60.data[i][0] = cosf(a) / r;                            // vx系数      -6.25
-        //     J_Omni_Inv_60.data[i][1] = sinf(a) / r;                            // vy系数      10.625
-        //     J_Omni_Inv_60.data[i][2] = (-cosf(a) * y[i] + sinf(a) * x[i]) / r; // ω系数       0.94
+        //     J_Omni_Inv_60.data[i][0] = arm_cos_f32(a) / r;                            // vx系数      -6.25
+        //     J_Omni_Inv_60.data[i][1] = arm_sin_f32(a) / r;                            // vy系数      10.625
+        //     J_Omni_Inv_60.data[i][2] = (-arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
         // }
         // if_init_J = 1;
 
@@ -207,9 +207,9 @@ void Omni_Inverse_Kinematics_60(Mot_base_t target_xyw, float resolve_data[4])
         for (int i = 0; i < 4; i++)
         {
             float a = alpha_deg[i] * DEGTORAD;
-            J_Omni_Inv_60.data[i][0] = sin(a) / r;                            // vx系数      -6.25
-            J_Omni_Inv_60.data[i][1] = cos(a) / r;                            // vy系数      10.625
-            J_Omni_Inv_60.data[i][2] = (cosf(a) * y[i] + sinf(a) * x[i]) / r; // ω系数       0.94
+            J_Omni_Inv_60.data[i][0] = arm_sin_f32(a) / r;                           // vx系数      -6.25
+            J_Omni_Inv_60.data[i][1] = arm_cos_f32(a) / r;                           // vy系数      10.625
+            J_Omni_Inv_60.data[i][2] = (arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
         }
         if_init_J = 1;
     }
@@ -293,7 +293,7 @@ void Omni_Forward_Kinematics_(float *speed, float alpha) // 正解算
     if (!if_init)
     {
         float a = alpha * DEGTORAD;
-        float cos_a = cosf(a), sin_a = sinf(a);
+        float cos_a = arm_cos_f32(a), sin_a = arm_sin_f32(a);
         float k3 = 1 / (cos_a * W + sin_a * L);
         for (uint8_t i = 0; i < 4; i++)
         {
@@ -407,10 +407,10 @@ void Steer_Force_Resolve(Mot_base_t target_force, float *resolve_data)
     ty[2] = Fy / 4 * s - Tw / 4 / r * s * root2_2;
     ty[3] = Fy / 4 * s - Tw / 4 / r * s * root2_2;
 
-    resolve_data[0] = tx[0] * cos(motorSetAngle_steer[0]) + ty[0] * sin(motorSetAngle_steer[0]); // RF 计算出来的为扭矩（单位N·m)
-    resolve_data[1] = tx[1] * sin(motorSetAngle_steer[1]) - ty[1] * cos(motorSetAngle_steer[1]); // LF
-    resolve_data[2] = tx[2] * cos(motorSetAngle_steer[2]) + ty[2] * sin(motorSetAngle_steer[2]); // LB
-    resolve_data[3] = tx[3] * sin(motorSetAngle_steer[3]) - ty[3] * cos(motorSetAngle_steer[3]); // RF
+    resolve_data[0] = tx[0] * arm_cos_f32(motorSetAngle_steer[0]) + ty[0] * arm_sin_f32(motorSetAngle_steer[0]); // RF 计算出来的为扭矩（单位N·m)
+    resolve_data[1] = tx[1] * arm_sin_f32(motorSetAngle_steer[1]) - ty[1] * arm_cos_f32(motorSetAngle_steer[1]); // LF
+    resolve_data[2] = tx[2] * arm_cos_f32(motorSetAngle_steer[2]) + ty[2] * arm_sin_f32(motorSetAngle_steer[2]); // LB
+    resolve_data[3] = tx[3] * arm_sin_f32(motorSetAngle_steer[3]) - ty[3] * arm_cos_f32(motorSetAngle_steer[3]); // RF
 }
 
 // 舵轮正解算

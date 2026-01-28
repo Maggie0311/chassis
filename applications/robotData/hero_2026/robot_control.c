@@ -625,7 +625,7 @@ static void Wheel_Speed_Set(float motorSetSpeed_run[WHEEL_MOTOR_NUM], float moto
 {
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
-        motorSetSpeed_run[i] *= cos(steer_motor[i].Motor_obj.Motor_ctrl.Angle_pid.Err * 0.0174533);
+        motorSetSpeed_run[i] *= arm_cos_f32(steer_motor[i].Motor_obj.Motor_ctrl.Angle_pid.Err * 0.0174533);
         Motor_Set_Target((MotorInstance *)&wheel_motor[i], motorSetSpeed_run[i]);
         Motor_Set_Target((MotorInstance *)&steer_motor[i], motorSetAngle_steer[i]);
     }

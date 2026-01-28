@@ -50,8 +50,8 @@ Vector2_t MotModule_Transform(Vector2_t speed, float theta)
     Vector2_t chassis_speed;
     Vector2_t gimSpeed = speed;
     theta = theta / 180.0f * PI; // 转化为弧度
-    chassis_speed.x = gimSpeed.x * cosf(theta) - gimSpeed.y * sinf(theta);  // x'=ysinθ+xcosθ
-    chassis_speed.y = gimSpeed.x * sinf(theta) + gimSpeed.y * cosf(theta); // y'=ycosθ-xsinθ
+    chassis_speed.x = gimSpeed.x * arm_cos_f32(theta) - gimSpeed.y * arm_sin_f32(theta);  // x'=ysinθ+xcosθ
+    chassis_speed.y = gimSpeed.x * arm_sin_f32(theta) + gimSpeed.y * arm_cos_f32(theta); // y'=ycosθ-xsinθ
     return chassis_speed;
 }
 
