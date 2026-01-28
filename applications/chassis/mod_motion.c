@@ -6,6 +6,7 @@
 #include "robot_data.h"
 #include <arm_math.h>
 #include "drv_GimMotor.h"
+#include "fun_powerCtrl.h"
 
 extern PIDInstance follow_pid_fast,follow_pid_slow;//跟随角pid实例
 
@@ -34,8 +35,8 @@ static Mot_base_t MotModule_Clamp_Base(Mot_base_t VxyW)
 {
     Mot_base_t temp =
         {
-            .vel.y = utils_clamp(VxyW.vel.y, -VEL_MAX_Y, VEL_MAX_Y),
-            .vel.x = utils_clamp(VxyW.vel.x, -VEL_MAX_X, VEL_MAX_X),
+            .vel.y = utils_clamp(VxyW.vel.y, -get_power_speed_max(), get_power_speed_max()),
+            .vel.x = utils_clamp(VxyW.vel.x,  -get_power_speed_max(), get_power_speed_max()),
             .angvel = utils_clamp(VxyW.angvel, -M_MAX_ROTATE_AC, M_MAX_ROTATE_AC)};
     return temp;
 }

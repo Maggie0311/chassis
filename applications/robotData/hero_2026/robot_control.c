@@ -239,9 +239,15 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .Motor_Transmit = LK_Motor_Transmit_Mult,
         },
         .controller_param_init_config = {
-            //todo pid参数
-            .Angle_pid = {//3.5   1   0
-                .Kp = 4, .Kd = 1.2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
+            // todo pid参数
+            .Angle_pid = {
+                // 3.5   1   0
+                .Kp = 4,
+                .Kd = 1.2,
+                .Ki = 0,
+                .Improve = PID_Integral_Limit,
+                .IntegralLimit = 40,
+                .MaxOut = 250 // 最大输出单位为RPM
 
             },
             .Speed_pid = {
@@ -355,10 +361,14 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
                 .Kp = 3, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
             },
-            .Speed_pid = {.Kp = 1.3, .Kd = 0, .Ki = 0.2, .MaxOut = 850,
-                .Improve = PID_Integral_Limit , .IntegralLimit = 300 , 
-                },
-
+            .Speed_pid = {
+                .Kp = 1.3,
+                .Kd = 0,
+                .Ki = 0.2,
+                .MaxOut = 850,
+                .Improve = PID_Integral_Limit,
+                .IntegralLimit = 300,
+            },
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
 
@@ -387,34 +397,30 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .ENCODER_ZERO_OFFSET = 4811,
         },
     },
-    //右后
-      {
-        .motor_obj_init_config = {
-            .name = "steer_RF",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
-            .motor_type = LK_ms6015,
-            .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type=POWER_CTRL_STEER
-        },
-        .Motor_operate_setting = {
-            .Motor_Init = LK_Motor_Init,
-            .Motor_Enable = LK_Motor_Enable,
-            .Motor_Disable = LK_Motor_Disable,
-            .Motor_ErrorHandle = LK_Motor_ErrorHandle,
-            .Motor_RefreshData = LK_Motor_RefreshData,
-            .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit_Mult,
-        },
-        .controller_param_init_config = {
-            //todo pid参数
-            .Angle_pid = {
-                .Kp = 3.6, .Kd = 1.2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
+    // 右后
+    {.motor_obj_init_config = {.name = "steer_RF", .reverse_flag = MOTOR_DIRECTION_REVERSE, .motor_type = LK_ms6015, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER}, .Motor_operate_setting = {
+                                                                                                                                                                                               .Motor_Init = LK_Motor_Init,
+                                                                                                                                                                                               .Motor_Enable = LK_Motor_Enable,
+                                                                                                                                                                                               .Motor_Disable = LK_Motor_Disable,
+                                                                                                                                                                                               .Motor_ErrorHandle = LK_Motor_ErrorHandle,
+                                                                                                                                                                                               .Motor_RefreshData = LK_Motor_RefreshData,
+                                                                                                                                                                                               .Motor_Control = LK_Motor_Ctrl,
+                                                                                                                                                                                               .Motor_Transmit = LK_Motor_Transmit_Mult,
+                                                                                                                                                                                           },
+     .controller_param_init_config = {
+         // todo pid参数
+         .Angle_pid = {
+             .Kp = 3.6, .Kd = 1.2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
 
-            },
-            .Speed_pid = {.Kp = 3.2, .Kd = 0, .Ki = 0.5, .MaxOut = 850,
-                .Improve = PID_Integral_Limit , .IntegralLimit = 300 , 
-                },
-
+         },
+         .Speed_pid = {
+             .Kp = 3.2,
+             .Kd = 0,
+             .Ki = 0.5,
+             .MaxOut = 850,
+             .Improve = PID_Integral_Limit,
+             .IntegralLimit = 300,
+         },
 
          .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
 
@@ -659,10 +665,11 @@ void Forward_Kinematics(void)
 }
 float get_power_lim_speed(float power_max)
 {
-    float speed_max=0;
-    speed_max=7.02*power_max-238.6;
-    if(speed_max>3000)speed_max=3000;
-    else if(speed_max<1000)speed_max=1000;
+    float speed_max = 0;
+    speed_max = 5.776 * power_max + 496;
+    if (speed_max > 3000)
+        speed_max = 3000;
+    else if (speed_max < 1000)
+        speed_max = 1000;
     return speed_max;
-
 }
