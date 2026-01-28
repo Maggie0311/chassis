@@ -8,7 +8,7 @@
 #define GIMBAL_CAN_DEV "can1"
 #elif GIMBAL_CAN_DEVICE_NAME == 2
 #define GIMBAL_CAN_DEV "can2"
-#else 
+#else
 #error "GIMBAL_CAN_DEVICE_NAME is not defined right!"
 #endif
 
@@ -17,19 +17,19 @@
 #define SCPR_CAN_DEV "can1"
 #elif SCPR_CAN_DEVICE_NAME == 2
 #define SCPR_CAN_DEV "can2"
-#else 
+#else
 #error "SCPR_CAN_DEVICE_NAME is not defined right!"
 #endif
 
-#define GIMBAL_SPI_USE 2//使用从机2
-#define SCPR_SPI_USE 2//使用从机2
+#define GIMBAL_SPI_USE 2 // 使用从机2
+#define SCPR_SPI_USE 2   // 使用从机2
 
 /*功率控制相关参数*/
 
 /*轮子相关数据*/
 #define USING_MECANUM_RESOLVE
-#define VEHICLE_LONG (426.f)       // 前后轮间距（用于麦轮和舵轮解算），单位mm
-#define VEHICLE_WIDTH (376.f)      // 左右轮间距（用于麦轮和舵轮解算），单位mm
+#define VEHICLE_LONG (426.f)      // 前后轮间距（用于麦轮和舵轮解算），单位mm
+#define VEHICLE_WIDTH (376.f)     // 左右轮间距（用于麦轮和舵轮解算），单位mm
 #define VEHICLE_DIAMETER (568.2f) // 对角轮间距（用于计算全向轮解算），单位mm
 #define WHEEL_RADIUS (60.f)       // 轮子半径 单位毫米
 
@@ -61,5 +61,4 @@
 #endif
 
 // can1:   底盘轮向四个3508电机
-// can2 :  拨弹盘0x201 云台两个6020电机0x205 0x207 
-
+// can2 :  拨弹盘0x201 云台两个6020电机0x205 0x207
