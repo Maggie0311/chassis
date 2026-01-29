@@ -39,7 +39,7 @@ static void PID_Cal_Thread(void)
         Motor_Control_Loop();
 
 #ifdef USE_CAPACITY_3
-        if(POWER_CTRL)
+        
             Power_Ctrl();
 #endif
 

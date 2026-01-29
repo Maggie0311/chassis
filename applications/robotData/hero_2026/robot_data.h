@@ -39,6 +39,9 @@
 // #define LB_Wheel_Azimuth (135.f)
 // #define RB_Wheel_Azimuth (-135.f)
 
+#define KEY_C_FUN 1            // 超级电容C键功能选择：0:无功能;1:超电开关功能;2:电量保留功能
+#define SCAP_MAX_CURRENT (8.f) // 电容最大放电响应电流
+
 /*跟随角pid相关参数*/
 #define FOLLOW_PID_1 15, 0, 10, 0, 4000, -4000 // kp, ki, kd, i_lim, out_lim_up, out_lim_down   // 一直在跟随模式下的跟随角pid参数
 #define FOLLOW_PID_2 40, 0, 10, 0, 4000, -4000 // 由非跟随进入跟随时的跟随角pid参数，目的是为了实现非跟随模式下响应能够较快

@@ -2,7 +2,6 @@
 #define __FUN_POWERCTRL_H__
 #include <board.h>
 #include "drv_wheel.h"
-#include "Wheel_data.h" //电机功率参数在此h文件末
 #include "SuperCap_Com_new.h"
 #include "RLS.h"
 #include "app_RefSystem.h"
