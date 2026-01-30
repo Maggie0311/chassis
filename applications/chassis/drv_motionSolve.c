@@ -412,7 +412,7 @@ void Steer_Force_Resolve(Mot_base_t target_force, float *resolve_data)
 
     for (uint8_t i=0;i<4;i++)
     {
-        resolve_data[i] = (tx[i]*arm_cos_f32(motorSetAngle_steer[i]) + ty[i]*arm_sin_f32(motorSetAngle_steer[i])) * angle_reverse_flag[i];
+        resolve_data[i] = (tx[i]*arm_cos_f32(motorSetAngle_steer[i]) + ty[i]*arm_sin_f32(motorSetAngle_steer[i])) ;//* angle_reverse_flag[i];有可能这样是对的，sin\cos自带方向，且只与轮子实际打角有关，与线速度是否取反无关（舵轮实际打角不变时，无论线速度是否取反，都不会改变轮向电机的正方向）
     }
 
     // resolve_data[0] = tx[0] * arm_cos_f32(motorSetAngle_steer[0]) + ty[0] * arm_sin_f32(motorSetAngle_steer[0]); // RF 计算出来的为扭矩（单位N·m)
