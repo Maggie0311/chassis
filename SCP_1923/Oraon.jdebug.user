@@ -1,0 +1,31 @@
+
+Breakpoint=D:/LABORATORY/HERO/Super_Capacitor/scp/rm2023-ec/hero_-stm32-f334_-scap/UserCode/PowerCtrl/func_CurrentCtrl.c:444, State=BP_STATE_ON
+OpenDocument="drv_BridgeMath.c", FilePath="D:/LABORATORY/HERO/Super_Capacitor/scp/rm2023-ec/hero_-stm32-f334_-scap/UserCode/PowerCtrl/drv_BridgeMath.c", Line=95
+OpenDocument="drv_Time.c", FilePath="D:/LABORATORY/HERO/Super_Capacitor/scp/rm2023-ec/hero_-stm32-f334_-scap/UserCode/Time/drv_Time.c", Line=34
+OpenDocument="app_Routine.c", FilePath="D:/LABORATORY/HERO/Super_Capacitor/scp/rm2023-ec/hero_-stm32-f334_-scap/UserCode/GeneralCtrl/app_Routine.c", Line=127
+OpenDocument="func_CurrentCtrl.c", FilePath="D:/LABORATORY/HERO/Super_Capacitor/scp/rm2023-ec/hero_-stm32-f334_-scap/UserCode/PowerCtrl/func_CurrentCtrl.c", Line=412
+OpenDocument="main.c", FilePath="D:/LABORATORY/HERO/Super_Capacitor/scp/rm2023-ec/hero_-stm32-f334_-scap/Core/Src/main.c", Line=94
+OpenToolbar="Debug", Floating=0, x=0, y=0
+OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=1, w=450, h=306, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Registers 1", DockArea=LEFT, x=0, y=0, w=301, h=941, TabPos=1, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
+OpenWindow="Source Files", DockArea=RIGHT, x=0, y=4, w=450, h=140, TabPos=1, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=2, w=450, h=116, TabPos=1, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=0, w=301, h=941, TabPos=0, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VectorCatchIndexMask=254
+OpenWindow="Memory 1", DockArea=RIGHT, x=0, y=4, w=450, h=140, TabPos=2, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x2000F4BC
+OpenWindow="Local Data", DockArea=RIGHT, x=0, y=0, w=450, h=227, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Watched Data 1", DockArea=RIGHT, x=0, y=3, w=450, h=134, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Functions", DockArea=RIGHT, x=0, y=2, w=450, h=116, TabPos=0, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Console", DockArea=RIGHT, x=0, y=4, w=450, h=140, TabPos=0, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+TableHeader="Source Files", SortCol="File", SortOrder="ASCENDING", VisibleCols=["File";"Status";"Size";"#Insts";"Path"], ColWidths=[192;74;62;53;806]
+TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[172;93;62;53;194]
+TableHeader="Vector Catches", SortCol="None", SortOrder="ASCENDING", VisibleCols=["";"Vector Catch";"Description"], ColWidths=[50;300;500]
+TableHeader="Break & Tracepoints", SortCol="None", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[100;100;100;368]
+TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[151;105;230]
+TableHeader="Local Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[167;109;57;42;252;100]
+TableHeader="Call Stack", SortCol="Function", SortOrder="ASCENDING", VisibleCols=["Function";"Stack Frame";"Source";"PC";"Return Address";"Stack Used"], ColWidths=[162;105;146;100;112;100]
+TableHeader="Power Sampling", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Ch 0"], ColWidths=[100;100;100]
+TableHeader="Watched Data 1", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh"], ColWidths=[112;88;100;150]
+TableHeader="RegisterSelectionDialog", SortCol="None", SortOrder="ASCENDING", VisibleCols=[], ColWidths=[]
+TableHeader="TargetExceptionDialog", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Address";"Description"], ColWidths=[27;27;27;26]
+WatchedExpression="BuckDuty", Window=Watched Data 1
+WatchedExpression="Iaccl_Set", Window=Watched Data 1

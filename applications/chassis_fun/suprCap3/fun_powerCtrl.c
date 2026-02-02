@@ -898,7 +898,7 @@ void Power_Ctrl(void)
     // 计算最大可输出功率与异常处理
     get_chassis_max_power();
     // 功率限制、功率再分配
-    //Power_lim_allo_to_wheels();
+    Power_lim_allo_to_wheels();
    
 }
 
