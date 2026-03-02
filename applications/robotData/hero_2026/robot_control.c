@@ -220,23 +220,23 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
     }};
 // 底盘四个舵向电机配置参数模板
-LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
+DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
     // 右前轮
     {
         .motor_obj_init_config = {
             .name = "steer_RF",
             .reverse_flag = MOTOR_DIRECTION_REVERSE,
-            .motor_type = LK_ms6015,
+            .motor_type = GM6020,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_STEER},
         .Motor_operate_setting = {
-            .Motor_Init = LK_Motor_Init,
-            .Motor_Enable = LK_Motor_Enable,
-            .Motor_Disable = LK_Motor_Disable,
-            .Motor_ErrorHandle = LK_Motor_ErrorHandle,
-            .Motor_RefreshData = LK_Motor_RefreshData,
-            .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit_Mult,
+            .Motor_Init = DJI_6020_Motor_Init,
+            .Motor_Enable = DJI_6020_Motor_Enable,
+            .Motor_Disable = DJI_6020_Motor_Disable,
+            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
+            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
+            .Motor_Control = NULL,
+            .Motor_Transmit = DJI_6020_Motor_Transmit,
         },
         .controller_param_init_config = {
             // todo pid参数
@@ -271,40 +271,48 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x141, // TODO:设置ID
-            .tx_id = 0x280,
-            .can_module_callback = LK_Motor_RefreshData,
+            .rx_id = 0x205, // TODO:设置ID
+            .tx_id = 0x1FF,
+            .can_module_callback = DJI_6020_Motor_RefreshData,
             .parent = NULL,
         },
-        .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-            .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
+        .DJI6020_Motor_Measure_Init_Config = {
+            .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
+            .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
-            .ENCODER_LEN = 32767,
+            .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
-            .ENCODER_ZERO_OFFSET = 10280,
-        },
-
+            .ctrl_mode = CTRL_MODE_CURRENT,
+        }
     },
 
     // 左前
     {
-        .motor_obj_init_config = {.name = "steer_RF", .reverse_flag = MOTOR_DIRECTION_REVERSE, .motor_type = LK_ms6015, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER},
+        .motor_obj_init_config = {
+            .name = "steer_LF",
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .motor_type = GM6020, 
+            .state = MOTOR_STATE_NEED_INIT, 
+            .power_ctrl_type = POWER_CTRL_STEER
+        },
         .Motor_operate_setting = {
-            .Motor_Init = LK_Motor_Init,
-            .Motor_Enable = LK_Motor_Enable,
-            .Motor_Disable = LK_Motor_Disable,
-            .Motor_ErrorHandle = LK_Motor_ErrorHandle,
-            .Motor_RefreshData = LK_Motor_RefreshData,
-            .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit_Mult,
+            .Motor_Init = DJI_6020_Motor_Init,
+            .Motor_Enable = DJI_6020_Motor_Enable,
+            .Motor_Disable = DJI_6020_Motor_Disable,
+            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
+            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
+            .Motor_Control = NULL,
+            .Motor_Transmit = DJI_6020_Motor_Transmit,
         },
         .controller_param_init_config = {
             // todo pid参数
             .Angle_pid = {
-                .Kp = 3, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
-
+                .Kp = 3, 
+                .Kd = 1, 
+                .Ki = 0, 
+                .Improve = PID_Integral_Limit, 
+                .IntegralLimit = 40, 
+                .MaxOut = 250 // 最大输出单位为RPM
             },
             .Speed_pid = {
                 .Kp = 1.3,
@@ -327,39 +335,45 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x142, // TODO:设置ID
-            .tx_id = 0x280,
-            .can_module_callback = LK_Motor_RefreshData,
+            .rx_id = 0x206, // TODO:设置ID
+            .tx_id = 0x1FF,
+            .can_module_callback = DJI_6020_Motor_RefreshData,
             .parent = NULL,
         },
-        .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-            .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
+        .DJI6020_Motor_Measure_Init_Config = {
+            .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
+            .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
-            .ENCODER_LEN = 32767,
+            .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
-            .ENCODER_ZERO_OFFSET = 31900,
+            .ctrl_mode = CTRL_MODE_CURRENT,
         },
-
     },
     // 左后
     {
-        .motor_obj_init_config = {.name = "steer_RF", .reverse_flag = MOTOR_DIRECTION_REVERSE, .motor_type = LK_ms6015, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER},
+        .motor_obj_init_config = {
+            .name = "steer_LB",
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .motor_type = GM6020, 
+            .state = MOTOR_STATE_NEED_INIT, 
+            .power_ctrl_type = POWER_CTRL_STEER
+        },
         .Motor_operate_setting = {
-            .Motor_Init = LK_Motor_Init,
-            .Motor_Enable = LK_Motor_Enable,
-            .Motor_Disable = LK_Motor_Disable,
-            .Motor_ErrorHandle = LK_Motor_ErrorHandle,
-            .Motor_RefreshData = LK_Motor_RefreshData,
-            .Motor_Control = LK_Motor_Ctrl,
-            .Motor_Transmit = LK_Motor_Transmit_Mult,
+            .Motor_Init = DJI_6020_Motor_Init,
+            .Motor_Enable = DJI_6020_Motor_Enable,
+            .Motor_Disable = DJI_6020_Motor_Disable,
+            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
+            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
+            .Motor_Control = NULL,
+            .Motor_Transmit = DJI_6020_Motor_Transmit,
         },
         .controller_param_init_config = {
             // todo pid参数
             .Angle_pid = {
-                .Kp = 3, .Kd = 1, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
-
+                .Kp = 3, .Kd = 1, .Ki = 0, 
+                .Improve = PID_Integral_Limit, 
+                .IntegralLimit = 40, 
+                .MaxOut = 250 // 最大输出单位为RPM
             },
             .Speed_pid = {
                 .Kp = 1.3,
@@ -382,37 +396,47 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x143, // TODO:设置ID
-            .tx_id = 0x280,
+            .rx_id = 0x207, // TODO:设置ID
+            .tx_id = 0x1FF,
             .can_module_callback = LK_Motor_RefreshData,
             .parent = NULL,
         },
-        .LK_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-            .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
+        .DJI6020_Motor_Measure_Init_Config = {
+            .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
+            .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
-            .ENCODER_LEN = 32767,
+            .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
-            .ENCODER_ZERO_OFFSET = 4811,
+            .ctrl_mode = CTRL_MODE_CURRENT,
         },
     },
     // 右后
-    {.motor_obj_init_config = {.name = "steer_RF", .reverse_flag = MOTOR_DIRECTION_REVERSE, .motor_type = LK_ms6015, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER}, .Motor_operate_setting = {
-                                                                                                                                                                                               .Motor_Init = LK_Motor_Init,
-                                                                                                                                                                                               .Motor_Enable = LK_Motor_Enable,
-                                                                                                                                                                                               .Motor_Disable = LK_Motor_Disable,
-                                                                                                                                                                                               .Motor_ErrorHandle = LK_Motor_ErrorHandle,
-                                                                                                                                                                                               .Motor_RefreshData = LK_Motor_RefreshData,
-                                                                                                                                                                                               .Motor_Control = LK_Motor_Ctrl,
-                                                                                                                                                                                               .Motor_Transmit = LK_Motor_Transmit_Mult,
-                                                                                                                                                                                           },
-     .controller_param_init_config = {
+    {
+        .motor_obj_init_config = {
+            .name = "steer_RB",
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .motor_type = GM6020, 
+            .state = MOTOR_STATE_NEED_INIT, 
+            .power_ctrl_type = POWER_CTRL_STEER
+        },
+        .Motor_operate_setting = {
+            .Motor_Init = DJI_6020_Motor_Init,
+            .Motor_Enable = DJI_6020_Motor_Enable,
+            .Motor_Disable = DJI_6020_Motor_Disable,
+            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
+            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
+            .Motor_Control = NULL,
+            .Motor_Transmit = DJI_6020_Motor_Transmit,
+        },
+        .controller_param_init_config = {
          // todo pid参数
-         .Angle_pid = {
-             .Kp = 3.6, .Kd = 1.2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40, .MaxOut = 250 // 最大输出单位为RPM
-
-         },
+        .Angle_pid = {
+            .Kp = 3.6, 
+            .Kd = 1.2, 
+            .Ki = 0, .Improve = PID_Integral_Limit, 
+            .IntegralLimit = 40, 
+            .MaxOut = 250 // 最大输出单位为RPM
+        },
          .Speed_pid = {
              .Kp = 3.2,
              .Kd = 0,
@@ -434,21 +458,19 @@ LK_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
      },
      .can_init_config = {
          .can_device_name = "can1",
-         .rx_id = 0x144, // TODO:设置ID
-         .tx_id = 0x280,
-         .can_module_callback = LK_Motor_RefreshData,
+         .rx_id = 0x208, // TODO:设置ID
+         .tx_id = 0x1FF,
+         .can_module_callback = DJI_6020_Motor_RefreshData,
          .parent = NULL,
      },
-     .LK_Motor_Measure_Init_Config = {
-         .current_to_real = 0.0080566, // MS电机的电流转换系数16.5A/2048，MG电机的电流转换系数为33/2048
-         .current_to_torque = 0.61,    // MS6015_15T电机的电流转扭矩系数
-         .RATIO = 1.0,
-         .ENCODER_LEN = 32767,
-         .ENCODER_ZERO_OFFSET = 0.0,
-         .ctrl_mode_set = LK_CTRL_MODE_MULT_CURRENT_CLOSECTRL, // 多电机力矩电流控制
-         .ENCODER_ZERO_OFFSET = 24654,
-     }
-
+     .DJI6020_Motor_Measure_Init_Config = {
+            .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
+            .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
+            .RATIO = 1.0,
+            .ENCODER_LEN = 8192,
+            .ENCODER_ZERO_OFFSET = 0.0,
+            .ctrl_mode = CTRL_MODE_CURRENT,
+        }
     }};
 int chassis_motor_init()
 {
