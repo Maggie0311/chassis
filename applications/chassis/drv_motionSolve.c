@@ -331,6 +331,7 @@ void Omni_Forward_Kinematics_(float *speed, float alpha) // 正解算
 #ifdef USING_STEER_RESOLVE
 
 extern float motorSetAngle_steer[4];
+float angle_reverse_flag[4];
 // 线速度死区（rpm）
 #define v_DEAD_ZONE 30
 // 舵轮逆解算
@@ -366,10 +367,12 @@ void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run
         // 判断打角是否大于90°
         if (fabsf(delta) <= 90.0f) // 小于90°，不做处理
         {
+            angle_reverse_flag[i] = 1.f;
             resolve_data_run[i] = hypot(wx, wy) / s * RADTORPM; // 取模，得到轮向电机速度（单位为rpm)
         }
         else if (fabsf(delta) >= 90.0f) // 大于90°，线速度取反，打角<90°
         {
+            angle_reverse_flag[i] = -1.f;
             resolve_data_run[i] = -hypot(wx, wy) / s * RADTORPM;    // 取模，得到轮向电机速度（单位为rpm)
             resolve_data_steer[i] = resolve_data_steer[i] - 180.0f; // 角度
         }
@@ -407,10 +410,15 @@ void Steer_Force_Resolve(Mot_base_t target_force, float *resolve_data)
     ty[2] = Fy / 4 * s - Tw / 4 / r * s * root2_2;
     ty[3] = Fy / 4 * s - Tw / 4 / r * s * root2_2;
 
-    resolve_data[0] = tx[0] * arm_cos_f32(motorSetAngle_steer[0]) + ty[0] * arm_sin_f32(motorSetAngle_steer[0]); // RF 计算出来的为扭矩（单位N·m)
-    resolve_data[1] = tx[1] * arm_sin_f32(motorSetAngle_steer[1]) - ty[1] * arm_cos_f32(motorSetAngle_steer[1]); // LF
-    resolve_data[2] = tx[2] * arm_cos_f32(motorSetAngle_steer[2]) + ty[2] * arm_sin_f32(motorSetAngle_steer[2]); // LB
-    resolve_data[3] = tx[3] * arm_sin_f32(motorSetAngle_steer[3]) - ty[3] * arm_cos_f32(motorSetAngle_steer[3]); // RF
+    for (uint8_t i=0;i<4;i++)
+    {
+        resolve_data[i] = (tx[i]*arm_cos_f32(motorSetAngle_steer[i]) + ty[i]*arm_sin_f32(motorSetAngle_steer[i])) ;//* angle_reverse_flag[i];有可能这样是对的，sin\cos自带方向，且只与轮子实际打角有关，与线速度是否取反无关（舵轮实际打角不变时，无论线速度是否取反，都不会改变轮向电机的正方向）
+    }
+
+    // resolve_data[0] = tx[0] * arm_cos_f32(motorSetAngle_steer[0]) + ty[0] * arm_sin_f32(motorSetAngle_steer[0]); // RF 计算出来的为扭矩（单位N·m)
+    // resolve_data[1] = tx[1] * arm_sin_f32(motorSetAngle_steer[1]) - ty[1] * arm_cos_f32(motorSetAngle_steer[1]); // LF
+    // resolve_data[2] = tx[2] * arm_cos_f32(motorSetAngle_steer[2]) + ty[2] * arm_sin_f32(motorSetAngle_steer[2]); // LB
+    // resolve_data[3] = tx[3] * arm_sin_f32(motorSetAngle_steer[3]) - ty[3] * arm_cos_f32(motorSetAngle_steer[3]); // RF
 }
 
 // 舵轮正解算

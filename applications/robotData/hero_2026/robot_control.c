@@ -620,8 +620,8 @@ static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
 {
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
-        // wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real; // 转换为电机的扭矩
-        debug_feedforward_set_run[i] = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real; // 转换为电机的扭矩
+         wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real  + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target);//暂时不加摩擦
+        //debug_feedforward_set_run[i] = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real; // 转换为电机的扭矩
 
         // + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target);暂时不加摩擦
     }
