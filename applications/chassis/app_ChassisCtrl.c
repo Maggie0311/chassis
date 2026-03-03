@@ -39,7 +39,7 @@ Ctrl_data_t debug_fixctrl;
 static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
-    // debug_fixctrl=Cctrl;
+     //debug_fixctrl=Cctrl;
     // fixCtrl = debug_fixctrl;
 
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改

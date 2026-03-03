@@ -44,7 +44,7 @@ RLS_Estimator AngleRLS;
 
 float RunPhi[4],AnglePhi[4];
 float WheelInitTheta[3],SteerInitTheta[3];
-float power_speed_max;
+float power_speed_max=8000;
 
 // 传入的参数为电机组总地址，需要区分舵向电机和轮向电机，用于索引
 // 以下设计均是每个部分将对应的舵向电机和轮向电机分别计算
@@ -536,7 +536,7 @@ static void get_chassis_max_power(void)
     // 该功率计算式子满足在分配等级为0时与正常功率限制计算等效，当分配等级功能未启用时Power_Allo_level始终为0，符合逻辑
     // 一部分固定的静态功率不属于电机可用功率：即要减去Power_C_sum
      PowerCtrl.Power_Maxlim = (PowerCtrl.Power_Maxlim_sum - Power_C_sum) * (K_Conservative + PowerCtrl.Power_Allo_level * One_Level_Persent);
-     power_speed_max=get_power_lim_speed( PowerCtrl.Power_Maxlim);
+   //  power_speed_max=get_power_lim_speed( PowerCtrl.Power_Maxlim);
 }
 
 /**
@@ -898,7 +898,7 @@ void Power_Ctrl(void)
     // 计算最大可输出功率与异常处理
     get_chassis_max_power();
     // 功率限制、功率再分配
-    //Power_lim_allo_to_wheels();
+ //   Power_lim_allo_to_wheels();
    
 }
 
