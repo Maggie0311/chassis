@@ -21,7 +21,7 @@
 
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
-LK_MotorInstance steer_motor[STEER_MOTOR_NUM];
+DJI_6020_MotorInstance steer_motor[STEER_MOTOR_NUM];
 DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
 uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关/
       
@@ -240,26 +240,21 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         },
         .controller_param_init_config = {
             // todo pid参数
-            .Angle_pid = {
-                // 3.5   1   0
-                .Kp = 4,
-                .Kd = 1.2,
-                .Ki = 0,
-                .Improve = PID_Integral_Limit,
-                .IntegralLimit = 40,
-                .MaxOut = 250 // 最大输出单位为RPM
+            .Angle_pid = {.Kp = 5.8, .Kd = 2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 35,
+                          .MaxOut = 250, // 最大输出单位为RPM
+                          .DeadBand = 0.2
 
             },
             .Speed_pid = {
-                .Kp = 3,
-                .Kd = 0,
-                .Ki = 0.36,
-                .MaxOut = 850, // 3    0.3    0
+                .Kp = 25,
+                .Kd = 1,
+                .Ki = 0.1,
+                .MaxOut = 8000,
                 .Improve = PID_Integral_Limit,
-                .IntegralLimit = 300,
+                .IntegralLimit = 800,
             },
 
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000
 
             },
             .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
@@ -272,7 +267,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         .can_init_config = {
             .can_device_name = "can1",
             .rx_id = 0x205, // TODO:设置ID
-            .tx_id = 0x1FF,
+            .tx_id = 0x1FE,
             .can_module_callback = DJI_6020_Motor_RefreshData,
             .parent = NULL,
         },
@@ -281,20 +276,13 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 0.0,
+            .ENCODER_ZERO_OFFSET = 2237.0,
             .ctrl_mode = CTRL_MODE_CURRENT,
-        }
-    },
+        }},
 
     // 左前
     {
-        .motor_obj_init_config = {
-            .name = "steer_LF",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
-            .motor_type = GM6020, 
-            .state = MOTOR_STATE_NEED_INIT, 
-            .power_ctrl_type = POWER_CTRL_STEER
-        },
+        .motor_obj_init_config = {.name = "steer_LF", .reverse_flag = MOTOR_DIRECTION_REVERSE, .motor_type = GM6020, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER},
         .Motor_operate_setting = {
             .Motor_Init = DJI_6020_Motor_Init,
             .Motor_Enable = DJI_6020_Motor_Enable,
@@ -307,23 +295,19 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         .controller_param_init_config = {
             // todo pid参数
             .Angle_pid = {
-                .Kp = 3, 
-                .Kd = 1, 
-                .Ki = 0, 
-                .Improve = PID_Integral_Limit, 
-                .IntegralLimit = 40, 
+                .Kp = 5.8, .Kd = 2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
                 .MaxOut = 250 // 最大输出单位为RPM
             },
             .Speed_pid = {
-                .Kp = 1.3,
-                .Kd = 0,
-                .Ki = 0.2,
-                .MaxOut = 850,
+                .Kp = 25,
+                .Kd = 1,
+                .Ki = 0.1,
+                .MaxOut = 8000,
                 .Improve = PID_Integral_Limit,
-                .IntegralLimit = 300,
+                .IntegralLimit = 800,
             },
 
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000
 
             },
             .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
@@ -336,7 +320,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         .can_init_config = {
             .can_device_name = "can1",
             .rx_id = 0x206, // TODO:设置ID
-            .tx_id = 0x1FF,
+            .tx_id = 0x1FE,
             .can_module_callback = DJI_6020_Motor_RefreshData,
             .parent = NULL,
         },
@@ -345,19 +329,13 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 0.0,
+            .ENCODER_ZERO_OFFSET = 6987.0,
             .ctrl_mode = CTRL_MODE_CURRENT,
         },
     },
     // 左后
     {
-        .motor_obj_init_config = {
-            .name = "steer_LB",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
-            .motor_type = GM6020, 
-            .state = MOTOR_STATE_NEED_INIT, 
-            .power_ctrl_type = POWER_CTRL_STEER
-        },
+        .motor_obj_init_config = {.name = "steer_LB", .reverse_flag = MOTOR_DIRECTION_REVERSE, .motor_type = GM6020, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER},
         .Motor_operate_setting = {
             .Motor_Init = DJI_6020_Motor_Init,
             .Motor_Enable = DJI_6020_Motor_Enable,
@@ -370,21 +348,19 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         .controller_param_init_config = {
             // todo pid参数
             .Angle_pid = {
-                .Kp = 3, .Kd = 1, .Ki = 0, 
-                .Improve = PID_Integral_Limit, 
-                .IntegralLimit = 40, 
+                .Kp = 5.8, .Kd = 2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
                 .MaxOut = 250 // 最大输出单位为RPM
             },
             .Speed_pid = {
-                .Kp = 1.3,
-                .Kd = 0,
-                .Ki = 0.2,
-                .MaxOut = 850,
+                .Kp = 25,
+                .Kd = 1,
+                .Ki = 0.1,
+                .MaxOut = 8000,
                 .Improve = PID_Integral_Limit,
-                .IntegralLimit = 300,
+                .IntegralLimit = 800,
             },
 
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000
 
             },
             .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
@@ -397,8 +373,8 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         .can_init_config = {
             .can_device_name = "can1",
             .rx_id = 0x207, // TODO:设置ID
-            .tx_id = 0x1FF,
-            .can_module_callback = LK_Motor_RefreshData,
+            .tx_id = 0x1FE,
+            .can_module_callback = DJI_6020_Motor_RefreshData,
             .parent = NULL,
         },
         .DJI6020_Motor_Measure_Init_Config = {
@@ -406,47 +382,36 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 0.0,
+            .ENCODER_ZERO_OFFSET = 3013.0,
             .ctrl_mode = CTRL_MODE_CURRENT,
         },
     },
     // 右后
-    {
-        .motor_obj_init_config = {
-            .name = "steer_RB",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
-            .motor_type = GM6020, 
-            .state = MOTOR_STATE_NEED_INIT, 
-            .power_ctrl_type = POWER_CTRL_STEER
-        },
-        .Motor_operate_setting = {
-            .Motor_Init = DJI_6020_Motor_Init,
-            .Motor_Enable = DJI_6020_Motor_Enable,
-            .Motor_Disable = DJI_6020_Motor_Disable,
-            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
-            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
-            .Motor_Control = NULL,
-            .Motor_Transmit = DJI_6020_Motor_Transmit,
-        },
-        .controller_param_init_config = {
+    {.motor_obj_init_config = {.name = "steer_RB", .reverse_flag = MOTOR_DIRECTION_REVERSE, .motor_type = GM6020, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER}, .Motor_operate_setting = {
+                                                                                                                                                                                            .Motor_Init = DJI_6020_Motor_Init,
+                                                                                                                                                                                            .Motor_Enable = DJI_6020_Motor_Enable,
+                                                                                                                                                                                            .Motor_Disable = DJI_6020_Motor_Disable,
+                                                                                                                                                                                            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
+                                                                                                                                                                                            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
+                                                                                                                                                                                            .Motor_Control = NULL,
+                                                                                                                                                                                            .Motor_Transmit = DJI_6020_Motor_Transmit,
+                                                                                                                                                                                        },
+     .controller_param_init_config = {
          // todo pid参数
-        .Angle_pid = {
-            .Kp = 3.6, 
-            .Kd = 1.2, 
-            .Ki = 0, .Improve = PID_Integral_Limit, 
-            .IntegralLimit = 40, 
-            .MaxOut = 250 // 最大输出单位为RPM
-        },
+         .Angle_pid = {
+             .Kp = 5.8, .Kd = 2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
+             .MaxOut = 250 // 最大输出单位为RPM
+         },
          .Speed_pid = {
-             .Kp = 3.2,
-             .Kd = 0,
-             .Ki = 0.5,
-             .MaxOut = 850,
+             .Kp = 25,
+             .Kd = 1,
+             .Ki = 0.1,
+             .MaxOut = 8000,
              .Improve = PID_Integral_Limit,
-             .IntegralLimit = 300,
+             .IntegralLimit = 800,
          },
 
-         .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 2048
+         .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000
 
          },
          .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
@@ -459,19 +424,18 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
      .can_init_config = {
          .can_device_name = "can1",
          .rx_id = 0x208, // TODO:设置ID
-         .tx_id = 0x1FF,
+         .tx_id = 0x1FE,
          .can_module_callback = DJI_6020_Motor_RefreshData,
          .parent = NULL,
      },
      .DJI6020_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
-            .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
-            .RATIO = 1.0,
-            .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 0.0,
-            .ctrl_mode = CTRL_MODE_CURRENT,
-        }
-    }};
+         .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
+         .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
+         .RATIO = 1.0,
+         .ENCODER_LEN = 8192,
+         .ENCODER_ZERO_OFFSET = 4624.0,
+         .ctrl_mode = CTRL_MODE_CURRENT,
+     }}};
 int chassis_motor_init()
 {
     int ret = 0;
@@ -530,7 +494,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 6472,
+            .ENCODER_ZERO_OFFSET = 6342,
             .ctrl_mode = MOTOR_STATE_NOTCTRL,
         }},
     // pitch轴电机
@@ -642,8 +606,8 @@ static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
 {
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
-         wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real  + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target);//暂时不加摩擦
-        //debug_feedforward_set_run[i] = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real; // 转换为电机的扭矩
+        wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 暂时不加摩擦
+        // debug_feedforward_set_run[i] = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real; // 转换为电机的扭矩
 
         // + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target);暂时不加摩擦
     }
@@ -664,10 +628,10 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
-        Steer_Inverse_Kinematics_test(*Speed_xyw, motorSetSpeed_run, motorSetAngle_steer);
-        Steer_Force_Resolve(*Force_xyw, motorSetForce); // 进行力解算到各个电机上，输出为扭矩
+        Steer_Inverse_Kinematics_test(*Speed_xyw, motorSetSpeed_run, motorSetAngle_steer); // 舵轮逆解算
+        Steer_Force_Resolve(*Force_xyw, motorSetForce);                                    // 进行力解算到各个电机上，输出为扭矩
 
-        Get_force_out(motorSetForce); // 获取前馈值
+        // Get_force_out(motorSetForce); // 获取前馈值
     }
     if (1 == isSetValid_debug[1])
     {
