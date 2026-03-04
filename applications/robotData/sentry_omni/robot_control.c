@@ -71,7 +71,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = (19.f),//(268.f/17.f),                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -114,7 +114,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = (19.f),//(268.f/17.f),                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -159,7 +159,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = (19.f),//(268.f/17.f),                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -204,7 +204,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 19.0f,//(268.f/17.f),                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -341,7 +341,7 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_DM_MOTOR_NUM] =
             .DM_Motor_Measure_Init_Config = {
                 .RATIO = 1.0,
                 .ENCODER_LEN = 65535,
-                .ENCODER_ZERO_OFFSET = 10460,
+                .ENCODER_ZERO_OFFSET = 10850,
                 .DM_P_MAX = 3.1415926f,
                 .DM_P_MIN = -3.1415926f,
                 .DM_V_MAX = 45.f,

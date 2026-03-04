@@ -36,9 +36,9 @@ float get_power_lim_speed(float power_max);
 #define Wheel_Power_C (3.f)          // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
 // #define Wheel_Power_C_sum (6.0f)   // 固定静态功率（换板子也会影响该数据）
 // TODO 此处参数需要测试修改
-#define Steer_Power_K1 (0.0396f)//(10.f)      //
-#define Steer_Power_K2 (3.778e-5) //
-#define Steer_Power_C (6.f)        // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
+#define Steer_Power_K1 (0.2769f)//(10.f)      //
+#define Steer_Power_K2 (0.0107) //
+#define Steer_Power_C (5.f)        // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
 
 void Forward_Kinematics(void);
 
