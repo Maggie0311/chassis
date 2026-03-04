@@ -384,13 +384,13 @@ void get_true_RLS(void)
       //以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
     if(PowerInfo.Cap.Power>13&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power>0&&GYRO_FLAG<100)//&&RunRLS.repe_speed>200)
     {
-         RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
+       //  RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
       //  RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );    
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
     }
     else if(PowerInfo.Cap.Power>13&&RunPhi[0]&&RunPhi[1]&&RunRLS.flag==1&&RunRLS.now_power<0&&GYRO_FLAG<100)//&&RunRLS.repe_speed>200)
     {
-        RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
+      //  RLS_Update(&RunRLS, RunPhi, RunRLS.now_power-RunPhi[2]-RunRLS.theta[2] );    //只有三个变参，减去固定的一项。
         if(!Check_Stability(&RunRLS))Reconstruct_P(&RunRLS);
     }
 
@@ -430,12 +430,12 @@ void get_true_RLS(void)
         //以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
         if(PowerInfo.Cap.Power>10&&AnglePhi[0]&&AnglePhi[1]&&RunRLS.flag==1&&AngleRLS.now_power>0)
         {
-            //RLS_Update(&AngleRLS, AnglePhi, PowerInfo.Cap.Power- RunRLS.now_power-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
+            RLS_Update(&AngleRLS, AnglePhi, PowerInfo.Cap.Power- RunRLS.now_power-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
             if(!Check_Stability(&AngleRLS))Reconstruct_P(&AngleRLS);
         }
         else if(PowerInfo.Cap.Power>10&&AnglePhi[0]&&AnglePhi[1]&&RunRLS.flag==1&&AngleRLS.now_power<0)
         {
-             //RLS_Update(&AngleRLS, AnglePhi, AngleRLS.now_power- RunRLS.now_power-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
+             RLS_Update(&AngleRLS, AnglePhi, AngleRLS.now_power- RunRLS.now_power-AnglePhi[2]-AngleRLS.theta[2] );    //只有三个变参，减去固定的一项。
             if(!Check_Stability(&AngleRLS))Reconstruct_P(&AngleRLS);
         }
         
@@ -659,7 +659,7 @@ static void Power_lim_allo_to_wheels()
                 Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output*=(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);  
                 // 舵向电机调整方向
         if (if_steer_used[group] == 1)
-                 Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*=Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag;
+                 Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*=(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
     }
     
 
@@ -750,7 +750,7 @@ static void Power_lim_allo_to_wheels()
                 // if(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output>0)
                 //     Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=temp_angle/get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
                 // else
-				// 					  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=-temp_angle/get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
+				// 	Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=-temp_angle/get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
                
             }
 
@@ -813,13 +813,13 @@ static void Power_lim_allo_to_wheels()
         if (if_wheel_used[group] == 1)
         {
                 Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output=Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output*(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);  
-               // Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
+                Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
         }
 
          // 舵向电机调整方向
         if (if_steer_used[group] == 1)
         {
-             //    Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag;
+               //  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
 
         }
     }
@@ -898,7 +898,7 @@ void Power_Ctrl(void)
     // 计算最大可输出功率与异常处理
     get_chassis_max_power();
     // 功率限制、功率再分配
- //   Power_lim_allo_to_wheels();
+    Power_lim_allo_to_wheels();
    
 }
 
