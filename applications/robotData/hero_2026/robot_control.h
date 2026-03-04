@@ -19,6 +19,7 @@ float get_power_lim_speed(float power_max);
 // 云台电机是否大小yaw
 #define YAW_MOTOR 0
 #define PITCH_MOTOR 1
+#define hero
 
 // TODO:调Pid这堆
 #define RUN_PID_Kp 80
