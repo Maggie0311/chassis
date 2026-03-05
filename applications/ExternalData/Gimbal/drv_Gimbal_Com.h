@@ -71,14 +71,19 @@ typedef __packed struct
 #define GIMBAL_CTRL_RX 0x100    // 云台控制底盘相关ID（rx_gimctrl）
 #define GIMBAL_DATA_RX 0x401     // 从云台接收的各类数据ID（rx_gimData）
 #define GIMBAL_IMU_DATA_RX 0x402 // 从云台接收的IMU数据ID（rx_gimIMU）
-
+#define GIMBAL_UI_LIGHT_DATA_RX 0x403 // 从云台接收的UI引导灯数据ID（rx_gimUI）
+#define GIMBAL_UI_BULLET_DATA_RX 0x404 // 从云台接收的UI弹丸数据ID（rx_gimBullet）
 typedef enum
 {
-    Ctrl_msg_Index,     //底盘控制
-    mixData_msg_Index,     //杂项数据
-    Imu_msg_Index,      //IMU数据
-    Msg_num_Rx,        //报文种数
-} GimCom_Rx_index_e;   //接收报文索引
+    Ctrl_msg_Index,    // 底盘控制
+    mixData_msg_Index, // 杂项数据
+    Imu_msg_Index,     // IMU数据
+#if defined HREO_UI_SPECIAL
+    Ui_light_msg_Index,  // UI引导灯数据
+    Ui_bullet_msg_Index, // UI弹丸数据
+#endif
+    Msg_num_Rx,      // 报文种数
+} GimCom_Rx_index_e; // 接收报文索引
 typedef __packed struct
 {
     // 工作状态数据
@@ -131,10 +136,22 @@ typedef struct
     float roll;
 } imu_euler_t;
 
+typedef struct
+{
+    uint16_t Ui_Guide_Light_Circle_x;     // 英雄吊射基地引导灯坐标（视觉发送以左上角为原点，向右是x，向下是y)
+    uint16_t Ui_Guide_Light_Circle_y;     // 英雄吊射基地引导灯
+    uint8_t Ui_Guide_Light_Circle_radius; // 英雄吊射基地引导灯半径
+    uint16_t Ui_Bullet_Circle_x;          // 英雄大弹丸坐标（视觉发送以左上角为原点，向右是x，向下是y)
+    uint16_t Ui_Bullet_Circle_y;          // 英雄大弹丸
+    uint8_t Ui_Bullet_Circle_radius;      // 英雄大弹丸半径
+} ui_data_t;
+
 extern Gim_mixData_Rx_t gimbal_mixdata_msg;
 extern imu_euler_t gimbal_imudata_msg;
+extern ui_data_t gimbal_ui_data_msg;
 extern rt_tick_t imu_data_freshtick;
 extern rt_tick_t gimbal_mixdata_msg_freshtick;
+extern rt_tick_t gimbal_ui_data_msg_freshtick;
 
 //云台通信初始化
 rt_err_t Gimbal_Com_Init(void);

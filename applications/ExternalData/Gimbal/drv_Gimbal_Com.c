@@ -29,8 +29,10 @@ CANInstance gim_caninstance_Rx[Msg_num_Rx];
 /*提供数据读取*/
 Gim_mixData_Rx_t gimbal_mixdata_msg;
 imu_euler_t gimbal_imudata_msg;
+ui_data_t gimbal_ui_data_msg;
 rt_tick_t imu_data_freshtick = 0;
 rt_tick_t gimbal_mixdata_msg_freshtick = 0;
+rt_tick_t gimbal_ui_data_msg_freshtick = 0;
 
 /*---------------------------信息接收-----------------------------------------------------------------------------*/
 /*接收回调*/
@@ -91,6 +93,30 @@ static void Gimbal_imuData_Rx_call(CANInstance *instance)
     gimbal_imudata_msg.pitch = *((float *)&instance->rx_buff[0]);
     gimbal_imudata_msg.roll = *((float *)&instance->rx_buff[4]);
     imu_data_freshtick = rt_tick_get();
+}
+
+/**
+ * @brief   处理云台发送的英雄UI绘制数据报文(引导灯)
+ * 
+ */
+static void Gimbal_ui_light_Rx_call(CANInstance *instance)
+{
+    gimbal_ui_data_msg_freshtick = rt_tick_get();
+    gimbal_ui_data_msg.Ui_Guide_Light_Circle_x = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[0], instance->rx_buff[1]);
+    gimbal_ui_data_msg.Ui_Guide_Light_Circle_y = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
+    gimbal_ui_data_msg.Ui_Guide_Light_Circle_radius = instance->rx_buff[4];
+}
+
+/**
+ * @brief 处理云台发送的英雄UI绘制数据报文(弹丸)
+ * 
+ */
+static void Gimbal_ui_bullet_Rx_call(CANInstance *instance)
+{
+    gimbal_ui_data_msg_freshtick = rt_tick_get();
+    gimbal_ui_data_msg.Ui_Bullet_Circle_x = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[0], instance->rx_buff[1]);
+    gimbal_ui_data_msg.Ui_Bullet_Circle_y = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
+    gimbal_ui_data_msg.Ui_Bullet_Circle_radius = instance->rx_buff[4];
 }
 
 /**
@@ -358,7 +384,11 @@ rt_err_t Gimbal_Com_Init(void)
     res += Gimbal_comRx_Attach(Ctrl_msg_Index,GIMBAL_CTRL_RX,Gimbal_CtrlData_Rx_call);
     res += Gimbal_comRx_Attach(mixData_msg_Index,GIMBAL_DATA_RX,Gimbal_MixData_Rx_call);
     res += Gimbal_comRx_Attach(Imu_msg_Index,GIMBAL_IMU_DATA_RX,Gimbal_imuData_Rx_call);
-    if (res)
+    #if defined HREO_UI_SPECIAL
+    res += Gimbal_comRx_Attach(Ui_light_msg_Index, GIMBAL_UI_LIGHT_DATA_RX, Gimbal_ui_light_Rx_call);
+    res += Gimbal_comRx_Attach(Ui_bullet_msg_Index, GIMBAL_UI_BULLET_DATA_RX, Gimbal_ui_bullet_Rx_call);
+#endif
+        if (res)
     {
         LOG_E("gim_Rx_msg init failed, err=%d",res);
         return RT_ERROR;

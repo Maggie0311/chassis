@@ -254,3 +254,12 @@ uint8_t get_Key_ctrl(void)
     else
         return 0;
 }
+
+ui_data_t get_hero_ui_data(void)
+{
+    if (rt_tick_get() - gimbal_ui_data_msg_freshtick < 100)
+        return gimbal_ui_data_msg;
+    else
+        return (ui_data_t){0, 0, 0, 0, 0, 0};
+}
+
