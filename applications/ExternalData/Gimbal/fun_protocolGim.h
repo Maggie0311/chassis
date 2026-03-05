@@ -194,7 +194,7 @@ extern Visual_Error_State_Enum Get_Visual_Working_Error_State(void);
 uint8_t get_chassis_pitch(float *pitch);
 uint8_t get_chassis_roll(float *roll);
 imu_euler_t get_chassis_imu_data(void);
-
+ui_data_t get_hero_ui_data(void);
 uint8_t get_Key_ctrl(void);
 
 #endif

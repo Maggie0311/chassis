@@ -4,8 +4,7 @@
 #include "SuperCap_Com_new.h"
 #include "fun_protocolGim.h"
 #include "app_RefSystem.h"
-
-
+#include "robot_data.h"
 
 // UI需要获取的数据
 typedef struct UI_Used_Data_t
@@ -37,7 +36,7 @@ typedef struct UI_Used_Data_t
     float Bullet_Speed;   // 弹速
     float Ref_AmmoRemain; // 剩余弹量
 
-    uint8_t gimErrState; // 云台异常状态
+    uint8_t gimErrState;                                // 云台异常状态
     Local_AmmoBooster_Mode_Enum Local_AmmoBooster_Mode; // 当前设置的本地发射机构类型(只有裁判系统离线的时候画出来)
     rt_uint8_t Local_Robot_Level;                       // 当前设置的本地机器人等级(只有裁判系统离线的时候画出来)
     rt_uint8_t Gimbal_Motor_Offline;                    // 云台电机离线情况,从低到高分别为：Yaw、Pitch、右摩擦轮、左摩擦轮、播弹盘, 置 1 表示离线
@@ -64,11 +63,13 @@ typedef struct UI_Used_Data_t
     unsigned Robot_Hurted : 1;             // 机器人收到伤害
     unsigned UI_Reset_Flag : 1;            // 重置 UI 的标志位, 翻转时需要重置
     unsigned Energy_is_already : 1;        // 能量机关是否拟合结束
-    unsigned if_aimbot_best_dis : 1;      // 当前是否为云台认为的最佳射击距离
+    unsigned if_aimbot_best_dis : 1;       // 当前是否为云台认为的最佳射击距离
     unsigned visual_target_found : 1;      // 视觉是否找到目标（用于在UI上提示操作手是否找到目标）
     rt_time_t Last_UI_refresh_Time;        // 上一次 UI 刷新时间
+
+#if defined HREO_UI_SPECIAL
+    ui_data_t Hero_UI_Data; // 英雄视觉识别的基地引导灯和弹丸数据
+#endif
 } UI_Used_Data_t;
 
 rt_err_t UI_init(void);
-
-
