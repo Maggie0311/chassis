@@ -1,7 +1,7 @@
 
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "app_RefSystem.h"// 包含裁判系统通信协议头文件
+#include "app_RefSystem.h" // 包含裁判系统通信协议头文件
 #include "app_monitor.h"
 #include "ThreadCtrl.h"
 #include <math.h>
@@ -12,12 +12,11 @@
 #include "drv_GimMotor.h"
 #include "robot_data.h"
 
-extern rt_device_t serial_UI ;
+extern rt_device_t serial_UI;
 static rt_thread_t ui_thread = RT_NULL;
 static struct rt_timer ui_SendTimer; // 定时器
 // UI需要使用到的外部数据
 UI_Used_Data_t UiExData;
-
 
 /*线程定时器*/
 static struct rt_semaphore UI_sem;
@@ -37,8 +36,7 @@ static void ui_thread_entry(void *parameter)
     {
         rt_sem_take(&UI_sem, RT_WAITING_FOREVER);
         Get_UI_Data();
-        Drv_Find_Send_UI_Object();   //发送UI数据
-        
+        Drv_Find_Send_UI_Object(); // 发送UI数据
     }
 }
 
@@ -64,8 +62,8 @@ void UI_SuperCap_Shape(UI_Object *object)
 {
     float remain_cap = UiExData.RemainCapacity; // 获取剩余容量
     UI_Set_Line(object, UiGreen, UI_SC_BAR_SIZE, Ui_layer_5, UI_SC_BAR_CENTER_X - UI_SC_BAR_SIZE * 5.5f, UI_SC_BAR_CENTER_Y,
-            UI_SC_BAR_CENTER_X - UI_SC_BAR_SIZE * 5.5f + remain_cap / 9.1f * UI_SC_BAR_SIZE,
-            UI_SC_BAR_CENTER_Y); // 值大于40时显示绿色
+                UI_SC_BAR_CENTER_X - UI_SC_BAR_SIZE * 5.5f + remain_cap / 9.1f * UI_SC_BAR_SIZE,
+                UI_SC_BAR_CENTER_Y); // 值大于40时显示绿色
     if (remain_cap > 40)
         UI_Set_Color(object, UiGreen); // 值大于40时显示绿色
     else if (remain_cap > 20)
@@ -79,15 +77,15 @@ void UI_SuperCap_Key(UI_Object *object)
 {
     static char txt1[2][10] = {" Off ", " ON "};
     uint8_t sc_remain = UiExData.IfSuperCap_open;
-    if(sc_remain==0)
+    if (sc_remain == 0)
     {
         UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH, Ui_layer_4, UI_SC_BAR_CENTER_X - UI_SC_BAR_SIZE * 3,
-                  UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 3, UI_SC_BAR_SIZE, txt1[0],sizeof(txt1[0]));
+                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 3, UI_SC_BAR_SIZE, txt1[0], sizeof(txt1[0]));
     }
-    else if(sc_remain==1)
+    else if (sc_remain == 1)
     {
         UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH, Ui_layer_4, UI_SC_BAR_CENTER_X - UI_SC_BAR_SIZE * 3,
-                  UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 3, UI_SC_BAR_SIZE, txt1[1],sizeof(txt1[1]));
+                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 3, UI_SC_BAR_SIZE, txt1[1], sizeof(txt1[1]));
     }
 }
 
@@ -830,6 +828,108 @@ static rt_uint8_t getIfBuildAttacked(void)
     return hurt.build_if_attacked;
 }
 
+#if defined HREO_UI_SPECIAL
+/********测试UI_If_Hero_Bullet_Change********** */
+/**
+ * @brief 
+ * @param argc 参数个数
+ * @param argv 参数数组，argv[1]为目标位置
+ */
+static void test_bullet_change(int argc, char **argv)
+{
+    if (argc != 4)
+    {
+        rt_kprintf("Usage: test_bullet_change [x] [y] [r] \n");
+        rt_kprintf("Example: test_bullet_change 50 50 10\n");
+        return;
+    }
+
+    float x = atof(argv[1]);
+    float y = atof(argv[2]);
+    float r = atof(argv[3]);
+    UiExData.Hero_UI_Data.Ui_Bullet_Circle_x = x;
+    UiExData.Hero_UI_Data.Ui_Bullet_Circle_y = y;
+    UiExData.Hero_UI_Data.Ui_Bullet_Circle_radius = r;
+    rt_kprintf("change UI :x: %d y:%d r:%d\n", (int)x, (int)y, (int)r);
+}
+MSH_CMD_EXPORT_ALIAS(test_bullet_change, bullet, "test bullet change");
+
+void UI_If_Hero_Bullet_Change()
+{
+    static uint8_t hero_bullet_create_flag = 0; // 标志位为1时创jian
+    static uint8_t hero_bullet_tick = 0;
+    if (rt_tick_get() - hero_bullet_tick > 1000)
+    {
+        hero_bullet_create_flag = 0;
+        Drv_Set_Object_Visualable(UI_DELDTE, UI_Big_Bullet_Circle);
+    }
+    if (UiExData.Hero_UI_Data.Ui_Bullet_Circle_x != 0 || UiExData.Hero_UI_Data.Ui_Bullet_Circle_y != 0 || UiExData.Hero_UI_Data.Ui_Bullet_Circle_radius != 0) // 识别到大弹丸
+    {
+        if (!hero_bullet_create_flag)
+        {
+            Drv_Set_Object_Visualable(UI_CREATE, UI_Big_Bullet_Circle); // 创建大弹丸识别的圆形
+            hero_bullet_create_flag = 1;
+        }
+        hero_bullet_tick = rt_tick_get();
+    }
+
+    if (hero_bullet_create_flag)
+    {
+        Drv_Set_Object_Visualable(UI_MODIFY, UI_Big_Bullet_Circle);
+    }
+}
+/**
+ * @brief
+ * @param argc 参数个数
+ * @param argv 参数数组，argv[1]为目标位置
+ */
+static void test_light_change(int argc, char **argv)
+{
+    if (argc != 4)
+    {
+        rt_kprintf("Usage: test_light_change [x] [y] [r] \n");
+        rt_kprintf("Example: test_light_change 50 50 10\n");
+        return;
+    }
+
+    float x = atof(argv[1]);
+    float y = atof(argv[2]);
+    float r = atof(argv[3]);
+    UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_x = x;
+    UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_y = y;
+    UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_radius = r;
+    rt_kprintf("change light UI :x: %d y:%d r:%d\n", (int)x, (int)y, (int)r);
+}
+MSH_CMD_EXPORT_ALIAS(test_light_change, light, "test light change");
+
+void UI_If_Hero_Light_Change()
+{
+    static uint8_t hero_light_tick = 0;
+    static uint8_t hero_light_create_flag = 0; // 标志位为1时创建
+
+    if (rt_tick_get() - hero_light_tick > 1000)
+    {
+        hero_light_create_flag = 0;
+        Drv_Set_Object_Visualable(UI_DELDTE, UI_Guide_Light_Circle);
+    }
+    if (UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_x != 0 || UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_y != 0 || UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_radius != 0) // 识别到引导灯
+    {
+        if (!hero_light_create_flag)
+        {
+            Drv_Set_Object_Visualable(UI_CREATE, UI_Guide_Light_Circle); // 创建基地引导灯
+            hero_light_create_flag = 1;
+        }
+        hero_light_tick = rt_tick_get();
+    }
+
+      if (hero_light_create_flag)
+    {
+        Drv_Set_Object_Visualable(UI_MODIFY, UI_Guide_Light_Circle);
+    }
+}
+
+
+#endif
 void Get_UI_Data(void)
 {
     /******************************未用****************************************/
@@ -925,6 +1025,8 @@ void Get_UI_Data(void)
 
 #ifdef HREO_UI_SPECIAL
     UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据
+    UI_If_Hero_Bullet_Change();                 // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
+    UI_If_Hero_Light_Change(); // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
 #endif
 }
 

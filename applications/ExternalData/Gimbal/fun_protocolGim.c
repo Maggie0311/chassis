@@ -262,4 +262,3 @@ ui_data_t get_hero_ui_data(void)
     else
         return (ui_data_t){0, 0, 0, 0, 0, 0};
 }
-
