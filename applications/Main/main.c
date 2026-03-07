@@ -35,15 +35,15 @@
 #include "app_RefSystem.h"
 #endif
 #ifdef BSP_USING_LOG
-#define LOG_TAG     "main"
-#define LOG_LVL     LOG_LVL_DBG
+#define LOG_TAG "main"
+#define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 #endif
 
 int main(void)
 {
-    int result=0;
-    /*上电提示音*/ 
+    int result = 0;
+    /*上电提示音*/
 #ifdef BSP_USING_BUZZER
     set_buzzer(2000, 1);
     rt_thread_mdelay(120);
@@ -59,13 +59,13 @@ int main(void)
 
     /* 通信 */
     result = CAN_Init();
-    if (result!= RT_EOK)
+    if (result != RT_EOK)
     {
         LOG_E("CAN Init Failes! Result is %d", result);
         LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
     }
-    else 
+    else
     {
         LOG_I("CAN Init Success!");
     }
@@ -78,7 +78,7 @@ int main(void)
         LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
     }
-    else 
+    else
     {
         LOG_I("DJI Init Success!");
     }
@@ -91,7 +91,7 @@ int main(void)
         LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
     }
-    else 
+    else
     {
         LOG_I("Scpr_Com Init Success!");
     }
@@ -104,7 +104,7 @@ int main(void)
         LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
     }
-    else 
+    else
     {
         LOG_I("Gimbal_Com Init Success!");
     }
@@ -117,7 +117,7 @@ int main(void)
         LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
     }
-    else 
+    else
     {
         LOG_I("Chassis_Ctrl Init Success!");
     }
@@ -135,7 +135,7 @@ int main(void)
         LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
     }
-    else 
+    else
     {
         LOG_I("Visual_com Init Success!");
     }
@@ -154,13 +154,13 @@ int main(void)
         LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
     }
-    else 
+    else
     {
         LOG_I("Sentry_Data_Send Init Success!");
     }
 #else
-    // if (UI_Init() != RT_EOK)
-    //     Robot_Chassis_Reset(RT_TRUE);
+    if (UI_Init() != RT_EOK)
+        Robot_Chassis_Reset(RT_TRUE);
     // if (Custom_Message_Data_Send_Init() != RT_EOK)
     //     Robot_Chassis_Reset(RT_TRUE);
 #endif
@@ -171,7 +171,7 @@ int main(void)
         LOG_E("Robot Reset!");
         Robot_Chassis_Reset(RT_TRUE);
     }
-    else 
+    else
     {
         LOG_I("protct_Thread Init Success!");
     }

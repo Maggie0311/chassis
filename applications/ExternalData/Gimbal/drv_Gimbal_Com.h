@@ -141,9 +141,11 @@ typedef struct
     uint16_t Ui_Guide_Light_Circle_x;     // 英雄吊射基地引导灯坐标（视觉发送以左上角为原点，向右是x，向下是y)
     uint16_t Ui_Guide_Light_Circle_y;     // 英雄吊射基地引导灯
     uint8_t Ui_Guide_Light_Circle_radius; // 英雄吊射基地引导灯半径
+    rt_tick_t Ui_Guide_Light_Circle_freshtick; // 英雄吊射基地引导灯数据刷新时间
     uint16_t Ui_Bullet_Circle_x;          // 英雄大弹丸坐标（视觉发送以左上角为原点，向右是x，向下是y)
     uint16_t Ui_Bullet_Circle_y;          // 英雄大弹丸
     uint8_t Ui_Bullet_Circle_radius;      // 英雄大弹丸半径
+    rt_tick_t Ui_Bullet_Circle_freshtick; // 英雄大弹丸数据刷新时间
 } ui_data_t;
 
 extern Gim_mixData_Rx_t gimbal_mixdata_msg;

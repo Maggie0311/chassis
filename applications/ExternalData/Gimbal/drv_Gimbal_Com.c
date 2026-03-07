@@ -105,6 +105,7 @@ static void Gimbal_ui_light_Rx_call(CANInstance *instance)
     gimbal_ui_data_msg.Ui_Guide_Light_Circle_x = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[0], instance->rx_buff[1]);
     gimbal_ui_data_msg.Ui_Guide_Light_Circle_y = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
     gimbal_ui_data_msg.Ui_Guide_Light_Circle_radius = instance->rx_buff[4];
+    gimbal_ui_data_msg.Ui_Guide_Light_Circle_freshtick = rt_tick_get();
 }
 
 /**
@@ -117,6 +118,7 @@ static void Gimbal_ui_bullet_Rx_call(CANInstance *instance)
     gimbal_ui_data_msg.Ui_Bullet_Circle_x = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[0], instance->rx_buff[1]);
     gimbal_ui_data_msg.Ui_Bullet_Circle_y = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
     gimbal_ui_data_msg.Ui_Bullet_Circle_radius = instance->rx_buff[4];
+    gimbal_ui_data_msg.Ui_Bullet_Circle_freshtick = rt_tick_get();
 }
 
 /**

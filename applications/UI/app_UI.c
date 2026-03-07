@@ -831,7 +831,7 @@ static rt_uint8_t getIfBuildAttacked(void)
 #if defined HREO_UI_SPECIAL
 /********测试UI_If_Hero_Bullet_Change********** */
 /**
- * @brief 
+ * @brief
  * @param argc 参数个数
  * @param argv 参数数组，argv[1]为目标位置
  */
@@ -850,9 +850,43 @@ static void test_bullet_change(int argc, char **argv)
     UiExData.Hero_UI_Data.Ui_Bullet_Circle_x = x;
     UiExData.Hero_UI_Data.Ui_Bullet_Circle_y = y;
     UiExData.Hero_UI_Data.Ui_Bullet_Circle_radius = r;
+    UiExData.Hero_UI_Data.Ui_Bullet_Circle_freshtick = rt_tick_get();
     rt_kprintf("change UI :x: %d y:%d r:%d\n", (int)x, (int)y, (int)r);
 }
 MSH_CMD_EXPORT_ALIAS(test_bullet_change, bullet, "test bullet change");
+
+void UI_If_Hero_Bullet_Change(void)
+{
+    static uint8_t hero_bullet_create_flag = 0; // 标志位为1时创jian
+    static uint8_t hero_bullet_tick = 0;
+    if (hero_bullet_create_flag) // 如果现在已经创建，则检查刷新时间
+    {
+        if (rt_tick_get() - UiExData.Hero_UI_Data.Ui_Bullet_Circle_freshtick > 10000) // 如果超时，则删除
+        {
+            hero_bullet_create_flag = 0;
+            Drv_Set_Object_Visualable(UI_DELDTE, UI_Big_Bullet_Circle);
+            return;
+        }
+        else // 负责刷新UI
+        {
+            Drv_Set_Object_Visualable(UI_MODIFY, UI_Big_Bullet_Circle);
+            return;
+        }
+    }
+
+    else // 如果没有创建，则检查更新时间，时间合法，则创建，否则不管
+    {
+        if (rt_tick_get() - UiExData.Hero_UI_Data.Ui_Bullet_Circle_freshtick > 10000) // 如果超时，则不管
+        {
+            return;
+        }
+        else
+        {
+            Drv_Set_Object_Visualable(UI_CREATE, UI_Big_Bullet_Circle); // 创建大弹丸识别的圆形
+            hero_bullet_create_flag = 1;
+        }
+    }
+}
 
 void UI_If_Hero_Bullet_Change()
 {
@@ -862,6 +896,7 @@ void UI_If_Hero_Bullet_Change()
     {
         hero_bullet_create_flag = 0;
         Drv_Set_Object_Visualable(UI_DELDTE, UI_Big_Bullet_Circle);
+        return;
     }
     if (UiExData.Hero_UI_Data.Ui_Bullet_Circle_x != 0 || UiExData.Hero_UI_Data.Ui_Bullet_Circle_y != 0 || UiExData.Hero_UI_Data.Ui_Bullet_Circle_radius != 0) // 识别到大弹丸
     {
@@ -898,36 +933,43 @@ static void test_light_change(int argc, char **argv)
     UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_x = x;
     UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_y = y;
     UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_radius = r;
+    UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_freshtick = rt_tick_get();
     rt_kprintf("change light UI :x: %d y:%d r:%d\n", (int)x, (int)y, (int)r);
 }
 MSH_CMD_EXPORT_ALIAS(test_light_change, light, "test light change");
 
 void UI_If_Hero_Light_Change()
 {
-    static uint8_t hero_light_tick = 0;
     static uint8_t hero_light_create_flag = 0; // 标志位为1时创建
 
-    if (rt_tick_get() - hero_light_tick > 1000)
+    if (hero_light_create_flag) // 如果现在已经创建，则检查时间，如果超时，则删除，否则，修改
     {
-        hero_light_create_flag = 0;
-        Drv_Set_Object_Visualable(UI_DELDTE, UI_Guide_Light_Circle);
+        if (rt_tick_get() - UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_freshtick > 10000) //
+        {
+            hero_light_create_flag = 0;
+            Drv_Set_Object_Visualable(UI_DELDTE, UI_Guide_Light_Circle);
+            return;
+        }
+        else
+        {
+            Drv_Set_Object_Visualable(UI_MODIFY, UI_Guide_Light_Circle);
+            return;
+        }
     }
-    if (UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_x != 0 || UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_y != 0 || UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_radius != 0) // 识别到引导灯
+    else
     {
-        if (!hero_light_create_flag)
+        if (rt_tick_get() - UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_freshtick > 10000) // 如果超时，则不管
+        {
+            return;
+        }
+        else
         {
             Drv_Set_Object_Visualable(UI_CREATE, UI_Guide_Light_Circle); // 创建基地引导灯
             hero_light_create_flag = 1;
+            return;
         }
-        hero_light_tick = rt_tick_get();
-    }
-
-      if (hero_light_create_flag)
-    {
-        Drv_Set_Object_Visualable(UI_MODIFY, UI_Guide_Light_Circle);
     }
 }
-
 
 #endif
 void Get_UI_Data(void)
@@ -1025,8 +1067,8 @@ void Get_UI_Data(void)
 
 #ifdef HREO_UI_SPECIAL
     UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据
-    UI_If_Hero_Bullet_Change();                 // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
-    UI_If_Hero_Light_Change(); // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
+    UI_If_Hero_Bullet_Change(); // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
+    UI_If_Hero_Light_Change();  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
 #endif
 }
 
