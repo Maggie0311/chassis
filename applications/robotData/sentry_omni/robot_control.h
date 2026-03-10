@@ -27,7 +27,7 @@ void Follow_pid_init(void);
 
 #define Wheel_Power_K1 (50.f)     //(2.4e+02) //(1.15e+02) //(1.0e+02)
 #define Wheel_Power_K2 (0.00097f) //(2.009e-07) //(6.0e-07)  //(4.1e-07)
-#define Wheel_Power_C (2.5f)        // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
+#define Wheel_Power_C (9.f)        // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
 // #define Wheel_Power_C_sum (6.0f)   // 固定静态功率（换板子也会影响该数据）
 // TODO 此处参数需要测试修改
 #define Steer_Power_K1 (10.f)      //

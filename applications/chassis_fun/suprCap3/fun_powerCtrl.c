@@ -329,6 +329,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     }
     else // 云台端关闭超电输出，或者超电被标记异常
     {
+			
         power_ctrl_close = 1;        // 通讯关闭超电
         PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
     }
@@ -572,18 +573,19 @@ void get_pre_power(void)
         if (if_steer_used[group] == 1)
         {
             // 舵向电机
-            Motor_power[group][WHEEL_ANGLE].initial_tor_set = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output *
-                                                              get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]); // fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算;//(wheel_temp[group][WHEEL_ANGLE].motor.spe.out * K_IC2Tor_ANGLE); // 转子扭矩计算
+           Motor_power[group][WHEEL_ANGLE].initial_tor_set = fabsf(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output)*
+           get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算;//(wheel_temp[group][WHEEL_ANGLE].motor.spe.out * K_IC2Tor_ANGLE); // 转子扭矩计算
             // 功率分配前的预输出功率
-            /*     Motor_power[group][WHEEL_ANGLE].initial_power_set = fabsf(Motor_power[group][WHEEL_ANGLE].V_now) * Motor_power[group][WHEEL_ANGLE].initial_tor_set / 9.55f +
-                                                                     Motor_power[group][WHEEL_ANGLE].K1 * SQUARE(Motor_power[group][WHEEL_ANGLE].initial_tor_set) +
-                                                                     Motor_power[group][WHEEL_ANGLE].K2 * SQUARE(Motor_power[group][WHEEL_ANGLE].V_now) +
-                                                                     Motor_power[group][WHEEL_ANGLE].C; // 电机功率模型计算公式
-             */
-            Motor_power[group][WHEEL_ANGLE].initial_power_set = Motor_power[group][WHEEL_ANGLE].V_now * Motor_power[group][WHEEL_ANGLE].initial_tor_set / 9.55f +
-                                                                AngleRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_ANGLE].initial_tor_set) +
-                                                                AngleRLS.theta[1] * fabsf(Motor_power[group][WHEEL_ANGLE].V_now) +
-                                                                AngleRLS.theta[2] / 4.f; // 电机功率模型计算公式
+       /*     Motor_power[group][WHEEL_ANGLE].initial_power_set = fabsf(Motor_power[group][WHEEL_ANGLE].V_now) * Motor_power[group][WHEEL_ANGLE].initial_tor_set / 9.55f +
+                                                                Motor_power[group][WHEEL_ANGLE].K1 * SQUARE(Motor_power[group][WHEEL_ANGLE].initial_tor_set) +
+                                                                Motor_power[group][WHEEL_ANGLE].K2 * SQUARE(Motor_power[group][WHEEL_ANGLE].V_now) +
+                                                                Motor_power[group][WHEEL_ANGLE].C; // 电机功率模型计算公式
+        */
+            Motor_power[group][WHEEL_ANGLE].initial_power_set = fabsf(Motor_power[group][WHEEL_ANGLE].V_now * Motor_power[group][WHEEL_ANGLE].initial_tor_set / 9.55f) +
+                AngleRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_ANGLE].initial_tor_set) +
+                AngleRLS.theta[1] * fabsf(Motor_power[group][WHEEL_ANGLE].V_now) +
+                AngleRLS.theta[2]/4.f; // 电机功率模型计算公式
+
 
             Power_Set.power_set_steer += Motor_power[group][WHEEL_ANGLE].initial_power_set;
             // 构建回归向量，第一项的系数不参与RLS，故仍然时三维的
@@ -591,19 +593,19 @@ void get_pre_power(void)
         if (if_wheel_used[group] == 1)
         {
             // 轮向电机
-            Motor_power[group][WHEEL_RUN].initial_tor_set = Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output *
-                                                            get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]); // fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算
+            Motor_power[group][WHEEL_RUN].initial_tor_set =fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output*
+            get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]));//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算
             // 功率分配前的预输出功率
 
             // Motor_power[group][WHEEL_RUN].initial_power_set = fabsf(Motor_power[group][WHEEL_RUN].V_now) * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f +
             //         RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
             //         RunRLS.theta[1] * SQUARE(Motor_power[group][WHEEL_RUN].V_now) +
             //         RunRLS.theta[2]/4.f; // 电机功率模型计算公式
-            Motor_power[group][WHEEL_RUN].initial_power_set = Motor_power[group][WHEEL_RUN].V_now * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f +
-                                                              RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
-                                                              RunRLS.theta[1] * fabsf(Motor_power[group][WHEEL_RUN].V_now) +
-                                                              RunRLS.theta[2] / 4.f; // 电机功率模型计算公式
-            // todo
+             Motor_power[group][WHEEL_RUN].initial_power_set = fabsf(Motor_power[group][WHEEL_RUN].V_now * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f) +
+                    RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
+                    RunRLS.theta[1] * fabsf(Motor_power[group][WHEEL_RUN].V_now) +
+                    RunRLS.theta[2]/4.f; // 电机功率模型计算公式
+                //todo
             Power_Set.power_set_run += Motor_power[group][WHEEL_RUN].initial_power_set;
         }
     }
