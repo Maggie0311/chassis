@@ -1,4 +1,4 @@
-#include "Wheel_data.h"
+#include "robot_data.h"
 #include "drv_motor_new.h"
 #include "DJI_3508.h"
 #include "DJI_6020.h"
@@ -256,7 +256,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 7248,
+            .ENCODER_ZERO_OFFSET = 265,
             .ctrl_mode = CTRL_MODE_VOLTAGE,
         }},
     // pitch轴电机
@@ -397,13 +397,12 @@ static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
     }
 }
 
-
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
         Omni_Inverse_Kinematics_60(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
-        Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
+        //  Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
 
         // Get_force_out(motorSetForce); // 获取前馈值
     }

@@ -8,14 +8,14 @@
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
 
-extern PIDInstance follow_pid_fast,follow_pid_slow;//跟随角pid实例
+extern PIDInstance follow_pid_fast, follow_pid_slow; // 跟随角pid实例
 
-SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0};//设定值规划
+SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0}; // 设定值规划
 Mot_base_t Force_xyw = {0};
 Mot_base_t Speed_xyw = {0};
 
-Mot_base_t SmoothSpeed;           /*处理过后控制使用设定值*/
-Mot_base_t Setmotion;             /*未处理原始设定值*/
+Mot_base_t SmoothSpeed; /*处理过后控制使用设定值*/
+Mot_base_t Setmotion;   /*未处理原始设定值*/
 
 static float range_angle_180(float angle)
 {
@@ -36,7 +36,7 @@ static Mot_base_t MotModule_Clamp_Base(Mot_base_t VxyW)
     Mot_base_t temp =
         {
             .vel.y = utils_clamp(VxyW.vel.y, -get_power_speed_max(), get_power_speed_max()),
-            .vel.x = utils_clamp(VxyW.vel.x,  -get_power_speed_max(), get_power_speed_max()),
+            .vel.x = utils_clamp(VxyW.vel.x, -get_power_speed_max(), get_power_speed_max()),
             .angvel = utils_clamp(VxyW.angvel, -M_MAX_ROTATE_AC, M_MAX_ROTATE_AC)};
     return temp;
 }
@@ -50,8 +50,8 @@ Vector2_t MotModule_Transform(Vector2_t speed, float theta)
 {
     Vector2_t chassis_speed;
     Vector2_t gimSpeed = speed;
-    theta = theta / 180.0f * PI; // 转化为弧度
-    chassis_speed.x = gimSpeed.x * arm_cos_f32(theta) - gimSpeed.y * arm_sin_f32(theta);  // x'=ysinθ+xcosθ
+    theta = theta / 180.0f * PI;                                                         // 转化为弧度
+    chassis_speed.x = gimSpeed.x * arm_cos_f32(theta) - gimSpeed.y * arm_sin_f32(theta); // x'=ysinθ+xcosθ
     chassis_speed.y = gimSpeed.x * arm_sin_f32(theta) + gimSpeed.y * arm_cos_f32(theta); // y'=ycosθ-xsinθ
     return chassis_speed;
 }
@@ -97,10 +97,10 @@ Mot_base_t MotPack_Offset_SmallTop(const Ctrl_data_t *const ctrlMsg, const Vecto
 
     // if (ctrlMsg->getYawAngel)
     // {
-        yaw_angle = ctrlMsg->getYawAngel;
+    yaw_angle = ctrlMsg->getYawAngel;
     // }
     /*本文件暂存*/
-    //fol_isReverse = ctrlMsg->folIsReverse;
+    // fol_isReverse = ctrlMsg->folIsReverse;
 
     /*将云台的速度矢量转化到底盘坐标系上*/
     vxyW_input.vel = MotModule_Transform(vxyW_input.vel, yaw_angle);
@@ -179,9 +179,9 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
         anglevel_last = 0;
     }
     // anglevel_last = UTILS_LP_FAST(anglevel_last, ctrlMsg->xyw.angvel, 0.2f); // 对云台角速度进行低通滤波
-    
+
     yaw_angle = ctrlMsg->getYawAngel;
-    
+
     // if (fabs(yaw_angle) >= 15.f) // 跟随角较大时，修改跟随角PID为较大参数
     // {
     // }
@@ -193,12 +193,12 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     /*将fol_angle转化为(-180.0°,180.0°]度*/
     fol_angle = range_angle_180(fol_angle);
     yaw_angle = range_angle_180(yaw_angle);
-    
+
     /*计算跟随时的动态角速度大小 fol_angle即表示pid的target*/
     // PID_Calculate(&angfol_pid, yaw_angle);
 
-    //新的pid计算，yaw_angle本身即为误差，所以“反馈值”参数写0
-    VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_fast,0,yaw_angle);
+    // 新的pid计算，yaw_angle本身即为误差，所以“反馈值”参数写0
+    VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_fast, 0, yaw_angle);
 
     /*跟随时，当功率受限时降低平移保证转向*/
     // yaw_Omega = Get_GM_Omega(ctrlMsg->arg); // 这里的arg是云台yaw或者pitch轴电机的枚举，在云台接受控制数据处定义
@@ -238,9 +238,9 @@ uint8_t move_at_no_follow(Ctrl_data_t *const fixCtrl)
 
 /**
  * @brief 受伤时变速小陀螺
- * 
- * @param VxyW 
- * @param ctrlMsg 
+ *
+ * @param VxyW
+ * @param ctrlMsg
  */
 void gyro_at_hurt(Mot_base_t *const VxyW, Ctrl_data_t *const ctrlMsg)
 {
@@ -345,8 +345,8 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
 
     if (ctrl.getYawAngel)
     {
-        //得到当前控制坐标系和底盘坐标系角度
-    angle = ctrl.getYawAngel;
+        // 得到当前控制坐标系和底盘坐标系角度
+        angle = ctrl.getYawAngel;
     }
 
     Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换

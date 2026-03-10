@@ -1067,8 +1067,8 @@ void Get_UI_Data(void)
 
 #ifdef HREO_UI_SPECIAL
     UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据
-    UI_If_Hero_Bullet_Change(); // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
-    UI_If_Hero_Light_Change();  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
+    UI_If_Hero_Bullet_Change();                 // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
+    UI_If_Hero_Light_Change();                  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
 #endif
 }
 
