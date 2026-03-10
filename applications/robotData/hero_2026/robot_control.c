@@ -11,6 +11,7 @@
 #include <arm_math.h>
 
 #define WHEEL_MOTOR_NUM 4
+#define UP_MOTOR_NUM 4
 #define STEER_MOTOR_NUM 4
 #define GIM_MOTOR_NUM 2
 
@@ -21,6 +22,7 @@
 
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
+DJI_3508_MotorInstance up_motor[UP_MOTOR_NUM];
 DJI_6020_MotorInstance steer_motor[STEER_MOTOR_NUM];
 DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
 uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关/
@@ -210,6 +212,197 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
             .spi_slave = SpicanSlave_1,
+        },
+        .DJI3508_Motor_Measure_Init_Config = {
+            .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
+            .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
+            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .ENCODER_LEN = 8192,
+            .ENCODER_ZERO_OFFSET = 0.0,
+        },
+    }};
+
+DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
+    // 右前抬升
+    {
+        .motor_obj_init_config = {
+            .name = "UP_RF",
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .motor_type = M3508,
+            .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type = POWER_CTRL_WHEEL,
+            .index = 0,
+        },
+        .Motor_operate_setting = {
+            .Motor_Init = DJI_3508_Motor_Init,
+            .Motor_Enable = DJI_3508_Motor_Enable,
+            .Motor_Disable = DJI_3508_Motor_Disable,
+            .Motor_ErrorHandle = DJI_3508_Motor_ErrorHandle,
+            .Motor_RefreshData = DJI_3508_Motor_RefreshData,
+            .Motor_Control = NULL,
+            .Motor_Transmit = DJI_3508_Motor_Transmit,
+        },
+
+        .controller_param_init_config = {
+            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit, .MaxOut = 200},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Closeloop_Type = SPEED_LOOP,
+            .Calc_Pre = {
+                .speed_calc_Prescaler = 1,
+                .angle_calc_Prescaler = 2,
+            },
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
+        },
+        .can_init_config = {
+            .can_device_name = "can1",
+            .rx_id = 0x201, // TODO:设置ID
+            .tx_id = 0x200,
+            .can_module_callback = DJI_3508_Motor_RefreshData,
+            .parent = NULL,
+            .spi_slave = SpicanSlave_2,
+        },
+        .DJI3508_Motor_Measure_Init_Config = {
+            .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
+            .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
+            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .ENCODER_LEN = 8192,
+            .ENCODER_ZERO_OFFSET = 0.0,
+        },
+    },
+    // 左前抬升
+    {
+        .motor_obj_init_config = {
+            .name = "UP_LF",
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .motor_type = M3508,
+            .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type = POWER_CTRL_WHEEL,
+            .index = 0,
+        },
+        .Motor_operate_setting = {
+            .Motor_Init = DJI_3508_Motor_Init,
+            .Motor_Enable = DJI_3508_Motor_Enable,
+            .Motor_Disable = DJI_3508_Motor_Disable,
+            .Motor_ErrorHandle = DJI_3508_Motor_ErrorHandle,
+            .Motor_RefreshData = DJI_3508_Motor_RefreshData,
+            .Motor_Control = NULL,
+            .Motor_Transmit = DJI_3508_Motor_Transmit,
+        },
+        .controller_param_init_config = {
+            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit, .MaxOut = 200},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Closeloop_Type = SPEED_LOOP,
+            .Calc_Pre = {
+                .speed_calc_Prescaler = 1,
+                .angle_calc_Prescaler = 2,
+            },
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
+        },
+        .can_init_config = {
+            .can_device_name = "can1",
+            .rx_id = 0x202, // TODO:设置ID
+            .tx_id = 0x200,
+            .can_module_callback = DJI_3508_Motor_RefreshData,
+            .parent = NULL,
+            .spi_slave = SpicanSlave_2,
+        },
+        .DJI3508_Motor_Measure_Init_Config = {
+            .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
+            .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
+            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .ENCODER_LEN = 8192,
+            .ENCODER_ZERO_OFFSET = 0.0,
+        },
+
+    },
+    // 左后抬升机构
+    {
+        .motor_obj_init_config = {
+            .name = "UP_LB",
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .motor_type = M3508,
+            .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type = POWER_CTRL_WHEEL,
+            .index = 0,
+        },
+        .Motor_operate_setting = {
+            .Motor_Init = DJI_3508_Motor_Init,
+            .Motor_Enable = DJI_3508_Motor_Enable,
+            .Motor_Disable = DJI_3508_Motor_Disable,
+            .Motor_ErrorHandle = DJI_3508_Motor_ErrorHandle,
+            .Motor_RefreshData = DJI_3508_Motor_RefreshData,
+            .Motor_Control = NULL,
+            .Motor_Transmit = DJI_3508_Motor_Transmit,
+
+        },
+        .controller_param_init_config = {
+            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit, .MaxOut = 200},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Closeloop_Type = SPEED_LOOP,
+            .Calc_Pre = {
+                .speed_calc_Prescaler = 1,
+                .angle_calc_Prescaler = 2,
+            },
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
+        },
+        .can_init_config = {
+            .can_device_name = "can1",
+            .rx_id = 0x203, // TODO:设置ID
+            .tx_id = 0x200,
+            .can_module_callback = DJI_3508_Motor_RefreshData,
+            .parent = NULL,
+            .spi_slave = SpicanSlave_2,
+        },
+        .DJI3508_Motor_Measure_Init_Config = {
+            .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
+            .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
+            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .ENCODER_LEN = 8192,
+            .ENCODER_ZERO_OFFSET = 0.0,
+        },
+
+    },
+    // 右后抬升
+    {
+        .motor_obj_init_config = {
+            .name = "UP_RB",
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .motor_type = M3508,
+            .state = MOTOR_STATE_NEED_INIT,
+            .power_ctrl_type = POWER_CTRL_WHEEL,
+            .index = 0,
+        },
+        .Motor_operate_setting = {
+            .Motor_Init = DJI_3508_Motor_Init,
+            .Motor_Enable = DJI_3508_Motor_Enable,
+            .Motor_Disable = DJI_3508_Motor_Disable,
+            .Motor_ErrorHandle = DJI_3508_Motor_ErrorHandle,
+            .Motor_RefreshData = DJI_3508_Motor_RefreshData,
+            .Motor_Control = NULL,
+            .Motor_Transmit = DJI_3508_Motor_Transmit,
+
+        },
+        .controller_param_init_config = {
+            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit, .MaxOut = 200},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Closeloop_Type = SPEED_LOOP,
+            .Calc_Pre = {
+                .speed_calc_Prescaler = 1,
+                .angle_calc_Prescaler = 2,
+            },
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
+        },
+        .can_init_config = {
+            .can_device_name = "can1",
+            .rx_id = 0x204, // TODO:设置ID
+            .tx_id = 0x200,
+            .can_module_callback = DJI_3508_Motor_RefreshData,
+            .parent = NULL,
+            .spi_slave = SpicanSlave_2,
         },
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
