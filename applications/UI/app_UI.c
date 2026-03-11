@@ -888,31 +888,6 @@ void UI_If_Hero_Bullet_Change(void)
     }
 }
 
-void UI_If_Hero_Bullet_Change()
-{
-    static uint8_t hero_bullet_create_flag = 0; // 标志位为1时创jian
-    static uint8_t hero_bullet_tick = 0;
-    if (rt_tick_get() - hero_bullet_tick > 1000)
-    {
-        hero_bullet_create_flag = 0;
-        Drv_Set_Object_Visualable(UI_DELDTE, UI_Big_Bullet_Circle);
-        return;
-    }
-    if (UiExData.Hero_UI_Data.Ui_Bullet_Circle_x != 0 || UiExData.Hero_UI_Data.Ui_Bullet_Circle_y != 0 || UiExData.Hero_UI_Data.Ui_Bullet_Circle_radius != 0) // 识别到大弹丸
-    {
-        if (!hero_bullet_create_flag)
-        {
-            Drv_Set_Object_Visualable(UI_CREATE, UI_Big_Bullet_Circle); // 创建大弹丸识别的圆形
-            hero_bullet_create_flag = 1;
-        }
-        hero_bullet_tick = rt_tick_get();
-    }
-
-    if (hero_bullet_create_flag)
-    {
-        Drv_Set_Object_Visualable(UI_MODIFY, UI_Big_Bullet_Circle);
-    }
-}
 /**
  * @brief
  * @param argc 参数个数

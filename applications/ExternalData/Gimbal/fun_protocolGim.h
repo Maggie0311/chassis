@@ -191,6 +191,9 @@ extern rt_bool_t Get_Gimbal_Stuck_State(void);
 // 获取视觉模块异常状态
 extern Visual_Error_State_Enum Get_Visual_Working_Error_State(void);
 
+// 获取英雄是否需要上台阶
+extern rt_bool_t Get_If_Go_Upstairs(void);
+
 uint8_t get_chassis_pitch(float *pitch);
 uint8_t get_chassis_roll(float *roll);
 imu_euler_t get_chassis_imu_data(void);

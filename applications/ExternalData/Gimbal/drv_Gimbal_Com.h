@@ -127,6 +127,9 @@ typedef __packed struct
 #ifdef CORE_USING_SENTRY
     unsigned sentryMode : 1; // 哨兵模式
 #endif
+#ifdef CORE_USING_HERO
+    unsigned hero_if_go_upstairs : 1;    //英雄是否上楼梯
+#endif
 } Gim_mixData_Rx_t; // 杂项数据包
 
 typedef struct

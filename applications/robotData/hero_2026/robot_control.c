@@ -34,8 +34,13 @@ float motorSetSpeed_run[WHEEL_MOTOR_NUM];   // 经过解算后的数据()
 float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 float debug_feedforward_set_run[WHEEL_MOTOR_NUM];
 
+float motor_speed[UP_MOTOR_NUM]; // 丝杆电机速度值
+
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
+
+// 抬升机构pid实例
+PIDInstance up_machine_pid;
 
 // 底盘四个电机配置参数模板
 DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
@@ -746,6 +751,103 @@ int gim_motor_init()
     }
     return ret;
 }
+void Screw_Motor_Move(Screw_Motor_e motor, Screw_Move_e move)
+{
+    if (motor == Forward_Screw_Motor)
+    {
+        if (move == Screw_Move_Up)
+        {
+            Motor_Set_Target((MotorInstance *)&up_motor[0], Screw_Motor_UP_Target); // TODO
+            Motor_Set_Target((MotorInstance *)&up_motor[1], Screw_Motor_UP_Target); // TODO
+        }
+        else if (move == Screw_Move_Down)
+        {
+            Motor_Set_Target((MotorInstance *)&up_motor[0], Screw_Motor_Down_Target); // TODO
+            Motor_Set_Target((MotorInstance *)&up_motor[1], Screw_Motor_Down_Target); // TODO
+        }
+    }
+    else if (motor == Back_Screw_Motor)
+    {
+        if (move == Screw_Move_Up)
+        {
+            Motor_Set_Target((MotorInstance *)&up_motor[2], Screw_Motor_UP_Target); // TODO
+            Motor_Set_Target((MotorInstance *)&up_motor[3], Screw_Motor_UP_Target); // TODO
+        }
+        else if (move == Screw_Move_Down)
+        {
+            Motor_Set_Target((MotorInstance *)&up_motor[2], Screw_Motor_Down_Target); // TODO
+            Motor_Set_Target((MotorInstance *)&up_motor[3], Screw_Motor_Down_Target); // TODO
+        }
+    }
+}
+
+/**
+ * @brief 判断电机是否到达目标角度
+ *
+ * @param motor 电机实例
+ * @param move 电机移动方向
+ * @return int 1为到达目标角度，0为未到达目标角度
+ */
+int If_Target_Reached(Screw_Motor_e motor, Screw_Move_e move)
+{
+    if (motor == Forward_Screw_Motor)
+    {
+        if (move == Screw_Move_Up)
+        {
+            if (fabsf(up_motor[0].Motor_obj.angle - Screw_Motor_UP_Target) < 10.0f && fabsf(up_motor[1].Motor_obj.angle - Screw_Motor_UP_Target) < 10.0f)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        else if (move == Screw_Move_Down)
+        {
+            if (fabsf(up_motor[0].Motor_obj.angle - Screw_Motor_Down_Target) < 10.0f && fabsf(up_motor[1].Motor_obj.angle - Screw_Motor_Down_Target) < 10.0f)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    }
+    else if (motor == Back_Screw_Motor)
+
+        if (move == Screw_Move_Up)
+        {
+            if (fabsf(up_motor[2].Motor_obj.angle - Screw_Motor_UP_Target) < 10.0f && fabsf(up_motor[3].Motor_obj.angle - Screw_Motor_UP_Target) < 10.0f)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        else if (move == Screw_Move_Down)
+        {
+            if (fabsf(up_motor[2].Motor_obj.angle - Screw_Motor_Down_Target) < 10.0f && fabsf(up_motor[3].Motor_obj.angle - Screw_Motor_Down_Target) < 10.0f)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+}
+
+void Motor_Speed_Read()
+{
+    for (int i = 0; i < UP_MOTOR_NUM; i++)
+    {
+        motor_speed[i] = wheel_motor[i].Motor_obj.speed;
+    }
+}
 
 void Follow_pid_init(void)
 {
@@ -771,6 +873,20 @@ void Follow_pid_init(void)
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
+void Up_Machine_pid_init(void)
+{
+    PID_Init_Config_s pid_config;
+    rt_memset(&pid_config, 0, sizeof(pid_config));
+    pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
+
+    pid_config.Kp = 0; // TODO
+    pid_config.Ki = 0;
+    pid_config.Kd = 0;
+    pid_config.MaxOut = 0;
+    pid_config.DeadBand = 0;
+    pid_config.IntegralLimit = 0;
+    PIDInit(&up_machine_pid, &pid_config);
+}
 // 摩擦力前馈计算 这里的数值是采集数据后在matlab中进行回归拟合得到的
 float test_k_feed = 0.4;
 static float RUN_wheel_forward_cal(float set)

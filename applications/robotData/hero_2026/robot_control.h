@@ -13,8 +13,9 @@ void Follow_pid_init(void);
 
 float get_power_lim_speed(float power_max);
 
-
-
+void Motor_Speed_Read();
+void Up_Machine_pid_init(void);
+int If_Target_Reached(Screw_Motor_e motor, Screw_Move_e move);
 
 // 云台电机是否大小yaw
 #define YAW_MOTOR 0
@@ -41,6 +42,9 @@ float get_power_lim_speed(float power_max);
 #define Steer_Power_K2 (0.0107) //
 #define Steer_Power_C (5.f)        // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
 
-void Forward_Kinematics(void);
+#define Screw_Motor_UP_Target (0.0f)//TODO
+#define Screw_Motor_Down_Target (0.0f)//TODO
+
+    void Forward_Kinematics(void);
 
 #endif

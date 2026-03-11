@@ -10,17 +10,17 @@
 #include "drv_motionSolve.h"
 #include "robot_control.h"
 #include "drv_GimMotor.h"
-
+#include "fun_protocolGim.h"
 #ifdef BSP_USING_LOG
-#define LOG_TAG     "Ctrl"
-#define LOG_LVL     LOG_LVL_DBG
+#define LOG_TAG "Ctrl"
+#define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 #endif
 
 /*-------------------外部控制单位,xy平移速度矢量,单位mm/s; 自转角速度,单位0.1°/s------------*/
 
 /*方便debug (Ctrl_data_info_t *)nowCtrlSrc->data*/
-Ctrl_source_t *nowCtrlSrc = NULL;//当前数据源全局变量
+Ctrl_source_t *nowCtrlSrc = NULL; // 当前数据源全局变量
 
 /*线程定时器*/
 static struct rt_semaphore ChassCtrl_sem;
@@ -29,9 +29,10 @@ static void ChassCtrl_IRQHandler(void *parameter)
     rt_sem_release(&ChassCtrl_sem);
 }
 
-//debug
+// debug
 Ctrl_data_t debug_fixctrl;
-
+Machine_Status status;
+extern float motor_speed[4];
 /**
  * @brief    模式状态调度 总的来说就是根据云台控制的运动方式，得到底盘坐标系下的Vx,Vy矢量
  * @param    Cctrl    Ctrldata_t指针
@@ -39,11 +40,22 @@ Ctrl_data_t debug_fixctrl;
 static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
-     //debug_fixctrl=Cctrl;
+    // debug_fixctrl=Cctrl;
     // fixCtrl = debug_fixctrl;
-
+#ifdef CORE_USING_HERO
+    if (Get_If_Go_Upstairs()) // 是否是英雄正需要上台阶
+    {
+        Motor_Speed_Read();                                // 获取底盘轮向电机速度
+        fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
+        fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
+    }
+#endif
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
+#ifdef CORE_USING_HERO
+    case GO_UPSTAIRS: // 英雄上台阶
+        break;
+#endif
     case CHASS_AUTO: // 底盘自主
         fixCtrl.xyw = MotPack_Only_Chass(fixCtrl.xyw);
         break;
@@ -62,9 +74,9 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
         fixCtrl.xyw = MotPack_Only_Chass(fixCtrl.xyw);
         break;
     }
-     debug_fixctrl = fixCtrl; // 控制源控制数据
-    // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
-   Set_Plan_Vxyw_Process(fixCtrl);
+    debug_fixctrl = fixCtrl; // 控制源控制数据
+                             // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
+    Set_Plan_Vxyw_Process(fixCtrl);
     // debug_fixctrl = fixCtrl;
     //  修改pid的设定值
     //  chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
@@ -93,7 +105,7 @@ static void Chassis_Ctrl_Thread(void *parameter)
             if (nowCtrlSrc->data)
             {
                 Ctrl_data = (Ctrl_data_t *)nowCtrlSrc->data; /*得到原始设定值*/
-                Ctrl_data->xyw.angvel = 5000;//视觉控制掉线时默认转速
+                Ctrl_data->xyw.angvel = 5000;                // 视觉控制掉线时默认转速
             }
         }
 #endif
@@ -123,6 +135,9 @@ static rt_err_t chassisCtrlInit(void)
 
     // 跟随模式PID初始化
     Follow_pid_init();
+
+    // 抬升机构前移pid初始化
+    Up_Machine_pid_init();
 
     // 初始化信号量
     res = rt_sem_init(&ChassCtrl_sem, "Cctrl_sem", 0, RT_IPC_FLAG_FIFO);
