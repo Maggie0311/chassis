@@ -34,7 +34,9 @@ float motorSetSpeed_run[WHEEL_MOTOR_NUM];   // 经过解算后的数据()
 float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 float debug_feedforward_set_run[WHEEL_MOTOR_NUM];
 
-float motor_speed[UP_MOTOR_NUM]; // 丝杆电机速度值
+float motor_speed[UP_MOTOR_NUM];          // 轮向电机速度值
+float up_motor_zero_offset[UP_MOTOR_NUM]; // 丝杆电机零点
+float up_motor_angle_get[UP_MOTOR_NUM];   // 丝杆电机角度值
 
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
@@ -226,7 +228,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .ENCODER_ZERO_OFFSET = 0.0,
         },
     }};
-
+// 抬升机构四个电机初始化
 DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
     // 右前抬升
     {
@@ -249,7 +251,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit, .MaxOut = 200},
+            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit | PID_ErrorHandle, .MaxOut = 200},
             .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
@@ -295,7 +297,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
         .controller_param_init_config = {
-            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit, .MaxOut = 200},
+            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit | PID_ErrorHandle, .MaxOut = 200},
             .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
@@ -343,7 +345,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit, .MaxOut = 200},
+            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit | PID_ErrorHandle, .MaxOut = 200},
             .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
@@ -391,7 +393,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit, .MaxOut = 200},
+            .Angle_pid = {.Kp = 0, .Ki = 0, .Kd = 0, .Improve = PID_Integral_Limit | PID_ErrorHandle, .MaxOut = 200},
             .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
@@ -751,36 +753,27 @@ int gim_motor_init()
     }
     return ret;
 }
-void Screw_Motor_Move(Screw_Motor_e motor, Screw_Move_e move)
+
+/**
+ * @brief 丝杆电机移动，包含对零点操作，zero_flag为1时进行零点操作
+ *
+ * @param motor
+ * @param move
+ * @param zero_flag
+ */
+void Screw_Motor_Move(Screw_Motor_e motor, float target)
 {
     if (motor == Forward_Screw_Motor)
     {
-        if (move == Screw_Move_Up)
-        {
-            Motor_Set_Target((MotorInstance *)&up_motor[0], Screw_Motor_UP_Target); // TODO
-            Motor_Set_Target((MotorInstance *)&up_motor[1], Screw_Motor_UP_Target); // TODO
-        }
-        else if (move == Screw_Move_Down)
-        {
-            Motor_Set_Target((MotorInstance *)&up_motor[0], Screw_Motor_Down_Target); // TODO
-            Motor_Set_Target((MotorInstance *)&up_motor[1], Screw_Motor_Down_Target); // TODO
-        }
+        Motor_Set_Target((MotorInstance *)&up_motor[0], target); // TODO
+        Motor_Set_Target((MotorInstance *)&up_motor[1], target); // TODO
     }
     else if (motor == Back_Screw_Motor)
     {
-        if (move == Screw_Move_Up)
-        {
-            Motor_Set_Target((MotorInstance *)&up_motor[2], Screw_Motor_UP_Target); // TODO
-            Motor_Set_Target((MotorInstance *)&up_motor[3], Screw_Motor_UP_Target); // TODO
-        }
-        else if (move == Screw_Move_Down)
-        {
-            Motor_Set_Target((MotorInstance *)&up_motor[2], Screw_Motor_Down_Target); // TODO
-            Motor_Set_Target((MotorInstance *)&up_motor[3], Screw_Motor_Down_Target); // TODO
-        }
+        Motor_Set_Target((MotorInstance *)&up_motor[2], target); // TODO
+        Motor_Set_Target((MotorInstance *)&up_motor[3], target); // TODO
     }
 }
-
 /**
  * @brief 判断电机是否到达目标角度
  *
@@ -788,59 +781,32 @@ void Screw_Motor_Move(Screw_Motor_e motor, Screw_Move_e move)
  * @param move 电机移动方向
  * @return int 1为到达目标角度，0为未到达目标角度
  */
-int If_Target_Reached(Screw_Motor_e motor, Screw_Move_e move)
+int If_Target_Reached(Screw_Motor_e motor)
 {
     if (motor == Forward_Screw_Motor)
     {
-        if (move == Screw_Move_Up)
+        if (fabsf(up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Err) < 5.0f && fabsf(up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Err) < 5.0f)
         {
-            if (fabsf(up_motor[0].Motor_obj.angle - Screw_Motor_UP_Target) < 10.0f && fabsf(up_motor[1].Motor_obj.angle - Screw_Motor_UP_Target) < 10.0f)
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
+            return 1;
         }
-        else if (move == Screw_Move_Down)
+        else
         {
-            if (fabsf(up_motor[0].Motor_obj.angle - Screw_Motor_Down_Target) < 10.0f && fabsf(up_motor[1].Motor_obj.angle - Screw_Motor_Down_Target) < 10.0f)
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
+            return 0;
         }
     }
     else if (motor == Back_Screw_Motor)
-
-        if (move == Screw_Move_Up)
+{
+    if (fabsf(up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Err) < 5.0f && fabsf(up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Err) < 5.0f)
         {
-            if (fabsf(up_motor[2].Motor_obj.angle - Screw_Motor_UP_Target) < 10.0f && fabsf(up_motor[3].Motor_obj.angle - Screw_Motor_UP_Target) < 10.0f)
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
+            return 1;
         }
-        else if (move == Screw_Move_Down)
+        else
         {
-            if (fabsf(up_motor[2].Motor_obj.angle - Screw_Motor_Down_Target) < 10.0f && fabsf(up_motor[3].Motor_obj.angle - Screw_Motor_Down_Target) < 10.0f)
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
+            return 0;
         }
+    }
 }
-
+// 读取轮向电机速度值
 void Motor_Speed_Read()
 {
     for (int i = 0; i < UP_MOTOR_NUM; i++)
@@ -849,6 +815,38 @@ void Motor_Speed_Read()
     }
 }
 
+// 读取抬升机构电机角度值
+void Up_Motor_Angle_Read()
+{
+    for (int i = 0; i < UP_MOTOR_NUM; i++)
+    {
+        up_motor_angle_get[i] = up_motor[i].Motor_obj.total_angle;
+    }
+}
+
+// 抬升机构对零点
+void Up_Machine_Zero_Set(void)
+{
+    Screw_Motor_Move(Forward_Screw_Motor, 0); // todo
+    Screw_Motor_Move(Back_Screw_Motor, 0);
+    for (int i = 0; i < UP_MOTOR_NUM; i++)
+    {
+        if (up_motor[i].Motor_obj.Motor_ctrl.Angle_pid->ERRORHandler.ERRORType == PID_MOTOR_BLOCKED_ERROR) // 检测到堵转
+        {
+            Up_Motor_Angle_Read();
+            up_motor_zero_offset[i] = up_motor_angle_get[i];
+            if (i == 0 || i == 1)
+            {
+                Screw_Motor_Move(Forward_Screw_Motor, up_motor_zero_offset[i]); // 前面、后面丝杆应该同步动
+            }
+            else
+            {
+                Screw_Motor_Move(Back_Screw_Motor, up_motor_zero_offset[i]); // 前面、后面丝杆应该同步动
+            }
+            up_motor[i].Motor_obj.Motor_ctrl.Angle_pid->ERRORHandler.ERRORType = PID_MOTOR_NORMAL_ERROR; // 清除堵转错误
+        }
+    }
+}
 void Follow_pid_init(void)
 {
     PID_Init_Config_s pid_config;
@@ -873,6 +871,7 @@ void Follow_pid_init(void)
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
+// 抬升机构pid初始化
 void Up_Machine_pid_init(void)
 {
     PID_Init_Config_s pid_config;

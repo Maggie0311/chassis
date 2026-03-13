@@ -19,6 +19,11 @@
 
 #define GYRO_ANGEL_MINLIM (6.0f) // 陀螺模式下上坡角度阈值，单位度，超过此角度时不论功率如何都开始限制旋转保证平移性
 
+// 英雄抬升机构电机目标角度
+#define Screw_Motor_UP_Target (0.0f)   // TODO
+#define Screw_Motor_Down_Target (0.0f) // TODO
+#define Screw_Motor_ZeroOffset (0.0f)  // TODO
+
 /*------------------------------------模块宏开关----------------------------------------------------------*/
 #define SMOOTH_VELOCITY_ENABLE 1 // 使能速度平滑
 #define SMOOTH_ANGVEL_ENABLE 0   // 使能角速度平滑
