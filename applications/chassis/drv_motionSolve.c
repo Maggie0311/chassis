@@ -41,10 +41,10 @@ void Omni_Inverse_Kinematics_45_test(Mot_base_t target_xyw, float resolve_data[4
 /**
  * @brief 适应不同角度安装轮子的全向轮逆解算
  *
- * @param alpha 右前轮与右手系x正方向的夹角
+ * @param alpha 右前轮与右手系x正方向的夹角 就是右前轮（0号轮子）与x轴（正前方）的夹角 【2026新普步兵：30；206哨兵：45】
  * @param resolve_data
  */
-void Omni_Inverse_Kinematics_(Mot_base_t target_xyw, float alpha, float *resolve_data)
+void Omni_Inverse_Kinematics_new(Mot_base_t target_xyw, float alpha, float *resolve_data)
 {
     // 初始化雅可比矩阵
     static uint8_t if_init = 0;
@@ -207,8 +207,8 @@ void Omni_Inverse_Kinematics_60(Mot_base_t target_xyw, float resolve_data[4])
         for (int i = 0; i < 4; i++)
         {
             float a = alpha_deg[i] * DEGTORAD;
-            J_Omni_Inv_60.data[i][0] = arm_sin_f32(a) / r;                           // vx系数      -6.25
-            J_Omni_Inv_60.data[i][1] = arm_cos_f32(a) / r;                           // vy系数      10.625
+            J_Omni_Inv_60.data[i][0] = arm_sin_f32(a) / r;                                  // vx系数      -6.25
+            J_Omni_Inv_60.data[i][1] = arm_cos_f32(a) / r;                                  // vy系数      10.625
             J_Omni_Inv_60.data[i][2] = (arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
         }
         if_init_J = 1;
@@ -410,9 +410,9 @@ void Steer_Force_Resolve(Mot_base_t target_force, float *resolve_data)
     ty[2] = Fy / 4 * s - Tw / 4 / r * s * root2_2;
     ty[3] = Fy / 4 * s - Tw / 4 / r * s * root2_2;
 
-    for (uint8_t i=0;i<4;i++)
+    for (uint8_t i = 0; i < 4; i++)
     {
-        resolve_data[i] = (tx[i]*arm_cos_f32(motorSetAngle_steer[i]) + ty[i]*arm_sin_f32(motorSetAngle_steer[i])) ;//* angle_reverse_flag[i];有可能这样是对的，sin\cos自带方向，且只与轮子实际打角有关，与线速度是否取反无关（舵轮实际打角不变时，无论线速度是否取反，都不会改变轮向电机的正方向）
+        resolve_data[i] = (tx[i] * arm_cos_f32(motorSetAngle_steer[i]) + ty[i] * arm_sin_f32(motorSetAngle_steer[i])); //* angle_reverse_flag[i];有可能这样是对的，sin\cos自带方向，且只与轮子实际打角有关，与线速度是否取反无关（舵轮实际打角不变时，无论线速度是否取反，都不会改变轮向电机的正方向）
     }
 
     // resolve_data[0] = tx[0] * arm_cos_f32(motorSetAngle_steer[0]) + ty[0] * arm_sin_f32(motorSetAngle_steer[0]); // RF 计算出来的为扭矩（单位N·m)

@@ -39,7 +39,7 @@ static void PID_Cal_Thread(void)
         Motor_Control_Loop();
 
 #ifdef USE_CAPACITY_3
-        
+
             Power_Ctrl();
 #endif
 
@@ -114,8 +114,8 @@ rt_err_t Wheels_Init(void)
  */
 rt_uint8_t Read_Wheels_Offline_State(void)
 {
-//    uint8_t state[WHEEL_NUM];
-//    //state[WHEEL_RUN] = Wheels_Ctrlinfo[WHEEL_RUN].Wheels_Motor_Offline & ((1 << WHEELS_GROUP_NUM) - 1);
-//    //state[WHEEL_ANGLE] = Wheels_Ctrlinfo[WHEEL_ANGLE].Wheels_Motor_Offline & ((1 << WHEELS_GROUP_NUM) - 1);
-//    return (state[WHEEL_ANGLE] << WHEELS_GROUP_NUM) & state[WHEEL_RUN];
+    //    uint8_t state[WHEEL_NUM];
+    //    //state[WHEEL_RUN] = Wheels_Ctrlinfo[WHEEL_RUN].Wheels_Motor_Offline & ((1 << WHEELS_GROUP_NUM) - 1);
+    //    //state[WHEEL_ANGLE] = Wheels_Ctrlinfo[WHEEL_ANGLE].Wheels_Motor_Offline & ((1 << WHEELS_GROUP_NUM) - 1);
+    //    return (state[WHEEL_ANGLE] << WHEELS_GROUP_NUM) & state[WHEEL_RUN];
 }
