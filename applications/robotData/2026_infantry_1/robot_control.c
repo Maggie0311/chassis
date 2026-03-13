@@ -51,8 +51,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -95,8 +95,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -140,8 +140,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -185,8 +185,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -321,19 +321,19 @@ void Follow_pid_init(void)
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 40;
-    pid_config.Ki = 0.1;
-    pid_config.Kd = 10;
-    pid_config.MaxOut = 11000;
+    pid_config.Kp = 80;
+    pid_config.Ki = 0.4;
+    pid_config.Kd = 28;
+    pid_config.MaxOut = 16000;
     pid_config.DeadBand = 0.1;
-    pid_config.IntegralLimit = 400;
+    pid_config.IntegralLimit = 600;
 
     PIDInit(&follow_pid_fast, &pid_config);
 
-    pid_config.Kp = 20;
-    pid_config.Ki = 0;
-    pid_config.Kd = 10;
-    pid_config.MaxOut = 11000;
+    pid_config.Kp = 30;
+    pid_config.Ki = 0.05;
+    pid_config.Kd = 12;
+    pid_config.MaxOut = 16000;
     pid_config.DeadBand = 0.1;
     pid_config.IntegralLimit = 400;
     PIDInit(&follow_pid_slow, &pid_config);
