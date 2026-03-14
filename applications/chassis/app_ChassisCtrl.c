@@ -40,16 +40,16 @@ extern float motor_speed[4];
 static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
-    // debug_fixctrl=Cctrl;
-    // fixCtrl = debug_fixctrl;
-#ifdef CORE_USING_HERO
-    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
-    {
-        Motor_Speed_Read();                                // 获取底盘轮向电机速度
-        fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
-        fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
-    }
-#endif
+     //debug_fixctrl=Cctrl;
+    //fixCtrl = debug_fixctrl;
+//#ifdef CORE_USING_HERO
+//    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
+//    {
+//        Motor_Speed_Read();                                // 获取底盘轮向电机速度
+//        fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
+//        fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
+//    }
+//#endif
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
 #ifdef CORE_USING_HERO
@@ -74,7 +74,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
         fixCtrl.xyw = MotPack_Only_Chass(fixCtrl.xyw);
         break;
     }
-    debug_fixctrl = fixCtrl; // 控制源控制数据
+    // debug_fixctrl = fixCtrl; // 控制源控制数据
                              // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
     Set_Plan_Vxyw_Process(fixCtrl);
     // debug_fixctrl = fixCtrl;
@@ -138,7 +138,7 @@ static rt_err_t chassisCtrlInit(void)
 
 #ifdef CORE_USING_HERO
     //抬升机构对零点
-    Up_Machine_Zero_Set();
+    //Up_Machine_Zero_Set();
     // 抬升机构前移pid初始化
     Up_Machine_pid_init();
 #endif

@@ -17,7 +17,7 @@ void Motor_Speed_Read();
 void Up_Machine_pid_init(void);
 int If_Target_Reached(Screw_Motor_e motore);
 void Up_Motor_Angle_Read();
-void Screw_Motor_Move(Screw_Motor_e motor, float target);
+void Screw_Motor_Move(Screw_Motor_e motor, float target, uint8_t up_or_down);
 
 // 云台电机是否大小yaw
 #define YAW_MOTOR 0
@@ -25,9 +25,30 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target);
 #define hero
 
 // TODO:调Pid这堆
-#define RUN_PID_Kp 80
-#define RUN_PID_Ki 0.5
-#define RUN_PID_Kd 5
+#define RUN_PID_Kp 180
+#define RUN_PID_Ki 1.2
+#define RUN_PID_Kd 0.8
+
+
+#define UP_PID_Kp_Angle 60
+#define UP_PID_Ki_Angle 0.3
+#define UP_PID_Kd_Angle 0
+
+#define UP_PID_Kp_Speed 35
+#define UP_PID_Ki_Speed 0
+#define UP_PID_Kd_Speed 13
+
+#define DOWN_PID_Kp_Angle 20
+#define DOWN_PID_Ki_Angle 0.1
+#define DOWN_PID_Kd_Angle 0
+
+#define DOWN_PID_Kp_Speed 10
+#define DOWN_PID_Ki_Speed 0
+#define DOWN_PID_Kd_Speed 2
+
+
+#define UP 0
+#define DOWN 1
 
 #define POWER_CTRL 1//功率控制开关，1为开启，0为不开
 
@@ -44,6 +65,6 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target);
 #define Steer_Power_K2 (0.0107) //
 #define Steer_Power_C (5.f)        // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
 
-    void Forward_Kinematics(void);
+void Forward_Kinematics(void);
 
 #endif
