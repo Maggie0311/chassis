@@ -70,7 +70,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 19.2,                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -113,7 +113,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 19.2,                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -158,7 +158,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 19.2,                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -203,7 +203,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 19.2,                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
