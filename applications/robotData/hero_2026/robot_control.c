@@ -966,9 +966,9 @@ void Follow_pid_init(void)
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 45;
-    pid_config.Ki = 0.1;
-    pid_config.Kd = 10;
+    pid_config.Kp = 60;
+    pid_config.Ki = 0.2;
+    pid_config.Kd = 18;
     pid_config.MaxOut = 14000;
     pid_config.DeadBand = 5;
     pid_config.IntegralLimit = 400;

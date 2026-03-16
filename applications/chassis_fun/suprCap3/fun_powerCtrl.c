@@ -44,7 +44,7 @@ RLS_Estimator AngleRLS;
 
 float RunPhi[4], AnglePhi[4];
 float WheelInitTheta[3], SteerInitTheta[3];
-float power_speed_max = 8000;
+float power_speed_max = 6000;
 
 // 传入的参数为电机组总地址，需要区分舵向电机和轮向电机，用于索引
 // 以下设计均是每个部分将对应的舵向电机和轮向电机分别计算
@@ -530,7 +530,7 @@ static void get_chassis_max_power(void)
     // 一部分固定的静态功率不属于电机可用功率：即要减去Power_C_sum
     PowerCtrl.Power_Maxlim = (PowerCtrl.Power_Maxlim_sum - Power_C_sum) * (K_Conservative + PowerCtrl.Power_Allo_level * One_Level_Persent);
 #ifdef hero
-    power_speed_max = get_power_lim_speed(PowerCtrl.Power_Maxlim);
+   // power_speed_max = get_power_lim_speed(PowerCtrl.Power_Maxlim);
 #endif
 }
 
