@@ -55,10 +55,10 @@
 #define VEL_MAX_W (float)10000         //   0.1°/s
 #define ACC_MAX_X (float)3500          // mm/s²
 #define ACC_MAX_Y (float)3500          // mm/s²
-#define ACC_MAX_W (float)30000         // 0.1°/s²
+#define ACC_MAX_W (float)3000         // 0.1°/s²
 #define DOUBLE_ACC_MAX_X (float)30000  // mm / s³
 #define DOUBLE_ACC_MAX_Y (float)30000  // mm / s³
-#define DOUBLE_ACC_MAX_W (float)200000 // 0.1°/ s³
+#define DOUBLE_ACC_MAX_W (float)20000 // 0.1°/ s³
 
 #endif
 

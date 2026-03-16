@@ -367,10 +367,10 @@ void get_true_RLS(void)
         GYRO_FLAG = 0;
     last_mode = Get_Motion_Mode();
 
-    if (RunRLS.repe_speed < 500) // 防止匀速运动时过拟合
+    if (RunRLS.repe_speed < 100) // 防止匀速运动时过拟合
         RunRLS.repe_flag++;
     else
-        RunRLS.repe_speed = 0;
+        RunRLS.repe_flag = 0;
 
     // 以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
     if (PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
@@ -419,7 +419,7 @@ void get_true_RLS(void)
         if (AngleRLS.repe_speed < 500)
             AngleRLS.repe_flag++;
         else
-            AngleRLS.repe_speed = 0;
+            AngleRLS.repe_flag = 0;
         // 以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
         if (PowerInfo.Cap.Power > 10 && AnglePhi[0] && AnglePhi[1] && RunRLS.flag == 1 && AngleRLS.now_power > 0)
         {
@@ -561,7 +561,7 @@ void get_pre_power(void)
         {
             // 舵向电机速度刷新至
             Motor_power[group][WHEEL_ANGLE].V_last = Motor_power[group][WHEEL_ANGLE].V_now;
-            Motor_power[group][WHEEL_ANGLE].V_now = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.speed * get_Ratio(Motor_Power_Pointer[WHEEL_ANGLE][group]); // Motor_Read_NowSpeed(&wheel[group][WHEEL_ANGLE].motor); // 原始转子转速数据(rpm)
+            Motor_power[group][WHEEL_ANGLE].V_now = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.speed * get_Ratio(Motor_Power_Pointer[WHEEL_ANGLE][group]); 
         }
         if (if_wheel_used[group] == 1)
         {
@@ -593,15 +593,15 @@ void get_pre_power(void)
         if (if_wheel_used[group] == 1)
         {
             // 轮向电机
-            Motor_power[group][WHEEL_RUN].initial_tor_set =fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output*
-            get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]));//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算
+            Motor_power[group][WHEEL_RUN].initial_tor_set =Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output*
+            get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]);//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算
             // 功率分配前的预输出功率
 
             // Motor_power[group][WHEEL_RUN].initial_power_set = fabsf(Motor_power[group][WHEEL_RUN].V_now) * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f +
             //         RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
             //         RunRLS.theta[1] * SQUARE(Motor_power[group][WHEEL_RUN].V_now) +
             //         RunRLS.theta[2]/4.f; // 电机功率模型计算公式
-             Motor_power[group][WHEEL_RUN].initial_power_set = fabsf(Motor_power[group][WHEEL_RUN].V_now * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f) +
+             Motor_power[group][WHEEL_RUN].initial_power_set = Motor_power[group][WHEEL_RUN].V_now * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f +
                     RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
                     RunRLS.theta[1] * fabsf(Motor_power[group][WHEEL_RUN].V_now) +
                     RunRLS.theta[2]/4.f; // 电机功率模型计算公式
@@ -642,7 +642,7 @@ static void Power_lim_allo_to_wheels()
     {
         //        轮向电机调整方向
         if (if_wheel_used[group] == 1)
-            Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output *= (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
+       //     Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output *= (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
         // 舵向电机调整方向
         if (if_steer_used[group] == 1)
             Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output *= (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
@@ -790,7 +790,7 @@ static void Power_lim_allo_to_wheels()
         //        轮向电机调整方向
         if (if_wheel_used[group] == 1)
         {
-            Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output * (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
+         //   Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output * (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
             // Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
         }
 

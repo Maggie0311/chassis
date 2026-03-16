@@ -587,7 +587,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
                                                                                                                                                                                             .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
                                                                                                                                                                                             .Motor_RefreshData = DJI_6020_Motor_RefreshData,
                                                                                                                                                                                             .Motor_Control = NULL,
-                                                                                                                                                                                            .Motor_Transmit = DJI_6020_Motor_Transmit,
+                                                                                                                                                                                                                                                                                                                                                                  .Motor_Transmit = DJI_6020_Motor_Transmit,
                                                                                                                                                                                         },
      .controller_param_init_config = {
          // todo pid参数
