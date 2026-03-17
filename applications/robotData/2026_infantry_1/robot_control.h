@@ -7,7 +7,6 @@
 int chassis_motor_init();
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw);
 
-int gim_motor_init();
 void Follow_pid_init(void);
 
 // 云台电机是否大小yaw

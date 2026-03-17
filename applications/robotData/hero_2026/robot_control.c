@@ -8,12 +8,14 @@
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
 #include "drv_SPICAN.h"
+#include "DM_Motor.h"
+
 #include <arm_math.h>
 
 #define WHEEL_MOTOR_NUM 4
 #define UP_MOTOR_NUM 4
 #define STEER_MOTOR_NUM 4
-#define GIM_MOTOR_NUM 2
+#define GIM_MOTOR_NUM 1
 
 #define WHEEL_RF 0
 #define WHEEL_LF 1
@@ -24,7 +26,7 @@
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
 DJI_3508_MotorInstance up_motor[UP_MOTOR_NUM];
 DJI_6020_MotorInstance steer_motor[STEER_MOTOR_NUM];
-DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
+DM_MotorInstance gim_motor[GIM_MOTOR_NUM];
 uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关*/
 float up_motor_zero_offset[UP_MOTOR_NUM]; // 轮毂电机零点
       
@@ -724,77 +726,46 @@ int chassis_motor_init()
      return ret;
 }
 
-DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
-    // YAW轴电机
+DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
     {
-        .motor_obj_init_config = {
-            .name = "Yaw_M",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
-            .motor_type = GM6020,
-            .state = MOTOR_STATE_NOTCTRL,
-        },
-        .Motor_operate_setting = {
-            .Motor_Init = DJI_6020_Motor_Init,
-            .Motor_Enable = DJI_6020_Motor_Enable,
-            .Motor_Disable = DJI_6020_Motor_Disable,
-            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
-            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
-            .Motor_Control = NULL,
-            .Motor_Transmit = NULL,
-        },
+        {
+            .motor_obj_init_config = {
+                .name = "Yaw_M",
+                .reverse_flag = MOTOR_DIRECTION_NORMAL,
+                .motor_type = DM4310,
+                .state = MOTOR_STATE_NOTCTRL,
+            },
+            .Motor_operate_setting = {
+                .Motor_Init = DM_Motor_Init,
+                .Motor_Enable = DM_Motor_Enable,
+                .Motor_Disable = DM_Motor_Disable,
+                .Motor_ErrorHandle = DM_Motor_ErrorHandle,
+                .Motor_RefreshData = DM_Motor_RefreshData,
+                .Motor_Control = NULL,
+                .Motor_Transmit = NULL,
+            },
         .controller_param_init_config = NULL,
 
-        .can_init_config = {
-            .can_device_name = "can2",
-            .rx_id = 0x209, // TODO:设置ID
-            .tx_id = NULL,
-            .can_module_callback = DJI_6020_Motor_RefreshData,
-            .parent = NULL,
-            .spi_slave = SpicanSlave_2,
-        },
-        .DJI6020_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
-            .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
-            .RATIO = 1.0,
-            .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 712,
-            .ctrl_mode = MOTOR_STATE_NOTCTRL,
-        }},
-    // pitch轴电机
-
-    // {.motor_obj_init_config = {
-    //      .name = "Pitch_M",
-    //      .reverse_flag = MOTOR_DIRECTION_NORMAL,
-    //      .motor_type = GM6020,
-    //      .state = MOTOR_STATE_NOTCTRL,
-    //  },
-    //  .Motor_operate_setting = {
-    //      .Motor_Init = DJI_6020_Motor_Init,
-    //      .Motor_Enable = DJI_6020_Motor_Enable,
-    //      .Motor_Disable = DJI_6020_Motor_Disable,
-    //      .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
-    //      .Motor_RefreshData = DJI_6020_Motor_RefreshData,
-    //      .Motor_Control = NULL,
-    //      .Motor_Transmit = NULL,
-    //  },
-    //  .controller_param_init_config = NULL,
-
-    //  .can_init_config = {
-    //      .can_device_name = "can2",
-    //      .rx_id = 0x004, // TODO:设置ID
-    //      .tx_id = NULL,
-    //      .can_module_callback = DJI_6020_Motor_RefreshData,
-    //      .parent = NULL,
-    //     //  .spi_slave=SpicanSlave_2,
-    //  },
-    //  .DJI6020_Motor_Measure_Init_Config = {
-    //      .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
-    //      .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
-    //      .RATIO = 1.0,
-    //      .ENCODER_LEN = 8192,
-    //      .ENCODER_ZERO_OFFSET = 5975,
-    //      .ctrl_mode = MOTOR_STATE_NOTCTRL,
-    //  }}
+            .can_init_config = {
+                .can_device_name = "can2",
+                .rx_id = 0x02,
+                .tx_id = NULL,
+                .spi_slave = SpicanSlave_2,
+                .can_module_callback = DM_Motor_RefreshData,
+                .parent = NULL,
+            },
+            .DM_Motor_Measure_Init_Config = {
+                .RATIO = 1.0,
+                .ENCODER_LEN = 65535,
+                .ENCODER_ZERO_OFFSET = 17350,//10850,
+                .DM_P_MAX = 3.1415926f,
+                .DM_P_MIN = -3.1415926f,
+                .DM_V_MAX = 45.f,
+                .DM_V_MIN = -45.f,
+                .DM_T_MAX = 18.f,
+                .DM_T_MIN = -18.f,
+            },
+        }
 
 };
 
@@ -802,9 +773,9 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
 int gim_motor_init()
 {
     int ret = 0;
-    for (int i = 0; i < GIM_MOTOR_NUM - 1; i++)
+    for (int i = 0; i < GIM_MOTOR_NUM; i++)
     {
-        ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_motor_init_config[i]);
+        ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_dm_motor_init_config[i]);
         if (ret != 0)
         {
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
