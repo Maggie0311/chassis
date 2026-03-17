@@ -324,8 +324,8 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     }
     if (if_used_up == 0 && user_enable && if_used_up_user_unchange == 0) // 云台端打开超电输出，且超电未被标记使用完，
     {
-        power_ctrl_close = 0;        // 通讯打开超电
-        PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
+       power_ctrl_close = 0;        // 通讯打开超电
+      PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
     }
     else // 云台端关闭超电输出，或者超电被标记异常
     {
