@@ -177,7 +177,7 @@ extern RLS_Estimator RunRLS;
 float getScRate(void);
 void Power_Ctrl(void);
 void powerCtrlInit(void);
-float get_k_power_allo();
+
 uint8_t get_SuperCap_if_abnormal(void);
 uint8_t get_Super_Cap_if_open(void);
 void Power_re_allo(void);

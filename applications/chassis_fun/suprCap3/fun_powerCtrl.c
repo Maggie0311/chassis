@@ -324,8 +324,8 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     }
     if (if_used_up == 0 && user_enable && if_used_up_user_unchange == 0) // 云台端打开超电输出，且超电未被标记使用完，
     {
-        power_ctrl_close = 0;        // 通讯打开超电
-        PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
+       power_ctrl_close = 0;        // 通讯打开超电
+      PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
     }
     else // 云台端关闭超电输出，或者超电被标记异常
     {
@@ -367,10 +367,10 @@ void get_true_RLS(void)
         GYRO_FLAG = 0;
     last_mode = Get_Motion_Mode();
 
-    if (RunRLS.repe_speed < 500) // 防止匀速运动时过拟合
+    if (RunRLS.repe_speed < 100) // 防止匀速运动时过拟合
         RunRLS.repe_flag++;
     else
-        RunRLS.repe_speed = 0;
+        RunRLS.repe_flag = 0;
 
     // 以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
     if (PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
@@ -419,7 +419,7 @@ void get_true_RLS(void)
         if (AngleRLS.repe_speed < 500)
             AngleRLS.repe_flag++;
         else
-            AngleRLS.repe_speed = 0;
+            AngleRLS.repe_flag = 0;
         // 以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
         if (PowerInfo.Cap.Power > 10 && AnglePhi[0] && AnglePhi[1] && RunRLS.flag == 1 && AngleRLS.now_power > 0)
         {
@@ -530,7 +530,7 @@ static void get_chassis_max_power(void)
     // 一部分固定的静态功率不属于电机可用功率：即要减去Power_C_sum
     PowerCtrl.Power_Maxlim = (PowerCtrl.Power_Maxlim_sum - Power_C_sum) * (K_Conservative + PowerCtrl.Power_Allo_level * One_Level_Persent);
 #ifdef hero
-   // power_speed_max = get_power_lim_speed(PowerCtrl.Power_Maxlim);
+    power_speed_max = get_power_lim_speed(PowerCtrl.Power_Maxlim);
 #endif
 }
 
@@ -561,7 +561,7 @@ void get_pre_power(void)
         {
             // 舵向电机速度刷新至
             Motor_power[group][WHEEL_ANGLE].V_last = Motor_power[group][WHEEL_ANGLE].V_now;
-            Motor_power[group][WHEEL_ANGLE].V_now = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.speed * get_Ratio(Motor_Power_Pointer[WHEEL_ANGLE][group]); // Motor_Read_NowSpeed(&wheel[group][WHEEL_ANGLE].motor); // 原始转子转速数据(rpm)
+            Motor_power[group][WHEEL_ANGLE].V_now = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.speed * get_Ratio(Motor_Power_Pointer[WHEEL_ANGLE][group]); 
         }
         if (if_wheel_used[group] == 1)
         {
@@ -573,7 +573,7 @@ void get_pre_power(void)
         if (if_steer_used[group] == 1)
         {
             // 舵向电机
-           Motor_power[group][WHEEL_ANGLE].initial_tor_set = fabsf(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output)*
+           Motor_power[group][WHEEL_ANGLE].initial_tor_set = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output*
            get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算;//(wheel_temp[group][WHEEL_ANGLE].motor.spe.out * K_IC2Tor_ANGLE); // 转子扭矩计算
             // 功率分配前的预输出功率
        /*     Motor_power[group][WHEEL_ANGLE].initial_power_set = fabsf(Motor_power[group][WHEEL_ANGLE].V_now) * Motor_power[group][WHEEL_ANGLE].initial_tor_set / 9.55f +
@@ -581,7 +581,7 @@ void get_pre_power(void)
                                                                 Motor_power[group][WHEEL_ANGLE].K2 * SQUARE(Motor_power[group][WHEEL_ANGLE].V_now) +
                                                                 Motor_power[group][WHEEL_ANGLE].C; // 电机功率模型计算公式
         */
-            Motor_power[group][WHEEL_ANGLE].initial_power_set = fabsf(Motor_power[group][WHEEL_ANGLE].V_now * Motor_power[group][WHEEL_ANGLE].initial_tor_set / 9.55f) +
+            Motor_power[group][WHEEL_ANGLE].initial_power_set = Motor_power[group][WHEEL_ANGLE].V_now * Motor_power[group][WHEEL_ANGLE].initial_tor_set / 9.55f +
                 AngleRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_ANGLE].initial_tor_set) +
                 AngleRLS.theta[1] * fabsf(Motor_power[group][WHEEL_ANGLE].V_now) +
                 AngleRLS.theta[2]/4.f; // 电机功率模型计算公式
@@ -593,15 +593,15 @@ void get_pre_power(void)
         if (if_wheel_used[group] == 1)
         {
             // 轮向电机
-            Motor_power[group][WHEEL_RUN].initial_tor_set =fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output*
-            get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]));//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算
+            Motor_power[group][WHEEL_RUN].initial_tor_set =Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output*
+            get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]);//fabsf( wheel_temp[group][WHEEL_RUN].motor.spe.out * K_IC2Tor_RUN); // 转子扭矩计算
             // 功率分配前的预输出功率
 
             // Motor_power[group][WHEEL_RUN].initial_power_set = fabsf(Motor_power[group][WHEEL_RUN].V_now) * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f +
             //         RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
             //         RunRLS.theta[1] * SQUARE(Motor_power[group][WHEEL_RUN].V_now) +
             //         RunRLS.theta[2]/4.f; // 电机功率模型计算公式
-             Motor_power[group][WHEEL_RUN].initial_power_set = fabsf(Motor_power[group][WHEEL_RUN].V_now * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f) +
+             Motor_power[group][WHEEL_RUN].initial_power_set = Motor_power[group][WHEEL_RUN].V_now * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f +
                     RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
                     RunRLS.theta[1] * fabsf(Motor_power[group][WHEEL_RUN].V_now) +
                     RunRLS.theta[2]/4.f; // 电机功率模型计算公式
@@ -624,7 +624,8 @@ void get_pre_power(void)
     }
 }
 
-static void Power_lim_allo_to_wheels()
+static void 
+    Power_lim_allo_to_wheels()
 {
     /*程序在运行这个函数的时候，PID的输出wheel[group][wheel_type].motor.spe.out已经根据初始化时的设置进行方向回反了，
      * 因为已经使用过了Motor_SpeedPIDCalculate函数计算过PID了，
@@ -638,15 +639,15 @@ static void Power_lim_allo_to_wheels()
     float temp_run = 0, temp_angle = 0;
 
     // 符号处理思路：先调整,再计算,最后调回去；简化程序，可以避免每次使用out数据都要调整一次符号的逻辑思考浪费行为
-    for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
-    {
-        //        轮向电机调整方向
-        if (if_wheel_used[group] == 1)
-            Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output *= (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
-        // 舵向电机调整方向
-        if (if_steer_used[group] == 1)
-            Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output *= (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
-    }
+    // for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
+    // {
+    //     //        轮向电机调整方向
+    //     if (if_wheel_used[group] == 1)
+    //    //     Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output *= (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
+    //     // 舵向电机调整方向
+    //     if (if_steer_used[group] == 1)
+    //         Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output *= (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
+    // }
 
     //* 获得预输出功率
     get_pre_power();
@@ -785,21 +786,21 @@ static void Power_lim_allo_to_wheels()
         // Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
     }
 
-    for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
-    {
-        //        轮向电机调整方向
-        if (if_wheel_used[group] == 1)
-        {
-            Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output * (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
-            // Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
-        }
+    // for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
+    // {
+    //     //        轮向电机调整方向
+    //     if (if_wheel_used[group] == 1)
+    //     {
+    //      //   Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output * (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
+    //         // Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
+    //     }
 
-        // 舵向电机调整方向
-        if (if_steer_used[group] == 1)
-        {
-            Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output * (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
-        }
-    }
+    //     // 舵向电机调整方向
+    //     if (if_steer_used[group] == 1)
+    //     {
+    //       //  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output * (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
+    //     }
+    // }
 }
 
 /**
@@ -861,7 +862,7 @@ void Power_Ctrl(void)
     // 计算最大可输出功率与异常处理
     get_chassis_max_power();
     // 功率限制、功率再分配
-    // Power_lim_allo_to_wheels();
+     Power_lim_allo_to_wheels();
 }
 
 __weak float getScRate(void)
@@ -869,7 +870,4 @@ __weak float getScRate(void)
     return 0;
 }
 
-float get_k_power_allo()
-{
-    return PowerCtrl.k_power_allo_wheel;
-}
+
