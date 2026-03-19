@@ -16,8 +16,8 @@
 #include <ulog.h>
 #endif
 
-#define RunERRhigh 1800
-#define RunERRlow 400
+#define RunERRhigh 800
+#define RunERRlow 200
 
 #define AngleERRhigh 200
 #define AngleERRlow 50
@@ -53,6 +53,7 @@ uint8_t if_wheel_used[WHEELS_GROUP_NUM] = {0}; // 记录电机是否被使用
                                                // 0:不使用 1:使用
 
 MotorInstance *Motor_Power_Pointer[2][5];
+uint8_t get_over_voltage_flag=0;
 uint8_t run_count = 0;
 uint8_t angle_count = 0;
 
@@ -300,6 +301,13 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     static uint8_t pre_button_state = 1;         // 前次按键状态（初始上电为0，一段时间后和云台通信成功后，云台发送为1）
     static uint8_t if_used_up = 0;               // 是否电量耗尽
     static uint8_t if_used_up_user_unchange = 0; // 是否用光超电并且用户是否改变状态
+
+    if(PowerInfo.Cap.V_Cap>27)
+    {
+        get_over_voltage_flag=1;
+    }
+    else
+      get_over_voltage_flag=0;
     if (pre_button_state != GimIfSuperCapOutput) // 判断云台是否切换模式
     {
         user_enable = !user_enable; // 标记为需要切换模式
@@ -344,6 +352,10 @@ uint8_t get_SuperCap_if_abnormal(void)
 uint8_t get_Super_Cap_if_open(void)
 {
     return !power_ctrl_close;
+}
+uint8_t get_over_voltage(void)
+{
+    return get_over_voltage_flag;
 }
 
 /**
@@ -664,8 +676,8 @@ static void Power_lim_allo_to_wheels()
 
         Power_Set.power_set_sum = PowerCtrl.Power_Maxlim;
 
-        if (Power_Set.power_set_steer > 0.8f * Power_Set.power_set_sum)
-            Power_Set.power_set_steer = 0.8f * Power_Set.power_set_sum;
+        // if (Power_Set.power_set_steer > 0.8f * Power_Set.power_set_sum)
+        //     Power_Set.power_set_steer = 0.8f * Power_Set.power_set_sum;
 
         Power_Set.power_set_run = Power_Set.power_set_sum - Power_Set.power_set_steer;
     }
@@ -730,10 +742,10 @@ static void Power_lim_allo_to_wheels()
                 }
                 temp_angle = fabsf(Motor_power[group][WHEEL_ANGLE].allo_tor_set); // 取扭矩绝对值
                 // //todo 转换比待修改
-                if (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output > 0)
-                    Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
-                else
-                    Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = -temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
+                // if (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output > 0)
+                //     Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
+                // else
+                //     Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = -temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
             }
 
             if (if_wheel_used[group] == 1)
@@ -841,7 +853,7 @@ void Power_re_allo(void)
         // 按照误差比例的置信度分配
         if (if_wheel_used[group] == 1)
             Motor_power[group][WHEEL_RUN].allo_power_set =
-                RunKcoe * SQUARE(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sq_sum * Power_Set.power_set_run + (1 - RunKcoe) * Power_Set.run_ratio[group] * Power_Set.power_set_run;
+                RunKcoe * fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sum * Power_Set.power_set_run + (1 - RunKcoe) * Power_Set.run_ratio[group] * Power_Set.power_set_run;
 
         if (if_steer_used[group] == 1)
             Motor_power[group][WHEEL_ANGLE].allo_power_set =

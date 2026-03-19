@@ -101,7 +101,8 @@ static void getSuprCapComData(Scpr_ComTx_t *Cmd)
     checkSuprComDataRefresh(now, Cmd->chassis_powerBuf);
     //todo等云台发的无线充电正常再恢复
 //    首先判断是否无线充电
-    if(Get_Wireless_Charge())
+    //if(Get_Wireless_Charge())
+    if(get_over_voltage())
     {
         Cmd->Whether_To_Output = 2; // 无线充电状态为真时，发给超电，让其只放电，不充电
     }
