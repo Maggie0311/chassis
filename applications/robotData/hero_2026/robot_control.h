@@ -22,9 +22,9 @@ float get_power_lim_speed(float power_max);
 #define hero
 
 // TODO:调Pid这堆
-#define RUN_PID_Kp 80
-#define RUN_PID_Ki 0.5
-#define RUN_PID_Kd 5
+#define RUN_PID_Kp 100
+#define RUN_PID_Ki 0.6
+#define RUN_PID_Kd 7
 
 #define POWER_CTRL 1//功率控制开关，1为开启，0为不开
 

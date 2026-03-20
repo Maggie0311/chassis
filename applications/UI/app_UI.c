@@ -950,6 +950,11 @@ void UI_If_Hero_Light_Change()
 void Get_UI_Data(void)
 {
     /******************************未用****************************************/
+    #ifdef HREO_UI_SPECIAL
+    UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据
+    UI_If_Hero_Bullet_Change();                 // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
+    UI_If_Hero_Light_Change();                  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
+#endif
     UiExData.Local_AmmoBooster_Mode = Get_Local_AmmoBooster_Type();
     // UiExData.Local_Robot_Level = Get_Local_Robot_Level();
     UiExData.Gimbal_Motor_Offline = Get_Gimbal_Motor_Offline_State();
@@ -987,6 +992,7 @@ void Get_UI_Data(void)
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Aimbot_Err_Info);       // 显示视觉错误信息
         }
     }
+    /******************************真用****************************************/
 
     UiExData.Strike_Stuck = Get_Gimbal_Stuck_State(); // 刷新卡弹标志位
     UI_If_Stuck_Change();
@@ -1039,12 +1045,6 @@ void Get_UI_Data(void)
 
     UiExData.visual_target_found = Get_Gim_Visual_Target_Found(); // 视觉是否正常识别到敌方
     UI_If_Visual_Target_Found_Change();                           // 检查自瞄识别敌方状态是否改变,并进行相应的检查和处理
-
-#ifdef HREO_UI_SPECIAL
-    UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据
-    UI_If_Hero_Bullet_Change();                 // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
-    UI_If_Hero_Light_Change();                  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
-#endif
 }
 
 // 用户初始化函数

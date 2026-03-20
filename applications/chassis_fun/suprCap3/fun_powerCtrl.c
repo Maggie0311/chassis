@@ -203,7 +203,7 @@ static void getRefDataAndInfo(void)
         // PowerInfo.Ref.PowerBuff = 60; // 缓冲能量J
         getRefData(memberGet_parm(PowerInfo.Ref.Power_Maxlim, ext_game_robot_status, chassis_power_limit)); // 最大功率限制W
         // PowerInfo.Ref.Power_Maxlim = power_max_limit_test; // 最大功率限制W
-        getRefData(memberGet_parm(PowerInfo.Ref.power_now, ext_power_heat_data, chassis_power_reserve));
+        // getRefData(memberGet_parm(PowerInfo.Ref.power_now, ext_power_heat_data, chassis_power_reserve));
         // PowerInfo.Ref.IsOverPower = Ref_Chassis_IsOverPower(&tick_tmp); // 是否超功率及超功率时刻，串口协议1.90已经删除
         // 裁判系统功率数据更新时刻：电流，电压，功率，缓冲能量
         PowerInfo.Ref.refresh_tick = GetRefDataRefreshTick(Index_power_heat_data);

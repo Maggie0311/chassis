@@ -88,11 +88,11 @@ static void getSuprCapComData(Scpr_ComTx_t *Cmd)
     }
 
     // 功率上限 0x0201
-    now = GetRefDataRefreshTick(Index_game_robot_state);
-    checkSuprComDataRefresh(now, powerLimTick);
-    // 功率缓冲 0x0202
-    now = GetRefDataRefreshTick(Index_power_heat_data);
-    checkSuprComDataRefresh(now, powerBufTick);
+    // now = GetRefDataRefreshTick(Index_game_robot_state);
+    // checkSuprComDataRefresh(now, powerLimTick);
+    // // 功率缓冲 0x0202
+    // now = GetRefDataRefreshTick(Index_power_heat_data);
+    // checkSuprComDataRefresh(now, powerBufTick);
 
     getRefData(memberGet_parm(now,ext_game_robot_status,chassis_power_limit));
     // 底盘功率限制上限--从裁判系统数据中读取
