@@ -72,16 +72,16 @@ int main(void)
 #ifdef BSP_USING_REF
     /*裁判系统*/
     result = Ref_Init();
-    if (result != RT_EOK)
-    {
-        LOG_E("DJI Init Failes! Result is %d", result);
-        LOG_E("Robot Reset!");
-        Robot_Chassis_Reset(RT_TRUE);
-    }
-    else
-    {
-        LOG_I("DJI Init Success!");
-    }
+   if (result != RT_EOK)
+   {
+       LOG_E("DJI Init Failes! Result is %d", result);
+       LOG_E("Robot Reset!");
+       Robot_Chassis_Reset(RT_TRUE);
+   }
+   else
+   {
+       LOG_I("DJI Init Success!");
+   }
 #endif
     /*超电通信*/
     result = Scpr_Com_Init();

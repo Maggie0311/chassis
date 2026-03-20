@@ -96,7 +96,7 @@ rt_err_t Wheels_Init(void)
                   Cal_IRQHandler,
                   RT_NULL,
                   5,
-                  RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
+                  RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);//200Hz
 
     // 启动定时器
     res = rt_timer_start(&Cal_Timer);
