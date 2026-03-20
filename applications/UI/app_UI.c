@@ -318,8 +318,12 @@ void Strike_Mode_Info_Rect_3(UI_Object *object)
 }
 int aim_point_energy_x = 960;
 int aim_point_energy_y = 495;
-int aim_point_normal_x = 960;
-int aim_point_normal_y = 505;
+int aim_point_normal_x = 935;
+int aim_point_normal_y = 388;   //5m
+// int aim_point_normal_x=935;//3
+// int aim_point_normal_y =433 ;
+int aim_point_normal_x_3=935;//3
+int aim_point_normal_y_3 =455 ;
 // 绘制准心位置（这里分为打符模式和普通自瞄模式两种情况，并且在能量机关拟合结束，或者自瞄最佳距离时会自动变色为队伍颜色）
 void UI_Aim_Point_Info(UI_Object *object)
 {
@@ -345,6 +349,18 @@ void UI_Aim_Point_Info(UI_Object *object)
             UI_Set_Circle(object, UiWhite, 3, Ui_layer_0, aim_point_normal_x, aim_point_normal_y, 15);
         }
     }
+}
+
+void UI_Aim_Point_Info_Hero_3(UI_Object *object)
+{
+     if (UiExData.if_aimbot_best_dis) // 附加功能：用来判断是否为最佳距离，如果是最佳距离，则将颜色置为队伍颜色，否则置为白色
+        {
+            UI_Set_Circle(object, UiTeam, 3, Ui_layer_0, aim_point_normal_x_3, aim_point_normal_y_3, 15);
+        }
+        else
+        {
+            UI_Set_Circle(object, UiGreen, 3, Ui_layer_0, aim_point_normal_x_3, aim_point_normal_y_3, 15);
+        }
 }
 // 绘制视觉能量机关拟合成功后的能量机关图形
 // 绘制能量机关中心圆圈
@@ -653,6 +669,7 @@ void Attach_UI_init()
 
     // 能量机关(视觉拟合状态和开启能量机关自瞄模式时显示)
     Attach_UI_Object(UiCircle, UiWhite, TRANS_ONCE, 1, UI_Aim_Point_Info);        // 能量机关中心图标圆圈
+    Attach_UI_Object(UiCircle, UiGreen, TRANS_ONCE, 1, UI_Aim_Point_Info_Hero_3);        // 能量机关中心图标圆圈
     // Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Circle);        // 能量机关中心图标圆圈
     // Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_1);          // 能量机关五条直线和五个圆圈
     // Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_2);          // 能量机关五条直线和五个圆圈
@@ -708,6 +725,8 @@ void UI_If_Aimbot_Change()
     {
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aimbot_Mode);    // 更新自瞄模式
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新准心位置和颜色
+        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info_Hero_3); // 更新准心位置和颜色
+
 
         if (AIMBUFF_CONST_MODE == UiExData.Aimbot_Mode || AIMBUFF_VAR_MODE == UiExData.Aimbot_Mode)
         {
@@ -754,6 +773,7 @@ void UI_If_Aimbot_Best_Dis_Change()
     if (last_aimbot_best_dis != UiExData.if_aimbot_best_dis)
     {
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新自瞄模式
+        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info_Hero_3); // 更新自瞄模式
     }
     last_aimbot_best_dis = UiExData.if_aimbot_best_dis; // 更新自瞄最佳距离状态
 }
@@ -786,6 +806,8 @@ void UI_If_Energy_is_already_Change()
         Drv_Set_Object_Visualable(UI_MODIFY, UI_EnergyR_Line_Circle_4); // 更新能量机关状态
         Drv_Set_Object_Visualable(UI_MODIFY, UI_EnergyR_Line_Circle_5); // 更新能量机关状态
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info);        // 更新准心位置和颜色
+        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info_Hero_3);        // 更新准心位置和颜色
+
     }
     last_energy_is_already = UiExData.Energy_is_already; // 更新能量机关状态
 }
@@ -994,6 +1016,12 @@ void Get_UI_Data(void)
     UiExData.visual_target_found = Get_Gim_Visual_Target_Found(); // 视觉是否正常识别到敌方
     UI_If_Visual_Target_Found_Change();                           // 检查自瞄识别敌方状态是否改变,并进行相应的检查和处理
 
+        // UI复位标志，云台发送变化时，需要复位
+    if (UiExData.UI_Reset_Flag != Get_UI_Reset_Flg())
+    {
+        UI_Reset_All();                              // 复位UI函数
+        UiExData.UI_Reset_Flag = Get_UI_Reset_Flg(); // 更新UI复位标志位
+    }
     /******************************未用****************************************/
 //     #ifdef HREO_UI_SPECIAL
 //     UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据
@@ -1015,12 +1043,7 @@ void Get_UI_Data(void)
 //  UiExData.RefSystem_Offline = (!GetRefDataRefreshTick(Index_power_heat_data)) || (!GetRefDataRefreshTick(Index_game_robot_state)) ||
 //                                  (!IsRefDataValid(Index_power_heat_data, 1000)) || (!IsRefDataValid(Index_game_robot_state, 1000)); //! 修改使用新的取时间和判断函数
 
-//     // UI复位标志，云台发送变化时，需要复位
-//     if (UiExData.UI_Reset_Flag != Get_UI_Reset_Flg())
-//     {
-//         UI_Reset_All();                              // 复位UI函数
-//         UiExData.UI_Reset_Flag = Get_UI_Reset_Flg(); // 更新UI复位标志位
-//     }
+
 //     UiExData.gimErrState = getGimErrState();
 //     // 无线充电是否开启
 //     UiExData.IfWireless_Charge = Get_Wireless_Charge(); // 刷新无线充电状态

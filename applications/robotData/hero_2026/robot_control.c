@@ -498,7 +498,7 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
             .DM_Motor_Measure_Init_Config = {
                 .RATIO = 1.0,
                 .ENCODER_LEN = 65535,
-                .ENCODER_ZERO_OFFSET = 5200,
+                .ENCODER_ZERO_OFFSET = 5790,
                 .DM_P_MAX = 3.1415926f,
                 .DM_P_MIN = -3.1415926f,
                 .DM_V_MAX = 45.f,
@@ -630,7 +630,7 @@ void Forward_Kinematics(void)
 float get_power_lim_speed(float power_max)
 {
     float speed_max = 0;
-    speed_max = 5.776 * power_max + 496;
+    speed_max = 6.976f * power_max + 696;
     if (speed_max > 3000)
         speed_max = 3000;
     else if (speed_max < 1000)
