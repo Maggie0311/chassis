@@ -70,7 +70,7 @@ typedef __packed struct
 
 #define GIMBAL_CTRL_RX 0x100    // 云台控制底盘相关ID（rx_gimctrl）
 #define GIMBAL_DATA_RX 0x401     // 从云台接收的各类数据ID（rx_gimData）
-#define GIMBAL_IMU_DATA_RX 0x402 // 从云台接收的IMU数据ID（rx_gimIMU）
+// #define GIMBAL_IMU_DATA_RX 0x402 // 从云台接收的IMU数据ID（rx_gimIMU）
 #define GIMBAL_UI_LIGHT_DATA_RX 0x403 // 从云台接收的UI引导灯数据ID（rx_gimUI）
 #define GIMBAL_UI_BULLET_DATA_RX 0x404 // 从云台接收的UI弹丸数据ID（rx_gimBullet）
 typedef enum
