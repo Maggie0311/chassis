@@ -26,7 +26,7 @@
 
 #define K_Conservative (1.0f) // 功率限制的保守系数(设为1时不作保守限制)
 
-#define POWER_REMANI (40)           // 初始化时功率
+#define POWER_REMANI (100)           // 初始化时功率
 #define POWER_MAX (80)             //允许底盘在任何情况下的最大功率（包括有超电的情况下）
 #define POWER_REMANI_FLYSLOPE (250) // 飞坡增益后能量缓冲上限
 #define RefPowerBuf (60)            // 底盘初始缓冲能量（单位j）
