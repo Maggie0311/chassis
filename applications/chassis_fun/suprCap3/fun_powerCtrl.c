@@ -302,12 +302,12 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     static uint8_t if_used_up = 0;               // 是否电量耗尽
     static uint8_t if_used_up_user_unchange = 0; // 是否用光超电并且用户是否改变状态
 
-    if(PowerInfo.Cap.V_Cap>27)
-    {
-        get_over_voltage_flag=1;
-    }
-    else
-      get_over_voltage_flag=0;
+//    if(PowerInfo.Cap.V_Cap>27)
+//    {
+//        get_over_voltage_flag=1;
+//    }
+//    else
+//      get_over_voltage_flag=0;
     if (pre_button_state != GimIfSuperCapOutput) // 判断云台是否切换模式
     {
         user_enable = !user_enable; // 标记为需要切换模式
@@ -330,7 +330,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         // power_ctrl_close = 0;                         // 通讯打开超电
         // PowerCtrl_Close_Flag[0] = 0;                  // 打开超电数据使用
     }
-    if (if_used_up == 0 && user_enable && if_used_up_user_unchange == 0) // 云台端打开超电输出，且超电未被标记使用完，
+    if (if_used_up == 0 )//&& user_enable && if_used_up_user_unchange == 0) // 云台端打开超电输出，且超电未被标记使用完，
     {
        power_ctrl_close = 0;        // 通讯打开超电
       PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
@@ -385,14 +385,14 @@ void get_true_RLS(void)
         RunRLS.repe_flag = 0;
 
     // 以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
-    if (PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
+    if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
         RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
         //  RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
-    else if (PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power < 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
+    else if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power < 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
         RLS_Update(&RunRLS, RunPhi, RunRLS.now_power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
         if (!Check_Stability(&RunRLS))
