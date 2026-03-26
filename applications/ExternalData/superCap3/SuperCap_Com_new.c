@@ -93,6 +93,11 @@ static void getSuprCapComData(Scpr_ComTx_t *Cmd)
     // // 功率缓冲 0x0202
     // now = GetRefDataRefreshTick(Index_power_heat_data);
     // checkSuprComDataRefresh(now, powerBufTick);
+    // now = GetRefDataRefreshTick(Index_game_robot_state);
+    // checkSuprComDataRefresh(now, powerLimTick);
+    // // 功率缓冲 0x0202
+    // now = GetRefDataRefreshTick(Index_power_heat_data);
+    // checkSuprComDataRefresh(now, powerBufTick);
 
     getRefData(memberGet_parm(now,ext_game_robot_status,chassis_power_limit));
     // 底盘功率限制上限--从裁判系统数据中读取
@@ -143,6 +148,7 @@ static rt_err_t Send_To_Scpr(Scpr_ComTx_t *cmd)
 {
     /*更新发送数据*/
 	//cmd->Whether_To_Output=2;
+ //   cmd->Whether_To_Output = 0;
     scpr_caninstance.tx_buff[0] = (uint8_t)(cmd->Whether_To_Output);
     scpr_caninstance.tx_buff[1] = (uint8_t)(cmd->isdataRef);
     scpr_caninstance.tx_buff[2] = (uint8_t)(cmd->isFlySlope);

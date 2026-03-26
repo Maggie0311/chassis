@@ -10,17 +10,17 @@
 #include "drv_motionSolve.h"
 #include "robot_control.h"
 #include "drv_GimMotor.h"
-
+#include  "fun_powerCtrl.h"
 #ifdef BSP_USING_LOG
-#define LOG_TAG     "Ctrl"
-#define LOG_LVL     LOG_LVL_DBG
+#define LOG_TAG "Ctrl"
+#define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 #endif
 
 /*-------------------外部控制单位,xy平移速度矢量,单位mm/s; 自转角速度,单位0.1°/s------------*/
 
 /*方便debug (Ctrl_data_info_t *)nowCtrlSrc->data*/
-Ctrl_source_t *nowCtrlSrc = NULL;//当前数据源全局变量
+Ctrl_source_t *nowCtrlSrc = NULL; // 当前数据源全局变量
 
 /*线程定时器*/
 static struct rt_semaphore ChassCtrl_sem;
@@ -29,7 +29,7 @@ static void ChassCtrl_IRQHandler(void *parameter)
     rt_sem_release(&ChassCtrl_sem);
 }
 
-//debug
+// debug
 Ctrl_data_t debug_fixctrl;
 
 /**
@@ -39,9 +39,8 @@ Ctrl_data_t debug_fixctrl;
 static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
-     //debug_fixctrl=Cctrl;
-    // fixCtrl = debug_fixctrl;
-
+    //fixCtrl = debug_fixctrl;
+    debug_fixctrl = fixCtrl;   
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
     case CHASS_AUTO: // 底盘自主
@@ -62,9 +61,9 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
         fixCtrl.xyw = MotPack_Only_Chass(fixCtrl.xyw);
         break;
     }
-     debug_fixctrl = fixCtrl; // 控制源控制数据
-    // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
-   Set_Plan_Vxyw_Process(fixCtrl);
+    //debug_fixctrl = fixCtrl; // 控制源控制数据
+                             // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
+    Set_Plan_Vxyw_Process(fixCtrl);
     // debug_fixctrl = fixCtrl;
     //  修改pid的设定值
     //  chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
@@ -93,7 +92,7 @@ static void Chassis_Ctrl_Thread(void *parameter)
             if (nowCtrlSrc->data)
             {
                 Ctrl_data = (Ctrl_data_t *)nowCtrlSrc->data; /*得到原始设定值*/
-                Ctrl_data->xyw.angvel = 5000;//视觉控制掉线时默认转速
+                Ctrl_data->xyw.angvel = 5000;                // 视觉控制掉线时默认转速
             }
         }
 #endif
@@ -128,7 +127,6 @@ static rt_err_t chassisCtrlInit(void)
     res = rt_sem_init(&ChassCtrl_sem, "Cctrl_sem", 0, RT_IPC_FLAG_FIFO);
     if (res != RT_EOK)
         return res;
-
     // 该线程总的来说是根据控制端发来的数据进行处理转化为pid底盘车轮的设定目标值
     thread = rt_thread_create("Chassis_Thread",
                               Chassis_Ctrl_Thread,

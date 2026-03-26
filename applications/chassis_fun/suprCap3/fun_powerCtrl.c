@@ -44,7 +44,7 @@ RLS_Estimator AngleRLS;
 
 float RunPhi[4], AnglePhi[4];
 float WheelInitTheta[3], SteerInitTheta[3];
-float power_speed_max = 6000;
+float power_speed_max = 9000;
 
 // 传入的参数为电机组总地址，需要区分舵向电机和轮向电机，用于索引
 // 以下设计均是每个部分将对应的舵向电机和轮向电机分别计算
@@ -341,9 +341,15 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         power_ctrl_close = 1;        // 通讯关闭超电
         PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
     }
+    // power_ctrl_close = 1;        // 通讯关闭超电
+    //     PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
     // #endif
 }
 
+uint8_t get_over_voltage(void)
+{
+    return get_over_voltage_flag;
+}
 // 在UI界面告知操作手超电可能电容组放电或者报废异常
 uint8_t get_SuperCap_if_abnormal(void)
 {
@@ -387,14 +393,15 @@ void get_true_RLS(void)
     // 以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
     if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
-        RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
-        //  RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );
+        
+       // RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+         // RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
     else if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power < 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
-        RLS_Update(&RunRLS, RunPhi, RunRLS.now_power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+      //  RLS_Update(&RunRLS, RunPhi, RunRLS.now_power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
@@ -614,7 +621,7 @@ void get_pre_power(void)
             //         RunRLS.theta[1] * SQUARE(Motor_power[group][WHEEL_RUN].V_now) +
             //         RunRLS.theta[2]/4.f; // 电机功率模型计算公式
              Motor_power[group][WHEEL_RUN].initial_power_set = Motor_power[group][WHEEL_RUN].V_now * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f +
-                    RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
+                   RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
                     RunRLS.theta[1] * fabsf(Motor_power[group][WHEEL_RUN].V_now) +
                     RunRLS.theta[2]/4.f; // 电机功率模型计算公式
                 //todo
@@ -740,7 +747,7 @@ static void Power_lim_allo_to_wheels()
                                                                           4 * AngleRLS.theta[0] * (AngleRLS.theta[1] * fabsf(Motor_power[group][WHEEL_ANGLE].V_now) + AngleRLS.theta[2] / 4.f - Motor_power[group][WHEEL_ANGLE].allo_power_set))) /
                                                                    (2 * AngleRLS.theta[0]);
                 }
-                temp_angle = fabsf(Motor_power[group][WHEEL_ANGLE].allo_tor_set); // 取扭矩绝对值
+                //temp_angle = fabsf(Motor_power[group][WHEEL_ANGLE].allo_tor_set); // 取扭矩绝对值
                 // //todo 转换比待修改
                 // if (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output > 0)
                 //     Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
@@ -873,12 +880,17 @@ void Power_Ctrl(void)
     // 计算最大可输出功率与异常处理
     get_chassis_max_power();
     // 功率限制、功率再分配
-     Power_lim_allo_to_wheels();
+    Power_lim_allo_to_wheels();
 }
+
+
 
 __weak float getScRate(void)
 {
     return 0;
 }
 
-
+float get_k_power_allo()
+{
+    return PowerCtrl.k_power_allo_wheel;
+}

@@ -18,8 +18,6 @@ static void Cal_IRQHandler(void *parameter) //
     rt_sem_release(&Cal_sem);
 }
 
-
-
 // 电机控制部分
 //  车轮pid计算线程
 //   该线程总的来说是根据外部(Chassis_Ctrl_Thread)计算出来的底盘设定值来进行pid计算并发送数据给电机
@@ -40,7 +38,7 @@ static void PID_Cal_Thread(void)
 
 #ifdef USE_CAPACITY_3
 
-            Power_Ctrl();
+          Power_Ctrl();
 #endif
 
         /*can报文发送*/
@@ -105,7 +103,6 @@ rt_err_t Wheels_Init(void)
 
     return RT_EOK;
 }
-
 
 /**
  * @brief 读取底盘电机当前的离线情况

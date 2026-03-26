@@ -266,6 +266,21 @@ void UI_Aimbot_Color(UI_Object *object)
                   UI_AIMBOT_COLOR_SIZE, color_txt[color], sizeof(color_txt[color]));
 }
 
+// 缓冲能量显示数值 当数值变成15一下变色
+void UI_PowerBuff_Value(UI_Object *object)
+{
+    uint16_t powerbuff = UiExData.powerbuff;
+    if (powerbuff <= 15)
+    {
+        UI_Set_Int(object, UiGreen,4,Ui_layer_5,550,200,80,powerbuff);
+        UI_Set_Color(object, UiOrange);
+    }
+    else
+    {
+        UI_Set_Int(object, UiGreen,4,Ui_layer_5,550,200,30,powerbuff);
+        UI_Set_Color(object, UiGreen);
+    }
+}
 //  绘制车道线第1条
 void UI_LaneLine_1(UI_Object *object)
 {
@@ -317,7 +332,7 @@ void Strike_Mode_Info_Rect_3(UI_Object *object)
                 UI_STRIKE_MODE_CENTER_X + UI_STRIKE_MODE_SIZE * 3 + UI_STRIKE_MODE_SIZE, UI_STRIKE_MODE_CENTER_Y + UI_STRIKE_MODE_SIZE);
 }
 int aim_point_energy_x = 960;
-int aim_point_energy_y = 495;
+int aim_point_energy_y = 495;//步兵
 int aim_point_normal_x = 935;
 int aim_point_normal_y = 388;   //5m
 // int aim_point_normal_x=935;//3
@@ -699,7 +714,7 @@ void Attach_UI_init()
     Attach_UI_Object(UiStr, UiOrange, TRANS_NULL, 0, UI_StrikeStuck_Info); // 绘制堵弹标志
 
     // 相机位置辅助矩形框UI
-    Attach_UI_Object(UiRect, UiWhite, TRANS_ONCE, 1, UI_Camera_Assist_Rect); // 绘制相机位置辅助矩形框
+    //Attach_UI_Object(UiRect, UiWhite, TRANS_ONCE, 1, UI_Camera_Assist_Rect); // 绘制相机位置辅助矩形框
 
     // 显示当前底盘运动模式
     Attach_UI_Object(UiStr, UiYellow, TRANS_FOREVER, 5, UI_Motion_Mode); // 显示当前底盘运动模式
@@ -710,6 +725,9 @@ void Attach_UI_init()
     Attach_UI_Object(UiStr, UiGreen, TRANS_ONCE, 1, UI_Aimbot_Mode_Word);  // 自瞄模式显示（字符）
     Attach_UI_Object(UiStr, UiGreen, TRANS_ONCE, 1, UI_Aimbot_Color_Word); //  自瞄颜色显示（字符）
     Attach_UI_Object(UiStr, UiTeam, TRANS_ONCE, 1, UI_Aimbot_Color);       //  自瞄颜色显示
+
+    //绘制缓冲能量相关提示
+    Attach_UI_Object(UiInt,UiGreen,TRANS_FOREVER,1,UI_PowerBuff_Value);//缓冲能量显示数值 当数值变成15一下变色
 
     // 绘制车道线
     Attach_UI_Object(UiLine, UiTeam, TRANS_ONCE, 1, UI_LaneLine_1); //  绘制车道线第1条
@@ -840,7 +858,7 @@ void UI_If_Visual_Target_Found_Change()
     static uint8_t last_visual_target_found = 0; // 自瞄最佳距离上次保存状态
     if (last_visual_target_found != UiExData.visual_target_found)
     {
-        Drv_Set_Object_Visualable(UI_MODIFY, UI_Camera_Assist_Rect); // 更新相机框颜色
+        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新准心颜色
     }
     last_visual_target_found = UiExData.visual_target_found; // 更新视觉识别标志
 }

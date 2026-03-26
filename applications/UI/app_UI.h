@@ -28,6 +28,8 @@ typedef struct UI_Used_Data_t
     ext_robot_hurt_t hurtInfo; // 获取伤害状态,发送频率--当建筑受到攻击时警告
     unsigned Self_Robot_HP;
 
+    uint16_t powerbuff; //缓冲能量
+
     Local_Chassis_Mode_Enum Local_Chassis_Mode; // 当前设置的本地底盘类型(只有裁判系统离线的时候画出来)
     ui_option_display_e MenuOption;             // 当前所在的菜单
 
@@ -41,7 +43,6 @@ typedef struct UI_Used_Data_t
     rt_uint8_t Local_Robot_Level;                       // 当前设置的本地机器人等级(只有裁判系统离线的时候画出来)
     rt_uint8_t Gimbal_Motor_Offline;                    // 云台电机离线情况,从低到高分别为：Yaw、Pitch、右摩擦轮、左摩擦轮、播弹盘, 置 1 表示离线
     rt_uint8_t Chassis_Motor_Offline;                   // 底盘电机离线情况, 从低到高分别为：右前、左前、左后、右后、Yaw轴电机, 置 1 表示离线
-
     // unsigned sentryIsErr : 1;          // 哨兵是否在启动区
 
     unsigned Magazine_Status : 1;          // 弹仓状态

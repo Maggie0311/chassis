@@ -199,6 +199,9 @@ static rt_uint16_t Ref_Bullet_Speed_Limit(void)
 #endif
 }
 
+Gim_Reftrans1_t gim_reftrans_msg1;
+Gim_Reftrans2_t gim_reftrans_msg2;
+
 /**
  * @brief 转发裁判系统数据1的数据获取函数
  *
@@ -206,7 +209,6 @@ static rt_uint16_t Ref_Bullet_Speed_Limit(void)
  */
 static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
 {
-    Gim_Reftrans1_t gim_reftrans_msg1;
     rt_memset(&gim_reftrans_msg1, 0, sizeof(gim_reftrans_msg1));
     uint16_t get_temp_16;
     /*枪口热量*/
@@ -220,8 +222,8 @@ static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
     /*枪口速度上限*/
     gim_reftrans_msg1.speed_limit = Ref_Bullet_Speed_Limit();
     /*枪口冷却具体值*/
-    getRefData(memberGet_parm(get_temp_16, ext_buff_musk, cooling_buff));
-    gim_reftrans_msg1.cooling_buff = get_temp_16;
+    //getRefData(memberGet_parm(get_temp_16, ext_buff_musk, cooling_buff));
+    //gim_reftrans_msg1.cooling_buff = get_temp_16;
 
     //! 因为协议修改导致字节数超了，但暂时配合云台调试
     memcpy(instance->tx_buff, &gim_reftrans_msg1, sizeof(gim_reftrans_msg1) < 8 ? sizeof(gim_reftrans_msg1) : 8);
@@ -234,7 +236,6 @@ static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
  */
 static void Gimbal_RefdataGet_Tx(CANInstance *instance)
 {
-    Gim_Reftrans2_t gim_reftrans_msg2;
     rt_memset(&gim_reftrans_msg2, 0, sizeof(gim_reftrans_msg2));
     uint8_t get_temp_8; // 暂存裁判系统信息
     uint16_t get_temp_16;
