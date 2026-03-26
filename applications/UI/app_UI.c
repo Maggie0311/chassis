@@ -624,6 +624,54 @@ void UI_Big_Bullet_Circle(UI_Object *object)
     UI_Set_Circle(object, UiTeam, 4, Ui_layer_0, bullet_x, bullet_y, bullet_radius);
 }
 #endif
+
+void UI_Hero_Aim_Rect_1(UI_Object *object)
+{
+    UI_Set_Rect(object, UiGreen, 2, Ui_layer_0, 875,
+                430,
+               980,
+                490);
+    }
+
+
+void UI_Hero_Aim_Rect_2(UI_Object *object)
+{
+    UI_Set_Rect(object, UiOrange, 2, Ui_layer_0, 905,
+                430,
+               955,
+                460);
+}
+
+void UI_Hero_Aim_Rect_3(UI_Object *object)
+{
+    UI_Set_Rect(object, UiMagenta, 2, Ui_layer_0, 912,
+                380,
+               945,
+                395);
+}
+
+void UI_Hero_Aim_Rect_4(UI_Object *object)
+{
+    UI_Set_Rect(object, UiPink, 2, Ui_layer_0, 915,
+                297,
+               942,
+                307);
+}
+
+
+//英雄是否允许超热量射击
+void UI_Hero_Allow_Heat_Shoot(UI_Object *object)
+{
+    static char txt[2][15] = {"Allow Shoot", "Forbid Shoot"};
+    if(UiExData.IfAllow_Heat_Shoot==1)
+    {
+    UI_Set_String(object, UiGreen, 2, Ui_layer_0, 960, 200, 25, txt[0], sizeof(txt[0]));
+    }
+    else
+    {
+        UI_Set_String(object, UiOrange, 2, Ui_layer_0, 960, 200, 25, txt[1], sizeof(txt[1]));
+    }
+}
 /// <summary>
 ///                 注册部分初始化
 /// </summary>
@@ -667,9 +715,18 @@ void Attach_UI_init()
     Attach_UI_Object(UiLine, UiTeam, TRANS_ONCE, 1, UI_LaneLine_1); //  绘制车道线第1条
     Attach_UI_Object(UiLine, UiTeam, TRANS_ONCE, 1, UI_LaneLine_2); //  绘制车道线第2条
 
-    // 能量机关(视觉拟合状态和开启能量机关自瞄模式时显示)
-    Attach_UI_Object(UiCircle, UiWhite, TRANS_ONCE, 1, UI_Aim_Point_Info);        // 能量机关中心图标圆圈
-    Attach_UI_Object(UiCircle, UiGreen, TRANS_ONCE, 1, UI_Aim_Point_Info_Hero_3);        // 能量机关中心图标圆圈
+    // // 能量机关(视觉拟合状态和开启能量机关自瞄模式时显示)
+    // Attach_UI_Object(UiCircle, UiWhite, TRANS_ONCE, 1, UI_Aim_Point_Info);        // 能量机关中心图标圆圈
+    // Attach_UI_Object(UiCircle, UiGreen, TRANS_ONCE, 1, UI_Aim_Point_Info_Hero_3);        // 能量机关中心图标圆圈
+
+    //绘制英雄需要的瞄准线
+    Attach_UI_Object(UiRect, UiGreen,TRANS_ONCE , 1, UI_Hero_Aim_Rect_1);  // 绘制英雄瞄准线第1条
+    Attach_UI_Object(UiRect, UiOrange,TRANS_ONCE , 1, UI_Hero_Aim_Rect_2);  // 绘制英雄瞄准线第2条
+    Attach_UI_Object(UiRect, UiMagenta,TRANS_ONCE , 1, UI_Hero_Aim_Rect_3);  // 绘制英雄瞄准线第3条
+    Attach_UI_Object(UiRect, UiPink,TRANS_ONCE , 1, UI_Hero_Aim_Rect_4);  // 绘制英雄瞄准线第4条
+    // 绘制英雄是否允许超热量射击的矩形框
+    Attach_UI_Object(UiStr, UiOrange,TRANS_ONCE , 1, UI_Hero_Allow_Heat_Shoot);  // 绘制英雄是否允许超热量射击
+
     // Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Circle);        // 能量机关中心图标圆圈
     // Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_1);          // 能量机关五条直线和五个圆圈
     // Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_2);          // 能量机关五条直线和五个圆圈
@@ -850,6 +907,15 @@ static rt_uint8_t getIfBuildAttacked(void)
     return hurt.build_if_attacked;
 }
 
+void UI_If_Allow_Heat_Shoot_Change()
+{
+    static uint8_t last_allow_heat_shoot = 0; // 英雄是否允许超热量射击上次保存状态
+    if (last_allow_heat_shoot != UiExData.IfAllow_Heat_Shoot)
+    {
+        Drv_Set_Object_Visualable(UI_MODIFY, UI_Hero_Allow_Heat_Shoot); // 更新英雄是否允许超热量射击状态
+    }
+    last_allow_heat_shoot = UiExData.IfAllow_Heat_Shoot; // 更新英雄是否允许超热量射击状态
+}
 #if defined HREO_UI_SPECIAL
 /********测试UI_If_Hero_Bullet_Change********** */
 /**
@@ -1022,6 +1088,9 @@ void Get_UI_Data(void)
         UI_Reset_All();                              // 复位UI函数
         UiExData.UI_Reset_Flag = Get_UI_Reset_Flg(); // 更新UI复位标志位
     }
+
+    UiExData.IfAllow_Heat_Shoot = Get_Allow_Heat_Shoot(); // 英雄是否允许超热量射击
+    UI_If_Allow_Heat_Shoot_Change(); // 检查英雄是否允许超热量射击状态是否改变,并进行相应的检查和处理
     /******************************未用****************************************/
 //     #ifdef HREO_UI_SPECIAL
 //     UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据

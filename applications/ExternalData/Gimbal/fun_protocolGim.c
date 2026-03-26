@@ -192,6 +192,11 @@ uint8_t Get_if_aimbot_best_dis(void)
 { // UI
     return gimbal_mixdata_msg.if_aimbot_best_dis;
 }
+
+uint8_t Get_Allow_Heat_Shoot(void)
+{ // UI
+    return gimbal_mixdata_msg.allow_heat_shoot;
+}
 /**
  * @brief 获取云台发送给底盘关于视觉是否识别到敌方的信息（0为未识别到，1为识别到）
  *

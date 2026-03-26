@@ -127,6 +127,7 @@ typedef __packed struct
 #ifdef CORE_USING_SENTRY
     unsigned sentryMode : 1; // 哨兵模式
 #endif
+    unsigned allow_heat_shoot:1;
 } Gim_mixData_Rx_t; // 杂项数据包
 
 typedef struct
