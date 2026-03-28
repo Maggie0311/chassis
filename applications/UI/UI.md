@@ -43,12 +43,14 @@
         └── CustomUI_GraphParameters.h
 
 ### 依赖关系
-- graph TD
-- A[本模块] --> B[RTOS任务管理];
-- A --> C[硬件抽象层];
-- A --> D[CAN通信库];
-- B --> E[FreeRTOS];
-- C --> F[HAL库];
+```mermaid
+graph TD
+A[本模块] --> B[RTOS任务管理];
+A --> C[硬件抽象层];
+A --> D[CAN通信库];
+B --> E[RT-Thread];
+C --> F[HAL库];
+```
 ## 快速开始
 ### 环境要求
 - 编译器: GCC ARM Embedded 10.3
@@ -168,4 +170,3 @@ make test-hardware
 -     A: 检查硬件连接，确认配置参数在有效范围内。
 - Q: 数据输出异常如何排查？
 -     A: 启用调试模式，查看数据流日志。
-:yum::yum::yum:
