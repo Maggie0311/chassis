@@ -38,7 +38,6 @@ Motor_Power_t Motor_power[WHEELS_GROUP_NUM][2];
 // note 修改裁判系统和超电数据有效性标志位
 uint8_t PowerCtrl_Close_Flag[2] = {0, 0}; // 是否抛弃超电数据，是否抛弃裁判系统数据
 uint8_t Cap_false_flag = 0;               // 底盘检测超电可能掉线标志，标记超电异常标志位（用于UI告知操作手）,1为异常，0为正常
-extern uint8_t power_ctrl_close;
 RLS_Estimator RunRLS;
 RLS_Estimator AngleRLS;
 
@@ -201,8 +200,8 @@ static void getRefDataAndInfo(void)
         /**以下数据计算后为国际单位**/
         getRefData(memberGet_parm(PowerInfo.Ref.PowerBuff, ext_power_heat_data, chassis_power_buffer)); // 缓冲能量J
         // PowerInfo.Ref.PowerBuff = 60; // 缓冲能量J
-        // getRefData(memberGet_parm(PowerInfo.Ref.Power_Maxlim, ext_game_robot_status, chassis_power_limit)); // 最大功率限制W
-         PowerInfo.Ref.Power_Maxlim = 100;//power_max_limit_test; // 最大功率限制W
+         getRefData(memberGet_parm(PowerInfo.Ref.Power_Maxlim, ext_game_robot_status, chassis_power_limit)); // 最大功率限制W
+        // PowerInfo.Ref.Power_Maxlim = 100;//power_max_limit_test; // 最大功率限制W
         // getRefData(memberGet_parm(PowerInfo.Ref.power_now, ext_power_heat_data, chassis_power_reserve));
         // PowerInfo.Ref.IsOverPower = Ref_Chassis_IsOverPower(&tick_tmp); // 是否超功率及超功率时刻，串口协议1.90已经删除
         // 裁判系统功率数据更新时刻：电流，电压，功率，缓冲能量
@@ -241,109 +240,81 @@ static void getPowerData(void)
     getRefDataAndInfo();
 }
 /**
- * @brief 超电输出功能开关
+ * @brief 超电输出功能开关（含满电滞回保护）
  *
- * @param GimIfSuperCapOutput    超电输出功能开关
+ * 滞回逻辑（防止接近满电时反复充放电过热）：
+ *   superCap > SCAP_HYST_HIGH(90%) → 进入"只放不充"模式(2)，直到电量降至 SCAP_HYST_LOW(85%)
+ *   superCap < SCAP_HYST_LOW(85%)  → 恢复正常充放(1)
+ *   中间区间                        → 维持上次模式（死区，不切换）
+ *
+ * @param GimIfSuperCapOutput    超电输出功能开关（来自云台按键）
  */
+#define SCAP_HYST_HIGH  90.0f   // 接近满电阈值(%)，超过此值进入只放不充
+#define SCAP_HYST_LOW   85.0f   // 滞回下限(%)，低于此值恢复正常充放
 static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
 {
-    // #if KEY_C_FUN == 2
-    //     if (PowerInfo.Cap.isValid && !Cap_false_flag)
-    //     { // 超电余量限制功能（第一部分：基本关闭与开启）
-    //         if (GimIfSuperCapOutput == 1 && PowerInfo.Cap.superCap <= RESERVE_BATTERY_TL &&
-    //             (PowerInfo.Cap.Cap_State != CAP_STATE_CHARGE && PowerInfo.Cap.Cap_State != CAP_STATE_NO_WORK))
-    //         {                                // 保留功能开启并且到达低电量时关闭超电
-    //             power_ctrl_close = 1;        // 通讯关闭超电
-    //             PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
-    //         }
-    //         else if (GimIfSuperCapOutput == 0)
-    //         {                                // 保留功能关闭时打开超电，前提是超电没有失效
-    //             power_ctrl_close = 0;        // 通讯打开超电
-    //             PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
-    //         }
-    //     }
-    // #endif
+    static uint8_t user_enable = 1;              // 用户设置的放电状态
+    static uint8_t pre_button_state = 1;         // 前次按键状态
+    static uint8_t if_used_up = 0;               // 是否电量耗尽（<3%）
+    static uint8_t if_used_up_user_unchange = 0; // 耗尽后用户是否已手动切换
+
+    // ── 1. 裁判系统有效时：缓冲能量过低或超电掉线 → 强制关闭 ──────────────
     if (PowerInfo.Ref.isValid)
     {
-        // 缓冲能量很低时认为超电异常
         if (PowerInfo.Ref.PowerBuff <= PowerBuffReamin || PowerInfo.Cap.Cap_State == CAP_STATE_ERROR)
-        {                                // 缓冲能量小于预留能量,关超电
-            Cap_false_flag = 1;          // 标记超电功能异常
-            power_ctrl_close = 1;        // 通讯关闭超电
-            PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
+        {
+            Cap_false_flag = 1;
+            Set_SuprCap_OutputMode(0);   // 只充不放（关闭超电输出）
+            PowerCtrl_Close_Flag[0] = 1;
         }
-        // #if KEY_C_FUN == 2
-        //         // 超电余量限制功能（第二部分：超电关闭后的恢复）
-        //         if (PowerInfo.Ref.PowerBuff >= 50 && !Cap_false_flag)
-        //         {
-        //             power_ctrl_close = 0;        // 通讯打开超电
-        //             PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
-        //         }
-        // #endif
     }
-    // #if KEY_C_FUN == 1      // 开启超电开关功能
-    //     if (GimIfSuperCapOutput == 1)    //打开超电异常检测功能，如果超电被标记异常则会将超电关闭
-    //     {
-    //         if (Cap_false_flag) // 若超电被标记功能异常，则关闭超电数据使用
-    //         {
-    //             power_ctrl_close = 1;        // 通讯关闭超电
-    //             PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
-    //         }
-    //     }
-    //     else if (GimIfSuperCapOutput == 0) //关闭超电异常检测功能，无论何种情况，底盘都会认为超电正常工作
-    //                                             //（这样是为了超电被误标记异常后，操作手可以自行选择再次打开超电）
-    //     {
-    //         Cap_false_flag = 0;          // 清除历史保护标志位
-    //         power_ctrl_close = 0;        // 通讯打开超电
-    //         PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
-    //     }
-    static uint8_t user_enable = 1;              // 用户设置的放电状态
-    static uint8_t pre_button_state = 1;         // 前次按键状态（初始上电为0，一段时间后和云台通信成功后，云台发送为1）
-    static uint8_t if_used_up = 0;               // 是否电量耗尽
-    static uint8_t if_used_up_user_unchange = 0; // 是否用光超电并且用户是否改变状态
 
-//    if(PowerInfo.Cap.V_Cap>27)
-//    {
-//        get_over_voltage_flag=1;
-//    }
-//    else
-//      get_over_voltage_flag=0;
-    if (pre_button_state != GimIfSuperCapOutput) // 判断云台是否切换模式
+    // ── 2. 云台按键边沿检测 ───────────────────────────────────────────────
+    if (pre_button_state != GimIfSuperCapOutput)
     {
-        user_enable = !user_enable; // 标记为需要切换模式
+        user_enable = !user_enable;
         if_used_up_user_unchange = 0;
-        pre_button_state = GimIfSuperCapOutput; // 更新云台端超电输出状态
+        pre_button_state = GimIfSuperCapOutput;
     }
-    if (PowerInfo.Cap.superCap <= 3) // 超电电量小于3%时，标记超电被使用完
+
+    // ── 3. 超电电量耗尽检测（<3% 强制关闭放电）──────────────────────────
+    if (PowerInfo.Cap.superCap <= 3.0f)
     {
-        if_used_up = 1; // 标记超电被使用完
+        if_used_up = 1;
         if_used_up_user_unchange = 1;
         user_enable = 0;
-        // power_ctrl_close = 1;                         // 通讯关闭超电
-        // PowerCtrl_Close_Flag[0] = 1;                  // 关闭超电数据使用
     }
-    else if (PowerInfo.Cap.superCap > 3)
+    else if (PowerInfo.Cap.superCap > 3.0f)
     {
-        if_used_up = 0; // 标记超电未被使用完
+        if_used_up = 0;
+    }
 
-        // if_turn_mode=0;                               // 清除标记
-        // power_ctrl_close = 0;                         // 通讯打开超电
-        // PowerCtrl_Close_Flag[0] = 0;                  // 打开超电数据使用
-    }
-    if (if_used_up == 0 )//&& user_enable && if_used_up_user_unchange == 0) // 云台端打开超电输出，且超电未被标记使用完，
+    // ── 4. 满电滞回控制（防止接近满电时反复充放电过热）──────────────────
+    // 仅在超电在线且未耗尽、未异常时执行滞回逻辑
+    if (PowerInfo.Cap.isValid && if_used_up == 0 && !Cap_false_flag)
     {
-       power_ctrl_close = 0;        // 通讯打开超电
-      PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
+        // 使用 static 变量记住上次的滞回模式，实现死区保持
+        static uint8_t hyst_mode = 1; // 1=正常充放, 2=只放不充
+
+        if (PowerInfo.Cap.superCap > SCAP_HYST_HIGH)
+        {
+            hyst_mode = 2; // 超过上限，切为只放不充
+        }
+        else if (PowerInfo.Cap.superCap < SCAP_HYST_LOW)
+        {
+            hyst_mode = 1; // 低于下限，恢复正常充放
+        }
+        // 中间区间：hyst_mode 保持不变（滞回死区）
+
+        Set_SuprCap_OutputMode(hyst_mode); // setter 内部已有变化检测，无需额外判断
+        PowerCtrl_Close_Flag[0] = 0; // 允许使用超电数据
     }
-    else // 云台端关闭超电输出，或者超电被标记异常
+    else if (if_used_up == 1 || Cap_false_flag)
     {
-			
-        power_ctrl_close = 1;        // 通讯关闭超电
-        PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
+        // 电量耗尽或超电异常 → 关闭
+        Set_SuprCap_OutputMode(0);
+        PowerCtrl_Close_Flag[0] = 1;
     }
-    // power_ctrl_close = 1;        // 通讯关闭超电
-    //     PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
-    // #endif
 }
 
 uint8_t get_over_voltage(void)
@@ -357,11 +328,7 @@ uint8_t get_SuperCap_if_abnormal(void)
 }
 uint8_t get_Super_Cap_if_open(void)
 {
-    return !power_ctrl_close;
-}
-uint8_t get_over_voltage(void)
-{
-    return get_over_voltage_flag;
+    return Get_if_supercap_output();
 }
 
 /**
@@ -485,7 +452,7 @@ static void get_chassis_max_power(void)
 
     PowerCtrl.Power_Allo_level = 0;
 
-    if (PowerInfo.Cap.isValid && !power_ctrl_close && !PowerCtrl_Close_Flag[0])
+    if (PowerInfo.Cap.isValid && Get_if_supercap_output() && !PowerCtrl_Close_Flag[0])
     { // 超级电容数据有效，没有异常，没有关闭数据使用
         if (PowerInfo.Ref.isValid)
         { // 当裁判系统功率有效

@@ -92,5 +92,11 @@ rt_bool_t Get_SuprCapPower(float *power);
 //获取超电是否输出
 uint8_t Get_if_supercap_output(void);
 
+/**
+ * @brief 设置超电输出模式（由 fun_powerCtrl 调用，替代 extern power_ctrl_close）
+ * @param mode  0=只充不放(关闭放电)  1=正常充放  2=只放不充
+ */
+void Set_SuprCap_OutputMode(uint8_t mode);
+
 extern Scpr_ComRx_t scpr_comRx;
 #endif
