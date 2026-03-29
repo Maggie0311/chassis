@@ -1127,8 +1127,8 @@ void Get_UI_Data(void)
 //     UiExData.Super_Capacity_Online = Read_Super_Capacity_Online();
 //     UiExData.Chassis_Reset_Warning = (rt_tick_get() < 3000);
 //     UiExData.Gimbal_Reset_Warning = Get_Gim_Reset_Status();
-//  UiExData.RefSystem_Offline = (!GetRefDataRefreshTick(Index_power_heat_data)) || (!GetRefDataRefreshTick(Index_game_robot_state)) ||
-//                                  (!IsRefDataValid(Index_power_heat_data, 1000)) || (!IsRefDataValid(Index_game_robot_state, 1000)); //! 修改使用新的取时间和判断函数
+//  UiExData.RefSystem_Offline = (!GetRefDataRefreshTick(Index_power_heat_data)) || (!GetRefDataRefreshTick(Index_game_robot_status)) ||
+//                                  (!IsRefDataValid(Index_power_heat_data, 1000)) || (!IsRefDataValid(Index_game_robot_status, 1000)); //! 修改使用新的取时间和判断函数
 
 
 //     UiExData.gimErrState = getGimErrState();

@@ -89,12 +89,12 @@ static void getSuprCapComData(Scpr_ComTx_t *Cmd)
     }
 
     // 功率上限 0x0201
-    // now = GetRefDataRefreshTick(Index_game_robot_state);
+    // now = GetRefDataRefreshTick(Index_game_robot_status);
     // checkSuprComDataRefresh(now, powerLimTick);
     // // 功率缓冲 0x0202
     // now = GetRefDataRefreshTick(Index_power_heat_data);
     // checkSuprComDataRefresh(now, powerBufTick);
-    // now = GetRefDataRefreshTick(Index_game_robot_state);
+    // now = GetRefDataRefreshTick(Index_game_robot_status);
     // checkSuprComDataRefresh(now, powerLimTick);
     // // 功率缓冲 0x0202
     // now = GetRefDataRefreshTick(Index_power_heat_data);

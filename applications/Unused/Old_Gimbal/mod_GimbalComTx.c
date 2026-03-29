@@ -212,8 +212,8 @@ static void Gimbal_Com_Thread(void *parameter)
     while (1)
     {
         // 如果通信存在异常断连, 就直接发送 -1 告知云台
-        if ((rt_tick_get() - GetRefDataRefreshTick(Index_game_robot_state) > 1500) || (rt_tick_get() - GetRefDataRefreshTick(Index_power_heat_data) > 1500) ||
-            (!GetRefDataRefreshTick(Index_game_robot_state)) || (!GetRefDataRefreshTick(Index_power_heat_data)))
+        if ((rt_tick_get() - GetRefDataRefreshTick(Index_game_robot_status) > 1500) || (rt_tick_get() - GetRefDataRefreshTick(Index_power_heat_data) > 1500) ||
+            (!GetRefDataRefreshTick(Index_game_robot_status)) || (!GetRefDataRefreshTick(Index_power_heat_data)))
         {
             Send_Shooter_Data((rt_uint16_t)-1, (rt_uint16_t)-1, (rt_uint16_t)-1, (rt_uint16_t)-1, (rt_uint8_t)-1);
         }
