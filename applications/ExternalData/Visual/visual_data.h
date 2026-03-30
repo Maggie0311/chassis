@@ -73,7 +73,7 @@ typedef __packed struct
     uint8_t robot_level;            // 机器人等级
     uint16_t remain_HP;             // 剩余血量
     uint16_t max_HP;                // 血量上限
-    uint16_t shooter_cooling_rate;  // 机器人枪口每秒冷却值
+    uint16_t bullet_remaining_num_17mm; // 机器人枪口每秒冷却值  //todo
     uint16_t shooter_cooling_limit; // 机器人枪口热量上限
     uint16_t chassis_power_limit;   // 机器人底盘功率上限
 } Robot_info_t; // 机器人状态数据!

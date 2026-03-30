@@ -90,14 +90,20 @@ static void get_visual_need_ref_data()
     visual_tx_robot_info.remain_HP = getdata_temp_16;
     getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,max_HP));
     visual_tx_robot_info.max_HP = getdata_temp_16;
-    getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,shooter_cooling_rate));
-    visual_tx_robot_info.shooter_cooling_rate = getdata_temp_16;
-    getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,shooter_cooling_limit));
+    // getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,shooter_cooling_rate));
+    // visual_tx_robot_info.shooter_cooling_rate = getdata_temp_16;
+    getRefData(structGet_pram(visual_tx_bullet_remaining_temp,ext_bullet_remaining));
+    visual_tx_robot_info.bullet_remaining_num_17mm = visual_tx_bullet_remaining_temp.bullet_remaining_num_17mm;
+    visual_tx_bullet_remaining.bullet_remaining_num_42mm = visual_tx_bullet_remaining_temp.bullet_remaining_num_42mm;
+    visual_tx_bullet_remaining.coin_remaining_num = visual_tx_bullet_remaining_temp.coin_remaining_num;
+    visual_tx_bullet_remaining.projectile_allowance_fortress = visual_tx_bullet_remaining_temp.projectile_allowance_fortress;
+    getRefData(memberGet_parm(getdata_temp_16, ext_game_robot_status, shooter_cooling_limit));
     visual_tx_robot_info.shooter_cooling_limit = getdata_temp_16;
     getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,chassis_power_limit));
     visual_tx_robot_info.chassis_power_limit = getdata_temp_16;
-    getRefData(structGet_pram(visual_tx_bullet_remaining_temp,ext_bullet_remaining));
-    rt_memcpy(&visual_tx_bullet_remaining,&visual_tx_bullet_remaining_temp,sizeof(visual_tx_bullet_remaining_temp));
+    //getRefData(structGet_pram(visual_tx_bullet_remaining_temp,ext_bullet_remaining));
+
+    //rt_memcpy(&visual_tx_bullet_remaining, &visual_tx_bullet_remaining_temp, sizeof(visual_tx_bullet_remaining_temp));
 
     // getRefData(structGet_pram(visual_tx_event_data_temp,ext_event_data));
     // rt_memcpy(&visual_tx_event_data,&visual_tx_event_data_temp,sizeof(visual_tx_event_data));

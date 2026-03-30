@@ -91,7 +91,7 @@ typedef __packed struct
     unsigned chassis_reset : 1;           // 底盘复位指令
     unsigned current_menu : 4;            // 当前所处菜单
     unsigned motion_mode : 3;             // 底盘模式
-
+    
     unsigned if_aimbot_best_dis : 1;      // 当前是否为云台认为的最佳射击距离
     unsigned strike_mode : 1;             // 发射机构模式(高/低射频)
     unsigned magazine_status : 1;         // 弹舱盖设定状态

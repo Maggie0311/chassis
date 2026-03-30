@@ -60,10 +60,10 @@ rt_int8_t Get_Magazine_Status(void)
 }
 
 // 热量控制开关状态
-rt_uint8_t Get_HeatLimit_Status(void)
-{ // UI
-    return gimbal_mixdata_msg.heatlimit_status;
-}
+//rt_uint8_t Get_HeatLimit_Status(void)
+//{ // UI
+//    return gimbal_mixdata_msg.heatlimit_status;
+//}
 
 // 获取二维按键当前处于哪个菜单下
 ui_option_display_e Get_UI_Option_Flag(void)
@@ -87,11 +87,11 @@ uint8_t Get_Wireless_Charge(void)
 //     return gimbal_mixdata_msg.capacity_close_flag;
 // }
 
-// 读取云台是否强制裁判系统离线的指令
-rt_uint8_t Get_Ref_Offline_Cmd(void)
-{ // UI
-    return gimbal_mixdata_msg.force_refsystem_offline;
-}
+//// 读取云台是否强制裁判系统离线的指令
+//rt_uint8_t Get_Ref_Offline_Cmd(void)
+//{ // UI
+//    return gimbal_mixdata_msg.force_refsystem_offline;
+//}
 
 // 读取上一次云台控制信息刷新时间
 rt_tick_t Get_Gim_FreshTick(void)
