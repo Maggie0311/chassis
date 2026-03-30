@@ -1,0 +1,6 @@
+r
+h
+loadfile build/keil/Obj/rt-thread.hex
+r
+g
+q

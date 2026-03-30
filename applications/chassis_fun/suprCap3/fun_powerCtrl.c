@@ -240,17 +240,13 @@ static void getPowerData(void)
     getRefDataAndInfo();
 }
 /**
- * @brief 超电输出功能开关（含满电滞回保护）
- *
- * 滞回逻辑（防止接近满电时反复充放电过热）：
- *   superCap > SCAP_HYST_HIGH(90%) → 进入"只放不充"模式(2)，直到电量降至 SCAP_HYST_LOW(85%)
- *   superCap < SCAP_HYST_LOW(85%)  → 恢复正常充放(1)
- *   中间区间                        → 维持上次模式（死区，不切换）
+ * @brief 超电输出功能开关
  *
  * @param GimIfSuperCapOutput    超电输出功能开关（来自云台按键）
  */
-#define SCAP_HYST_HIGH  90.0f   // 接近满电阈值(%)，超过此值进入只放不充
-#define SCAP_HYST_LOW   85.0f   // 滞回下限(%)，低于此值恢复正常充放
+// 满电滞回保护参数（暂时注释，备用）
+// #define SCAP_HYST_HIGH  90.0f   // 接近满电阈值(%)，超过此值进入只放不充
+// #define SCAP_HYST_LOW   85.0f   // 滞回下限(%)，低于此值恢复正常充放
 static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
 {
     static uint8_t user_enable = 1;              // 用户设置的放电状态
@@ -258,18 +254,18 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     static uint8_t if_used_up = 0;               // 是否电量耗尽（<3%）
     static uint8_t if_used_up_user_unchange = 0; // 耗尽后用户是否已手动切换
 
-    // ── 1. 裁判系统有效时：缓冲能量过低或超电掉线 → 强制关闭 ──────────────
+    // 裁判系统有效时：缓冲能量过低或超电掉线 → 强制关闭
     if (PowerInfo.Ref.isValid)
     {
         if (PowerInfo.Ref.PowerBuff <= PowerBuffReamin || PowerInfo.Cap.Cap_State == CAP_STATE_ERROR)
         {
-            Cap_false_flag = 1;
-            Set_SuprCap_OutputMode(0);   // 只充不放（关闭超电输出）
+            //Cap_false_flag = 1;
+            Set_SuprCap_OutputMode(0);   // 关闭超电输出
             PowerCtrl_Close_Flag[0] = 1;
         }
     }
 
-    // ── 2. 云台按键边沿检测 ───────────────────────────────────────────────
+    // 云台按键边沿检测
     if (pre_button_state != GimIfSuperCapOutput)
     {
         user_enable = !user_enable;
@@ -277,7 +273,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         pre_button_state = GimIfSuperCapOutput;
     }
 
-    // ── 3. 超电电量耗尽检测（<3% 强制关闭放电）──────────────────────────
+    // 超电电量耗尽检测（<3% 强制关闭放电）
     if (PowerInfo.Cap.superCap <= 3.0f)
     {
         if_used_up = 1;
@@ -289,32 +285,41 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         if_used_up = 0;
     }
 
-    // ── 4. 满电滞回控制（防止接近满电时反复充放电过热）──────────────────
-    // 仅在超电在线且未耗尽、未异常时执行滞回逻辑
-    if (PowerInfo.Cap.isValid && if_used_up == 0 && !Cap_false_flag)
+    // 正常工作：超电在线且未耗尽时正常充放
+    if (if_used_up == 0)
     {
-        // 使用 static 变量记住上次的滞回模式，实现死区保持
-        static uint8_t hyst_mode = 1; // 1=正常充放, 2=只放不充
-
-        if (PowerInfo.Cap.superCap > SCAP_HYST_HIGH)
-        {
-            hyst_mode = 2; // 超过上限，切为只放不充
-        }
-        else if (PowerInfo.Cap.superCap < SCAP_HYST_LOW)
-        {
-            hyst_mode = 1; // 低于下限，恢复正常充放
-        }
-        // 中间区间：hyst_mode 保持不变（滞回死区）
-
-        Set_SuprCap_OutputMode(hyst_mode); // setter 内部已有变化检测，无需额外判断
-        PowerCtrl_Close_Flag[0] = 0; // 允许使用超电数据
+        Set_SuprCap_OutputMode(1); // 正常充放
+        PowerCtrl_Close_Flag[0] = 0;
     }
-    else if (if_used_up == 1 || Cap_false_flag)
+    else
     {
-        // 电量耗尽或超电异常 → 关闭
-        Set_SuprCap_OutputMode(0);
+        Set_SuprCap_OutputMode(0); // 电量耗尽 → 关闭
         PowerCtrl_Close_Flag[0] = 1;
     }
+
+    // ── 满电滞回控制（暂时注释，备用）──────────────────────────────────
+    // 防止接近满电时反复充放电过热：
+    //   superCap > SCAP_HYST_HIGH(90%) → 进入"只放不充"模式(2)
+    //   superCap < SCAP_HYST_LOW(85%)  → 恢复正常充放(1)
+    //   中间区间 → 维持上次模式（死区）
+    //
+    // if (PowerInfo.Cap.isValid && if_used_up == 0)
+    // {
+    //     static uint8_t hyst_mode = 1; // 1=正常充放, 2=只放不充
+    //
+    //     if (PowerInfo.Cap.superCap > SCAP_HYST_HIGH)
+    //         hyst_mode = 2;
+    //     else if (PowerInfo.Cap.superCap < SCAP_HYST_LOW)
+    //         hyst_mode = 1;
+    //
+    //     Set_SuprCap_OutputMode(hyst_mode);
+    //     PowerCtrl_Close_Flag[0] = 0;
+    // }
+    // else if (if_used_up == 1)
+    // {
+    //     Set_SuprCap_OutputMode(0);
+    //     PowerCtrl_Close_Flag[0] = 1;
+    // }
 }
 
 uint8_t get_over_voltage(void)
@@ -358,17 +363,17 @@ void get_true_RLS(void)
         RunRLS.repe_flag = 0;
 
     // 以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
-    if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
+    if (PowerInfo.Cap.Power > 13 && RunPhi[0]>0.f && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
         
-       // RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+       //RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
          // RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
     else if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power < 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
-      //  RLS_Update(&RunRLS, RunPhi, RunRLS.now_power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+       // RLS_Update(&RunRLS, RunPhi, RunRLS.now_power -RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
@@ -515,9 +520,9 @@ static void get_chassis_max_power(void)
     // 该功率计算式子满足在分配等级为0时与正常功率限制计算等效，当分配等级功能未启用时Power_Allo_level始终为0，符合逻辑
     // 一部分固定的静态功率不属于电机可用功率：即要减去Power_C_sum
     PowerCtrl.Power_Maxlim = (PowerCtrl.Power_Maxlim_sum - Power_C_sum) * (K_Conservative + PowerCtrl.Power_Allo_level * One_Level_Persent);
-#ifdef hero
-    power_speed_max =3000;// get_power_lim_speed(PowerCtrl.Power_Maxlim);
-#endif
+// #ifdef hero
+//     power_speed_max =3000;// get_power_lim_speed(PowerCtrl.Power_Maxlim);
+// #endif
 }
 
 /**
