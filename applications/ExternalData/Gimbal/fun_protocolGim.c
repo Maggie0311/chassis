@@ -155,8 +155,7 @@ rt_uint8_t Get_Gimbal_Motor_Offline_State(void)
     rt_uint8_t OfflineMotor = 0;
     OfflineMotor |= (!gimbal_mixdata_msg.yaw_motor_online) << gimErr_yaw;
     OfflineMotor |= (!gimbal_mixdata_msg.pitch_motor_online) << gimErr_pitch;
-    OfflineMotor |= (!gimbal_mixdata_msg.right_rub_motor_online) << gimErr_rRub;
-    OfflineMotor |= (!gimbal_mixdata_msg.left_rub_motor_online) << gimErr_lRub;
+    OfflineMotor |= (!gimbal_mixdata_msg.rub_comm_online) << gimErr_Rub;
     OfflineMotor |= (!gimbal_mixdata_msg.launch_motor_online) << gimErr_launch;
     return OfflineMotor;
 }

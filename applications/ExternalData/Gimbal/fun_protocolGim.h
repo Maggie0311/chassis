@@ -84,8 +84,7 @@ typedef enum
 {
     gimErr_yaw,
     gimErr_pitch,
-    gimErr_rRub,
-    gimErr_lRub,
+    gimErr_Rub,
     gimErr_launch,
     gimErr_com,
     gimErr_Num,
