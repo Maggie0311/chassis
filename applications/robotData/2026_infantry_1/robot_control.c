@@ -1,3 +1,5 @@
+/**2026 步兵 普通（性能平平） */
+
 #include "robot_data.h"
 #include "drv_motor_new.h"
 #include "DJI_3508.h"
