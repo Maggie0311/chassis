@@ -352,6 +352,11 @@ void Omni_Forward_Kinematics_test(float speed[4])
           resolve_data[1] = root2_2 * (target_xyw.vel.y + target_xyw.vel.x) - target_xyw.angvel * k_w;
           resolve_data[2] = root2_2 * (target_xyw.vel.y - target_xyw.vel.x) - target_xyw.angvel * k_w;
           resolve_data[3] = root2_2 * (target_xyw.vel.y + target_xyw.vel.x) + target_xyw.angvel * k_w;
+             // 转换为rpm
+    for (int i = 0; i < 4; i++)
+    {
+        resolve_data[i] = resolve_data[i]/WHEEL_RADIUS * RADTORPM;
+    }
   }
 //********************************逆解算部分（舵轮）************************************** */
 
