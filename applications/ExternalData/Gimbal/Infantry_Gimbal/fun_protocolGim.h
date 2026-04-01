@@ -84,7 +84,8 @@ typedef enum
 {
     gimErr_yaw,
     gimErr_pitch,
-    gimErr_Rub,
+    gimErr_rRub,
+    gimErr_lRub,
     gimErr_launch,
     gimErr_com,
     gimErr_Num,
@@ -98,8 +99,6 @@ uint8_t Get_if_aimbot_best_dis(void);
 // 获取云台发送给底盘关于视觉是否正常识别的标志位
 uint8_t Get_Gim_Visual_Target_Found(void);
 
-// 得到当前是否处于哨兵模式
-uint8_t getIsSentryMode(void);
 
 /***
  * @brief:   获取云台端传来的发弹模式(单发/三连发)
@@ -193,7 +192,6 @@ extern Visual_Error_State_Enum Get_Visual_Working_Error_State(void);
 uint8_t get_chassis_pitch(float *pitch);
 uint8_t get_chassis_roll(float *roll);
 imu_euler_t get_chassis_imu_data(void);
-ui_data_t get_hero_ui_data(void);
 uint8_t get_Key_ctrl(void);
 
 #endif

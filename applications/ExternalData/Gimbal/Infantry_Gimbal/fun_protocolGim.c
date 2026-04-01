@@ -60,10 +60,10 @@ rt_int8_t Get_Magazine_Status(void)
 }
 
 // 热量控制开关状态
-//rt_uint8_t Get_HeatLimit_Status(void)
-//{ // UI
-//    return gimbal_mixdata_msg.heatlimit_status;
-//}
+rt_uint8_t Get_HeatLimit_Status(void)
+{ // UI
+   return gimbal_mixdata_msg.heatlimit_status;
+}
 
 // 获取二维按键当前处于哪个菜单下
 ui_option_display_e Get_UI_Option_Flag(void)
@@ -82,16 +82,16 @@ uint8_t Get_Wireless_Charge(void)
     return gimbal_mixdata_msg.Wire_less_charge;
 }
 // 读取当前是否需要超级电容充电, 返回 1 为不需要
-// rt_uint8_t Get_Charge_Cmd(void)
-// {
-//     return gimbal_mixdata_msg.capacity_close_flag;
-// }
+rt_uint8_t Get_Charge_Cmd(void)
+{
+    return gimbal_mixdata_msg.capacity_close_flag;
+}
 
-//// 读取云台是否强制裁判系统离线的指令
-//rt_uint8_t Get_Ref_Offline_Cmd(void)
-//{ // UI
-//    return gimbal_mixdata_msg.force_refsystem_offline;
-//}
+// 读取云台是否强制裁判系统离线的指令
+rt_uint8_t Get_Ref_Offline_Cmd(void)
+{ // UI
+   return gimbal_mixdata_msg.force_refsystem_offline;
+}
 
 // 读取上一次云台控制信息刷新时间
 rt_tick_t Get_Gim_FreshTick(void)
@@ -129,20 +129,9 @@ Local_Chassis_Mode_Enum Get_Local_Chassis_Type(void)
 // 获取当前的本地枪口模式(0爆发优先 1冷却优先 2弹速优先)
 Local_AmmoBooster_Mode_Enum Get_Local_AmmoBooster_Type(void)
 { // UI
-#if defined CORE_USING_HERO
-    return (Local_AmmoBooster_Mode_Enum)(gimbal_mixdata_msg.set_ammobooster_mode ? 2 : 0);
-#elif defined CORE_USING_INFANTRY
     return (Local_AmmoBooster_Mode_Enum)gimbal_mixdata_msg.set_ammobooster_mode;
-#else
-    return (Local_AmmoBooster_Mode_Enum)0;
-#endif
 }
 
-// 获取本地的机器人等级
-// rt_uint8_t Get_Local_Robot_Level(void)
-// {
-//     return gimbal_mixdata_msg.set_level + 1;
-// }
 // 获取视觉自瞄能量机关拟合完成标志位
 rt_uint8_t Get_Energy_is_already(void)
 { // UI
@@ -155,7 +144,8 @@ rt_uint8_t Get_Gimbal_Motor_Offline_State(void)
     rt_uint8_t OfflineMotor = 0;
     OfflineMotor |= (!gimbal_mixdata_msg.yaw_motor_online) << gimErr_yaw;
     OfflineMotor |= (!gimbal_mixdata_msg.pitch_motor_online) << gimErr_pitch;
-    OfflineMotor |= (!gimbal_mixdata_msg.rub_comm_online) << gimErr_Rub;
+    OfflineMotor |= (!gimbal_mixdata_msg.right_rub_motor_online) << gimErr_rRub;
+    OfflineMotor |= (!gimbal_mixdata_msg.left_rub_motor_online) << gimErr_lRub;
     OfflineMotor |= (!gimbal_mixdata_msg.launch_motor_online) << gimErr_launch;
     return OfflineMotor;
 }
@@ -166,13 +156,6 @@ rt_bool_t Get_Gimbal_Stuck_State(void)
     return gimbal_mixdata_msg.strike_stuck;
 }
 
-#ifdef CORE_USING_SENTRY
-// 得到当前是否处于哨兵模式
-uint8_t getIsSentryMode(void)
-{ // ctrlSrc/ChassisCtrl
-    return gimbal_mixdata_msg.sentryMode;
-}
-#endif
 
 // 得到当前云台错误状态
 uint8_t getGimErrState(void)
@@ -259,10 +242,8 @@ uint8_t get_Key_ctrl(void)
         return 0;
 }
 
-ui_data_t get_hero_ui_data(void)
-{
-    if (rt_tick_get() - gimbal_ui_data_msg_freshtick < 1000)
-        return gimbal_ui_data_msg;
-    else
-        return (ui_data_t){0, 0, 0, 0, 0, 0, 0, 0};
-}
+// 获取本地的机器人等级
+// rt_uint8_t Get_Local_Robot_Level(void)
+// {
+//     return gimbal_mixdata_msg.set_level + 1;
+// }
