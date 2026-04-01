@@ -1115,8 +1115,8 @@ void Get_UI_Data(void)
 //     UI_If_Hero_Bullet_Change();                 // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
 //     UI_If_Hero_Light_Change();                  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
 //     UiExData.Client_Mode = Get_Client_Status();
-//     // UiExData.GimIfSuperCapOutput = Get_if_supercap_output();
-//     // UiExData.Capacity_Charge_Cmd = Get_Charge_Cmd();
+    // UiExData.GimIfSuperCapOutput = Get_if_supercap_output();
+    // UiExData.Capacity_Charge_Cmd = Get_Charge_Cmd();
 //     UiExData.RefSystem_Forced_Offline = Get_Ref_Offline_Cmd();
 //     UiExData.Gimbal_Online = (Get_Gim_FreshTick()) && (rt_tick_get() - Get_Gim_FreshTick() < 800);
 //     UiExData.Chassis_Motor_Offline = (Read_Wheels_Offline_State() | ((Get_Yaw_Motor_Offline_State() & 0x01) << 4));
