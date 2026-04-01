@@ -29,10 +29,8 @@ CANInstance gim_caninstance_Rx[Msg_num_Rx];
 /*提供数据读取*/
 Gim_mixData_Rx_t gimbal_mixdata_msg;
 imu_euler_t gimbal_imudata_msg;
-ui_data_t gimbal_ui_data_msg;
 rt_tick_t imu_data_freshtick = 0;
 rt_tick_t gimbal_mixdata_msg_freshtick = 0;
-rt_tick_t gimbal_ui_data_msg_freshtick = 0;
 
 /*---------------------------信息接收-----------------------------------------------------------------------------*/
 /*接收回调*/
@@ -96,32 +94,6 @@ static void Gimbal_imuData_Rx_call(CANInstance *instance)
     gimbal_imudata_msg.pitch = *((float *)&instance->rx_buff[0]);
     gimbal_imudata_msg.roll = *((float *)&instance->rx_buff[4]);
     imu_data_freshtick = rt_tick_get();
-}
-
-/**
- * @brief   处理云台发送的英雄UI绘制数据报文(引导灯)
- *
- */
-static void Gimbal_ui_light_Rx_call(CANInstance *instance)
-{
-    gimbal_ui_data_msg_freshtick = rt_tick_get();
-    gimbal_ui_data_msg.Ui_Guide_Light_Circle_x = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[0], instance->rx_buff[1]);
-    gimbal_ui_data_msg.Ui_Guide_Light_Circle_y = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
-    gimbal_ui_data_msg.Ui_Guide_Light_Circle_radius = instance->rx_buff[4];
-    gimbal_ui_data_msg.Ui_Guide_Light_Circle_freshtick = rt_tick_get();
-}
-
-/**
- * @brief 处理云台发送的英雄UI绘制数据报文(弹丸)
- *
- */
-static void Gimbal_ui_bullet_Rx_call(CANInstance *instance)
-{
-    gimbal_ui_data_msg_freshtick = rt_tick_get();
-    gimbal_ui_data_msg.Ui_Bullet_Circle_x = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[0], instance->rx_buff[1]);
-    gimbal_ui_data_msg.Ui_Bullet_Circle_y = (uint16_t)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
-    gimbal_ui_data_msg.Ui_Bullet_Circle_radius = instance->rx_buff[4];
-    gimbal_ui_data_msg.Ui_Bullet_Circle_freshtick = rt_tick_get();
 }
 
 /**
@@ -191,12 +163,7 @@ static rt_uint16_t Ref_Shooter_Cooling_Heat(void)
  */
 static rt_uint16_t Ref_Bullet_Speed_Limit(void)
 {
-//! 真的还有效吗？
-#ifdef CORE_USING_HERO
-    return 16;
-#else
     return 30;
-#endif
 }
 
 Gim_Reftrans1_t gim_reftrans_msg1;
@@ -265,20 +232,6 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
 
     //! 配合云台调试
     gim_reftrans_msg2.enermyOutpost = 0;
-
-    /*哨兵：是否开火*/
-#ifdef CORE_USING_SENTRY
-    // TODO:这是什么
-    uint32_t tick = 0;
-    static uint32_t lastMapTick;
-    tick = GetRefDataRefreshTick(Index_robot_command_map);
-    getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
-    if (get_temp_8 == 'F' && tick != lastMapTick)
-    {
-        lastMapTick = tick;
-        gim_reftrans_msg2.SentryIsFire = !gim_reftrans_msg2.SentryIsFire;
-    }
-#endif
 
     /*弹速*/
     if (IsRefDataValid(Index_shoot_data, 20)) // 20ms内有射击则更新弹速，否则弹速为0
@@ -389,10 +342,6 @@ rt_err_t Gimbal_Com_Init(void)
     res += Gimbal_comRx_Attach(Ctrl_msg_Index, GIMBAL_CTRL_RX, Gimbal_CtrlData_Rx_call);
     res += Gimbal_comRx_Attach(mixData_msg_Index, GIMBAL_DATA_RX, Gimbal_MixData_Rx_call);
     // res += Gimbal_comRx_Attach(Imu_msg_Index, GIMBAL_IMU_DATA_RX, Gimbal_imuData_Rx_call);
-#if defined HREO_UI_SPECIAL
-    // res += Gimbal_comRx_Attach(Ui_light_msg_Index, GIMBAL_UI_LIGHT_DATA_RX, Gimbal_ui_light_Rx_call);
-    // res += Gimbal_comRx_Attach(Ui_bullet_msg_Index, GIMBAL_UI_BULLET_DATA_RX, Gimbal_ui_bullet_Rx_call);
-#endif
     if (res)
     {
         LOG_E("gim_Rx_msg init failed, err=%d", res);

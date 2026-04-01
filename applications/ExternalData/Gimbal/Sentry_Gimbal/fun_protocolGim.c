@@ -129,13 +129,7 @@ Local_Chassis_Mode_Enum Get_Local_Chassis_Type(void)
 // 获取当前的本地枪口模式(0爆发优先 1冷却优先 2弹速优先)
 Local_AmmoBooster_Mode_Enum Get_Local_AmmoBooster_Type(void)
 { // UI
-#if defined CORE_USING_HERO
-    return (Local_AmmoBooster_Mode_Enum)(gimbal_mixdata_msg.set_ammobooster_mode ? 2 : 0);
-#elif defined CORE_USING_INFANTRY
-    return (Local_AmmoBooster_Mode_Enum)gimbal_mixdata_msg.set_ammobooster_mode;
-#else
     return (Local_AmmoBooster_Mode_Enum)0;
-#endif
 }
 
 // 获取本地的机器人等级
@@ -148,18 +142,17 @@ rt_uint8_t Get_Energy_is_already(void)
 { // UI
     return gimbal_mixdata_msg.Energy_is_already;
 }
-
 // 获取云台中的离线电机, 从低到高分别为：Yaw、Pitch、右摩擦轮、左摩擦轮、播弹盘
 rt_uint8_t Get_Gimbal_Motor_Offline_State(void)
 { // UI
     rt_uint8_t OfflineMotor = 0;
     OfflineMotor |= (!gimbal_mixdata_msg.yaw_motor_online) << gimErr_yaw;
     OfflineMotor |= (!gimbal_mixdata_msg.pitch_motor_online) << gimErr_pitch;
-    OfflineMotor |= (!gimbal_mixdata_msg.rub_comm_online) << gimErr_Rub;
+    OfflineMotor |= (!gimbal_mixdata_msg.right_rub_motor_online) << gimErr_rRub;
+    OfflineMotor |= (!gimbal_mixdata_msg.left_rub_motor_online) << gimErr_lRub;
     OfflineMotor |= (!gimbal_mixdata_msg.launch_motor_online) << gimErr_launch;
     return OfflineMotor;
 }
-
 // 获取发射机构是否存在卡弹情况
 rt_bool_t Get_Gimbal_Stuck_State(void)
 { // UI
@@ -257,12 +250,4 @@ uint8_t get_Key_ctrl(void)
         return gimbal_mixdata_msg.Key_ctrl;
     else
         return 0;
-}
-
-ui_data_t get_hero_ui_data(void)
-{
-    if (rt_tick_get() - gimbal_ui_data_msg_freshtick < 1000)
-        return gimbal_ui_data_msg;
-    else
-        return (ui_data_t){0, 0, 0, 0, 0, 0, 0, 0};
 }

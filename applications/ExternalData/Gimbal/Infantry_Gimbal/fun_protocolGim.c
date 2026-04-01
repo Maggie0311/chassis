@@ -138,6 +138,7 @@ rt_uint8_t Get_Energy_is_already(void)
     return gimbal_mixdata_msg.Energy_is_already;
 }
 
+
 // 获取云台中的离线电机, 从低到高分别为：Yaw、Pitch、右摩擦轮、左摩擦轮、播弹盘
 rt_uint8_t Get_Gimbal_Motor_Offline_State(void)
 { // UI
@@ -149,7 +150,6 @@ rt_uint8_t Get_Gimbal_Motor_Offline_State(void)
     OfflineMotor |= (!gimbal_mixdata_msg.launch_motor_online) << gimErr_launch;
     return OfflineMotor;
 }
-
 // 获取发射机构是否存在卡弹情况
 rt_bool_t Get_Gimbal_Stuck_State(void)
 { // UI
