@@ -266,10 +266,13 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
     else
         gim_reftrans_msg2.speed = 0;
 
-    /*哨兵血量*/
-    getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
-    gim_reftrans_msg2.SentryHP = get_temp_16;
+    // /*哨兵血量*/
+    // getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
+    // gim_reftrans_msg2.SentryHP = get_temp_16;
 
+    /*剩余发弹量 */
+    getRefData(memberGet_parm(get_temp_16, ext_bullet_remaining, bullet_remaining_num_42mm));
+    gim_reftrans_msg2.remaining_bullet_num = get_temp_16;
     /*云台手键盘信息*/
     getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
     gim_reftrans_msg2.commd_keyboard = get_temp_8;

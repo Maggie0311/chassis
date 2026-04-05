@@ -39,9 +39,11 @@ typedef __packed struct
     unsigned ourOutpost : 1;    // 己方前哨战是否存活
     unsigned enermyOutpost : 1; // 敌方前哨战是否存活
     unsigned speed : 16;        // 弹速
-    unsigned SentryHP : 16;     // 哨兵的血量
+    //unsigned SentryHP : 16;     // 哨兵的血量
+    unsigned remaining_bullet_num:16;//剩余发弹量
     uint8_t commd_keyboard;   // 发送指令时，云台手按下的键盘信息 无按键按下则为 0
     uint16_t target_robot_ID; // 要作用的目标机器人 ID           当发送位置信息时，该项为 0
+    unsigned reserved : 1;//保留位
 } Gim_Reftrans2_t;        // 发送给云台的裁判系统数据
 
 
