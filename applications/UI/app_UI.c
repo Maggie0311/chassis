@@ -35,7 +35,7 @@ static void ui_thread_entry(void *parameter)
     while (RT_TRUE)
     {
         rt_sem_take(&UI_sem, RT_WAITING_FOREVER);
-        Get_UI_Data();
+        //Get_UI_Data();
         Drv_Find_Send_UI_Object(); // 发送UI数据
     }
 }
