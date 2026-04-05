@@ -17,7 +17,7 @@ void Follow_pid_init(void);
 #define BIG_YAW 2
 
 // TODO:调Pid这堆
-#define RUN_PID_Kp 130
+#define RUN_PID_Kp 140
 #define RUN_PID_Ki 0.5
 #define RUN_PID_Kd 1
 
