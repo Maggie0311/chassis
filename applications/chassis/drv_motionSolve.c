@@ -339,83 +339,83 @@ void Omni_Forward_Kinematics_test(float speed[4])
   // 全向轮逆解算函数（现在已经改成了向前为x轴，向左为y轴）
   //  输入：底盘运动速度 (vx, vy单位: mm/s, ω单位: °/s)
   //  输出：四个轮子的转速 (RPM)，顺序：RF-LF-LB-RB
-  void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4])
-  {
-      /*
-      雅可比矩阵形式：
-      [v_RF]   [J11 J12 J13] [vx]
-      [v_LF] = [J21 J22 J23] * [vy]
-      [v_LB]   [J31 J32 J33] [ω]
-      [v_RB]   [J41 J42 J43]
+//   void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4])
+//   {
+//       /*
+//       雅可比矩阵形式：
+//       [v_RF]   [J11 J12 J13] [vx]
+//       [v_LF] = [J21 J22 J23] * [vy]
+//       [v_LB]   [J31 J32 J33] [ω]
+//       [v_RB]   [J41 J42 J43]
 
-      输出单位为mm/s，顺序：RF-LF-LB-RB
-      */
-      static int if_init_J = 0;
-      if (!if_init_J)
-      {
-          // 初始化雅可比矩阵
-          float L = VEHICLE_LONG / 1000.0f;  // 转换为米
-          float W = VEHICLE_WIDTH / 1000.0f; // 转换为米
-          float r = WHEEL_RADIUS / 1000.0f;  // mm -> m
+//       输出单位为mm/s，顺序：RF-LF-LB-RB
+//       */
+//       static int if_init_J = 0;
+//       if (!if_init_J)
+//       {
+//           // 初始化雅可比矩阵
+//           float L = VEHICLE_LONG / 1000.0f;  // 转换为米
+//           float W = VEHICLE_WIDTH / 1000.0f; // 转换为米
+//           float r = WHEEL_RADIUS / 1000.0f;  // mm -> m
 
-          // float x[4] = {L / 2, -L / 2, -L / 2, L / 2};
-          // float y[4] = {W / 2, W / 2, -W / 2, -W / 2};
-          // float alpha_deg[4] = {120.0f, 60.0f, 120.0f, 60.0f}; // 135 45 135 45
-          // for (int i = 0; i < 4; i++)
-          // {
-          //     float a = alpha_deg[i] * DEGTORAD;
-          //     J_Omni_Inv_45.data[i][0] = arm_cos_f32(a) / r;                            // vx系数      -6.25
-          //     J_Omni_Inv_45.data[i][1] = arm_sin_f32(a) / r;                            // vy系数      10.625
-          //     J_Omni_Inv_45.data[i][2] = (-arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
-          // }
-          // if_init_J = 1;
+//           // float x[4] = {L / 2, -L / 2, -L / 2, L / 2};
+//           // float y[4] = {W / 2, W / 2, -W / 2, -W / 2};
+//           // float alpha_deg[4] = {120.0f, 60.0f, 120.0f, 60.0f}; // 135 45 135 45
+//           // for (int i = 0; i < 4; i++)
+//           // {
+//           //     float a = alpha_deg[i] * DEGTORAD;
+//           //     J_Omni_Inv_45.data[i][0] = arm_cos_f32(a) / r;                            // vx系数      -6.25
+//           //     J_Omni_Inv_45.data[i][1] = arm_sin_f32(a) / r;                            // vy系数      10.625
+//           //     J_Omni_Inv_45.data[i][2] = (-arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
+//           // }
+//           // if_init_J = 1;
 
-          float x[4] = {L / 2, -L / 2, -L / 2, L / 2};
-          float y[4] = {W / 2, W / 2, -W / 2, -W / 2};
-          float alpha_deg[4] = {45.0f, 135.0f, 45.0f, 135.0f}; // 135 45 135 45
-          for (int i = 0; i < 4; i++)
-          {
-              float a = alpha_deg[i] * DEGTORAD;
-              J_Omni_Inv_45.data[i][0] = arm_sin_f32(a) / r;                                  // vx系数      -6.25
-              J_Omni_Inv_45.data[i][1] = arm_cos_f32(a) / r;                                  // vy系数      10.625
-              J_Omni_Inv_45.data[i][2] = (arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
-          }
-          if_init_J = 1;
-      }
-      // 将目标速度从mm/s转换为m/s（内部计算用国际单位）
-      float vx = target_xyw.vel.x / 1000.0f;         // mm/s -> m/s
-      float vy = target_xyw.vel.y / 1000.0f;         // mm/s -> m/s
-      float ω = target_xyw.angvel * 0.1f * DEGTORAD; // °/s -> rad/s
+//           float x[4] = {L / 2, -L / 2, -L / 2, L / 2};
+//           float y[4] = {W / 2, W / 2, -W / 2, -W / 2};
+//           float alpha_deg[4] = {45.0f, 135.0f, 45.0f, 135.0f}; // 135 45 135 45
+//           for (int i = 0; i < 4; i++)
+//           {
+//               float a = alpha_deg[i] * DEGTORAD;
+//               J_Omni_Inv_45.data[i][0] = arm_sin_f32(a) / r;                                  // vx系数      -6.25
+//               J_Omni_Inv_45.data[i][1] = arm_cos_f32(a) / r;                                  // vy系数      10.625
+//               J_Omni_Inv_45.data[i][2] = (arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
+//           }
+//           if_init_J = 1;
+//       }
+//       // 将目标速度从mm/s转换为m/s（内部计算用国际单位）
+//       float vx = target_xyw.vel.x / 1000.0f;         // mm/s -> m/s
+//       float vy = target_xyw.vel.y / 1000.0f;         // mm/s -> m/s
+//       float ω = target_xyw.angvel * 0.1f * DEGTORAD; // °/s -> rad/s
 
-      // 使用雅可比矩阵计算轮子角速度（rad/s）
-      for (int i = 0; i < 4; i++)
-      {
-          resolve_data[i] = (J_Omni_Inv_45.data[i][0] * vx +
-                             J_Omni_Inv_45.data[i][1] * vy +
-                             J_Omni_Inv_45.data[i][2] * ω);
-      }
-      // 转换为rpm
-      for (int i = 0; i < 4; i++)
-      {
-          resolve_data[i] = resolve_data[i] * RADTORPM;
-      }
-  }
-  /// <summary>全向轮解算，单个轮组
-  ///
-  /// </summary>
-  /// <param name="target_xyw"></param>
-  /// <param name="resolve_data"></param>
-  void Omni_Resolve(Mot_base_t target_xyw, float resolve_data[4])
-  {
-      // 角速度单位为0.1°/s，所以角速度系数要除以10
-      static float k_w = VEHICLE_DIAMETER / 20.f * DEGTORAD;
-      static float root2_2 = ROOT2 / 2;
-      /*输出单位为mm/s 输出顺序RF-LF-LB-RB*/
-          resolve_data[0] = root2_2 * (target_xyw.vel.y - target_xyw.vel.x) + target_xyw.angvel * k_w;
-          resolve_data[1] = root2_2 * (target_xyw.vel.y + target_xyw.vel.x) - target_xyw.angvel * k_w;
-          resolve_data[2] = root2_2 * (target_xyw.vel.y - target_xyw.vel.x) - target_xyw.angvel * k_w;
-          resolve_data[3] = root2_2 * (target_xyw.vel.y + target_xyw.vel.x) + target_xyw.angvel * k_w;
-  }
+//       // 使用雅可比矩阵计算轮子角速度（rad/s）
+//       for (int i = 0; i < 4; i++)
+//       {
+//           resolve_data[i] = (J_Omni_Inv_45.data[i][0] * vx +
+//                              J_Omni_Inv_45.data[i][1] * vy +
+//                              J_Omni_Inv_45.data[i][2] * ω);
+//       }
+//       // 转换为rpm
+//       for (int i = 0; i < 4; i++)
+//       {
+//           resolve_data[i] = resolve_data[i] * RADTORPM;
+//       }
+//   }
+//   /// <summary>全向轮解算，单个轮组
+//   ///
+//   /// </summary>
+//   /// <param name="target_xyw"></param>
+//   /// <param name="resolve_data"></param>
+//   void Omni_Resolve(Mot_base_t target_xyw, float resolve_data[4])
+//   {
+//       // 角速度单位为0.1°/s，所以角速度系数要除以10
+//       static float k_w = VEHICLE_DIAMETER / 20.f * DEGTORAD;
+//       static float root2_2 = ROOT2 / 2;
+//       /*输出单位为mm/s 输出顺序RF-LF-LB-RB*/
+//           resolve_data[0] = root2_2 * (target_xyw.vel.y - target_xyw.vel.x) + target_xyw.angvel * k_w;
+//           resolve_data[1] = root2_2 * (target_xyw.vel.y + target_xyw.vel.x) - target_xyw.angvel * k_w;
+//           resolve_data[2] = root2_2 * (target_xyw.vel.y - target_xyw.vel.x) - target_xyw.angvel * k_w;
+//           resolve_data[3] = root2_2 * (target_xyw.vel.y + target_xyw.vel.x) + target_xyw.angvel * k_w;
+//   }
 //********************************逆解算部分（舵轮）************************************** */
 
 // 舵轮正逆解算

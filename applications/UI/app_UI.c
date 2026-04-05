@@ -20,25 +20,7 @@ UI_Used_Data_t UiExData;
 
 /*线程定时器*/
 static struct rt_semaphore UI_sem;
-static void UI_IRQHandler(void *parameter)
-{
-    rt_sem_release(&UI_sem);
-}
-void Get_UI_Data(void);
 
-// UI 线程入口函数
-static void ui_thread_entry(void *parameter)
-{
-    CREAT_ID(id);
-    ADDTOMONITOR_ID("ui_thread_entry", 1000, MONITOR_DEHANDLER, ALARM_RED, 0, id);
-    SWDG_START(id);
-    while (RT_TRUE)
-    {
-        rt_sem_take(&UI_sem, RT_WAITING_FOREVER);
-        Get_UI_Data();
-        Drv_Find_Send_UI_Object(); // 发送UI数据
-    }
-}
 
 // 绘制超电数值
 void UI_SuperCap_Value(UI_Object *object)
@@ -1080,7 +1062,8 @@ void Get_UI_Data(void)
 
     UiExData.GM_YAW_360F = Get_YAW_ANGLE_360f(); // 获取云台,yaw --绘制辅助瞄准线
     UiExData.GM_Pitch = Get_PITCH_ANGLE_360f();  // 云台电机,pitch--绘制辅助瞄准线
-    UiExData.Strike_Mode = Get_StrikeMode(); // 更新子弹模式,有单发与三连发模式(这里已经不再使用该变量来作为单发和连发的判断依据)
+    // todo英雄不用步兵用
+    //UiExData.Strike_Mode = Get_StrikeMode(); // 更新子弹模式,有单发与三连发模式(这里已经不再使用该变量来作为单发和连发的判断依据)
     UiExData.Motion_Mode = Get_Motion_Mode(); // 显示当前运动模式(跟随/不跟随/小陀螺/快陀螺/变速陀螺)
 
  UiExData.Aimbot_Mode = Get_Aimbot_Mode(); // 自瞄模式
@@ -1094,10 +1077,12 @@ void Get_UI_Data(void)
 
     //     UiExData.Energy_is_already = Get_Energy_is_already();   // 能量机关视觉拟合状态
     // UI_If_Energy_is_already_Change();                       // 检查能量机关状态是否改变,并进行相应的检查和处理
-    UiExData.if_aimbot_best_dis = Get_if_aimbot_best_dis(); // 是否开启自瞄最佳距离
+    // todo英雄不用步兵用
+    //UiExData.if_aimbot_best_dis = Get_if_aimbot_best_dis(); // 是否开启自瞄最佳距离
     UI_If_Aimbot_Best_Dis_Change();                         // 检查自瞄最佳距离状态是否改变,并进行相应的检查和处理
 
-    UiExData.visual_target_found = Get_Gim_Visual_Target_Found(); // 视觉是否正常识别到敌方
+    //todo英雄不用步兵用
+    //UiExData.visual_target_found = Get_Gim_Visual_Target_Found(); // 视觉是否正常识别到敌方
     UI_If_Visual_Target_Found_Change();                           // 检查自瞄识别敌方状态是否改变,并进行相应的检查和处理
 
         // UI复位标志，云台发送变化时，需要复位
@@ -1151,6 +1136,25 @@ void Get_UI_Data(void)
 //     UiExData.Magazine_Status = Get_Magazine_Status();   // 显示弹仓状态
 //     UiExData.Bulid_If_Hurt = getIfBuildAttacked();      // 当建筑受到攻击时警告
 //     UiExData.HeatLimit_Status = Get_HeatLimit_Status(); // 画出热量限制开关状态
+}
+
+static void UI_IRQHandler(void *parameter)
+{
+    rt_sem_release(&UI_sem);
+}
+
+// UI 线程入口函数
+static void ui_thread_entry(void *parameter)
+{
+    CREAT_ID(id);
+    ADDTOMONITOR_ID("ui_thread_entry", 1000, MONITOR_DEHANDLER, ALARM_RED, 0, id);
+    SWDG_START(id);
+    while (RT_TRUE)
+    {
+        rt_sem_take(&UI_sem, RT_WAITING_FOREVER);
+        // Get_UI_Data();//todo
+        Drv_Find_Send_UI_Object(); // 发送UI数据
+    }
 }
 // 用户初始化函数
 rt_err_t UI_Init(void)
