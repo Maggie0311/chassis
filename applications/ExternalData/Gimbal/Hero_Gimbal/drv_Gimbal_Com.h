@@ -90,7 +90,7 @@ typedef __packed struct
     unsigned launch_motor_online : 1;      // 播弹盘电机通信正常
     unsigned strike_stuck : 1;             // 发射机构卡弹
 
-    unsigned allow_heat_shoot : 1; // 允许超热量
+    unsigned allow_heat_shoot : 1;       // 允许超热量
     unsigned now_client_control : 1;       // 当前使用客户端模式
     unsigned Gimbal_if_reset : 1;          // 云台是否发生了复位事件
     unsigned motion_mode : 4;             // 底盘模式
@@ -114,11 +114,11 @@ typedef struct
     uint16_t Ui_Bullet_Circle_y;          // 英雄大弹丸
     uint8_t Ui_Bullet_Circle_radius;      // 英雄大弹丸半径
     rt_tick_t Ui_Bullet_Circle_freshtick; // 英雄大弹丸数据刷新时间
-} ui_data_t;
+} hero_light_bullet_t;
 
 extern Gim_mixData_Rx_t gimbal_mixdata_msg;
 extern imu_euler_t gimbal_imudata_msg;
-extern ui_data_t gimbal_ui_data_msg;
+extern hero_light_bullet_t gimbal_ui_data_msg;
 extern rt_tick_t imu_data_freshtick;
 extern rt_tick_t gimbal_mixdata_msg_freshtick;
 extern rt_tick_t gimbal_ui_data_msg_freshtick;

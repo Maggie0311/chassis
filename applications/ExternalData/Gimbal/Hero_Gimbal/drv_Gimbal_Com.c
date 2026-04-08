@@ -29,7 +29,7 @@ CANInstance gim_caninstance_Rx[Msg_num_Rx];
 /*提供数据读取*/
 Gim_mixData_Rx_t gimbal_mixdata_msg;
 imu_euler_t gimbal_imudata_msg;
-ui_data_t gimbal_ui_data_msg;
+hero_light_bullet_t gimbal_ui_data_msg;
 rt_tick_t imu_data_freshtick = 0;
 rt_tick_t gimbal_mixdata_msg_freshtick = 0;
 rt_tick_t gimbal_ui_data_msg_freshtick = 0;

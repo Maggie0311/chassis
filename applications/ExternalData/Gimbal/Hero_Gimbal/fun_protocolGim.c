@@ -166,14 +166,13 @@ Visual_Error_State_Enum Get_Visual_Working_Error_State(void)
 //     return gimbal_mixdata_msg.visual_target_found;
 // }
 
-// ui_data_t get_hero_ui_data(void)
+// hero_light_bullet_t get_hero_ui_data(void)
 // {
 //     if (rt_tick_get() - gimbal_ui_data_msg_freshtick < 1000)
 //         return gimbal_ui_data_msg;
 //     else
-//         return (ui_data_t){0, 0, 0, 0, 0, 0, 0, 0};
+//         return (hero_light_bullet_t){0, 0, 0, 0, 0, 0, 0, 0};
 // }
-
 
 /*******************************未用(IMU)**************************** */
 // imu_euler_t get_chassis_imu_data(void)

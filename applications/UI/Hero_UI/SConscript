@@ -6,7 +6,7 @@ src = Glob('*.c')
 CPPPATH = [cwd]
 
 if GetDepend(['CORE_USING_HERO']):
-    group = DefineGroup('Hero_UI', src, depend = [''], CPPPATH = CPPPATH)
+    group = DefineGroup('UI', src, depend = [''], CPPPATH = CPPPATH)
 else:
     group = []
 Return('group')

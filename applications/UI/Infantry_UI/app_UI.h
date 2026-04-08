@@ -69,9 +69,6 @@ typedef struct UI_Used_Data_t
     rt_time_t Last_UI_refresh_Time;        // 上一次 UI 刷新时间
 
     unsigned IfAllow_Heat_Shoot : 1;      // 英雄是否允许超热量射击, 1 代表允许
-#if defined HREO_UI_SPECIAL
-    ui_data_t Hero_UI_Data; // 英雄视觉识别的基地引导灯和弹丸数据
-#endif
 } UI_Used_Data_t;
 
 rt_err_t UI_init(void);

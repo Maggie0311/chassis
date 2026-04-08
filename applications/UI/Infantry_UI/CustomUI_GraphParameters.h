@@ -50,6 +50,7 @@
 #define UI_AIMBOT_PRIO_CENTER_Y 540
 // 自瞄颜色相关
 #define UI_AIMBOT_COLOR_SIZE 10
+#define UI_AIMBOT_MODE_SIZE 10
 #define UI_AIMBOT_COLOR_CENTER_X 1600
 #define UI_AIMBOT_COLOR_CENTER_Y 520
 
@@ -151,4 +152,19 @@
 // #define UI_HEIGHT_CENTER_X 1650
 // #define UI_HEIGHT_CENTER_Y 450
 
+// // 英雄相机位置辅助
+// #if defined CORE_USING_2025_INFANTRY_1 // 25赛季步兵1直角
+// // 相机位置辅助矩形框
+// #define UI_CREAM_HELP_CENTER_X_1 360 // 384 // 起始（左下角）
+// #define UI_CREAM_HELP_CENTER_Y_1 150 // 180
+// #define UI_CREAM_HELP_CENTER_X_2 650 // 523 // 结束（右上角）
+// #define UI_CREAM_HELP_CENTER_Y_2 360 // 288
+// #endif
 
+// #if defined CORE_USING_2025_INFANTRY_2 // 25赛季步兵2倒角
+// // 相机位置辅助矩形框
+// #define UI_CREAM_HELP_CENTER_X_1 360 // 384 // 起始
+// #define UI_CREAM_HELP_CENTER_Y_1 150 // 180
+// #define UI_CREAM_HELP_CENTER_X_2 650 // 523 // 结束
+// #define UI_CREAM_HELP_CENTER_Y_2 360 // 288
+#endif

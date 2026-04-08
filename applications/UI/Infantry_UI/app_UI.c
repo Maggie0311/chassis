@@ -601,74 +601,7 @@ void UI_Frequency_Info(UI_Object *object)
                20, frequency); // 绘制帧率信息
 }
 
-// 英雄专属UI绘制
-#if defined HREO_UI_SPECIAL
-/**英雄专属基地引导灯绘制 */
-void UI_Guide_Light_Circle(UI_Object *object)
-{
-    int guide_light_x = (int)((float)UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_x * 1920.0f / 1440.0f); // TODO测试引导灯x轴坐标 1920/1440比例映射
-    int guide_light_y = UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_y;                                   // TODO引导灯y轴坐标 需进行映射
-    int guide_light_radius = UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_radius;                         // TODO引导灯半径 需进行映射
-    UI_Set_Circle(object, UiGreen, 4, Ui_layer_0, guide_light_x, guide_light_y, guide_light_radius);
-}
 
-/**英雄大弹丸绘制 */
-void UI_Big_Bullet_Circle(UI_Object *object)
-{
-    int bullet_x = (int)((float)UiExData.Hero_UI_Data.Ui_Bullet_Circle_x * 1920.0f / 1440.0f); // TODO大弹丸x轴坐标 需进行映射
-    int bullet_y = UiExData.Hero_UI_Data.Ui_Bullet_Circle_y;                                   // TODO大弹丸y轴坐标 需进行映射
-    int bullet_radius = UiExData.Hero_UI_Data.Ui_Bullet_Circle_radius;                         // TODO大弹丸半径 需进行映射
-    UI_Set_Circle(object, UiTeam, 4, Ui_layer_0, bullet_x, bullet_y, bullet_radius);
-}
-#endif
-
-void UI_Hero_Aim_Rect_1(UI_Object *object)
-{
-    UI_Set_Rect(object, UiGreen, 2, Ui_layer_0, 875,
-                430,
-               980,
-                490);
-    }
-
-
-void UI_Hero_Aim_Rect_2(UI_Object *object)
-{
-    UI_Set_Rect(object, UiOrange, 2, Ui_layer_0, 905,
-                430,
-               955,
-                460);
-}
-
-void UI_Hero_Aim_Rect_3(UI_Object *object)
-{
-    UI_Set_Rect(object, UiMagenta, 2, Ui_layer_0, 912,
-                380,
-               945,
-                395);
-}
-
-void UI_Hero_Aim_Rect_4(UI_Object *object)
-{
-    UI_Set_Rect(object, UiPink, 2, Ui_layer_0, 915,
-                297,
-               942,
-                307);
-}
-
-
-//英雄是否允许超热量射击
-void UI_Hero_Allow_Heat_Shoot(UI_Object *object)
-{
-    static char txt[2][15] = {"Allow Shoot", "Forbid Shoot"};
-    if(UiExData.IfAllow_Heat_Shoot==1)
-    {
-    UI_Set_String(object, UiGreen, 2, Ui_layer_0, 960, 200, 25, txt[0], sizeof(txt[0]));
-    }
-    else
-    {
-        UI_Set_String(object, UiOrange, 2, Ui_layer_0, 960, 200, 25, txt[1], sizeof(txt[1]));
-    }
-}
 /// <summary>
 ///                 注册部分初始化
 /// </summary>
@@ -679,10 +612,10 @@ void Attach_UI_init()
     Attach_UI_Object(UiRect, UiGreen, TRANS_ONCE, 1, UI_SuperCap_Border);    // 绘制超电矩形框
     Attach_UI_Object(UiLine, UiGreen, TRANS_FOREVER, 1, UI_SuperCap_Shape);  // 绘制超电矩形框内部的柱状线
     Attach_UI_Object(UiStr, UiGreen, TRANS_FOREVER, 4, UI_SuperCap_Key);     // 绘制超电的开关字符
-    // // 绘制无线充电标志
-    // Attach_UI_Object(UiArc, UiCyan, TRANS_NULL, 0, UI_Wireless_Charge_Arc_1); //
-    // Attach_UI_Object(UiArc, UiCyan, TRANS_NULL, 0, UI_Wireless_Charge_Arc_2); //
-    // Attach_UI_Object(UiArc, UiCyan, TRANS_NULL, 0, UI_Wireless_Charge_Arc_3);
+    // 绘制无线充电标志
+    Attach_UI_Object(UiArc, UiCyan, TRANS_NULL, 0, UI_Wireless_Charge_Arc_1); //
+    Attach_UI_Object(UiArc, UiCyan, TRANS_NULL, 0, UI_Wireless_Charge_Arc_2); //
+    Attach_UI_Object(UiArc, UiCyan, TRANS_NULL, 0, UI_Wireless_Charge_Arc_3);
 
     // 云台姿态UI
     Attach_UI_Object(UiCircle, UiTeam, TRANS_ONCE, 1, UI_GimbalPosture_Circle);  // 绘制云台的姿态信息（圆）
@@ -715,47 +648,34 @@ void Attach_UI_init()
     Attach_UI_Object(UiLine, UiTeam, TRANS_ONCE, 1, UI_LaneLine_1); //  绘制车道线第1条
     Attach_UI_Object(UiLine, UiTeam, TRANS_ONCE, 1, UI_LaneLine_2); //  绘制车道线第2条
 
-    // // 能量机关(视觉拟合状态和开启能量机关自瞄模式时显示)
-    // Attach_UI_Object(UiCircle, UiWhite, TRANS_ONCE, 1, UI_Aim_Point_Info);        // 能量机关中心图标圆圈
-    // Attach_UI_Object(UiCircle, UiGreen, TRANS_ONCE, 1, UI_Aim_Point_Info_Hero_3);        // 能量机关中心图标圆圈
+    // 能量机关(视觉拟合状态和开启能量机关自瞄模式时显示)
+    Attach_UI_Object(UiCircle, UiWhite, TRANS_ONCE, 1, UI_Aim_Point_Info);        // 能量机关中心图标圆圈
+    Attach_UI_Object(UiCircle, UiGreen, TRANS_ONCE, 1, UI_Aim_Point_Info_Hero_3);        // 能量机关中心图标圆圈
 
-    //绘制英雄需要的瞄准线
-    Attach_UI_Object(UiRect, UiGreen,TRANS_ONCE , 1, UI_Hero_Aim_Rect_1);  // 绘制英雄瞄准线第1条
-    Attach_UI_Object(UiRect, UiOrange,TRANS_ONCE , 1, UI_Hero_Aim_Rect_2);  // 绘制英雄瞄准线第2条
-    Attach_UI_Object(UiRect, UiMagenta,TRANS_ONCE , 1, UI_Hero_Aim_Rect_3);  // 绘制英雄瞄准线第3条
-    Attach_UI_Object(UiRect, UiPink,TRANS_ONCE , 1, UI_Hero_Aim_Rect_4);  // 绘制英雄瞄准线第4条
-    // 绘制英雄是否允许超热量射击的矩形框
-    Attach_UI_Object(UiStr, UiOrange,TRANS_ONCE , 1, UI_Hero_Allow_Heat_Shoot);  // 绘制英雄是否允许超热量射击
 
-    // Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Circle);        // 能量机关中心图标圆圈
-    // Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_1);          // 能量机关五条直线和五个圆圈
-    // Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_2);          // 能量机关五条直线和五个圆圈
-    // Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_3);          // 能量机关五条直线和五个圆圈
-    // Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_4);          // 能量机关五条直线和五个圆圈
-    // Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_5);          // 能量机关五条直线和五个圆圈
-    // Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_1); // 能量机关五条直线和五个圆圈
-    // Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_2); // 能量机关五条直线和五个圆圈
-    // Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_3); // 能量机关五条直线和五个圆圈
-    // Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_4); // 能量机关五条直线和五个圆圈
-    // Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_5); // 能量机关五条直线和五个圆圈
 
-    // // 绘制菜单选项卡(这里的每一行都是一个单独的菜单元素，因此不同的菜单实际上需要修改每一行的内容即可)
-    // Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line1);
-    // Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line2);
-    // Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line3);
-    // Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line4);
-    // Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line5);
-    // Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line6);
-    // Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line7); // 一共有7行菜单选项
+    Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Circle);        // 能量机关中心图标圆圈
+    Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_1);          // 能量机关五条直线和五个圆圈
+    Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_2);          // 能量机关五条直线和五个圆圈
+    Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_3);          // 能量机关五条直线和五个圆圈
+    Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_4);          // 能量机关五条直线和五个圆圈
+    Attach_UI_Object(UiLine, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_5);          // 能量机关五条直线和五个圆圈
+    Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_1); // 能量机关五条直线和五个圆圈
+    Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_2); // 能量机关五条直线和五个圆圈
+    Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_3); // 能量机关五条直线和五个圆圈
+    Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_4); // 能量机关五条直线和五个圆圈
+    Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_5); // 能量机关五条直线和五个圆圈
+    // 绘制菜单选项卡(这里的每一行都是一个单独的菜单元素，因此不同的菜单实际上需要修改每一行的内容即可)
+    Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line1);
+    Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line2);
+    Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line3);
+    Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line4);
+    Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line5);
+    Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line6);
+    Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line7); // 一共有7行菜单选项
 
     // UI帧率显示
     Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_Frequency_Info); // 帧率显示
-
-    // 英雄特有需求UI绘制
-#if defined HREO_UI_SPECIAL
-    // Attach_UI_Object(UiCircle, UiGreen, TRANS_FOREVER, 1, UI_Guide_Light_Circle); // 英雄吊射基地引导灯
-    // Attach_UI_Object(UiCircle, UiTeam, TRANS_FOREVER, 1, UI_Big_Bullet_Circle);   // 英雄大弹丸
-#endif
 }
 
 // 检查无线充电状态变化并更新UI显示
@@ -907,134 +827,6 @@ static rt_uint8_t getIfBuildAttacked(void)
     return hurt.build_if_attacked;
 }
 
-void UI_If_Allow_Heat_Shoot_Change()
-{
-    static uint8_t last_allow_heat_shoot = 0; // 英雄是否允许超热量射击上次保存状态
-    if (last_allow_heat_shoot != UiExData.IfAllow_Heat_Shoot)
-    {
-        Drv_Set_Object_Visualable(UI_MODIFY, UI_Hero_Allow_Heat_Shoot); // 更新英雄是否允许超热量射击状态
-    }
-    last_allow_heat_shoot = UiExData.IfAllow_Heat_Shoot; // 更新英雄是否允许超热量射击状态
-}
-#if defined HREO_UI_SPECIAL
-/********测试UI_If_Hero_Bullet_Change********** */
-/**
- * @brief
- * @param argc 参数个数
- * @param argv 参数数组，argv[1]为目标位置
- */
-static void test_bullet_change(int argc, char **argv)
-{
-    if (argc != 4)
-    {
-        rt_kprintf("Usage: test_bullet_change [x] [y] [r] \n");
-        rt_kprintf("Example: test_bullet_change 50 50 10\n");
-        return;
-    }
-
-    float x = atof(argv[1]);
-    float y = atof(argv[2]);
-    float r = atof(argv[3]);
-    UiExData.Hero_UI_Data.Ui_Bullet_Circle_x = x;
-    UiExData.Hero_UI_Data.Ui_Bullet_Circle_y = y;
-    UiExData.Hero_UI_Data.Ui_Bullet_Circle_radius = r;
-    UiExData.Hero_UI_Data.Ui_Bullet_Circle_freshtick = rt_tick_get();
-    rt_kprintf("change UI :x: %d y:%d r:%d\n", (int)x, (int)y, (int)r);
-}
-MSH_CMD_EXPORT_ALIAS(test_bullet_change, bullet, "test bullet change");
-
-void UI_If_Hero_Bullet_Change(void)
-{
-    static uint8_t hero_bullet_create_flag = 0; // 标志位为1时创jian
-    static uint8_t hero_bullet_tick = 0;
-    if (hero_bullet_create_flag) // 如果现在已经创建，则检查刷新时间
-    {
-        if (rt_tick_get() - UiExData.Hero_UI_Data.Ui_Bullet_Circle_freshtick > 10000) // 如果超时，则删除
-        {
-            hero_bullet_create_flag = 0;
-            Drv_Set_Object_Visualable(UI_DELDTE, UI_Big_Bullet_Circle);
-            return;
-        }
-        else // 负责刷新UI
-        {
-            Drv_Set_Object_Visualable(UI_MODIFY, UI_Big_Bullet_Circle);
-            return;
-        }
-    }
-
-    else // 如果没有创建，则检查更新时间，时间合法，则创建，否则不管
-    {
-        if (rt_tick_get() - UiExData.Hero_UI_Data.Ui_Bullet_Circle_freshtick > 10000) // 如果超时，则不管
-        {
-            return;
-        }
-        else
-        {
-            Drv_Set_Object_Visualable(UI_CREATE, UI_Big_Bullet_Circle); // 创建大弹丸识别的圆形
-            hero_bullet_create_flag = 1;
-        }
-    }
-}
-
-/**
- * @brief
- * @param argc 参数个数
- * @param argv 参数数组，argv[1]为目标位置
- */
-static void test_light_change(int argc, char **argv)
-{
-    if (argc != 4)
-    {
-        rt_kprintf("Usage: test_light_change [x] [y] [r] \n");
-        rt_kprintf("Example: test_light_change 50 50 10\n");
-        return;
-    }
-
-    float x = atof(argv[1]);
-    float y = atof(argv[2]);
-    float r = atof(argv[3]);
-    UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_x = x;
-    UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_y = y;
-    UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_radius = r;
-    UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_freshtick = rt_tick_get();
-    rt_kprintf("change light UI :x: %d y:%d r:%d\n", (int)x, (int)y, (int)r);
-}
-MSH_CMD_EXPORT_ALIAS(test_light_change, light, "test light change");
-
-void UI_If_Hero_Light_Change()
-{
-    static uint8_t hero_light_create_flag = 0; // 标志位为1时创建
-
-    if (hero_light_create_flag) // 如果现在已经创建，则检查时间，如果超时，则删除，否则，修改
-    {
-        if (rt_tick_get() - UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_freshtick > 10000) //
-        {
-            hero_light_create_flag = 0;
-            Drv_Set_Object_Visualable(UI_DELDTE, UI_Guide_Light_Circle);
-            return;
-        }
-        else
-        {
-            Drv_Set_Object_Visualable(UI_MODIFY, UI_Guide_Light_Circle);
-            return;
-        }
-    }
-    else
-    {
-        if (rt_tick_get() - UiExData.Hero_UI_Data.Ui_Guide_Light_Circle_freshtick > 10000) // 如果超时，则不管
-        {
-            return;
-        }
-        else
-        {
-            Drv_Set_Object_Visualable(UI_CREATE, UI_Guide_Light_Circle); // 创建基地引导灯
-            hero_light_create_flag = 1;
-            return;
-        }
-    }
-}
-
-#endif
 
 void Get_UI_Data(void)
 {
@@ -1062,8 +854,7 @@ void Get_UI_Data(void)
 
     UiExData.GM_YAW_360F = Get_YAW_ANGLE_360f(); // 获取云台,yaw --绘制辅助瞄准线
     UiExData.GM_Pitch = Get_PITCH_ANGLE_360f();  // 云台电机,pitch--绘制辅助瞄准线
-    // todo英雄不用步兵用
-    //UiExData.Strike_Mode = Get_StrikeMode(); // 更新子弹模式,有单发与三连发模式(这里已经不再使用该变量来作为单发和连发的判断依据)
+    UiExData.Strike_Mode = Get_StrikeMode(); // 更新子弹模式,有单发与三连发模式(这里已经不再使用该变量来作为单发和连发的判断依据)
     UiExData.Motion_Mode = Get_Motion_Mode(); // 显示当前运动模式(跟随/不跟随/小陀螺/快陀螺/变速陀螺)
 
  UiExData.Aimbot_Mode = Get_Aimbot_Mode(); // 自瞄模式
@@ -1071,18 +862,16 @@ void Get_UI_Data(void)
 
     UiExData.Color_Myself = Get_Color_Myself(); // 当前自瞄的己方颜色
 
-    //     // 更新菜单状态
-    // UiExData.MenuOption = Get_UI_Option_Flag();
-    // UI_If_Option_Flag_Change();
+        // 更新菜单状态
+    UiExData.MenuOption = Get_UI_Option_Flag();
+    UI_If_Option_Flag_Change();
 
-    //     UiExData.Energy_is_already = Get_Energy_is_already();   // 能量机关视觉拟合状态
-    // UI_If_Energy_is_already_Change();                       // 检查能量机关状态是否改变,并进行相应的检查和处理
-    // todo英雄不用步兵用
-    //UiExData.if_aimbot_best_dis = Get_if_aimbot_best_dis(); // 是否开启自瞄最佳距离
+        UiExData.Energy_is_already = Get_Energy_is_already();   // 能量机关视觉拟合状态
+    UI_If_Energy_is_already_Change();                       // 检查能量机关状态是否改变,并进行相应的检查和处理
+
+    UiExData.if_aimbot_best_dis = Get_if_aimbot_best_dis(); // 是否开启自瞄最佳距离
     UI_If_Aimbot_Best_Dis_Change();                         // 检查自瞄最佳距离状态是否改变,并进行相应的检查和处理
-
-    //todo英雄不用步兵用
-    //UiExData.visual_target_found = Get_Gim_Visual_Target_Found(); // 视觉是否正常识别到敌方
+    UiExData.visual_target_found = Get_Gim_Visual_Target_Found(); // 视觉是否正常识别到敌方
     UI_If_Visual_Target_Found_Change();                           // 检查自瞄识别敌方状态是否改变,并进行相应的检查和处理
 
         // UI复位标志，云台发送变化时，需要复位
@@ -1091,14 +880,10 @@ void Get_UI_Data(void)
         UI_Reset_All();                              // 复位UI函数
         UiExData.UI_Reset_Flag = Get_UI_Reset_Flg(); // 更新UI复位标志位
     }
-
-    UiExData.IfAllow_Heat_Shoot = Get_Allow_Heat_Shoot(); // 英雄是否允许超热量射击
-    UI_If_Allow_Heat_Shoot_Change(); // 检查英雄是否允许超热量射击状态是否改变,并进行相应的检查和处理
     /******************************未用****************************************/
 //     #ifdef HREO_UI_SPECIAL
 //     UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据
-//     UI_If_Hero_Bullet_Change();                 // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
-//     UI_If_Hero_Light_Change();                  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
+
 //     UiExData.Client_Mode = Get_Client_Status();
     // UiExData.GimIfSuperCapOutput = Get_if_supercap_output();
     // UiExData.Capacity_Charge_Cmd = Get_Charge_Cmd();
@@ -1152,7 +937,7 @@ static void ui_thread_entry(void *parameter)
     while (RT_TRUE)
     {
         rt_sem_take(&UI_sem, RT_WAITING_FOREVER);
-        // Get_UI_Data();//todo
+        Get_UI_Data();
         Drv_Find_Send_UI_Object(); // 发送UI数据
     }
 }
