@@ -314,13 +314,9 @@ void Strike_Mode_Info_Rect_3(UI_Object *object)
                 UI_STRIKE_MODE_CENTER_X + UI_STRIKE_MODE_SIZE * 3 + UI_STRIKE_MODE_SIZE, UI_STRIKE_MODE_CENTER_Y + UI_STRIKE_MODE_SIZE);
 }
 int aim_point_energy_x = 960;
-int aim_point_energy_y = 495;//步兵
-int aim_point_normal_x = 935;
-int aim_point_normal_y = 388;   //5m
-// int aim_point_normal_x=935;//3
-// int aim_point_normal_y =433 ;
-int aim_point_normal_x_3=935;//3
-int aim_point_normal_y_3 =455 ;
+int aim_point_energy_y = 495;
+int aim_point_normal_x = 945;
+int aim_point_normal_y = 490;
 // 绘制准心位置（这里分为打符模式和普通自瞄模式两种情况，并且在能量机关拟合结束，或者自瞄最佳距离时会自动变色为队伍颜色）
 void UI_Aim_Point_Info(UI_Object *object)
 {
@@ -346,18 +342,6 @@ void UI_Aim_Point_Info(UI_Object *object)
             UI_Set_Circle(object, UiWhite, 3, Ui_layer_0, aim_point_normal_x, aim_point_normal_y, 15);
         }
     }
-}
-
-void UI_Aim_Point_Info_Hero_3(UI_Object *object)
-{
-     if (UiExData.if_aimbot_best_dis) // 附加功能：用来判断是否为最佳距离，如果是最佳距离，则将颜色置为队伍颜色，否则置为白色
-        {
-            UI_Set_Circle(object, UiTeam, 3, Ui_layer_0, aim_point_normal_x_3, aim_point_normal_y_3, 15);
-        }
-        else
-        {
-            UI_Set_Circle(object, UiGreen, 3, Ui_layer_0, aim_point_normal_x_3, aim_point_normal_y_3, 15);
-        }
 }
 // 绘制视觉能量机关拟合成功后的能量机关图形
 // 绘制能量机关中心圆圈
@@ -702,8 +686,6 @@ void UI_If_Aimbot_Change()
     {
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aimbot_Mode);    // 更新自瞄模式
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新准心位置和颜色
-        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info_Hero_3); // 更新准心位置和颜色
-
 
         if (AIMBUFF_CONST_MODE == UiExData.Aimbot_Mode || AIMBUFF_VAR_MODE == UiExData.Aimbot_Mode)
         {
@@ -743,18 +725,17 @@ void UI_If_Visual_Error_State_Change()
     UI_Checkout_Object_Change(UiExData.Visual_Error_State, last_visual_error_state, Visual_Working_EOK, UI_Aimbot_Err_Info);
     last_visual_error_state = UiExData.Visual_Error_State; // 更新视觉错误状态
 }
-// 检查视觉最佳距离状态变化并更新中心弹道落点圆圈颜色
-void UI_If_Aimbot_Best_Dis_Change()
-{
-    static uint8_t last_aimbot_best_dis = 0; // 自瞄最佳距离上次保存状态
-    if (last_aimbot_best_dis != UiExData.if_aimbot_best_dis)
-    {
-        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新自瞄模式
-        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info_Hero_3); // 更新自瞄模式
-    }
-    last_aimbot_best_dis = UiExData.if_aimbot_best_dis; // 更新自瞄最佳距离状态
-}
-// 检查视觉是否正常识别到敌人并更新相机框颜色
+// // 检查视觉最佳距离状态变化并更新中心弹道落点圆圈颜色
+// void UI_If_Aimbot_Best_Dis_Change()
+// {
+//      static uint8_t last_visual_target_found = 0; // 自瞄最佳距离上次保存状态
+//     if (last_visual_target_found != UiExData.visual_target_found)
+//     {
+//         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新准心颜色
+//     }
+//     last_visual_target_found = UiExData.visual_target_found; // 更新视觉识别标志
+// }
+// 检查视觉是否正常识别到敌人并更新准心颜色
 void UI_If_Visual_Target_Found_Change()
 {
     static uint8_t last_visual_target_found = 0; // 自瞄最佳距离上次保存状态
@@ -783,8 +764,6 @@ void UI_If_Energy_is_already_Change()
         Drv_Set_Object_Visualable(UI_MODIFY, UI_EnergyR_Line_Circle_4); // 更新能量机关状态
         Drv_Set_Object_Visualable(UI_MODIFY, UI_EnergyR_Line_Circle_5); // 更新能量机关状态
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info);        // 更新准心位置和颜色
-        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info_Hero_3);        // 更新准心位置和颜色
-
     }
     last_energy_is_already = UiExData.Energy_is_already; // 更新能量机关状态
 }
@@ -830,8 +809,31 @@ static rt_uint8_t getIfBuildAttacked(void)
 
 void Get_UI_Data(void)
 {
-     /******************************真用****************************************/
-// 云台认为视觉是否正常
+    /******************************未用****************************************/
+    UiExData.Local_AmmoBooster_Mode = Get_Local_AmmoBooster_Type();
+    // UiExData.Local_Robot_Level = Get_Local_Robot_Level();
+    UiExData.Gimbal_Motor_Offline = Get_Gimbal_Motor_Offline_State();
+    UiExData.Chassis_Motor_Offline = (Read_Wheels_Offline_State() | ((Get_Yaw_Motor_Offline_State() & 0x01) << 4));
+    UiExData.Client_Mode = Get_Client_Status();
+    UiExData.Rub_Started = Read_Rub_Started();
+    // UiExData.GimIfSuperCapOutput = Get_if_supercap_output();
+    // UiExData.Capacity_Charge_Cmd = Get_Charge_Cmd();
+    UiExData.RefSystem_Forced_Offline = Get_Ref_Offline_Cmd();
+    UiExData.Gimbal_Online = (Get_Gim_FreshTick()) && (rt_tick_get() - Get_Gim_FreshTick() < 800);
+    UiExData.Super_Capacity_Online = Read_Super_Capacity_Online();
+    UiExData.Chassis_Reset_Warning = (rt_tick_get() < 3000);
+    UiExData.Gimbal_Reset_Warning = Get_Gim_Reset_Status();
+    UiExData.RefSystem_Offline = (!GetRefDataRefreshTick(Index_power_heat_data)) || (!GetRefDataRefreshTick(Index_game_robot_status)) ||
+                                 (!IsRefDataValid(Index_power_heat_data, 1000)) || (!IsRefDataValid(Index_game_robot_status, 1000)); //! 修改使用新的取时间和判断函数
+
+    // UI复位标志，云台发送变化时，需要复位
+    if (UiExData.UI_Reset_Flag != Get_UI_Reset_Flg())
+    {
+        UI_Reset_All();                              // 复位UI函数
+        UiExData.UI_Reset_Flag = Get_UI_Reset_Flg(); // 更新UI复位标志位
+    }
+    UiExData.gimErrState = getGimErrState();
+    // 云台认为视觉是否正常
     if (UiExData.Visual_Error_State != Get_Visual_Working_Error_State())
     {
         if (Visual_Working_EOK != Get_Visual_Working_Error_State())
@@ -845,19 +847,31 @@ void Get_UI_Data(void)
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Aimbot_Err_Info);       // 显示视觉错误信息
         }
     }
+
     UiExData.Strike_Stuck = Get_Gimbal_Stuck_State(); // 刷新卡弹标志位
     UI_If_Stuck_Change();
 
     Get_RemainCapcity(&UiExData.RemainCapacity);        // 画出超级电容剩余电量使用
     UiExData.ScRate = getScRate();                      // 得到超级电容电流衰减比例
     UiExData.IfSuperCap_open = get_Super_Cap_if_open(); // 读取当前云台是否允许超电放电
+    // 无线充电是否开启
+    UiExData.IfWireless_Charge = Get_Wireless_Charge(); // 刷新无线充电状态
+    UI_If_Wireless_Charge_Change();                     // 检查无线充电状态是否改变,并进行相应的检查和处理
 
+#ifdef BSP_USING_CHASSIS_IMU
+    UiExData.Ch_IMU_Data = Get_Chassis_IMU_Elur(NULL); // 得到底盘三轴欧拉角--绘制辅助瞄准线
+#else
+    UiExData.Ch_IMU_Data = get_chassis_imu_data(); // 得到底盘三轴欧拉角--绘制辅助瞄准线
+#endif
     UiExData.GM_YAW_360F = Get_YAW_ANGLE_360f(); // 获取云台,yaw --绘制辅助瞄准线
     UiExData.GM_Pitch = Get_PITCH_ANGLE_360f();  // 云台电机,pitch--绘制辅助瞄准线
+
+    // UiExData.GM_IMU_Pitch = Get_Gimbal_IMU_Data(IMU_PITCH); // 云台imu pitch--显示云台Pitch轴角度
     UiExData.Strike_Mode = Get_StrikeMode(); // 更新子弹模式,有单发与三连发模式(这里已经不再使用该变量来作为单发和连发的判断依据)
+
     UiExData.Motion_Mode = Get_Motion_Mode(); // 显示当前运动模式(跟随/不跟随/小陀螺/快陀螺/变速陀螺)
 
- UiExData.Aimbot_Mode = Get_Aimbot_Mode(); // 自瞄模式
+    UiExData.Aimbot_Mode = Get_Aimbot_Mode(); // 自瞄模式
     UI_If_Aimbot_Change();                    // 检查自瞄状态是否改变,并进行相应的检查和处理
 
     UiExData.Color_Myself = Get_Color_Myself(); // 当前自瞄的己方颜色
