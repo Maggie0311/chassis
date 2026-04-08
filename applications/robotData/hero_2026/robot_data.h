@@ -61,9 +61,6 @@
 #define DOUBLE_ACC_MAX_Y (float)20000  // mm / s³
 #define DOUBLE_ACC_MAX_W (float)200000 // 0.1°/ s³
 
-/*英雄UI开关*/
-#define HREO_UI_SPECIAL
-
 #endif
 
 // can1:   底盘轮向四个3508电机

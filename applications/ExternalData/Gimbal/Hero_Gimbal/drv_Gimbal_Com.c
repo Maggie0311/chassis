@@ -29,7 +29,7 @@ CANInstance gim_caninstance_Rx[Msg_num_Rx];
 /*提供数据读取*/
 Gim_mixData_Rx_t gimbal_mixdata_msg;
 imu_euler_t gimbal_imudata_msg;
-ui_data_t gimbal_ui_data_msg;
+hero_light_bullet_t gimbal_ui_data_msg;
 rt_tick_t imu_data_freshtick = 0;
 rt_tick_t gimbal_mixdata_msg_freshtick = 0;
 rt_tick_t gimbal_ui_data_msg_freshtick = 0;
@@ -57,11 +57,7 @@ static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
     }
     if (gimbal_ctrl.mode == FOLLOW_GIMBAL)
     {
-#if defined CORE_USING_SENTRY
-        gimbal_ctrl.angvel = 0;
-#else
         gimbal_ctrl.angvel = (float)MSG_READ_2BYTES(instance->rx_buff[4], instance->rx_buff[5]); // 云台发送角速度单位0.1度/s，逻辑为在跟随模式下，云台直接发送YAW轴角速度值给底盘
-#endif
         gimbal_ctrl.fol_ang = 0;
     }
     else if (gimbal_ctrl.mode == SLOW_GYRO || gimbal_ctrl.mode == FAST_GYRO || gimbal_ctrl.mode == CHANGE_GYRO)
@@ -191,12 +187,7 @@ static rt_uint16_t Ref_Shooter_Cooling_Heat(void)
  */
 static rt_uint16_t Ref_Bullet_Speed_Limit(void)
 {
-//! 真的还有效吗？
-#ifdef CORE_USING_HERO
     return 16;
-#else
-    return 30;
-#endif
 }
 
 Gim_Reftrans1_t gim_reftrans_msg1;
@@ -266,20 +257,6 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
     //! 配合云台调试
     gim_reftrans_msg2.enermyOutpost = 0;
 
-    /*哨兵：是否开火*/
-#ifdef CORE_USING_SENTRY
-    // TODO:这是什么
-    uint32_t tick = 0;
-    static uint32_t lastMapTick;
-    tick = GetRefDataRefreshTick(Index_robot_command_map);
-    getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
-    if (get_temp_8 == 'F' && tick != lastMapTick)
-    {
-        lastMapTick = tick;
-        gim_reftrans_msg2.SentryIsFire = !gim_reftrans_msg2.SentryIsFire;
-    }
-#endif
-
     /*弹速*/
     if (IsRefDataValid(Index_shoot_data, 20)) // 20ms内有射击则更新弹速，否则弹速为0
     {
@@ -289,10 +266,13 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
     else
         gim_reftrans_msg2.speed = 0;
 
-    /*哨兵血量*/
-    getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
-    gim_reftrans_msg2.SentryHP = get_temp_16;
+    // /*哨兵血量*/
+    // getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
+    // gim_reftrans_msg2.SentryHP = get_temp_16;
 
+    /*剩余发弹量 */
+    getRefData(memberGet_parm(get_temp_16, ext_bullet_remaining, bullet_remaining_num_42mm));
+    gim_reftrans_msg2.remaining_bullet_num = get_temp_16;
     /*云台手键盘信息*/
     getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
     gim_reftrans_msg2.commd_keyboard = get_temp_8;

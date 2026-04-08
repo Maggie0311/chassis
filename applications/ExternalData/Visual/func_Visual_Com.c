@@ -311,7 +311,7 @@ static void visualRxThread(void *parameter)
 {
     struct RttUartMsg msg;
     rt_err_t result;
-    uint32_t read_data_size=0;
+    uint32_t read_data_size=0;  
     CREAT_ID(id);
     ADDTOMONITOR_ID("visualRxThread", 3000, NULL, ALARM_RED, 0, id);
     SWDG_START(id);
