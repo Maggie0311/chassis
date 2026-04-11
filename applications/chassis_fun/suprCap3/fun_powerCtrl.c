@@ -520,21 +520,9 @@ static void get_chassis_max_power(void)
     // 该功率计算式子满足在分配等级为0时与正常功率限制计算等效，当分配等级功能未启用时Power_Allo_level始终为0，符合逻辑
     // 一部分固定的静态功率不属于电机可用功率：即要减去Power_C_sum
     PowerCtrl.Power_Maxlim = (PowerCtrl.Power_Maxlim_sum - Power_C_sum) * (K_Conservative + PowerCtrl.Power_Allo_level * One_Level_Persent);
-// #ifdef hero
-//     power_speed_max =3000;// get_power_lim_speed(PowerCtrl.Power_Maxlim);
-// #endif
+
 }
 
-/**
- * @brief Get the power speed max object
- *
- * @return float
- */
-float get_power_speed_max(void)
-{
-    if (power_speed_max)
-        return power_speed_max;
-}
 
 /**
  * @brief Get the pre power object获得预输出功率相关参数
@@ -670,7 +658,7 @@ static void Power_lim_allo_to_wheels()
 #if IF_USED_ALLO_LEVEL == 2
     if (PowerCtrl.Power_Maxlim < 1.0f)
     {
-        for (group = 0; group < 4; group++)
+        for (group = 0; group < WHEELS_GROUP_NUM; group++)
         {
             if (if_wheel_used[group] == 1)
             {
@@ -694,7 +682,7 @@ static void Power_lim_allo_to_wheels()
         Power_re_allo();
 
         //* 扭矩反解
-        for (group = 0; group < 4; group++)
+        for (group = 0; group < WHEELS_GROUP_NUM; group++)
         {
 
             // Selection of the calculation formula according to the motor acceleration and deceleration
@@ -806,7 +794,7 @@ void Power_re_allo(void)
     Power_Set.run_err_sum = 0;
     Power_Set.angle_err_sum = 0;
     Power_Set.run_err_sq_sum = 0;
-    for (uint8_t group = 0; group < 4; group++)
+    for (uint8_t group = 0; group < WHEELS_GROUP_NUM; group++)
     {
         Power_Set.run_err_sum += fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err);
         Power_Set.run_err_sq_sum += SQUARE(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err);
@@ -827,7 +815,7 @@ void Power_re_allo(void)
     else
         AngleKcoe = (Power_Set.angle_err_sum - AngleERRlow) / (AngleERRhigh - AngleERRlow);
 
-    for (uint8_t group = 0; group < 4; group++)
+    for (uint8_t group = 0; group < WHEELS_GROUP_NUM; group++)
     {
         // 按照误差比例的置信度分配
         if (if_wheel_used[group] == 1)

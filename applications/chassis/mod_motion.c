@@ -35,8 +35,8 @@ static Mot_base_t MotModule_Clamp_Base(Mot_base_t VxyW)
 {
     Mot_base_t temp =
         {
-            .vel.y = utils_clamp(VxyW.vel.y, -get_power_speed_max(), get_power_speed_max()),
-            .vel.x = utils_clamp(VxyW.vel.x, -get_power_speed_max(), get_power_speed_max()),
+            .vel.y = utils_clamp(VxyW.vel.y, -M_MAX_POSITION_Y, M_MAX_POSITION_Y),
+            .vel.x = utils_clamp(VxyW.vel.x, -M_MAX_POSITION_X, M_MAX_POSITION_X),
             .angvel = utils_clamp(VxyW.angvel, -M_MAX_ROTATE_AC, M_MAX_ROTATE_AC)};
     return temp;
 }

@@ -185,7 +185,6 @@ void get_true_RLS(void);
 void get_pre_power(void);
 void Power_Motor_Attach(MotorInstance *motor_instance);
 float get_K_IC2Tor(MotorInstance *motor_instance);
-float get_power_speed_max(void);
 float get_k_power_allo();
 uint8_t get_over_voltage(void);
 #endif
