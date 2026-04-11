@@ -20,6 +20,7 @@
 #include "sentry_cmd.h"
 #endif
 #include "protect.h"
+#include "drv_IMU_Can.h"
 
 /*公共库模块*/
 #include "app_monitor.h"
@@ -97,7 +98,7 @@ int main(void)
     }
 
     /*云台通信*/
-    result = Gimbal_Com_Init();
+   result = Gimbal_Com_Init();
     if (result != RT_EOK)
     {
         LOG_E("Gimbal_Com Init Failes! Result is %d", result);
@@ -107,6 +108,19 @@ int main(void)
     else
     {
         LOG_I("Gimbal_Com Init Success!");
+    }
+
+    /*IMU CAN接收*/
+    result = IMU_Can_Init();
+    if (result != RT_EOK)
+    {
+        LOG_E("IMU_Can_Init Failes! Result is %d", result);
+        LOG_E("Robot Reset!");
+        Robot_Chassis_Reset(RT_TRUE);
+    }
+    else
+    {
+        LOG_I("IMU_Can_Init Success!");
     }
 
     /* 控制 */
