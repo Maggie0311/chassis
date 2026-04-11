@@ -35,8 +35,8 @@ static Mot_base_t MotModule_Clamp_Base(Mot_base_t VxyW)
 {
     Mot_base_t temp =
         {
-            .vel.y = utils_clamp(VxyW.vel.y, -get_power_speed_max(), get_power_speed_max()),
-            .vel.x = utils_clamp(VxyW.vel.x, -get_power_speed_max(), get_power_speed_max()),
+            .vel.y = utils_clamp(VxyW.vel.y, -M_MAX_POSITION_Y, M_MAX_POSITION_Y),
+            .vel.x = utils_clamp(VxyW.vel.x, -M_MAX_POSITION_X, M_MAX_POSITION_X),
             .angvel = utils_clamp(VxyW.angvel, -M_MAX_ROTATE_AC, M_MAX_ROTATE_AC)};
     return temp;
 }
@@ -352,12 +352,12 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
         angle = ctrl.getYawAngel;
     }
 
-    Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
-    Speed_xyw.angvel = plan_xyw.angvel;
-    Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
-    Force_xyw.angvel = plan_acc_xyw.angvel;
-    //  Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
-    //  Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
+    // Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
+    // Speed_xyw.angvel = plan_xyw.angvel;
+    // Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
+    // Force_xyw.angvel = plan_acc_xyw.angvel;
+     Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
+     Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
 
 // float update_input_limiter(float K_out)

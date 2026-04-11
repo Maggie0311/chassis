@@ -38,7 +38,7 @@ static void PID_Cal_Thread(void)
 
 #ifdef USE_CAPACITY_3
 
-     //     Power_Ctrl();
+          Power_Ctrl();
 #endif
 
         /*can报文发送*/
@@ -93,7 +93,7 @@ rt_err_t Wheels_Init(void)
                   "Cal_Timer",
                   Cal_IRQHandler,
                   RT_NULL,
-                  5,
+                  1,
                   RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);//200Hz
 
     // 启动定时器

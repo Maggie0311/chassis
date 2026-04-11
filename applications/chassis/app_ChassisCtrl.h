@@ -4,7 +4,7 @@
 #include "controlMsg.h"
 
 // 底盘控制线程周期，单位ms
-#define CHASSIS_CTRL_PERIOD 10
+#define CHASSIS_CTRL_PERIOD 5
 
 // 底盘控制初始化
 rt_err_t Chassis_Ctrl_Init(void);
