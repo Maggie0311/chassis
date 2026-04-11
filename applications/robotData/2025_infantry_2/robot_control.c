@@ -60,7 +60,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
                 .speed_calc_Prescaler = 1,
 
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -103,7 +103,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -148,7 +148,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -193,7 +193,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -347,8 +347,8 @@ static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force
     tarForce.vel.x = Force_xyw->vel.x * WEIGHT / 1000.f;                        // 整个底盘x方向力的平滑后设定值(N)
     tarForce.vel.y = Force_xyw->vel.y * WEIGHT / 1000.f;                        // 整个底盘Y方向力的平滑后设定值(N)
     tarForce.angvel = Force_xyw->angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
+    Omni_Force_Resolve(tarForce, 45.f, motorSetForce);
 
-    // Omni_Force_Resolve(tarForce, motorSetForce);
 }
 
 // 摩擦力前馈计算 这里的数值是采集数据后在matlab中进行回归拟合得到的
@@ -379,15 +379,17 @@ static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
 {
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
-        if (wheel_motor[i].Motor_obj.reverse_flag == 1)
-        {
+        // if (wheel_motor[i].Motor_obj.reverse_flag == 1)
+        // {
 
-            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
-        }
-        else
-        {
-            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = -motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f - RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
-        }
+        //     wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f;
+        //     +RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+        // }
+        // else
+        // {
+        //     wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = -motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f - RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+        // }
+        wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f +RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
     }
 }
 
@@ -405,9 +407,9 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
     {
         //Omni_Resolve(*Speed_xyw, motorSetSpeed);
         Omni_Inverse_Kinematics_new(*Speed_xyw,45.0f, motorSetSpeed);
-        //  Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
+        Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
 
-        // Get_force_out(motorSetForce); // 获取前馈值
+        Get_force_out(motorSetForce); // 获取前馈值
     }
     if (1 == isSetValid_debug[1])
     {
