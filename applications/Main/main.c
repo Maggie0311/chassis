@@ -5,7 +5,7 @@
 #include "drv_Gimbal_Com.h"
 #include "app_ChassisCtrl.h"
 #include "func_MonHandling.h"
-#include "app_UI.h"
+//#include "app_UI.h"
 #include "custom_message.h"
 #include "app_RefSystem.h"
 
@@ -72,16 +72,16 @@ int main(void)
 #ifdef BSP_USING_REF
     /*裁判系统*/
     result = Ref_Init();
-    if (result != RT_EOK)
-    {
-        LOG_E("DJI Init Failes! Result is %d", result);
-        LOG_E("Robot Reset!");
-        Robot_Chassis_Reset(RT_TRUE);
-    }
-    else
-    {
-        LOG_I("DJI Init Success!");
-    }
+   if (result != RT_EOK)
+   {
+       LOG_E("DJI Init Failes! Result is %d", result);
+       LOG_E("Robot Reset!");
+       Robot_Chassis_Reset(RT_TRUE);
+   }
+   else
+   {
+       LOG_I("DJI Init Success!");
+   }
 #endif
     /*超电通信*/
     result = Scpr_Com_Init();
@@ -158,7 +158,7 @@ int main(void)
     {
         LOG_I("Sentry_Data_Send Init Success!");
     }
-#else
+ #else
      if (UI_Init() != RT_EOK)
          Robot_Chassis_Reset(RT_TRUE);
     // if (Custom_Message_Data_Send_Init() != RT_EOK)

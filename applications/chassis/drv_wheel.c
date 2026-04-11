@@ -42,8 +42,8 @@ static void PID_Cal_Thread(void)
         Motor_Control_Loop();
 
 #ifdef USE_CAPACITY_3
-        
-            Power_Ctrl();
+
+          Power_Ctrl();
 #endif
 
         /*can报文发送*/
@@ -99,7 +99,7 @@ rt_err_t Wheels_Init(void)
                   Cal_IRQHandler,
                   RT_NULL,
                   1,
-                  RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
+                  RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);//200Hz
 
     // 启动定时器
     res = rt_timer_start(&Cal_Timer);
@@ -109,7 +109,6 @@ rt_err_t Wheels_Init(void)
     return RT_EOK;
 }
 
-
 /**
  * @brief 读取底盘电机当前的离线情况
  * 从低位到高位顺序为舵向电机的RF-LF-LB-RB，轮向电机的RF-LF-LB-RB 对应位置 1 代表离线
@@ -117,8 +116,8 @@ rt_err_t Wheels_Init(void)
  */
 rt_uint8_t Read_Wheels_Offline_State(void)
 {
-//    uint8_t state[WHEEL_NUM];
-//    //state[WHEEL_RUN] = Wheels_Ctrlinfo[WHEEL_RUN].Wheels_Motor_Offline & ((1 << WHEELS_GROUP_NUM) - 1);
-//    //state[WHEEL_ANGLE] = Wheels_Ctrlinfo[WHEEL_ANGLE].Wheels_Motor_Offline & ((1 << WHEELS_GROUP_NUM) - 1);
-//    return (state[WHEEL_ANGLE] << WHEELS_GROUP_NUM) & state[WHEEL_RUN];
+    //    uint8_t state[WHEEL_NUM];
+    //    //state[WHEEL_RUN] = Wheels_Ctrlinfo[WHEEL_RUN].Wheels_Motor_Offline & ((1 << WHEELS_GROUP_NUM) - 1);
+    //    //state[WHEEL_ANGLE] = Wheels_Ctrlinfo[WHEEL_ANGLE].Wheels_Motor_Offline & ((1 << WHEELS_GROUP_NUM) - 1);
+    //    return (state[WHEEL_ANGLE] << WHEELS_GROUP_NUM) & state[WHEEL_RUN];
 }

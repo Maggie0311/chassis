@@ -10,7 +10,7 @@
 #include "drv_motionSolve.h"
 #include "robot_control.h"
 #include "drv_GimMotor.h"
-#include "fun_protocolGim.h"
+#include  "fun_powerCtrl.h"
 #ifdef BSP_USING_LOG
 #define LOG_TAG "Ctrl"
 #define LOG_LVL LOG_LVL_DBG
@@ -106,6 +106,7 @@ static void Chassis_Ctrl_Thread(void *parameter)
             {
                 Ctrl_data = (Ctrl_data_t *)nowCtrlSrc->data; /*得到原始设定值*/
                 Ctrl_data->xyw.angvel = 5000;                // 视觉控制掉线时默认转速
+                Ctrl_data->xyw.angvel = 5000;                // 视觉控制掉线时默认转速
             }
         }
 #endif
@@ -146,7 +147,6 @@ static rt_err_t chassisCtrlInit(void)
     res = rt_sem_init(&ChassCtrl_sem, "Cctrl_sem", 0, RT_IPC_FLAG_FIFO);
     if (res != RT_EOK)
         return res;
-
     // 该线程总的来说是根据控制端发来的数据进行处理转化为pid底盘车轮的设定目标值
     thread = rt_thread_create("Chassis_Thread",
                               Chassis_Ctrl_Thread,

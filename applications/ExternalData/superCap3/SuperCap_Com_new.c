@@ -18,7 +18,8 @@ Scpr_ComTx_t scpr_comTx;
 CANInstance scpr_caninstance;
 
 /*超电调试开关；*/
-uint8_t power_ctrl_close = 0;   // 超电是否关闭输出
+uint8_t power_ctrl_close = 0;   // 超电是否关闭输出（保留兼容，内部使用）
+static uint8_t scpr_output_mode = 1; // 超电输出模式：0=只充不放, 1=正常充放, 2=只放不充
 uint8_t scprIsDebug = 0;
 
 /*电压记录*/
@@ -87,32 +88,36 @@ static void getSuprCapComData(Scpr_ComTx_t *Cmd)
         Cmd->isdataRef = 0;
     }
 
-    // 功率上限 0x0201
-    now = GetRefDataRefreshTick(Index_game_robot_state);
-    checkSuprComDataRefresh(now, powerLimTick);
-    // 功率缓冲 0x0202
-    now = GetRefDataRefreshTick(Index_power_heat_data);
-    checkSuprComDataRefresh(now, powerBufTick);
+//     // 功率上限 0x0201
+//    now = GetRefDataRefreshTick(Index_game_robot_status);
+//     checkSuprComDataRefresh(now, powerLimTick);
+//     // 功率缓冲 0x0202
+//     now = GetRefDataRefreshTick(Index_power_heat_data);
+//     checkSuprComDataRefresh(now, powerBufTick);
+//    now = GetRefDataRefreshTick(Index_game_robot_status);
+//     checkSuprComDataRefresh(now, powerLimTick);
+//     // 功率缓冲 0x0202
+//     now = GetRefDataRefreshTick(Index_power_heat_data);
+//     checkSuprComDataRefresh(now, powerBufTick);
 
+   powerLimTick = IsRefDataValid(Index_game_robot_status,1000);
+   powerBufTick = IsRefDataValid(Index_power_heat_data,1000);
+   
     getRefData(memberGet_parm(now,ext_game_robot_status,chassis_power_limit));
     // 底盘功率限制上限--从裁判系统数据中读取
     checkSuprComDataRefresh(now, Cmd->chassis_powerLim);
     getRefData(memberGet_parm(now,ext_power_heat_data,chassis_power_buffer));      // 功率缓冲--从裁判系统数据中读取
     checkSuprComDataRefresh(now, Cmd->chassis_powerBuf);
-    //todo等云台发的无线充电正常再恢复
-    // 首先判断是否无线充电
-    // if(Get_Wireless_Charge())
-    // {
-    //     Cmd->Whether_To_Output = 2; // 无线充电状态为真时，发给超电，让其只放电，不充电
-    // }
-    // else//如果没有打开无线充电，则只判断超电状态如何
-    // {
-        if (power_ctrl_close == 1 || (rt_tick_get() - Get_Gim_FreshTick() > 500))  
-        // 如果功率控制要求关闭，置0，关掉超电，云台通信丢失也关掉超电，防止底盘主控接到小电脑时，与超电继续通信，主动放电到底盘
-            Cmd->Whether_To_Output = 0;
-        else
-            Cmd->Whether_To_Output = 1; // 否则打开
-    //}
+    // 云台通信丢失超过500ms时强制关闭超电，防止底盘独立运行时主动放电
+    if (rt_tick_get() - Get_Gim_FreshTick() > 500)
+    {
+        Cmd->Whether_To_Output = 0;
+    }
+    else
+    {
+        // 使用由 fun_powerCtrl 通过 Set_SuprCap_OutputMode() 设置的模式
+        Cmd->Whether_To_Output = scpr_output_mode;
+    }
     now = RefGetIsFlySlope(); // 是否rfid飞坡增益 0x209
     checkSuprComDataRefresh(now, Cmd->isFlySlope);
     // now = Ref_Chassis_IsOverPower(&nowTick); // 是否超功率扣血 0x206
@@ -141,6 +146,8 @@ static void getSuprCapComData(Scpr_ComTx_t *Cmd)
 static rt_err_t Send_To_Scpr(Scpr_ComTx_t *cmd)
 {
     /*更新发送数据*/
+	//cmd->Whether_To_Output=2;
+    //cmd->Whether_To_Output = 1;
     scpr_caninstance.tx_buff[0] = (uint8_t)(cmd->Whether_To_Output);
     scpr_caninstance.tx_buff[1] = (uint8_t)(cmd->isdataRef);
     scpr_caninstance.tx_buff[2] = (uint8_t)(cmd->isFlySlope);
@@ -331,11 +338,23 @@ rt_bool_t Get_SuprCapPower(float *power)
 
 /**
  * @brief 获取超电是否输出
- * 
- * @return uint8_t 
+ *
+ * @return uint8_t
  */
 uint8_t Get_if_supercap_output(void)
 {
-    return !power_ctrl_close;
+    return (scpr_output_mode != 0);
+}
+
+/**
+ * @brief 设置超电输出模式（由 fun_powerCtrl 调用）
+ * @param mode  0=只充不放(关闭放电)  1=正常充放  2=只放不充
+ */
+void Set_SuprCap_OutputMode(uint8_t mode)
+{
+    if (scpr_output_mode == mode) return; // 模式未变化，避免无效写入
+    scpr_output_mode = mode;
+    // 同步更新 power_ctrl_close 以兼容其他仍引用此变量的代码
+    power_ctrl_close = (mode == 0) ? 1 : 0;
 }
 

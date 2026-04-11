@@ -17,9 +17,9 @@ void Follow_pid_init(void);
 #define BIG_YAW 2
 
 // TODO:调Pid这堆
-#define RUN_PID_Kp 320
-#define RUN_PID_Ki 2
-#define RUN_PID_Kd 0.8
+#define RUN_PID_Kp 160
+#define RUN_PID_Ki 0.6
+#define RUN_PID_Kd 2
 
 #define POWER_CTRL 0//功率控制开关，1为开启，0为不开
 #define SCAP_MAX_CURRENT (8.f) // 电容最大放电响应电流

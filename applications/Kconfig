@@ -55,6 +55,9 @@ menu "Choose Car model Config"
             
             config CORE_USING_2026_INFANTRY_1
                 bool "2026 infantry 1 omni"                 #2026步兵1
+            
+            config CORE_USING_2026_INFANTRY_2
+                bool "2026 infantry 2 omni"                 #2026步兵2
 
             #2024麦轮步兵-飞将-轮距很窄-左右容易晃；轮子大-为飞坡设计-但飞坡效果并不理想
             config CORE_USING_2024_NEW_INFANTRY

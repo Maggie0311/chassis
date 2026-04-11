@@ -197,7 +197,6 @@ extern rt_bool_t Get_If_Go_Upstairs(void);
 uint8_t get_chassis_pitch(float *pitch);
 uint8_t get_chassis_roll(float *roll);
 imu_euler_t get_chassis_imu_data(void);
-ui_data_t get_hero_ui_data(void);
 uint8_t get_Key_ctrl(void);
 
 #endif

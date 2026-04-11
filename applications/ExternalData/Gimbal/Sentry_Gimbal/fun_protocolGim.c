@@ -62,7 +62,7 @@ rt_int8_t Get_Magazine_Status(void)
 // 热量控制开关状态
 rt_uint8_t Get_HeatLimit_Status(void)
 { // UI
-    return gimbal_mixdata_msg.heatlimit_status;
+   return gimbal_mixdata_msg.heatlimit_status;
 }
 
 // 获取二维按键当前处于哪个菜单下
@@ -82,15 +82,15 @@ uint8_t Get_Wireless_Charge(void)
     return gimbal_mixdata_msg.Wire_less_charge;
 }
 // 读取当前是否需要超级电容充电, 返回 1 为不需要
-// rt_uint8_t Get_Charge_Cmd(void)
-// {
-//     return gimbal_mixdata_msg.capacity_close_flag;
-// }
+rt_uint8_t Get_Charge_Cmd(void)
+{
+    return gimbal_mixdata_msg.capacity_close_flag;
+}
 
 // 读取云台是否强制裁判系统离线的指令
 rt_uint8_t Get_Ref_Offline_Cmd(void)
 { // UI
-    return gimbal_mixdata_msg.force_refsystem_offline;
+   return gimbal_mixdata_msg.force_refsystem_offline;
 }
 
 // 读取上一次云台控制信息刷新时间
@@ -129,13 +129,7 @@ Local_Chassis_Mode_Enum Get_Local_Chassis_Type(void)
 // 获取当前的本地枪口模式(0爆发优先 1冷却优先 2弹速优先)
 Local_AmmoBooster_Mode_Enum Get_Local_AmmoBooster_Type(void)
 { // UI
-#if defined CORE_USING_HERO
-    return (Local_AmmoBooster_Mode_Enum)(gimbal_mixdata_msg.set_ammobooster_mode ? 2 : 0);
-#elif defined CORE_USING_INFANTRY
-    return (Local_AmmoBooster_Mode_Enum)gimbal_mixdata_msg.set_ammobooster_mode;
-#else
     return (Local_AmmoBooster_Mode_Enum)0;
-#endif
 }
 
 // 获取本地的机器人等级
@@ -148,7 +142,6 @@ rt_uint8_t Get_Energy_is_already(void)
 { // UI
     return gimbal_mixdata_msg.Energy_is_already;
 }
-
 // 获取云台中的离线电机, 从低到高分别为：Yaw、Pitch、右摩擦轮、左摩擦轮、播弹盘
 rt_uint8_t Get_Gimbal_Motor_Offline_State(void)
 { // UI
@@ -160,7 +153,6 @@ rt_uint8_t Get_Gimbal_Motor_Offline_State(void)
     OfflineMotor |= (!gimbal_mixdata_msg.launch_motor_online) << gimErr_launch;
     return OfflineMotor;
 }
-
 // 获取发射机构是否存在卡弹情况
 rt_bool_t Get_Gimbal_Stuck_State(void)
 { // UI
@@ -198,6 +190,11 @@ uint8_t getGimErrState(void)
 uint8_t Get_if_aimbot_best_dis(void)
 { // UI
     return gimbal_mixdata_msg.if_aimbot_best_dis;
+}
+
+uint8_t Get_Allow_Heat_Shoot(void)
+{ // UI
+//    return gimbal_mixdata_msg.allow_heat_shoot;
 }
 /**
  * @brief 获取云台发送给底盘关于视觉是否识别到敌方的信息（0为未识别到，1为识别到）
@@ -260,12 +257,4 @@ uint8_t get_Key_ctrl(void)
         return gimbal_mixdata_msg.Key_ctrl;
     else
         return 0;
-}
-
-ui_data_t get_hero_ui_data(void)
-{
-    if (rt_tick_get() - gimbal_ui_data_msg_freshtick < 1000)
-        return gimbal_ui_data_msg;
-    else
-        return (ui_data_t){0, 0, 0, 0, 0, 0, 0, 0};
 }

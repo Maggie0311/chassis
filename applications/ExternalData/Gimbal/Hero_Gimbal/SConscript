@@ -1,0 +1,12 @@
+from building import *
+
+cwd = GetCurrentDir()
+src = Glob('*.c')
+
+CPPPATH = [cwd]
+
+if GetDepend(['CORE_USING_HERO']):
+    group = DefineGroup('GimbalCom', src, depend = [''], CPPPATH = CPPPATH)
+else:
+    group = []
+Return('group')

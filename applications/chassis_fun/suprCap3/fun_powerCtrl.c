@@ -16,8 +16,8 @@
 #include <ulog.h>
 #endif
 
-#define RunERRhigh 1800
-#define RunERRlow 400
+#define RunERRhigh 800
+#define RunERRlow 200
 
 #define AngleERRhigh 200
 #define AngleERRlow 50
@@ -38,13 +38,12 @@ Motor_Power_t Motor_power[WHEELS_GROUP_NUM][2];
 // note 修改裁判系统和超电数据有效性标志位
 uint8_t PowerCtrl_Close_Flag[2] = {0, 0}; // 是否抛弃超电数据，是否抛弃裁判系统数据
 uint8_t Cap_false_flag = 0;               // 底盘检测超电可能掉线标志，标记超电异常标志位（用于UI告知操作手）,1为异常，0为正常
-extern uint8_t power_ctrl_close;
 RLS_Estimator RunRLS;
 RLS_Estimator AngleRLS;
 
 float RunPhi[4], AnglePhi[4];
 float WheelInitTheta[3], SteerInitTheta[3];
-float power_speed_max = 6000;
+float power_speed_max = 9000;
 
 // 传入的参数为电机组总地址，需要区分舵向电机和轮向电机，用于索引
 // 以下设计均是每个部分将对应的舵向电机和轮向电机分别计算
@@ -53,6 +52,7 @@ uint8_t if_wheel_used[WHEELS_GROUP_NUM] = {0}; // 记录电机是否被使用
                                                // 0:不使用 1:使用
 
 MotorInstance *Motor_Power_Pointer[2][5];
+uint8_t get_over_voltage_flag=0;
 uint8_t run_count = 0;
 uint8_t angle_count = 0;
 
@@ -200,9 +200,9 @@ static void getRefDataAndInfo(void)
         /**以下数据计算后为国际单位**/
         getRefData(memberGet_parm(PowerInfo.Ref.PowerBuff, ext_power_heat_data, chassis_power_buffer)); // 缓冲能量J
         // PowerInfo.Ref.PowerBuff = 60; // 缓冲能量J
-        getRefData(memberGet_parm(PowerInfo.Ref.Power_Maxlim, ext_game_robot_status, chassis_power_limit)); // 最大功率限制W
-        // PowerInfo.Ref.Power_Maxlim = power_max_limit_test; // 最大功率限制W
-        getRefData(memberGet_parm(PowerInfo.Ref.power_now, ext_power_heat_data, chassis_power_reserve));
+         getRefData(memberGet_parm(PowerInfo.Ref.Power_Maxlim, ext_game_robot_status, chassis_power_limit)); // 最大功率限制W
+        // PowerInfo.Ref.Power_Maxlim = 100;//power_max_limit_test; // 最大功率限制W
+        // getRefData(memberGet_parm(PowerInfo.Ref.power_now, ext_power_heat_data, chassis_power_reserve));
         // PowerInfo.Ref.IsOverPower = Ref_Chassis_IsOverPower(&tick_tmp); // 是否超功率及超功率时刻，串口协议1.90已经删除
         // 裁判系统功率数据更新时刻：电流，电压，功率，缓冲能量
         PowerInfo.Ref.refresh_tick = GetRefDataRefreshTick(Index_power_heat_data);
@@ -242,100 +242,90 @@ static void getPowerData(void)
 /**
  * @brief 超电输出功能开关
  *
- * @param GimIfSuperCapOutput    超电输出功能开关
+ * @param GimIfSuperCapOutput    超电输出功能开关（来自云台按键）
  */
+// 满电滞回保护参数（暂时注释，备用）
+// #define SCAP_HYST_HIGH  90.0f   // 接近满电阈值(%)，超过此值进入只放不充
+// #define SCAP_HYST_LOW   85.0f   // 滞回下限(%)，低于此值恢复正常充放
 static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
 {
-    // #if KEY_C_FUN == 2
-    //     if (PowerInfo.Cap.isValid && !Cap_false_flag)
-    //     { // 超电余量限制功能（第一部分：基本关闭与开启）
-    //         if (GimIfSuperCapOutput == 1 && PowerInfo.Cap.superCap <= RESERVE_BATTERY_TL &&
-    //             (PowerInfo.Cap.Cap_State != CAP_STATE_CHARGE && PowerInfo.Cap.Cap_State != CAP_STATE_NO_WORK))
-    //         {                                // 保留功能开启并且到达低电量时关闭超电
-    //             power_ctrl_close = 1;        // 通讯关闭超电
-    //             PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
-    //         }
-    //         else if (GimIfSuperCapOutput == 0)
-    //         {                                // 保留功能关闭时打开超电，前提是超电没有失效
-    //             power_ctrl_close = 0;        // 通讯打开超电
-    //             PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
-    //         }
-    //     }
-    // #endif
+    static uint8_t user_enable = 1;              // 用户设置的放电状态
+    static uint8_t pre_button_state = 1;         // 前次按键状态
+    static uint8_t if_used_up = 0;               // 是否电量耗尽（<3%）
+    static uint8_t if_used_up_user_unchange = 0; // 耗尽后用户是否已手动切换
+
+    // 裁判系统有效时：缓冲能量过低或超电掉线 → 强制关闭
     if (PowerInfo.Ref.isValid)
     {
-        // 缓冲能量很低时认为超电异常
         if (PowerInfo.Ref.PowerBuff <= PowerBuffReamin || PowerInfo.Cap.Cap_State == CAP_STATE_ERROR)
-        {                                // 缓冲能量小于预留能量,关超电
-            Cap_false_flag = 1;          // 标记超电功能异常
-            power_ctrl_close = 1;        // 通讯关闭超电
-            PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
+        {
+            //Cap_false_flag = 1;
+            Set_SuprCap_OutputMode(0);   // 关闭超电输出
+            PowerCtrl_Close_Flag[0] = 1;
         }
-        // #if KEY_C_FUN == 2
-        //         // 超电余量限制功能（第二部分：超电关闭后的恢复）
-        //         if (PowerInfo.Ref.PowerBuff >= 50 && !Cap_false_flag)
-        //         {
-        //             power_ctrl_close = 0;        // 通讯打开超电
-        //             PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
-        //         }
-        // #endif
     }
-    // #if KEY_C_FUN == 1      // 开启超电开关功能
-    //     if (GimIfSuperCapOutput == 1)    //打开超电异常检测功能，如果超电被标记异常则会将超电关闭
-    //     {
-    //         if (Cap_false_flag) // 若超电被标记功能异常，则关闭超电数据使用
-    //         {
-    //             power_ctrl_close = 1;        // 通讯关闭超电
-    //             PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
-    //         }
-    //     }
-    //     else if (GimIfSuperCapOutput == 0) //关闭超电异常检测功能，无论何种情况，底盘都会认为超电正常工作
-    //                                             //（这样是为了超电被误标记异常后，操作手可以自行选择再次打开超电）
-    //     {
-    //         Cap_false_flag = 0;          // 清除历史保护标志位
-    //         power_ctrl_close = 0;        // 通讯打开超电
-    //         PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
-    //     }
-    static uint8_t user_enable = 1;              // 用户设置的放电状态
-    static uint8_t pre_button_state = 1;         // 前次按键状态（初始上电为0，一段时间后和云台通信成功后，云台发送为1）
-    static uint8_t if_used_up = 0;               // 是否电量耗尽
-    static uint8_t if_used_up_user_unchange = 0; // 是否用光超电并且用户是否改变状态
-    if (pre_button_state != GimIfSuperCapOutput) // 判断云台是否切换模式
+
+    // 云台按键边沿检测
+    if (pre_button_state != GimIfSuperCapOutput)
     {
-        user_enable = !user_enable; // 标记为需要切换模式
+        user_enable = !user_enable;
         if_used_up_user_unchange = 0;
-        pre_button_state = GimIfSuperCapOutput; // 更新云台端超电输出状态
+        pre_button_state = GimIfSuperCapOutput;
     }
-    if (PowerInfo.Cap.superCap <= 3) // 超电电量小于3%时，标记超电被使用完
+
+    // 超电电量耗尽检测（<3% 强制关闭放电）
+    if (PowerInfo.Cap.superCap <= 3.0f)
     {
-        if_used_up = 1; // 标记超电被使用完
+        if_used_up = 1;
         if_used_up_user_unchange = 1;
         user_enable = 0;
-        // power_ctrl_close = 1;                         // 通讯关闭超电
-        // PowerCtrl_Close_Flag[0] = 1;                  // 关闭超电数据使用
     }
-    else if (PowerInfo.Cap.superCap > 3)
+    else if (PowerInfo.Cap.superCap > 3.0f)
     {
-        if_used_up = 0; // 标记超电未被使用完
+        if_used_up = 0;
+    }
 
-        // if_turn_mode=0;                               // 清除标记
-        // power_ctrl_close = 0;                         // 通讯打开超电
-        // PowerCtrl_Close_Flag[0] = 0;                  // 打开超电数据使用
-    }
-    if (if_used_up == 0 && user_enable && if_used_up_user_unchange == 0) // 云台端打开超电输出，且超电未被标记使用完，
+    // 正常工作：超电在线且未耗尽时正常充放
+    if (if_used_up == 0)
     {
-       power_ctrl_close = 0;        // 通讯打开超电
-      PowerCtrl_Close_Flag[0] = 0; // 打开超电数据使用
+        Set_SuprCap_OutputMode(1); // 正常充放
+        PowerCtrl_Close_Flag[0] = 0;
     }
-    else // 云台端关闭超电输出，或者超电被标记异常
+    else
     {
-			
-        power_ctrl_close = 1;        // 通讯关闭超电
-        PowerCtrl_Close_Flag[0] = 1; // 关闭超电数据使用
+        Set_SuprCap_OutputMode(0); // 电量耗尽 → 关闭
+        PowerCtrl_Close_Flag[0] = 1;
     }
-    // #endif
+
+    // ── 满电滞回控制（暂时注释，备用）──────────────────────────────────
+    // 防止接近满电时反复充放电过热：
+    //   superCap > SCAP_HYST_HIGH(90%) → 进入"只放不充"模式(2)
+    //   superCap < SCAP_HYST_LOW(85%)  → 恢复正常充放(1)
+    //   中间区间 → 维持上次模式（死区）
+    //
+    // if (PowerInfo.Cap.isValid && if_used_up == 0)
+    // {
+    //     static uint8_t hyst_mode = 1; // 1=正常充放, 2=只放不充
+    //
+    //     if (PowerInfo.Cap.superCap > SCAP_HYST_HIGH)
+    //         hyst_mode = 2;
+    //     else if (PowerInfo.Cap.superCap < SCAP_HYST_LOW)
+    //         hyst_mode = 1;
+    //
+    //     Set_SuprCap_OutputMode(hyst_mode);
+    //     PowerCtrl_Close_Flag[0] = 0;
+    // }
+    // else if (if_used_up == 1)
+    // {
+    //     Set_SuprCap_OutputMode(0);
+    //     PowerCtrl_Close_Flag[0] = 1;
+    // }
 }
 
+uint8_t get_over_voltage(void)
+{
+    return get_over_voltage_flag;
+}
 // 在UI界面告知操作手超电可能电容组放电或者报废异常
 uint8_t get_SuperCap_if_abnormal(void)
 {
@@ -343,7 +333,7 @@ uint8_t get_SuperCap_if_abnormal(void)
 }
 uint8_t get_Super_Cap_if_open(void)
 {
-    return !power_ctrl_close;
+    return Get_if_supercap_output();
 }
 
 /**
@@ -373,16 +363,17 @@ void get_true_RLS(void)
         RunRLS.repe_flag = 0;
 
     // 以超电更新的频率为RLS更新频率的依据，确保转矩与超电反馈的功率相对应
-    if (PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
+    if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0]>0.f && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
-        RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
-        //  RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );
+        
+       RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+         // RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
-    else if (PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power < 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
+    else if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power < 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
-        RLS_Update(&RunRLS, RunPhi, RunRLS.now_power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+        RLS_Update(&RunRLS, RunPhi, RunRLS.now_power -RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
@@ -466,7 +457,7 @@ static void get_chassis_max_power(void)
 
     PowerCtrl.Power_Allo_level = 0;
 
-    if (PowerInfo.Cap.isValid && !power_ctrl_close && !PowerCtrl_Close_Flag[0])
+    if (PowerInfo.Cap.isValid && Get_if_supercap_output() && !PowerCtrl_Close_Flag[0])
     { // 超级电容数据有效，没有异常，没有关闭数据使用
         if (PowerInfo.Ref.isValid)
         { // 当裁判系统功率有效
@@ -529,21 +520,9 @@ static void get_chassis_max_power(void)
     // 该功率计算式子满足在分配等级为0时与正常功率限制计算等效，当分配等级功能未启用时Power_Allo_level始终为0，符合逻辑
     // 一部分固定的静态功率不属于电机可用功率：即要减去Power_C_sum
     PowerCtrl.Power_Maxlim = (PowerCtrl.Power_Maxlim_sum - Power_C_sum) * (K_Conservative + PowerCtrl.Power_Allo_level * One_Level_Persent);
-#ifdef hero
-    power_speed_max = get_power_lim_speed(PowerCtrl.Power_Maxlim);
-#endif
+
 }
 
-/**
- * @brief Get the power speed max object
- *
- * @return float
- */
-float get_power_speed_max(void)
-{
-    if (power_speed_max)
-        return power_speed_max;
-}
 
 /**
  * @brief Get the pre power object获得预输出功率相关参数
@@ -602,7 +581,7 @@ void get_pre_power(void)
             //         RunRLS.theta[1] * SQUARE(Motor_power[group][WHEEL_RUN].V_now) +
             //         RunRLS.theta[2]/4.f; // 电机功率模型计算公式
              Motor_power[group][WHEEL_RUN].initial_power_set = Motor_power[group][WHEEL_RUN].V_now * Motor_power[group][WHEEL_RUN].initial_tor_set / 9.55f +
-                    RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
+                   RunRLS.theta[0] * SQUARE(Motor_power[group][WHEEL_RUN].initial_tor_set) +
                     RunRLS.theta[1] * fabsf(Motor_power[group][WHEEL_RUN].V_now) +
                     RunRLS.theta[2]/4.f; // 电机功率模型计算公式
                 //todo
@@ -643,10 +622,10 @@ static void
     // {
     //     //        轮向电机调整方向
     //     if (if_wheel_used[group] == 1)
-    //    //     Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output *= (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
+    //        //     Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output *= (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
     //     // 舵向电机调整方向
     //     if (if_steer_used[group] == 1)
-    //         Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output *= (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
+    //        //  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output *= (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
     // }
 
     //* 获得预输出功率
@@ -665,8 +644,8 @@ static void
 
         Power_Set.power_set_sum = PowerCtrl.Power_Maxlim;
 
-        if (Power_Set.power_set_steer > 0.8f * Power_Set.power_set_sum)
-            Power_Set.power_set_steer = 0.8f * Power_Set.power_set_sum;
+        // if (Power_Set.power_set_steer > 0.8f * Power_Set.power_set_sum)
+        //     Power_Set.power_set_steer = 0.8f * Power_Set.power_set_sum;
 
         Power_Set.power_set_run = Power_Set.power_set_sum - Power_Set.power_set_steer;
     }
@@ -680,7 +659,7 @@ static void
 #if IF_USED_ALLO_LEVEL == 2
     if (PowerCtrl.Power_Maxlim < 1.0f)
     {
-        for (group = 0; group < 4; group++)
+        for (group = 0; group < WHEELS_GROUP_NUM; group++)
         {
             if (if_wheel_used[group] == 1)
             {
@@ -704,7 +683,7 @@ static void
         Power_re_allo();
 
         //* 扭矩反解
-        for (group = 0; group < 4; group++)
+        for (group = 0; group < WHEELS_GROUP_NUM; group++)
         {
 
             // Selection of the calculation formula according to the motor acceleration and deceleration
@@ -729,12 +708,12 @@ static void
                                                                           4 * AngleRLS.theta[0] * (AngleRLS.theta[1] * fabsf(Motor_power[group][WHEEL_ANGLE].V_now) + AngleRLS.theta[2] / 4.f - Motor_power[group][WHEEL_ANGLE].allo_power_set))) /
                                                                    (2 * AngleRLS.theta[0]);
                 }
-                temp_angle = fabsf(Motor_power[group][WHEEL_ANGLE].allo_tor_set); // 取扭矩绝对值
+                //temp_angle = fabsf(Motor_power[group][WHEEL_ANGLE].allo_tor_set); // 取扭矩绝对值
                 // //todo 转换比待修改
-                if (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output > 0)
-                    Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
-                else
-                    Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = -temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
+                // if (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output > 0)
+                //     Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
+                // else
+                //     Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = -temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
             }
 
             if (if_wheel_used[group] == 1)
@@ -782,8 +761,8 @@ static void
 
     for (group = 0; group < WHEELS_GROUP_NUM; group++)
     {
-        // Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=0;
-        // Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
+         //Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=0;
+         //Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
     }
 
     // for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
@@ -798,7 +777,7 @@ static void
     //     // 舵向电机调整方向
     //     if (if_steer_used[group] == 1)
     //     {
-    //       //  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output * (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
+    //      //   Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output * (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
     //     }
     // }
 }
@@ -816,7 +795,7 @@ void Power_re_allo(void)
     Power_Set.run_err_sum = 0;
     Power_Set.angle_err_sum = 0;
     Power_Set.run_err_sq_sum = 0;
-    for (uint8_t group = 0; group < 4; group++)
+    for (uint8_t group = 0; group < WHEELS_GROUP_NUM; group++)
     {
         Power_Set.run_err_sum += fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err);
         Power_Set.run_err_sq_sum += SQUARE(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err);
@@ -837,12 +816,12 @@ void Power_re_allo(void)
     else
         AngleKcoe = (Power_Set.angle_err_sum - AngleERRlow) / (AngleERRhigh - AngleERRlow);
 
-    for (uint8_t group = 0; group < 4; group++)
+    for (uint8_t group = 0; group < WHEELS_GROUP_NUM; group++)
     {
         // 按照误差比例的置信度分配
         if (if_wheel_used[group] == 1)
             Motor_power[group][WHEEL_RUN].allo_power_set =
-                RunKcoe * SQUARE(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sq_sum * Power_Set.power_set_run + (1 - RunKcoe) * Power_Set.run_ratio[group] * Power_Set.power_set_run;
+                RunKcoe * fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sum * Power_Set.power_set_run + (1 - RunKcoe) * Power_Set.run_ratio[group] * Power_Set.power_set_run;
 
         if (if_steer_used[group] == 1)
             Motor_power[group][WHEEL_ANGLE].allo_power_set =
@@ -862,8 +841,10 @@ void Power_Ctrl(void)
     // 计算最大可输出功率与异常处理
     get_chassis_max_power();
     // 功率限制、功率再分配
-     Power_lim_allo_to_wheels();
+    Power_lim_allo_to_wheels();
 }
+
+
 
 __weak float getScRate(void)
 {

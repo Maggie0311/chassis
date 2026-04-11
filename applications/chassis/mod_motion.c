@@ -34,8 +34,8 @@ static Mot_base_t MotModule_Clamp_Base(Mot_base_t VxyW)
 {
     Mot_base_t temp =
         {
-            .vel.y = utils_clamp(VxyW.vel.y, -get_power_speed_max(), get_power_speed_max()),
-            .vel.x = utils_clamp(VxyW.vel.x, -get_power_speed_max(), get_power_speed_max()),
+            .vel.y = utils_clamp(VxyW.vel.y, -M_MAX_POSITION_Y, M_MAX_POSITION_Y),
+            .vel.x = utils_clamp(VxyW.vel.x, -M_MAX_POSITION_X, M_MAX_POSITION_X),
             .angvel = utils_clamp(VxyW.angvel, -M_MAX_ROTATE_AC, M_MAX_ROTATE_AC)};
     return temp;
 }
@@ -163,6 +163,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     float fol_angle = ctrlMsg->fol_angle;
     float yaw_angle = 0;
     float yaw_Omega = 0;
+    // static PIDInstance *pid; 新普布跟随我用的是kuai'man
     static Mot_base_t last_speed = {0};
     /*输入限制*/
     Mot_base_t VxyW = MotModule_Clamp_Base(ctrlMsg->xyw);
@@ -183,10 +184,11 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
 
     // if (fabs(yaw_angle) >= 15.f) // 跟随角较大时，修改跟随角PID为较大参数
     // {
+    //     pid = &follow_pid_fast;
     // }
     // else // 跟随角较小时，修改跟随角PID为较小参数
     // {
-    //     pid = follow_pid_slow;
+    //     pid = &follow_pid_slow;
     // }
 
     /*将fol_angle转化为(-180.0°,180.0°]度*/
@@ -197,6 +199,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     // PID_Calculate(&angfol_pid, yaw_angle);
 
     // 新的pid计算，yaw_angle本身即为误差，所以“反馈值”参数写0
+    // VxyW.angvel = anglevel_last + PIDCalculate(pid, 0, yaw_angle);
     VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_fast, 0, yaw_angle);
 
     /*跟随时，当功率受限时降低平移保证转向*/
@@ -474,12 +477,12 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
         angle = ctrl.getYawAngel;
     }
 
-    Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
-    Speed_xyw.angvel = plan_xyw.angvel;
-    Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
-    Force_xyw.angvel = plan_acc_xyw.angvel;
-    //  Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
-    //  Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
+    // Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
+    // Speed_xyw.angvel = plan_xyw.angvel;
+    // Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
+    // Force_xyw.angvel = plan_acc_xyw.angvel;
+     Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
+     Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
 // float update_input_limiter(float K_out)
 // {

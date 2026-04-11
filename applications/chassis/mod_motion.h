@@ -13,7 +13,7 @@
  */
 
 // 输入限幅参数 底盘坐标系为前进为y轴，右手为x轴的右手坐标系
-#define M_MAX_ROTATE_AC 6000  // 底盘最大自旋角速度，单位0.1°/s
+#define M_MAX_ROTATE_AC 9000  // 底盘最大自旋角速度，单位0.1°/s
 #define M_MAX_POSITION_Y 2000 // 旋转轴坐标最大值，单位mm --暂时去除未用
 #define M_MAX_POSITION_X 2000 // --暂时去除未用
 
@@ -93,6 +93,7 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl);
  */
 Mot_base_t MotPack_Offset_SmallTop(const Ctrl_data_t *const ctrlMsg, const Vector2_t *const pos);
 
+uint8_t gyro_at_powerlim(Mot_base_t *const VxyW, Ctrl_data_t *const ctrlMsg);
 Vector2_t MotModule_Transform(Vector2_t speed, float theta);
 
 // 抬升机构状态机

@@ -41,48 +41,53 @@ void Omni_Inverse_Kinematics_45_test(Mot_base_t target_xyw, float resolve_data[4
 /**
  * @brief 适应不同角度安装轮子的全向轮逆解算
  *
- * @param alpha 右前轮与右手系x正方向的夹角
+ * @param alpha 右前轮与右手系x正方向的夹角 就是右前轮（0号轮子）与x轴（正前方）的夹角 【2026新普步兵：30；206哨兵：45】
  * @param resolve_data
  */
-void Omni_Inverse_Kinematics_(Mot_base_t target_xyw, float alpha, float *resolve_data)
-{
+  void Omni_Inverse_Kinematics_new(Mot_base_t target_xyw, float alpha, float *resolve_data)
+  {
     // 初始化雅可比矩阵
-    static uint8_t if_init = 0;
-    static float data[4][3];
-    static float L = VEHICLE_LONG / 2;
-    static float W = VEHICLE_WIDTH / 2;
-    static float r = WHEEL_RADIUS;
-    static float k1[4] = {1, -1, -1, 1}, k2[4] = {1, 1, -1, -1};
-    if (!if_init)
-    {
-        float a = alpha * DEGTORAD;
-        float cos_a = arm_cos_f32(a), sin_a = arm_sin_f32(a);
-        float k3 = cos_a * W + sin_a * L;
-        for (uint8_t i = 0; i < 4; i++)
-        {
-            data[i][0] = k1[i] * cos_a / r;
-            data[i][1] = k2[i] * sin_a / r;
-            data[i][2] = k3 / r;
-        }
-        if_init = 1;
-    }
+      static uint8_t if_init = 0;
+      static float data[4][3];
+      static float L = VEHICLE_LONG / 2;
+      static float W = VEHICLE_WIDTH / 2;
+      static float r = WHEEL_RADIUS;
+
+      static float k1[4] = {1, 1, -1, -1};      // vx的符号数组
+      static float k2[4] = {1, -1, -1, 1};      // vy的符号数组
+      static float k3_sign[4] = {1, -1, 1, -1}; // ω的符号数组 
+
+      if (!if_init)
+      {
+          float a = alpha * DEGTORAD;
+          float cos_a = arm_cos_f32(a), sin_a = arm_sin_f32(a);
+          float k3_base = sin_a * L + cos_a * W;  // 基础k3值
+
+          for (uint8_t i = 0; i < 4; i++)
+          {
+              data[i][0] = k1[i] * sin_a / r;              // vx系数
+              data[i][1] = k2[i] * cos_a / r;              // vy系数
+              data[i][2] = k3_sign[i] * k3_base / r;       // ω系数
+          }
+          if_init = 1;
+      }
 
     target_xyw.angvel = target_xyw.angvel * 0.1f * DEGTORAD; // °/s -> rad/s
 
     // 使用雅可比矩阵计算轮子角速度（rad/s）
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        resolve_data[i] = (data[i][0] * target_xyw.vel.x +
-                           data[i][1] * target_xyw.vel.y +
-                           data[i][2] * target_xyw.angvel);
-    }
+      for (uint8_t i = 0; i < 4; i++)
+      {
+          resolve_data[i] = (data[i][0] * target_xyw.vel.x +
+                             data[i][1] * target_xyw.vel.y +
+                             data[i][2] * target_xyw.angvel);
+      }
 
     // 转换为rpm
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        resolve_data[i] = resolve_data[i] * RADTORPM;
-    }
-}
+      for (uint8_t i = 0; i < 4; i++)
+      {
+          resolve_data[i] = resolve_data[i] * RADTORPM;
+      }
+  }
 
 // 全向轮逆解算函数（现在已经改成了向前为x轴，向左为y轴）
 //  输入：底盘运动速度 (vx, vy单位: mm/s, ω单位: °/s)
@@ -207,8 +212,8 @@ void Omni_Inverse_Kinematics_60(Mot_base_t target_xyw, float resolve_data[4])
         for (int i = 0; i < 4; i++)
         {
             float a = alpha_deg[i] * DEGTORAD;
-            J_Omni_Inv_60.data[i][0] = arm_sin_f32(a) / r;                           // vx系数      -6.25
-            J_Omni_Inv_60.data[i][1] = arm_cos_f32(a) / r;                           // vy系数      10.625
+            J_Omni_Inv_60.data[i][0] = arm_sin_f32(a) / r;                                  // vx系数      -6.25
+            J_Omni_Inv_60.data[i][1] = arm_cos_f32(a) / r;                                  // vy系数      10.625
             J_Omni_Inv_60.data[i][2] = (arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
         }
         if_init_J = 1;
@@ -282,49 +287,135 @@ void Omni_Forward_Kinematics_test(float speed[4])
     }
 }
 
-void Omni_Forward_Kinematics_(float *speed, float alpha) // 正解算
-{
-    // 初始化雅可比伪逆矩阵
-    static uint8_t if_init = 0;
-    static float data[3][4];
-    static float L = VEHICLE_LONG / 2;
-    static float W = VEHICLE_WIDTH / 2;
-    static float k1[4] = {1, -1, -1, 1}, k2[4] = {1, 1, -1, -1};
-    if (!if_init)
-    {
-        float a = alpha * DEGTORAD;
-        float cos_a = arm_cos_f32(a), sin_a = arm_sin_f32(a);
-        float k3 = 1 / (cos_a * W + sin_a * L);
-        for (uint8_t i = 0; i < 4; i++)
-        {
-            data[0][i] = (k1[i] / cos_a) / 4;
-            data[1][i] = (k2[i] / sin_a) / 4;
-            data[2][i] = k3 / 4;
-        }
-        if_init = 1;
-    }
+ void Omni_Forward_Kinematics_(float *speed, float alpha) // 正解算
+  {
+      // 初始化雅可比伪逆矩阵
+      static uint8_t if_init = 0;
+      static float data[3][4];
+      static float L = VEHICLE_LONG / 2;
+      static float W = VEHICLE_WIDTH / 2;
 
-    // 转换单位 rpm -> mm/s
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        speed[i] = RPMTORAD * WHEEL_RADIUS * speed[i];
-    }
+      static float k1[4] = {1, 1, -1, -1};      // vx的符号数组
+      static float k2[4] = {1, -1, -1, 1};      // vy的符号数组
+      static float k3[4] = {1, -1, 1, -1};      // ω的符号数组
 
-    // 使用伪逆矩阵求底盘实际运动情况
-    float x_temp = 0, y_temp = 0, w_temp = 0;
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        x_temp += data[0][i] * speed[i];
-        y_temp += data[1][i] * speed[i];
-        w_temp += data[2][i] * speed[i];
-    }
-    real_xyw.vel.x = x_temp;
-    real_xyw.vel.y = y_temp;
-    real_xyw.angvel = w_temp * RADTODEG * 10.0f; // rad/s -> °/s
-}
+      if (!if_init)
+      {
+          float a = alpha * DEGTORAD;
+          float cos_a = arm_cos_f32(a), sin_a = arm_sin_f32(a);
+          float k3_base = sin_a * L + cos_a * W;  // 基础k3值
+
+          for (uint8_t i = 0; i < 4; i++)
+          {
+              data[0][i] = (k1[i] / sin_a) / 4;      // vx系数（改为sin_a）
+              data[1][i] = (k2[i] / cos_a) / 4;      // vy系数（改为cos_a）
+              data[2][i] = (k3[i] / k3_base) / 4;    // ω系数（加符号数组）
+          }
+          if_init = 1;
+      }
+
+      // 转换单位 rpm -> mm/s
+      for (uint8_t i = 0; i < 4; i++)
+      {
+          speed[i] = RPMTORAD * WHEEL_RADIUS * speed[i];
+      }
+
+      // 使用伪逆矩阵求底盘实际运动情况
+      float x_temp = 0, y_temp = 0, w_temp = 0;
+      for (uint8_t i = 0; i < 4; i++)
+      {
+          x_temp += data[0][i] * speed[i];
+          y_temp += data[1][i] * speed[i];
+          w_temp += data[2][i] * speed[i];
+      }
+      real_xyw.vel.x = x_temp;
+      real_xyw.vel.y = y_temp;
+      real_xyw.angvel = w_temp * RADTODEG * 10.0f; // rad/s -> °/s
+  }
 
 #endif
 
+  //****************************毫无说法的旧车解算********************** */
+  // 全向轮逆解算函数（现在已经改成了向前为x轴，向左为y轴）
+  //  输入：底盘运动速度 (vx, vy单位: mm/s, ω单位: °/s)
+  //  输出：四个轮子的转速 (RPM)，顺序：RF-LF-LB-RB
+//   void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4])
+//   {
+//       /*
+//       雅可比矩阵形式：
+//       [v_RF]   [J11 J12 J13] [vx]
+//       [v_LF] = [J21 J22 J23] * [vy]
+//       [v_LB]   [J31 J32 J33] [ω]
+//       [v_RB]   [J41 J42 J43]
+
+//       输出单位为mm/s，顺序：RF-LF-LB-RB
+//       */
+//       static int if_init_J = 0;
+//       if (!if_init_J)
+//       {
+//           // 初始化雅可比矩阵
+//           float L = VEHICLE_LONG / 1000.0f;  // 转换为米
+//           float W = VEHICLE_WIDTH / 1000.0f; // 转换为米
+//           float r = WHEEL_RADIUS / 1000.0f;  // mm -> m
+
+//           // float x[4] = {L / 2, -L / 2, -L / 2, L / 2};
+//           // float y[4] = {W / 2, W / 2, -W / 2, -W / 2};
+//           // float alpha_deg[4] = {120.0f, 60.0f, 120.0f, 60.0f}; // 135 45 135 45
+//           // for (int i = 0; i < 4; i++)
+//           // {
+//           //     float a = alpha_deg[i] * DEGTORAD;
+//           //     J_Omni_Inv_45.data[i][0] = arm_cos_f32(a) / r;                            // vx系数      -6.25
+//           //     J_Omni_Inv_45.data[i][1] = arm_sin_f32(a) / r;                            // vy系数      10.625
+//           //     J_Omni_Inv_45.data[i][2] = (-arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
+//           // }
+//           // if_init_J = 1;
+
+//           float x[4] = {L / 2, -L / 2, -L / 2, L / 2};
+//           float y[4] = {W / 2, W / 2, -W / 2, -W / 2};
+//           float alpha_deg[4] = {45.0f, 135.0f, 45.0f, 135.0f}; // 135 45 135 45
+//           for (int i = 0; i < 4; i++)
+//           {
+//               float a = alpha_deg[i] * DEGTORAD;
+//               J_Omni_Inv_45.data[i][0] = arm_sin_f32(a) / r;                                  // vx系数      -6.25
+//               J_Omni_Inv_45.data[i][1] = arm_cos_f32(a) / r;                                  // vy系数      10.625
+//               J_Omni_Inv_45.data[i][2] = (arm_cos_f32(a) * y[i] + arm_sin_f32(a) * x[i]) / r; // ω系数       0.94
+//           }
+//           if_init_J = 1;
+//       }
+//       // 将目标速度从mm/s转换为m/s（内部计算用国际单位）
+//       float vx = target_xyw.vel.x / 1000.0f;         // mm/s -> m/s
+//       float vy = target_xyw.vel.y / 1000.0f;         // mm/s -> m/s
+//       float ω = target_xyw.angvel * 0.1f * DEGTORAD; // °/s -> rad/s
+
+//       // 使用雅可比矩阵计算轮子角速度（rad/s）
+//       for (int i = 0; i < 4; i++)
+//       {
+//           resolve_data[i] = (J_Omni_Inv_45.data[i][0] * vx +
+//                              J_Omni_Inv_45.data[i][1] * vy +
+//                              J_Omni_Inv_45.data[i][2] * ω);
+//       }
+//       // 转换为rpm
+//       for (int i = 0; i < 4; i++)
+//       {
+//           resolve_data[i] = resolve_data[i] * RADTORPM;
+//       }
+//   }
+//   /// <summary>全向轮解算，单个轮组
+//   ///
+//   /// </summary>
+//   /// <param name="target_xyw"></param>
+//   /// <param name="resolve_data"></param>
+//   void Omni_Resolve(Mot_base_t target_xyw, float resolve_data[4])
+//   {
+//       // 角速度单位为0.1°/s，所以角速度系数要除以10
+//       static float k_w = VEHICLE_DIAMETER / 20.f * DEGTORAD;
+//       static float root2_2 = ROOT2 / 2;
+//       /*输出单位为mm/s 输出顺序RF-LF-LB-RB*/
+//           resolve_data[0] = root2_2 * (target_xyw.vel.y - target_xyw.vel.x) + target_xyw.angvel * k_w;
+//           resolve_data[1] = root2_2 * (target_xyw.vel.y + target_xyw.vel.x) - target_xyw.angvel * k_w;
+//           resolve_data[2] = root2_2 * (target_xyw.vel.y - target_xyw.vel.x) - target_xyw.angvel * k_w;
+//           resolve_data[3] = root2_2 * (target_xyw.vel.y + target_xyw.vel.x) + target_xyw.angvel * k_w;
+//   }
 //********************************逆解算部分（舵轮）************************************** */
 
 // 舵轮正逆解算
@@ -410,9 +501,9 @@ void Steer_Force_Resolve(Mot_base_t target_force, float *resolve_data)
     ty[2] = Fy / 4 * s - Tw / 4 / r * s * root2_2;
     ty[3] = Fy / 4 * s - Tw / 4 / r * s * root2_2;
 
-    for (uint8_t i=0;i<4;i++)
+    for (uint8_t i = 0; i < 4; i++)
     {
-        resolve_data[i] = (tx[i]*arm_cos_f32(motorSetAngle_steer[i]) + ty[i]*arm_sin_f32(motorSetAngle_steer[i])) ;//* angle_reverse_flag[i];有可能这样是对的，sin\cos自带方向，且只与轮子实际打角有关，与线速度是否取反无关（舵轮实际打角不变时，无论线速度是否取反，都不会改变轮向电机的正方向）
+        resolve_data[i] = (tx[i] * arm_cos_f32(motorSetAngle_steer[i]) + ty[i] * arm_sin_f32(motorSetAngle_steer[i])); //* angle_reverse_flag[i];有可能这样是对的，sin\cos自带方向，且只与轮子实际打角有关，与线速度是否取反无关（舵轮实际打角不变时，无论线速度是否取反，都不会改变轮向电机的正方向）
     }
 
     // resolve_data[0] = tx[0] * arm_cos_f32(motorSetAngle_steer[0]) + ty[0] * arm_sin_f32(motorSetAngle_steer[0]); // RF 计算出来的为扭矩（单位N·m)

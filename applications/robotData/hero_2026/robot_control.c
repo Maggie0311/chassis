@@ -10,6 +10,8 @@
 #include "drv_SPICAN.h"
 #include "DM_Motor.h"
 
+#include "DM_Motor.h"
+
 #include <arm_math.h>
 
 #define WHEEL_MOTOR_NUM 4
@@ -24,7 +26,6 @@
 
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
-DJI_3508_MotorInstance up_motor[UP_MOTOR_NUM];
 DJI_6020_MotorInstance steer_motor[STEER_MOTOR_NUM];
 DM_MotorInstance gim_motor[GIM_MOTOR_NUM];
 uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关*/
@@ -72,6 +73,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .controller_param_init_config = {
             .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 12000, .DeadBand = 1.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 12000, .DeadBand = 1.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -115,6 +118,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
         .controller_param_init_config = {
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 12000, .DeadBand = 1.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 12000, .DeadBand = 1.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP,
@@ -163,6 +168,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .controller_param_init_config = {
             .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 12000, .DeadBand = 1.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 12000, .DeadBand = 1.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -207,6 +214,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 12000, .DeadBand = 1.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 12000, .DeadBand = 1.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP,
@@ -496,15 +505,15 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         },
         .controller_param_init_config = {
             // todo pid参数
-            .Angle_pid = {.Kp = 5.8, .Kd = 2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 35,
-                          .MaxOut = 250, // 最大输出单位为RPM
+            .Angle_pid = {.Kp = 6.2, .Kd = 3, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 35,
+                          .MaxOut = 350, // 最大输出单位为RPM
                           .DeadBand = 0.2
 
             },
             .Speed_pid = {
-                .Kp = 25,
+                .Kp = 32,
                 .Kd = 1,
-                .Ki = 0.1,
+                .Ki = 0.5,
                 .MaxOut = 8000,
                 .Improve = PID_Integral_Limit,
                 .IntegralLimit = 800,
@@ -551,13 +560,13 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         .controller_param_init_config = {
             // todo pid参数
             .Angle_pid = {
-                .Kp = 5.8, .Kd = 2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
-                .MaxOut = 250 // 最大输出单位为RPM
+                .Kp = 6.2, .Kd = 3, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
+                .MaxOut = 350 // 最大输出单位为RPM
             },
             .Speed_pid = {
-                .Kp = 25,
+                .Kp = 32,
                 .Kd = 1,
-                .Ki = 0.1,
+                .Ki = 0.5,
                 .MaxOut = 8000,
                 .Improve = PID_Integral_Limit,
                 .IntegralLimit = 800,
@@ -604,13 +613,13 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         .controller_param_init_config = {
             // todo pid参数
             .Angle_pid = {
-                .Kp = 5.8, .Kd = 2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
-                .MaxOut = 250 // 最大输出单位为RPM
+                .Kp = 6.2, .Kd = 3, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
+                .MaxOut = 350 // 最大输出单位为RPM
             },
             .Speed_pid = {
-                .Kp = 25,
+                .Kp = 32,
                 .Kd = 1,
-                .Ki = 0.1,
+                .Ki = 0.5,
                 .MaxOut = 8000,
                 .Improve = PID_Integral_Limit,
                 .IntegralLimit = 800,
@@ -655,13 +664,13 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
      .controller_param_init_config = {
          // todo pid参数
          .Angle_pid = {
-             .Kp = 5.8, .Kd = 2, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
-             .MaxOut = 250 // 最大输出单位为RPM
+             .Kp = 6.2, .Kd = 3, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
+             .MaxOut = 350 // 最大输出单位为RPM
          },
          .Speed_pid = {
-             .Kp = 25,
+             .Kp = 32,
              .Kd = 1,
-             .Ki = 0.1,
+             .Ki = 0.5,
              .MaxOut = 8000,
              .Improve = PID_Integral_Limit,
              .IntegralLimit = 800,
@@ -724,8 +733,27 @@ int chassis_motor_init()
     //     }
     // }
      return ret;
+     return ret;
 }
 
+DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
+    {
+        {
+            .motor_obj_init_config = {
+                .name = "Yaw_M",
+                .reverse_flag = MOTOR_DIRECTION_NORMAL,
+                .motor_type = DM4310,
+                .state = MOTOR_STATE_NOTCTRL,
+            },
+            .Motor_operate_setting = {
+                .Motor_Init = DM_Motor_Init,
+                .Motor_Enable = DM_Motor_Enable,
+                .Motor_Disable = DM_Motor_Disable,
+                .Motor_ErrorHandle = DM_Motor_ErrorHandle,
+                .Motor_RefreshData = DM_Motor_RefreshData,
+                .Motor_Control = NULL,
+                .Motor_Transmit = NULL,
+            },
 DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
     {
         {
@@ -766,15 +794,38 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
                 .DM_T_MIN = -18.f,
             },
         }
+            .can_init_config = {
+                .can_device_name = "can2",
+                .rx_id = 0x02,
+                .tx_id = NULL,
+                .can_module_callback = DM_Motor_RefreshData,
+                .parent = NULL,
+                .spi_slave=2
+            },
+            .DM_Motor_Measure_Init_Config = {
+                .RATIO = 1.0,
+                .ENCODER_LEN = 65535,
+                .ENCODER_ZERO_OFFSET = 5790,
+                .DM_P_MAX = 3.1415926f,
+                .DM_P_MIN = -3.1415926f,
+                .DM_V_MAX = 45.f,
+                .DM_V_MIN = -45.f,
+                .DM_T_MAX = 18.f,
+                .DM_T_MIN = -18.f,
+            },
+        }
 
 };
+
 
 
 int gim_motor_init()
 {
     int ret = 0;
     for (int i = 0; i < GIM_MOTOR_NUM; i++)
+    for (int i = 0; i < GIM_MOTOR_NUM; i++)
     {
+        ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_dm_motor_init_config[i]);
         ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_dm_motor_init_config[i]);
         if (ret != 0)
         {
@@ -788,6 +839,7 @@ int gim_motor_init()
     }
     return ret;
 }
+
 
 /**
  * @brief 丝杆电机移动，包含对零点操作，zero_flag为1时进行零点操作
@@ -941,6 +993,10 @@ void Follow_pid_init(void)
     pid_config.Ki = 0.2;
     pid_config.Kd = 18;
     pid_config.MaxOut = 14000;
+    pid_config.Kp = 60;
+    pid_config.Ki = 0.2;
+    pid_config.Kd = 18;
+    pid_config.MaxOut = 14000;
     pid_config.DeadBand = 5;
     pid_config.IntegralLimit = 400;
 
@@ -955,9 +1011,11 @@ void Follow_pid_init(void)
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
+
 // 抬升机构pid初始化
 void Up_Machine_pid_init(void)
 {
+
     PID_Init_Config_s pid_config;
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
@@ -1023,7 +1081,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
         Steer_Inverse_Kinematics_test(*Speed_xyw, motorSetSpeed_run, motorSetAngle_steer); // 舵轮逆解算
         Steer_Force_Resolve(*Force_xyw, motorSetForce);                                    // 进行力解算到各个电机上，输出为扭矩
 
-        // Get_force_out(motorSetForce); // 获取前馈值
+        Get_force_out(motorSetForce); // 获取前馈值
     }
     if (1 == isSetValid_debug[1])
     {
@@ -1044,7 +1102,7 @@ void Forward_Kinematics(void)
 float get_power_lim_speed(float power_max)
 {
     float speed_max = 0;
-    speed_max = 5.776 * power_max + 496;
+    speed_max = 6.976f * power_max + 696;
     if (speed_max > 3000)
         speed_max = 3000;
     else if (speed_max < 1000)

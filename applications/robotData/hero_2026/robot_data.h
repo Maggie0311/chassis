@@ -22,7 +22,7 @@
 #endif
 
 #define GIMBAL_SPI_USE 2 // 使用从机2
-#define SCPR_SPI_USE 2   // 使用从机2
+#define SCPR_SPI_USE 1   // 使用从机1
 
 /*功率控制相关参数*/
 
@@ -48,21 +48,18 @@
 
 /*设定值规划及前馈相关参数*/
 /*底盘速度设定值的平滑，SMOOTH_ADD/SMOOTH_PERIOD m/s^2（或100°/s^2） (类型float)*/
-#define WEIGHT 25.0f                   // 质量 kg
-#define rotational_inertia 0.5f        // 转动惯量 kg·m²
-#define PLAN_PERIOD (float)0.005       // s,频率为200Hz
-#define VEL_MAX_X (float)3000          //    mm/s
-#define VEL_MAX_Y (float)3000          //    mm/s
-#define VEL_MAX_W (float)10000         //   0.1°/s
+#define WEIGHT 30.0f                   // 质量 kg
+#define rotational_inertia 0.3f        // 转动惯量 kg·m²
+#define PLAN_PERIOD (float)0.02       // s,频率为50Hz
+#define VEL_MAX_X (float)2900          //    mm/s
+#define VEL_MAX_Y (float)2900          //    mm/s
+#define VEL_MAX_W (float)6000         //   0.1°/s 5240
 #define ACC_MAX_X (float)4000          // mm/s²
 #define ACC_MAX_Y (float)4000          // mm/s²
 #define ACC_MAX_W (float)30000         // 0.1°/s²
 #define DOUBLE_ACC_MAX_X (float)30000  // mm / s³
 #define DOUBLE_ACC_MAX_Y (float)20000  // mm / s³
 #define DOUBLE_ACC_MAX_W (float)200000 // 0.1°/ s³
-
-/*英雄UI开关*/
-#define HREO_UI_SPECIAL
 
 #endif
 

@@ -12,7 +12,7 @@
 #define One_Level_Persent (0.01f) // 一分配等级对应的调整功率比例
 #define Gain_Trigger_Power (15)   // 触发加速度增益的冗余功率大小
 
-#define POWER_REMANI (44)           // 初始化时功率
+#define POWER_REMANI (100)           // 初始化时功率
 #define POWER_REMANI_FLYSLOPE (250) // 飞坡增益后缓冲上限
 #define RefPowerBuf (60)            // 底盘初始缓冲能量（单位j）
 

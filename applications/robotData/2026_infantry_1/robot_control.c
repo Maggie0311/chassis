@@ -1,3 +1,5 @@
+/**2026 步兵 普通（性能平平） */
+
 #include "robot_data.h"
 #include "drv_motor_new.h"
 #include "DJI_3508.h"
@@ -53,7 +55,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -72,7 +74,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 19.2f,               // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -97,7 +99,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -115,7 +117,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 19.2f,               // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -125,7 +127,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LB",
-            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -142,7 +144,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -160,7 +162,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 19.2f,               // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -170,7 +172,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LR",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -187,7 +189,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -205,7 +207,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 19.2f,               // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -229,57 +231,72 @@ int chassis_motor_init()
 DM_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
     // YAW轴电机
     {
-            .motor_obj_init_config = {
-                .name = "Yaw_M",
-                .reverse_flag = MOTOR_DIRECTION_NORMAL,
-                .motor_type = DM4310,
-                .state = MOTOR_STATE_NOTCTRL,
-            },
-            .Motor_operate_setting = {
-                .Motor_Init = DM_Motor_Init,
-                .Motor_Enable = DM_Motor_Enable,
-                .Motor_Disable = DM_Motor_Disable,
-                .Motor_ErrorHandle = DM_Motor_ErrorHandle,
-                .Motor_RefreshData = DM_Motor_RefreshData,
-                .Motor_Control = NULL,
-                .Motor_Transmit = DM_Motor_Transmit,
-            },
-            .controller_param_init_config = {
-                .Angle_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .CoefA = 0, .CoefB = 0
+        .motor_obj_init_config = {
+            .name = "Yaw_M",
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .motor_type = GM6020,
+            .state = MOTOR_STATE_NEED_INIT,
+        },
+        .Motor_operate_setting = {
+            .Motor_Init = DJI_6020_Motor_Init,
+            .Motor_Enable = DJI_6020_Motor_Enable,
+            .Motor_Disable = DJI_6020_Motor_Disable,
+            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
+            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
+            .Motor_Control = NULL,
+            .Motor_Transmit = NULL,
+        },
+        .controller_param_init_config = NULL,
 
-                },
-                .Speed_pid = {.Kp = 5, .Kd = 0, .Ki = 0.5, .CoefA = 0, .CoefB = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 1000, .MaxOut = 25000
+        .can_init_config = {
+            .can_device_name = "can2",
+            .rx_id = 0x205, // TODO:设置ID
+            .tx_id = NULL,
+            .can_module_callback = DJI_6020_Motor_RefreshData,
+            .parent = NULL,
+        },
+        .DJI6020_Motor_Measure_Init_Config = {
+            .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
+            .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
+            .RATIO = 1.0,
+            .ENCODER_LEN = 8192,
+            .ENCODER_ZERO_OFFSET = 262,
+            .ctrl_mode = CTRL_MODE_VOLTAGE,
+        }},
+    // pitch轴电机
 
-                },
-                .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .CoefA = 0, .CoefB = 0
+    {.motor_obj_init_config = {
+         .name = "Pitch_M",
+         .reverse_flag = MOTOR_DIRECTION_NORMAL,
+         .motor_type = GM6020,
+         .state = MOTOR_STATE_NEED_INIT,
+     },
+     .Motor_operate_setting = {
+         .Motor_Init = DJI_6020_Motor_Init,
+         .Motor_Enable = DJI_6020_Motor_Enable,
+         .Motor_Disable = DJI_6020_Motor_Disable,
+         .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
+         .Motor_RefreshData = DJI_6020_Motor_RefreshData,
+         .Motor_Control = NULL,
+         .Motor_Transmit = NULL,
+     },
+     .controller_param_init_config = NULL,
 
-                },
-                .Closeloop_Type = SPEED_LOOP,
-                .Calc_Pre = {
-                    .speed_calc_Prescaler = 1,
-                },
-                .Feedforward_Type = FEEDFORWARD_NONE,
-            },
-            .can_init_config = {
-                .can_device_name = "can2",
-                .rx_id = 0x04,
-                .tx_id = NULL,
-                .can_module_callback = DM_Motor_RefreshData,
-                .parent = NULL,
-            },
-            .DM_Motor_Measure_Init_Config = {
-                .RATIO = 1.0,
-                .ENCODER_LEN = 65535,
-                .ENCODER_ZERO_OFFSET = 43579,//10850,
-                .DM_P_MAX = 3.1415926f,
-                .DM_P_MIN = -3.1415926f,
-                .DM_V_MAX = 45.f,
-                .DM_V_MIN = -45.f,
-                .DM_T_MAX = 18.f,
-                .DM_T_MIN = -18.f,
-            },
-        }
-  
+     .can_init_config = {
+         .can_device_name = "can2",
+         .rx_id = 0x207, // TODO:设置ID
+         .tx_id = NULL,
+         .can_module_callback = DJI_6020_Motor_RefreshData,
+         .parent = NULL,
+     },
+     .DJI6020_Motor_Measure_Init_Config = {
+         .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
+         .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
+         .RATIO = 1.0,
+         .ENCODER_LEN = 8192,
+         .ENCODER_ZERO_OFFSET = 230,
+         .ctrl_mode = CTRL_MODE_VOLTAGE,
+     }}
 
 };
 
@@ -309,18 +326,18 @@ void Follow_pid_init(void)
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
     pid_config.Kp = 40;
-    pid_config.Ki = 0.1;
-    pid_config.Kd = 10;
-    pid_config.MaxOut = 11000;
+    pid_config.Ki = 0;
+    pid_config.Kd = 15;
+    pid_config.MaxOut = 16000;
     pid_config.DeadBand = 0.1;
-    pid_config.IntegralLimit = 400;
+    pid_config.IntegralLimit = 600;
 
     PIDInit(&follow_pid_fast, &pid_config);
 
-    pid_config.Kp = 20;
+    pid_config.Kp = 10;
     pid_config.Ki = 0;
-    pid_config.Kd = 10;
-    pid_config.MaxOut = 11000;
+    pid_config.Kd = 15;
+    pid_config.MaxOut = 16000;
     pid_config.DeadBand = 0.1;
     pid_config.IntegralLimit = 400;
     PIDInit(&follow_pid_slow, &pid_config);
@@ -388,7 +405,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
-        Omni_Inverse_Kinematics_60(*Speed_xyw, motorSetSpeed); // 底盘速度解算到各个电机上
+        Omni_Inverse_Kinematics_new(*Speed_xyw, 30.f, motorSetSpeed); // 底盘速度解算到各个电机上
         //  Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
 
         // Get_force_out(motorSetForce); // 获取前馈值

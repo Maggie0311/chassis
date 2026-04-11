@@ -69,7 +69,7 @@
 #endif
 
 // 超级电容最多输出电流--有一定余量
-#define Supr_Cap_MaxOutputCurrent (8.f)
+#define Supr_Cap_MaxOutputCurrent (9.f)
 // 预留能量控制响应时间 一般大于200ms 单位ms
 #define Supr_Cap_DelayTime (600)
 // 预留能量，单位j
@@ -185,5 +185,6 @@ void get_true_RLS(void);
 void get_pre_power(void);
 void Power_Motor_Attach(MotorInstance *motor_instance);
 float get_K_IC2Tor(MotorInstance *motor_instance);
-float get_power_speed_max(void);
+float get_k_power_allo();
+uint8_t get_over_voltage(void);
 #endif
