@@ -34,6 +34,7 @@ void Follow_pid_init(void);
 #define Steer_Power_K2 (0.0000015) //
 #define Steer_Power_C (0.f)        // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
 // #define Steer_Power_C_sum (10.0f)  // 固定静态功率（换板子也会影响该数据）
+#define PID_CAL_PERIOD 1
 void Forward_Kinematics(void);
 
 #endif
