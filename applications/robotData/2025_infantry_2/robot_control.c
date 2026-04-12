@@ -8,6 +8,8 @@
 #include "robot_control.h"
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
+#include "Kalman.h"
+#include "drv_IMU_Can.h"
 
 #define WHEEL_MOTOR_NUM 4
 #define GIM_MOTOR_NUM 2
@@ -29,6 +31,12 @@ float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
+
+// 卡尔曼滤波器实例
+Robotmotion_Kalman_t kf_vx; // X轴滤波器
+Robotmotion_Kalman_t kf_vy; // Y轴滤波器
+
+Vector2_t fused_speed_xy;
 
 // 底盘四个电机配置参数模板
 DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
@@ -341,6 +349,19 @@ void Follow_pid_init(void)
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
+void Kalman_init(void)
+{
+    RobotMotion_Kalman_Init(&kf_vx,
+        0.001f,  // dt = 1ms（CHASSIS_CTRL_PERIOD = 1ms）
+        ACCEL_NOISE_STD,    // accel_noise_std：加速度标准差（m/s²），Q 由此推导
+        VELOCITY_NOISE_STD);  // velocity_noise_std：正解算速度噪声标准差（m/s），R 由此推导
+
+    RobotMotion_Kalman_Init(&kf_vy,
+        0.001f,
+        ACCEL_NOISE_STD,
+        VELOCITY_NOISE_STD);
+}
+
 static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force_xyw) // 进行加速度解算到各个轮子上
 {
     Mot_base_t tarForce;                                                        // 电机输出轴上的力（N）
@@ -425,5 +446,16 @@ void Forward_Kinematics(void)
     {
         temp[i] = wheel_motor[i].Motor_obj.speed;
     }
-    Omni_Forward_Kinematics(temp);
+    Omni_Forward_Kinematics_new(temp, 45.0f);
+
+    float fwd_vx = real_xyw.vel.x * 0.001f;  // m/s
+    float fwd_vy = real_xyw.vel.y * 0.001f;  // m/s
+
+    //完成预测 + 更新
+    RobotMotionKalman_Process(&kf_vx, fwd_vx, imu_can_data.x_accel);
+    RobotMotionKalman_Process(&kf_vy, fwd_vy, imu_can_data.y_accel);
+
+    //读取融合结果（m/s）
+    fused_speed_xy.x = RobotMotionKalman_Getvelocity(&kf_vx);
+    fused_speed_xy.y = RobotMotionKalman_Getvelocity(&kf_vy);
 }

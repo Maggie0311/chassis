@@ -29,6 +29,8 @@ typedef struct J3_4
     float data[3][4]; // 3x4 矩阵
 } J3_4;
 
+extern Mot_base_t real_xyw;
+
 // 麦克纳姆轮正逆解算
 #ifdef USING_MECANUM_RESOLVE
 
