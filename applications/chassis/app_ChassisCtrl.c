@@ -123,6 +123,9 @@ static rt_err_t chassisCtrlInit(void)
     // 跟随模式PID初始化
     Follow_pid_init();
 
+    // 卡尔曼滤波融合初始化
+    Kalman_init();
+
     // 初始化信号量
     res = rt_sem_init(&ChassCtrl_sem, "Cctrl_sem", 0, RT_IPC_FLAG_FIFO);
     if (res != RT_EOK)
