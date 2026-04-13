@@ -38,6 +38,10 @@ void Follow_pid_init(void);
 #define ACCEL_NOISE_STD 0.2f    //越大：更信正解算速度，跟随快但噪声大；越小：更信 IMU 积分，平滑但响应慢
 #define VELOCITY_NOISE_STD 0.2f //越大： 更信 IMU，抗打滑能力强；越小：更信正解算，跟随快
 #define PID_CAL_PERIOD 1
+
+extern Vector2_t fused_speed_xy;
+
+void Fix_Speed_pid_init(void);
 /*电机初始化*/
 int chassis_motor_init();
 int gim_motor_init();

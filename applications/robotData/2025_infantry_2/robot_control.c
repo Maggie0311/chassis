@@ -31,7 +31,7 @@ float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
-
+PIDInstance  fix_speed_x,fix_speed_y;
 
 // 卡尔曼滤波器实例
 Robotmotion_Kalman_t kf_vx; // X轴滤波器
@@ -350,6 +350,30 @@ void Follow_pid_init(void)
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
+void Fix_Speed_pid_init(void)
+{
+    PID_Init_Config_s pid_config;
+    rt_memset(&pid_config, 0, sizeof(pid_config));
+    pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
+
+    pid_config.Kp = 1;
+    pid_config.Ki = 0;
+    pid_config.Kd = 0;
+    pid_config.MaxOut = 3000;
+    pid_config.DeadBand = 10;
+    pid_config.IntegralLimit = 800;
+
+    PIDInit(&fix_speed_y, &pid_config);
+
+    pid_config.Kp = 1;
+    pid_config.Ki = 0;
+    pid_config.Kd = 0;
+    pid_config.MaxOut = 3000;
+    pid_config.DeadBand = 0.05;
+    pid_config.IntegralLimit = 800;
+    PIDInit(&fix_speed_x, &pid_config);
+}
+
 void Kalman_init(void)
 {
     RobotMotion_Kalman_Init(&kf_vx,
@@ -458,5 +482,5 @@ void Forward_Kinematics(void)
 
     //读取融合结果（m/s）
     fused_speed_xy.x = RobotMotionKalman_Getvelocity(&kf_vx)*1000.f;
-    fused_speed_xy.y = RobotMotionKalman_Getvelocity(&kf_vy);
+    fused_speed_xy.y = RobotMotionKalman_Getvelocity(&kf_vy)*1000.f;
 }
