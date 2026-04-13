@@ -159,13 +159,7 @@ rt_bool_t Get_Gimbal_Stuck_State(void)
     return gimbal_mixdata_msg.strike_stuck;
 }
 
-#ifdef CORE_USING_SENTRY
-// 得到当前是否处于哨兵模式
-uint8_t getIsSentryMode(void)
-{ // ctrlSrc/ChassisCtrl
-    return gimbal_mixdata_msg.sentryMode;
-}
-#endif
+
 
 // 得到当前云台错误状态
 uint8_t getGimErrState(void)

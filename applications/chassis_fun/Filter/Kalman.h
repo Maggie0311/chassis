@@ -37,6 +37,7 @@ void RobotMotion_Kalman_Init(Robotmotion_Kalman_t *kf, float dt,
 void RobotMotionKalman_Predict(Robotmotion_Kalman_t *kf, float acceleration);
 void RobotMotionKalman_Update(Robotmotion_Kalman_t *kf, float measured_velocity);
 void RobotMotionKalman_Process(Robotmotion_Kalman_t *kf, float measured_velocity, float acceleration);
+void RobotMotionKalman_AdaptiveProcess(Robotmotion_Kalman_t *kf, float measured_velocity, float acceleration);
 float RobotMotionKalman_Getdisplacement(Robotmotion_Kalman_t *kf);
 float RobotMotionKalman_Getvelocity(Robotmotion_Kalman_t *kf);
 

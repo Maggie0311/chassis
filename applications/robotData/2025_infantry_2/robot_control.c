@@ -32,6 +32,7 @@ float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
 
+
 // 卡尔曼滤波器实例
 Robotmotion_Kalman_t kf_vx; // X轴滤波器
 Robotmotion_Kalman_t kf_vy; // Y轴滤波器
@@ -451,11 +452,11 @@ void Forward_Kinematics(void)
     float fwd_vx = real_xyw.vel.x * 0.001f;  // m/s
     float fwd_vy = real_xyw.vel.y * 0.001f;  // m/s
 
-    //完成预测 + 更新
-    RobotMotionKalman_Process(&kf_vx, fwd_vx, imu_can_data.x_accel);
-    RobotMotionKalman_Process(&kf_vy, fwd_vy, imu_can_data.y_accel);
+    //完成预测 + 更新（自适应噪声）
+    RobotMotionKalman_AdaptiveProcess(&kf_vx, fwd_vx, imu_can_data.x_accel);
+    RobotMotionKalman_AdaptiveProcess(&kf_vy, fwd_vy, imu_can_data.y_accel);
 
     //读取融合结果（m/s）
-    fused_speed_xy.x = RobotMotionKalman_Getvelocity(&kf_vx);
+    fused_speed_xy.x = RobotMotionKalman_Getvelocity(&kf_vx)*1000.f;
     fused_speed_xy.y = RobotMotionKalman_Getvelocity(&kf_vy);
 }

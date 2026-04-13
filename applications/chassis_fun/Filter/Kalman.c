@@ -216,8 +216,61 @@ float RobotMotionKalman_Getvelocity(Robotmotion_Kalman_t *kf)
 }
 
 // 一步到位的卡尔曼滤波更新（预测+更新）
-void RobotMotionKalman_Process(Robotmotion_Kalman_t *kf, float measured_velocity, float acceleration) 
+void RobotMotionKalman_Process(Robotmotion_Kalman_t *kf, float measured_velocity, float acceleration)
 {
+    RobotMotionKalman_Predict(kf, acceleration);
+    RobotMotionKalman_Update(kf, measured_velocity);
+}
+
+/**
+ * @brief 根据IMU加速度幅值动态调整Q和R，然后执行预测+更新
+ *
+ * 核心思路：
+ *   |accel| 大（急加减速/打滑风险高）→ 更信 IMU 积分 → Q 小, R 大
+ *   |accel| 小（匀速平稳）           → 更信正解算   → Q 大, R 小
+ *
+ * 使用 sigmoid 型平滑插值，避免硬切换带来的跳变：
+ *   alpha = |accel|^2 / (|accel|^2 + threshold^2)
+ *   alpha ∈ [0, 1]，|accel| >> threshold 时趋近1，|accel| << threshold 时趋近0
+ *
+ *   Q_std = Q_min + (Q_max - Q_min) * (1 - alpha)   // 加速大→Q小
+ *   R_std = R_min + (R_max - R_min) * alpha          // 加速大→R大
+ *
+ * @param kf 卡尔曼滤波器
+ * @param measured_velocity 正解算速度 (m/s)
+ * @param acceleration IMU加速度 (m/s²)
+ */
+void RobotMotionKalman_AdaptiveProcess(Robotmotion_Kalman_t *kf, float measured_velocity, float acceleration)
+{
+    /* ---- 可调参数 ---- */
+    #define ACCEL_THRESHOLD  0.3f   // 加速度分界点(m/s²)，在此值附近alpha≈0.5
+    #define Q_STD_MIN        0.05f  // 加速度大时的Q_std（更信IMU，Q小→预测噪声小）
+    #define Q_STD_MAX        0.4f   // 加速度小时的Q_std（更信正解算，Q大→预测噪声大）
+    #define R_STD_MIN        0.05f  // 加速度小时的R_std（更信正解算，R小→观测噪声小）
+    #define R_STD_MAX        0.4f   // 加速度大时的R_std（更信IMU，R大→观测噪声大）
+
+    /* ---- 计算平滑插值因子 alpha ---- */
+    float abs_acc = fabsf(acceleration);
+    float acc_sq = abs_acc * abs_acc;
+    float thr_sq = ACCEL_THRESHOLD * ACCEL_THRESHOLD;
+    float alpha = acc_sq / (acc_sq + thr_sq);  // sigmoid型，[0,1]
+
+    /* ---- 动态计算噪声标准差 ---- */
+    float q_std = Q_STD_MAX + (Q_STD_MIN - Q_STD_MAX) * alpha;  // 加速大→Q小
+    float r_std = R_STD_MIN + (R_STD_MAX - R_STD_MIN) * alpha;  // 加速大→R大
+
+    /* ---- 更新 Q 矩阵（基于加速度噪声标准差推导） ---- */
+    float var_a = q_std * q_std;
+    float dt = kf->dt;
+    kf->Q[0][0] = 0.25f * dt * dt * dt * dt * var_a;
+    kf->Q[0][1] = 0.5f  * dt * dt * dt * var_a;
+    kf->Q[1][0] = 0.5f  * dt * dt * dt * var_a;
+    kf->Q[1][1] = dt * dt * var_a;
+
+    /* ---- 更新 R（观测噪声方差） ---- */
+    kf->R = r_std * r_std;
+
+    /* ---- 正常执行预测+更新 ---- */
     RobotMotionKalman_Predict(kf, acceleration);
     RobotMotionKalman_Update(kf, measured_velocity);
 }
