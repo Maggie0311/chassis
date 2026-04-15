@@ -390,14 +390,21 @@ void Kalman_init(void)
         VELOCITY_NOISE_STD);
 }
 
+float gravity_feedforward(void)
+{
+    return WEIGHT * imu_can_data.z_accel * 10.0f * arm_sin_f32(imu_can_data.pitch_angle * DEGTORAD);
+}
+float debug_gravity_ff = 0;
 static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force_xyw) // 进行加速度解算到各个轮子上
 {
     Mot_base_t tarForce;                                                        // 电机输出轴上的力（N）
     tarForce.vel.x = Force_xyw->vel.x * WEIGHT / 1000.f;                        // 整个底盘x方向力的平滑后设定值(N)
-    tarForce.vel.y = Force_xyw->vel.y * WEIGHT / 1000.f;                        // 整个底盘Y方向力的平滑后设定值(N)
+    // tarForce.vel.x += gravity_feedforward();//加上重力前馈
+    debug_gravity_ff = gravity_feedforward();
+    tarForce.vel.x += debug_gravity_ff;
+    tarForce.vel.y = Force_xyw->vel.y * WEIGHT / 1000.f;                    // 整个底盘Y方向力的平滑后设定值(N)
     tarForce.angvel = Force_xyw->angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
     Omni_Force_Resolve(tarForce, 45.f, motorSetForce);
-
 }
 
 // 摩擦力前馈计算 这里的数值是采集数据后在matlab中进行回归拟合得到的

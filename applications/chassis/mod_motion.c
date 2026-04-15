@@ -8,6 +8,7 @@
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
 #include "robot_control.h"
+#include "drv_IMU_Can.h"
 
 extern PIDInstance follow_pid_fast, follow_pid_slow; // 跟随角pid实例
 
