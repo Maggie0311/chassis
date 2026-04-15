@@ -86,7 +86,7 @@ uint8_t getIsSentryMode(void)
 static void Gimbal_MixData_Rx_call(CANInstance *instance)
 {
     gimbal_mixdata_msg_freshtick = rt_tick_get();
-    rt_memcpy(&gimbal_mixdata_msg, instance->rx_buff, sizeof(gimbal_mixdata_msg) < 8 ? sizeof(gimbal_mixdata_msg) : 8);
+    //rt_memcpy(&gimbal_mixdata_msg, instance->rx_buff, sizeof(gimbal_mixdata_msg) < 8 ? sizeof(gimbal_mixdata_msg) : 8);
     // Package_Write(dataNum[Gim_data], gimbal_msg); // 更新数据服务器的数据
     if (gimbal_mixdata_msg.chassis_reset)
         Robot_Chassis_Reset(RT_TRUE);

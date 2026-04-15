@@ -385,26 +385,25 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
 
 
 
-   PIDCalculate(&fix_speed_x, fused_speed_xy.x, plan_xyw.vel.x);
-    PIDCalculate(&fix_speed_y, fused_speed_xy.y, plan_xyw.vel.y);
+//   PIDCalculate(&fix_speed_x, fused_speed_xy.x, plan_xyw.vel.x);
+//    PIDCalculate(&fix_speed_y, fused_speed_xy.y, plan_xyw.vel.y);
 
 
-    /* ---- 新息前馈（零延迟打滑响应） ---- */
-    float ff_x = Innovation_Feedforward(kalman_innovation_xy.x);
-    float ff_y = Innovation_Feedforward(kalman_innovation_xy.y);
+//    /* ---- 新息前馈（零延迟打滑响应） ---- */
+//    float ff_x = Innovation_Feedforward(kalman_innovation_xy.x);
+//    float ff_y = Innovation_Feedforward(kalman_innovation_xy.y);
 
-    data_vofa[0] = Speed_xyw.vel.x;
-    data_vofa[1] = fused_speed_xy.x;
-    data_vofa[2] = plan_xyw.vel.x;
-    VOFA_Trans_Justfloat(sizeof(data_vofa), data_vofa);
+//    data_vofa[0] = Speed_xyw.vel.x;
+//    data_vofa[1] = fused_speed_xy.x;
+//    data_vofa[2] = plan_xyw.vel.x;
+//    VOFA_Trans_Justfloat(sizeof(data_vofa), data_vofa);
 
-    if(ctrl.motion_mode == FOLLOW_GIMBAL||ctrl.motion_mode == NO_FOLLOW)
-    {
+//    if(ctrl.motion_mode == FOLLOW_GIMBAL||ctrl.motion_mode == NO_FOLLOW)
+//    {
 
-        plan_xyw.vel.x+=(ff_x + fix_speed_x.Output);
-        plan_xyw.vel.y+=(ff_y + fix_speed_y.Output);
-    }
-
+//        plan_xyw.vel.x+=(ff_x + fix_speed_x.Output);
+//        plan_xyw.vel.y+=(ff_y + fix_speed_y.Output);
+//    }
 
   // plan_xyw.vel.x+= fix_speed_x.Output;
    //plan_xyw.vel.y+= fix_speed_y.Output;

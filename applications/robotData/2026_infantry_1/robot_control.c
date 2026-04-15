@@ -29,6 +29,7 @@ float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
+PIDInstance  fix_speed_x,fix_speed_y;
 
 // 底盘四个电机配置参数模板
 DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
@@ -339,6 +340,32 @@ void Follow_pid_init(void)
     pid_config.DeadBand = 0.1;
     pid_config.IntegralLimit = 400;
     PIDInit(&follow_pid_slow, &pid_config);
+}
+
+void Fix_Speed_pid_init(void)
+{
+    PID_Init_Config_s pid_config;
+    rt_memset(&pid_config, 0, sizeof(pid_config));
+    pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
+
+    // 有新息前馈分担快速响应，PID只负责消除稳态误差
+    // Ki 降低 + 积分限幅收紧，避免打滑结束后积分回退造成"先正后反"
+    pid_config.Kp = 0.4;
+    pid_config.Ki = 0.005;
+    pid_config.Kd = 0.05;
+    pid_config.MaxOut = 2000;
+    pid_config.DeadBand = 10;
+    pid_config.IntegralLimit = 400;
+
+    PIDInit(&fix_speed_y, &pid_config);
+
+    pid_config.Kp = 0.4;
+    pid_config.Ki = 0.005;
+    pid_config.Kd = 0.05;
+    pid_config.MaxOut = 2000;
+    pid_config.DeadBand = 0.05;
+    pid_config.IntegralLimit = 400;
+    PIDInit(&fix_speed_x, &pid_config);
 }
 
 static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force_xyw) // 进行加速度解算到各个轮子上

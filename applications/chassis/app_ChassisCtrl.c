@@ -137,7 +137,7 @@ static rt_err_t chassisCtrlInit(void)
     //全局速度PID初始化
     Fix_Speed_pid_init();
     // 卡尔曼滤波融合初始化
-    Kalman_init();
+  //  Kalman_init();
 
     // 初始化信号量
     res = rt_sem_init(&ChassCtrl_sem, "Cctrl_sem", 0, RT_IPC_FLAG_FIFO);

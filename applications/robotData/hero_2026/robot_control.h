@@ -44,5 +44,6 @@ float get_power_lim_speed(float power_max);
 #define PID_CAL_PERIOD 5
 
 void Forward_Kinematics(void);
+void Fix_Speed_pid_init(void);
 
 #endif

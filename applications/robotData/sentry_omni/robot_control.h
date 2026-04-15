@@ -36,5 +36,5 @@ void Follow_pid_init(void);
 // #define Steer_Power_C_sum (10.0f)  // 固定静态功率（换板子也会影响该数据）
 #define PID_CAL_PERIOD 1
 void Forward_Kinematics(void);
-
+void Fix_Speed_pid_init(void);
 #endif
