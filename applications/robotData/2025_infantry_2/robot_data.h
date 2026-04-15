@@ -50,8 +50,8 @@
 #define WEIGHT 20.0f                  // 质量 kg
 #define rotational_inertia 0.5f       // 转动惯量 kg·m²
 #define PLAN_PERIOD (float)0.02      // s,频率为50Hz
-#define VEL_MAX_X (float)4000         //    mm/s
-#define VEL_MAX_Y (float)4000         //    mm/s
+#define VEL_MAX_X (float)3000         //    mm/s
+#define VEL_MAX_Y (float)3000         //    mm/s
 #define VEL_MAX_W (float)10000        //   0.1°/s
 #define ACC_MAX_X (float)3500         // mm/s²
 #define ACC_MAX_Y (float)3500         // mm/s²

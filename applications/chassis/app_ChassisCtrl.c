@@ -31,7 +31,10 @@ static void ChassCtrl_IRQHandler(void *parameter)
 
 // debug
 Ctrl_data_t debug_fixctrl;
-extern PIDInstance fix_speed_x, fix_speed_y; // 跟随角pid实例
+
+
+
+
 /**
  * @brief    模式状态调度 总的来说就是根据云台控制的运动方式，得到底盘坐标系下的Vx,Vy矢量
  * @param    Cctrl    Ctrldata_t指针
@@ -40,9 +43,10 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
     //fixCtrl = debug_fixctrl;
-    debug_fixctrl = fixCtrl;   
-    PID_Calculate(&fix_speed_x,fused_speed_xy.x,fixCtrl.xyw.vel.x);
-    PID_Calculate(&fix_speed_y,fused_speed_xy.y,fixCtrl.xyw.vel.y);
+    debug_fixctrl = fixCtrl;
+
+
+    
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
     case CHASS_AUTO: // 底盘自主
@@ -57,8 +61,14 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     case FOLLOW_GIMBAL: // 跟随，以云台坐标系控制底盘
     case MOVE_BACK:
     case FOLLOWBACK_GIMBAL:
+    {
+        /* 前馈 + PID 叠加补偿，仅跟随模式生效（小陀螺不用IMU数据） */
+        // fixCtrl.xyw.vel.x += (ff_x + fix_speed_x.Output);
+        // fixCtrl.xyw.vel.y +=( ff_y + fix_speed_y.Output);
         fixCtrl.xyw = MotPack_Follow_Gim(&fixCtrl, 0);
         break;
+
+    }
     default: // 底盘自主
         fixCtrl.xyw = MotPack_Only_Chass(fixCtrl.xyw);
         break;

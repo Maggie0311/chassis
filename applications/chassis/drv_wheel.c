@@ -38,7 +38,7 @@ static void PID_Cal_Thread(void)
 
 #ifdef USE_CAPACITY_3
 
-          Power_Ctrl();
+      //    Power_Ctrl();
 #endif
 
         /*can报文发送*/

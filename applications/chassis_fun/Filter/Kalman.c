@@ -135,6 +135,7 @@ void RobotMotionKalman_Update(Robotmotion_Kalman_t *kf, float measured_velocity)
     
     // 计算新息 (测量残差): y = z - H*x  观测值减去预测值
     float y = measured_velocity - (kf->H[0] * kf->x[0] + kf->H[1] * kf->x[1]);
+    kf->innovation = y;  // 保存新息供外部前馈使用
     
    // Anti_Slip_Process(kf,y); // 利用新息进行打滑处理
 
@@ -205,11 +206,31 @@ float RobotMotionKalman_Getdisplacement(Robotmotion_Kalman_t *kf)
  */
 float RobotMotionKalman_Getvelocity(Robotmotion_Kalman_t *kf)
 {
-    if (kf->initialized) 
+    if (kf->initialized)
     {
         return kf->x[1];   // 速度状态量
-    } 
-    else 
+    }
+    else
+    {
+        return 0.0f;
+    }
+}
+
+/**
+ * @brief 获取卡尔曼滤波器当前的新息（innovation）
+ *
+ * @note 新息 = 正解算速度 - 卡尔曼预测速度
+ *       正值：正解算比预测快（轮子可能在打滑，编码器虚高）
+ *       负值：正解算比预测慢
+ *       该值是打滑的最早期信号，比滤波后的速度至少快一拍
+ */
+float RobotMotionKalman_GetInnovation(Robotmotion_Kalman_t *kf)
+{
+    if (kf->initialized)
+    {
+        return kf->innovation;
+    }
+    else
     {
         return 0.0f;
     }
@@ -243,7 +264,7 @@ void RobotMotionKalman_Process(Robotmotion_Kalman_t *kf, float measured_velocity
 void RobotMotionKalman_AdaptiveProcess(Robotmotion_Kalman_t *kf, float measured_velocity, float acceleration)
 {
     /* ---- 可调参数 ---- */
-    #define ACCEL_THRESHOLD  0.3f   // 加速度分界点(m/s²)，在此值附近alpha≈0.5
+    #define ACCEL_THRESHOLD  0.4f   // 加速度分界点(m/s²)，在此值附近alpha≈0.5
     #define Q_STD_MIN        0.05f  // 加速度大时的Q_std（更信IMU，Q小→预测噪声小）
     #define Q_STD_MAX        0.4f   // 加速度小时的Q_std（更信正解算，Q大→预测噪声大）
     #define R_STD_MIN        0.05f  // 加速度小时的R_std（更信正解算，R小→观测噪声小）

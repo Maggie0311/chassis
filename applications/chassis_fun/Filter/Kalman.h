@@ -29,6 +29,11 @@ typedef struct {
     float acc_noise;
     float vel_noise;
 
+    // 新息（innovation）: 每次 Update 时 measured_velocity - predicted_velocity
+    // 正值 = 正解算比预测快（可能正解算虚高/打滑）
+    // 负值 = 正解算比预测慢
+    float innovation;
+
 }Robotmotion_Kalman_t;
 
 void RobotMotion_Kalman_Init(Robotmotion_Kalman_t *kf, float dt, 
@@ -40,6 +45,7 @@ void RobotMotionKalman_Process(Robotmotion_Kalman_t *kf, float measured_velocity
 void RobotMotionKalman_AdaptiveProcess(Robotmotion_Kalman_t *kf, float measured_velocity, float acceleration);
 float RobotMotionKalman_Getdisplacement(Robotmotion_Kalman_t *kf);
 float RobotMotionKalman_Getvelocity(Robotmotion_Kalman_t *kf);
+float RobotMotionKalman_GetInnovation(Robotmotion_Kalman_t *kf);
 
 
 #endif

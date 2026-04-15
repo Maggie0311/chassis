@@ -40,6 +40,7 @@ void Follow_pid_init(void);
 #define PID_CAL_PERIOD 1
 
 extern Vector2_t fused_speed_xy;
+extern Vector2_t kalman_innovation_xy;  // 卡尔曼新息(mm/s)，用于前馈补偿
 
 void Fix_Speed_pid_init(void);
 /*电机初始化*/

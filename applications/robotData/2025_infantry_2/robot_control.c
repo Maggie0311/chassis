@@ -38,6 +38,7 @@ Robotmotion_Kalman_t kf_vx; // X轴滤波器
 Robotmotion_Kalman_t kf_vy; // Y轴滤波器
 
 Vector2_t fused_speed_xy;
+Vector2_t kalman_innovation_xy;  // 卡尔曼新息，供外部前馈补偿使用
 
 // 底盘四个电机配置参数模板
 DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
@@ -356,21 +357,23 @@ void Fix_Speed_pid_init(void)
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 1;
-    pid_config.Ki = 0;
-    pid_config.Kd = 0;
-    pid_config.MaxOut = 3000;
+    // 有新息前馈分担快速响应，PID只负责消除稳态误差
+    // Ki 降低 + 积分限幅收紧，避免打滑结束后积分回退造成"先正后反"
+    pid_config.Kp = 0.4;
+    pid_config.Ki = 0.005;
+    pid_config.Kd = 0.05;
+    pid_config.MaxOut = 2000;
     pid_config.DeadBand = 10;
-    pid_config.IntegralLimit = 800;
+    pid_config.IntegralLimit = 400;
 
     PIDInit(&fix_speed_y, &pid_config);
 
-    pid_config.Kp = 1;
-    pid_config.Ki = 0;
-    pid_config.Kd = 0;
-    pid_config.MaxOut = 3000;
+    pid_config.Kp = 0.4;
+    pid_config.Ki = 0.005;
+    pid_config.Kd = 0.05;
+    pid_config.MaxOut = 2000;
     pid_config.DeadBand = 0.05;
-    pid_config.IntegralLimit = 800;
+    pid_config.IntegralLimit = 400;
     PIDInit(&fix_speed_x, &pid_config);
 }
 
@@ -480,7 +483,11 @@ void Forward_Kinematics(void)
     RobotMotionKalman_AdaptiveProcess(&kf_vx, fwd_vx, imu_can_data.x_accel);
     RobotMotionKalman_AdaptiveProcess(&kf_vy, fwd_vy, imu_can_data.y_accel);
 
-    //读取融合结果（m/s）
+    //读取融合结果（m/s → mm/s）
     fused_speed_xy.x = RobotMotionKalman_Getvelocity(&kf_vx)*1000.f;
     fused_speed_xy.y = RobotMotionKalman_Getvelocity(&kf_vy)*1000.f;
+
+    //读取新息（m/s → mm/s），供外部前馈补偿
+    kalman_innovation_xy.x = RobotMotionKalman_GetInnovation(&kf_vx)*1000.f;
+    kalman_innovation_xy.y = RobotMotionKalman_GetInnovation(&kf_vy)*1000.f;
 }
