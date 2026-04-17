@@ -341,15 +341,6 @@ void Follow_pid_init(void)
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
-static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force_xyw) // 进行加速度解算到各个轮子上
-{
-    Mot_base_t tarForce;                                                        // 电机输出轴上的力（N）
-    tarForce.vel.x = Force_xyw->vel.x * WEIGHT / 1000.f;                        // 整个底盘x方向力的平滑后设定值(N)
-    tarForce.vel.y = Force_xyw->vel.y * WEIGHT / 1000.f;                        // 整个底盘Y方向力的平滑后设定值(N)
-    tarForce.angvel = Force_xyw->angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
-
-    // Omni_Force_Resolve(tarForce, motorSetForce);
-}
 
 // 摩擦力前馈计算 这里的数值是采集数据后在matlab中进行回归拟合得到的
 float test_k_feed = 0.4;

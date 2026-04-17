@@ -15,8 +15,8 @@ void Follow_pid_init(void);
 #define PITCH_MOTOR 1
 
 // TODO:调Pid这堆
-#define RUN_PID_Kp 96
-#define RUN_PID_Ki 0.5
+#define RUN_PID_Kp 86
+#define RUN_PID_Ki 0.4
 
 #define RUN_PID_Kd 0.8
 

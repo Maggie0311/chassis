@@ -365,8 +365,7 @@ static float Innovation_Feedforward(float innovation)
     float sign = (innovation > 0.0f) ? 1.0f : -1.0f;
     return INNOV_FF_GAIN * (innovation - sign * INNOV_DEADZONE);
 }
-float data_vofa[]={0,0,0};
-#include "vofa.h"
+
 extern PIDInstance fix_speed_x, fix_speed_y; // 速度闭环pid实例
 /*新修改的设定值规划s型曲线的速度趋势 并进行云台到底盘的坐标系转换*/
 void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
