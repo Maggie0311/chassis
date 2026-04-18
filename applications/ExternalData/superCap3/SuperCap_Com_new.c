@@ -128,11 +128,12 @@ static void getSuprCapComData(Scpr_ComTx_t *Cmd)
     // }
     // else
     //     Cmd->isOverPower = 0;
-
-    if (powerBufTick == 0 && powerLimTick == 0)
+    if (powerBufTick  && powerLimTick )
+        Cmd->isdataRef = 1;
+    else if (powerBufTick == 0 && powerLimTick == 0)
     { // 当从未收到裁判系统数据
         Cmd->chassis_powerLim = POWER_REMANI;
-        Cmd->isdataRef = 1;
+        Cmd->isdataRef = 0;
         Cmd->chassis_powerBuf = (uint16_t)(-1);
     }
 }

@@ -466,7 +466,7 @@ static void get_chassis_max_power(void)
 {
 
     PowerCtrl.Power_Allo_level = 0;
-
+    PowerCtrl_Close_Flag[0]=1;//关闭超电使用
     if (PowerInfo.Cap.isValid && Get_if_supercap_output() && !PowerCtrl_Close_Flag[0])
     { // 超级电容数据有效，没有异常，没有关闭数据使用
         if (PowerInfo.Ref.isValid)
@@ -850,7 +850,7 @@ void Power_Ctrl(void)
     // 计算最大可输出功率与异常处理
     get_chassis_max_power();
     // 功率限制、功率再分配
-   // Power_lim_allo_to_wheels();
+   Power_lim_allo_to_wheels();//开启功率控制
 }
 
 
