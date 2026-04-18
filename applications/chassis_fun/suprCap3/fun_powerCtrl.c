@@ -11,6 +11,8 @@
 #include "DJI_6020.h"
 #include "LK_MF_MG.h"
 #include "robot_control.h"
+#include "vofa.h"
+#include "drv_motionSolve.h"
 #ifdef BSP_USING_LOG
 #define LOG_TAG "power_Log"
 #include <ulog.h>
@@ -154,6 +156,7 @@ static void utils_Low_Pass_Filter_Float(float *Data_now, float *Data_Last, float
 
 static void getSCapDataAndInfo(void)
 {
+    float data[5] = {0,0,0,0,0};
     // 超级电容数据有效性，判断超电是否离线
     PowerInfo.Cap.isValid = Read_Super_Capacity_Online();
     // 更新超级电容功率数据
@@ -162,6 +165,13 @@ static void getSCapDataAndInfo(void)
     PowerInfo.Cap.isValid |= getSuprCapMearData(&PowerInfo.Cap.Voltage, &PowerInfo.Cap.Current, &PowerInfo.Cap.V_Cap);
     PowerInfo.Cap.Cap_State = Get_SuprCapState();
     PowerInfo.Cap.isValid |= Get_SuprCapPower(&PowerInfo.Cap.Power); // 获取超级电容测得底盘功率
+    data[0] = PowerInfo.Cap.Power;
+    data[1] = real_xyw.vel.x;
+    data[2] = -real_xyw.vel.y;
+    data[3] = real_xyw.angvel;
+    data[4] = PowerInfo.Cap.superCap;
+    VOFA_Trans_Justfloat(5, data);
+    
     // 转化单位为国际单位
     PowerInfo.Cap.Voltage /= 1000.f;
     PowerInfo.Cap.Current /= 1000.f;

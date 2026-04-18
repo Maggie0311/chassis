@@ -441,5 +441,5 @@ void Forward_Kinematics(void)
     {
         temp[i] = wheel_motor[i].Motor_obj.speed;
     }
-    Omni_Forward_Kinematics(temp);
+    Omni_Forward_Kinematics_new(temp, 45.f);
 }
