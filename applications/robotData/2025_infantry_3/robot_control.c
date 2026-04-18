@@ -125,7 +125,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LB",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -170,7 +170,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LR",
-            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -394,7 +394,8 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
-        Omni_Resolve(*Speed_xyw, motorSetSpeed);
+        Omni_Inverse_Kinematics_new(*Speed_xyw,45.0f, motorSetSpeed);
+
         //  Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
 
         // Get_force_out(motorSetForce); // 获取前馈值
