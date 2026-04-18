@@ -129,10 +129,12 @@ static void getSuprCapComData(Scpr_ComTx_t *Cmd)
     // else
     //     Cmd->isOverPower = 0;
 
-    if (powerBufTick == 0 && powerLimTick == 0)
+    if(powerBufTick  && powerLimTick )
+         Cmd->isdataRef=1;
+    else if (powerBufTick == 0 && powerLimTick == 0)
     { // 当从未收到裁判系统数据
         Cmd->chassis_powerLim = POWER_REMANI;
-        Cmd->isdataRef = 1;
+        Cmd->isdataRef = 0;
         Cmd->chassis_powerBuf = (uint16_t)(-1);
     }
 }
@@ -147,7 +149,7 @@ static rt_err_t Send_To_Scpr(Scpr_ComTx_t *cmd)
 {
     /*更新发送数据*/
 	//cmd->Whether_To_Output=2;
-    //cmd->Whether_To_Output = 1;
+    cmd->Whether_To_Output = 1;
     scpr_caninstance.tx_buff[0] = (uint8_t)(cmd->Whether_To_Output);
     scpr_caninstance.tx_buff[1] = (uint8_t)(cmd->isdataRef);
     scpr_caninstance.tx_buff[2] = (uint8_t)(cmd->isFlySlope);
