@@ -15,10 +15,10 @@ void Follow_pid_init(void);
 #define PITCH_MOTOR 1
 
 // TODO:调Pid这堆
-#define RUN_PID_Kp 86
+#define RUN_PID_Kp 90
 #define RUN_PID_Ki 0.4
 
-#define RUN_PID_Kd 0.8
+#define RUN_PID_Kd 0.9
 
 #define POWER_CTRL 0//功率控制开关，1为开启，0为不开
 

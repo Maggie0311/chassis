@@ -169,16 +169,16 @@ static void getSCapDataAndInfo(void)
     PowerInfo.Cap.Cap_State = Get_SuprCapState();
     PowerInfo.Cap.isValid |= Get_SuprCapPower(&PowerInfo.Cap.Power); // 获取超级电容测得底盘功率
 
-#ifdef BSP_USING_VOFA
-    float data[6] = {0,0,0,0,0,0};
-    data[0] = PowerInfo.Cap.Power;
-    data[1] = real_xyw.vel.x;
-    data[2] = -real_xyw.vel.y;//为了与vofa控件方向保持一致
-    data[3] = -real_xyw.angvel;
-    data[4] = PowerInfo.Cap.superCap;
-    data[5] = PowerInfo.Ref.PowerBuff;
-    VOFA_Trans_Justfloat(6, data);
-#endif
+// #ifdef BSP_USING_VOFA
+//     float data[6] = {0,0,0,0,0,0};
+//     data[0] = PowerInfo.Cap.Power;
+//     data[1] = real_xyw.vel.x;
+//     data[2] = -real_xyw.vel.y;//为了与vofa控件方向保持一致
+//     data[3] = -real_xyw.angvel;
+//     data[4] = PowerInfo.Cap.superCap;
+//     data[5] = PowerInfo.Ref.PowerBuff;
+//     VOFA_Trans_Justfloat(6, data);
+// #endif
     
     // 转化单位为国际单位
     PowerInfo.Cap.Voltage /= 1000.f;
@@ -474,7 +474,7 @@ static void get_chassis_max_power(void)
 {
 
     PowerCtrl.Power_Allo_level = 0;
-    PowerCtrl_Close_Flag[0]=1;//关闭超电使用
+   // PowerCtrl_Close_Flag[0]=1;//关闭超电使用
     if (PowerInfo.Cap.isValid && Get_if_supercap_output() && !PowerCtrl_Close_Flag[0])
     { // 超级电容数据有效，没有异常，没有关闭数据使用
         if (PowerInfo.Ref.isValid)
