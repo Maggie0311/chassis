@@ -135,8 +135,8 @@ static rt_err_t chassisCtrlInit(void)
     // 跟随模式PID初始化
     Follow_pid_init();
     //全局速度PID初始化
-    Fix_Speed_pid_init();
-    // 卡尔曼滤波融合初始化
+    // Fix_Speed_pid_init();
+    // 卡尔曼滤波融合初始化 
   //  Kalman_init();
 
     // 初始化信号量
