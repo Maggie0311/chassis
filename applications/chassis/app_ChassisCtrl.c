@@ -6,6 +6,7 @@
 
 #include "mod_motion.h"
 #include "drv_wheel.h"
+#include "Look.h"
 #include "func_MonHandling.h"
 #include "drv_motionSolve.h"
 #include "robot_control.h"
@@ -94,6 +95,7 @@ static void Chassis_Ctrl_Thread(void *parameter)
     {
         Ctrl_data_t *Ctrl_data = NULL;
         rt_sem_take(&ChassCtrl_sem, RT_WAITING_FOREVER);
+        Look_Cnt[0]++;//用于观测线程运行频率
 
         /* 获得当前控制源--主要为了获得其数据*/
         nowCtrlSrc = getNowCtrlSrc_s();
@@ -193,6 +195,8 @@ rt_err_t Chassis_Ctrl_Init(void)
 
     if (res != RT_EOK)
         return res;
+
+    Look_Init();
 
     return RT_EOK;
 }

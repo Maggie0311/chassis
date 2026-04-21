@@ -3,6 +3,7 @@
 #include "app_monitor.h"
 #include "mod_Log.h"
 #include "robot_data.h"
+#include "Look.h"
 #include "robot_control.h"
 /*所有顺序为转向轮和驱动轮---RF-LF-LB-RB*/
 static struct rt_timer Cal_Timer;   /*线程定时器*/
@@ -32,6 +33,7 @@ static void PID_Cal_Thread(void)
     {
         rt_sem_take(&Cal_sem, RT_WAITING_FOREVER);
         SWDG_FEED(id);
+        Look_Cnt[1]++;//用于观测线程运行频率
 
         /*pid等电机控制计算*/
         Motor_Control_Loop();
