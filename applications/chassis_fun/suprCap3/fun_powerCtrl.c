@@ -301,6 +301,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     else if (PowerInfo.Cap.superCap > 3.0f)
     {
         if_used_up = 0;
+
     }
 
     // 正常工作：超电在线且未耗尽时正常充放
@@ -313,6 +314,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     {
         Set_SuprCap_OutputMode(0); // 电量耗尽 → 关闭
         PowerCtrl_Close_Flag[0] = 1;
+		pre_button_state=0;
     }
 
     // ── 满电滞回控制（暂时注释，备用）──────────────────────────────────
@@ -778,8 +780,8 @@ static void Power_lim_allo_to_wheels()
 
     for (group = 0; group < WHEELS_GROUP_NUM; group++)
     {
-         //Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=0;
-         //Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
+        //  Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=0;
+        //  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
     }
 
     // for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
@@ -858,7 +860,7 @@ void Power_Ctrl(void)
     // 计算最大可输出功率与异常处理
     get_chassis_max_power();
     // 功率限制、功率再分配
-   Power_lim_allo_to_wheels();//开启功率控制
+    Power_lim_allo_to_wheels();//开启功率控制
 }
 
 

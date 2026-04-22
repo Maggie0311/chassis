@@ -379,6 +379,8 @@ static float Innovation_Feedforward(float innovation)
     return INNOV_FF_GAIN * (innovation - sign * INNOV_DEADZONE);
 }
 
+#include "vofa.h"
+// float data_vofa[4]={0.0f,0.0f,0.0f,0.0f};
 extern PIDInstance fix_speed_x, fix_speed_y; // 速度闭环pid实例
 /*新修改的设定值规划s型曲线的速度趋势 并进行云台到底盘的坐标系转换*/
 void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
@@ -396,8 +398,11 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     plan_acc_xyw.vel.y = set_planner_data[WHEEL_YSPEED].v;
     plan_acc_xyw.angvel = set_planner_data[WHEEL_ACSPEED].v;
 
-
-    
+//     data_vofa[0] = ctrl.xyw.vel.x;
+//     data_vofa[1] = plan_xyw.vel.x;
+//     data_vofa[2] = plan_acc_xyw.vel.x;
+//     data_vofa[3] = set_planner_data[WHEEL_XSPEED].a;
+//  VOFA_Trans_Justfloat(4, data_vofa);
 //   PIDCalculate(&fix_speed_x, fused_speed_xy.x, plan_xyw.vel.x);
 //    PIDCalculate(&fix_speed_y, fused_speed_xy.y, plan_xyw.vel.y);
 

@@ -157,6 +157,17 @@ void Ref_Bulid_If_Hurt(void *data)
         }
 }
 
+// #include "vofa.h"
+// void vofa_look(void *data){
+//     ext_game_robot_pos_t *ext_game_robot_pos = (ext_game_robot_pos_t *)data;
+//     float vofa_data[3]={0,0,0};
+//     vofa_data[0] = ext_game_robot_pos->x;
+//     vofa_data[1] = ext_game_robot_pos->y;
+//     vofa_data[2] = ext_game_robot_pos->yaw;
+
+//     VOFA_Trans_Justfloat(3, vofa_data);
+// }
+
 /*裁判系统数据加工*/
 
 /**
@@ -165,7 +176,8 @@ void Ref_Bulid_If_Hurt(void *data)
  * @param    None
  * @return   剩余弹量
  */
-uint16_t Ref_AmmoRemain(void)
+uint16_t
+    Ref_AmmoRemain(void)
 {
     uint16_t temp;
 #ifdef CORE_USING_HERO
@@ -281,6 +293,7 @@ rt_err_t Ref_Init(void)
     Attach_Ref_rec_callback(Index_game_robot_survivors,Ref_Bulid_If_Hurt);
    // Attach_Ref_rec_callback(Index_game_robot_status,Ref_Robot_ID);
     Attach_Ref_rec_callback(Index_robot_hurt,Ref_Robot_Set_Hurt);
-    
+   // Attach_Ref_rec_callback(Index_game_robot_pos, vofa_look);
+
     return res;
 }

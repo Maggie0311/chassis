@@ -130,23 +130,7 @@ void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4])
     }
 }
 
-// 全向轮力解算函数
-void Omni_Force_Resolve_45(Mot_base_t target_force, float *resolve_data)
-{
-    // 初始化雅可比矩阵
-    static float s = WHEEL_RADIUS / 1000.0f; // mm -> m
-    static float r = VEHICLE_DIAMETER / 2 / 1000.0f;
-    static float root2_4 = ROOT2 / 4;
-    Mot_base_t tarForce;                                                   // 电机输出轴上的力（N）
-    float Fx = target_force.vel.x * WEIGHT / 1000.f;                       // 整个底盘x方向力的平滑后设定值(N)
-    float Fy = target_force.vel.y * WEIGHT / 1000.f;                       // 整个底盘Y方向力的平滑后设定值(N)
-    float Tw = target_force.angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
 
-    resolve_data[0] = (Fx + Fy) * root2_4 * s + Tw * s / (4.0f * r);  // RF 计算出来的为扭矩（单位N·m)
-    resolve_data[1] = (-Fx + Fy) * root2_4 * s + Tw * s / (4.0f * r); // LF
-    resolve_data[2] = (-Fx - Fy) * root2_4 * s + Tw * s / (4.0f * r); //  LB
-    resolve_data[3] = (Fx - Fy) * root2_4 * s + Tw * s / (4.0f * r);  // RF
-}
 
 /**
  * @brief 适应不同安装角度的全向轮力逆解算（基于虚功原理 τ = J^T · F）

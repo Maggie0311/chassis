@@ -454,8 +454,6 @@ static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
     }
 }
 
-#include "vofa.h"
-float data_vofa[]={0,0};
 
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
@@ -467,9 +465,6 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
         Force_xyw->vel.x += gravity_ff;
         Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
         Get_force_out(motorSetForce); // 获取前馈值
-        data_vofa[0]=wheel_motor[3].Motor_obj.Motor_ctrl.feedforward.current_feedforward;
-        data_vofa[1]=wheel_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Output;
-        VOFA_Trans_Justfloat(sizeof(data_vofa)/sizeof(data_vofa[0]), data_vofa);
     }
     if (1 == isSetValid_debug[1])
     {
