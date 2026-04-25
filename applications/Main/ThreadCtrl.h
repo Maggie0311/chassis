@@ -59,6 +59,11 @@
 #define THREAD_PRIO_SC (9)
 #define THREAD_TICK_SC (2)
 
+// IMU CAN接收线程
+#define THREAD_STACK_IMU_CAN_RX (512)
+#define THREAD_PRIO_IMU_CAN_RX  (9)
+#define THREAD_TICK_IMU_CAN_RX  (2)
+
 // 平滑线程
 #define THREAD_STACK_SMOOTH (768)
 #define THREAD_PRIO_SMOOTH (10)

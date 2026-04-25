@@ -60,7 +60,7 @@ typedef enum
 typedef __packed struct
 {
     // 工作状态数据
-    unsigned ui_reset : 1;      // 重置 UI 标志位
+    unsigned ui_reset : 1;      //重置 UI 标志位      
     unsigned chassis_reset : 1; // 底盘复位指令
     unsigned current_menu : 4;  // 当前所处菜单
     unsigned motion_mode : 3;   // 底盘模式

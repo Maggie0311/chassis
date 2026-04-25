@@ -6,6 +6,7 @@
 
 #include "mod_motion.h"
 #include "drv_wheel.h"
+#include "Look.h"
 #include "func_MonHandling.h"
 #include "drv_motionSolve.h"
 #include "robot_control.h"
@@ -68,8 +69,14 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     case FOLLOW_GIMBAL: // 跟随，以云台坐标系控制底盘
     case MOVE_BACK:
     case FOLLOWBACK_GIMBAL:
+    {
+        /* 前馈 + PID 叠加补偿，仅跟随模式生效（小陀螺不用IMU数据） */
+        // fixCtrl.xyw.vel.x += (ff_x + fix_speed_x.Output);
+        // fixCtrl.xyw.vel.y +=( ff_y + fix_speed_y.Output);
         fixCtrl.xyw = MotPack_Follow_Gim(&fixCtrl, 0);
         break;
+
+    }
     default: // 底盘自主
         fixCtrl.xyw = MotPack_Only_Chass(fixCtrl.xyw);
         break;
@@ -95,6 +102,7 @@ static void Chassis_Ctrl_Thread(void *parameter)
     {
         Ctrl_data_t *Ctrl_data = NULL;
         rt_sem_take(&ChassCtrl_sem, RT_WAITING_FOREVER);
+        Look_Cnt[0]++;//用于观测线程运行频率
 
         /* 获得当前控制源--主要为了获得其数据*/
         nowCtrlSrc = getNowCtrlSrc_s();
@@ -136,7 +144,10 @@ static rt_err_t chassisCtrlInit(void)
 
     // 跟随模式PID初始化
     Follow_pid_init();
-
+    //全局速度PID初始化
+    // Fix_Speed_pid_init();
+    // 卡尔曼滤波融合初始化 
+  //  Kalman_init();
 #ifdef CORE_USING_HERO
     //抬升机构对零点
     //Up_Machine_Zero_Set();
@@ -197,6 +208,8 @@ rt_err_t Chassis_Ctrl_Init(void)
 
     if (res != RT_EOK)
         return res;
+
+    Look_Init();
 
     return RT_EOK;
 }

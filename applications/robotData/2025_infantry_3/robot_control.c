@@ -125,7 +125,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LB",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -170,7 +170,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LR",
-            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -341,15 +341,6 @@ void Follow_pid_init(void)
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
-static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force_xyw) // 进行加速度解算到各个轮子上
-{
-    Mot_base_t tarForce;                                                        // 电机输出轴上的力（N）
-    tarForce.vel.x = Force_xyw->vel.x * WEIGHT / 1000.f;                        // 整个底盘x方向力的平滑后设定值(N)
-    tarForce.vel.y = Force_xyw->vel.y * WEIGHT / 1000.f;                        // 整个底盘Y方向力的平滑后设定值(N)
-    tarForce.angvel = Force_xyw->angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
-
-    // Omni_Force_Resolve(tarForce, motorSetForce);
-}
 
 // 摩擦力前馈计算 这里的数值是采集数据后在matlab中进行回归拟合得到的
 float test_k_feed = 0.4;
@@ -403,10 +394,10 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
-        Omni_Resolve(*Speed_xyw, motorSetSpeed);
-        //  Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
+        Omni_Inverse_Kinematics_new(*Speed_xyw,45.0f, motorSetSpeed);
+        Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
+        Get_force_out(motorSetForce); // 获取前馈值
 
-        // Get_force_out(motorSetForce); // 获取前馈值
     }
     if (1 == isSetValid_debug[1])
     {
@@ -422,5 +413,5 @@ void Forward_Kinematics(void)
     {
         temp[i] = wheel_motor[i].Motor_obj.speed;
     }
-    Omni_Forward_Kinematics(temp);
+    Omni_Forward_Kinematics_new(temp,45.f);
 }

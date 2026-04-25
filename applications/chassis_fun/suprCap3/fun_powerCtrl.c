@@ -11,6 +11,12 @@
 #include "DJI_6020.h"
 #include "LK_MF_MG.h"
 #include "robot_control.h"
+#include "drv_motionSolve.h"
+
+#ifdef BSP_USING_VOFA
+#include "vofa.h"
+#endif
+
 #ifdef BSP_USING_LOG
 #define LOG_TAG "power_Log"
 #include <ulog.h>
@@ -162,6 +168,18 @@ static void getSCapDataAndInfo(void)
     PowerInfo.Cap.isValid |= getSuprCapMearData(&PowerInfo.Cap.Voltage, &PowerInfo.Cap.Current, &PowerInfo.Cap.V_Cap);
     PowerInfo.Cap.Cap_State = Get_SuprCapState();
     PowerInfo.Cap.isValid |= Get_SuprCapPower(&PowerInfo.Cap.Power); // 获取超级电容测得底盘功率
+
+// #ifdef BSP_USING_VOFA
+//     float data[6] = {0,0,0,0,0,0};
+//     data[0] = PowerInfo.Cap.Power;
+//     data[1] = real_xyw.vel.x;
+//     data[2] = -real_xyw.vel.y;//为了与vofa控件方向保持一致
+//     data[3] = -real_xyw.angvel;
+//     data[4] = PowerInfo.Cap.superCap;
+//     data[5] = PowerInfo.Ref.PowerBuff;
+//     VOFA_Trans_Justfloat(6, data);
+// #endif
+    
     // 转化单位为国际单位
     PowerInfo.Cap.Voltage /= 1000.f;
     PowerInfo.Cap.Current /= 1000.f;
@@ -283,10 +301,11 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     else if (PowerInfo.Cap.superCap > 3.0f)
     {
         if_used_up = 0;
+
     }
 
     // 正常工作：超电在线且未耗尽时正常充放
-    if (if_used_up == 0)
+    if (if_used_up == 0&&user_enable==1)
     {
         Set_SuprCap_OutputMode(1); // 正常充放
         PowerCtrl_Close_Flag[0] = 0;
@@ -295,6 +314,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     {
         Set_SuprCap_OutputMode(0); // 电量耗尽 → 关闭
         PowerCtrl_Close_Flag[0] = 1;
+		pre_button_state=0;
     }
 
     // ── 满电滞回控制（暂时注释，备用）──────────────────────────────────
@@ -366,14 +386,14 @@ void get_true_RLS(void)
     if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0]>0.f && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
         
-       RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+       //RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
          // RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
     else if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power < 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
-        RLS_Update(&RunRLS, RunPhi, RunRLS.now_power -RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+       // RLS_Update(&RunRLS, RunPhi, RunRLS.now_power -RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
@@ -456,7 +476,7 @@ static void get_chassis_max_power(void)
 {
 
     PowerCtrl.Power_Allo_level = 0;
-
+   // PowerCtrl_Close_Flag[0]=1;//关闭超电使用
     if (PowerInfo.Cap.isValid && Get_if_supercap_output() && !PowerCtrl_Close_Flag[0])
     { // 超级电容数据有效，没有异常，没有关闭数据使用
         if (PowerInfo.Ref.isValid)
@@ -761,8 +781,8 @@ static void
 
     for (group = 0; group < WHEELS_GROUP_NUM; group++)
     {
-         //Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=0;
-         //Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
+        //  Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=0;
+        //  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
     }
 
     // for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
@@ -841,7 +861,7 @@ void Power_Ctrl(void)
     // 计算最大可输出功率与异常处理
     get_chassis_max_power();
     // 功率限制、功率再分配
-    Power_lim_allo_to_wheels();
+    Power_lim_allo_to_wheels();//开启功率控制
 }
 
 

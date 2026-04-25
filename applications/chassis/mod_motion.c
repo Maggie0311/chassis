@@ -7,6 +7,13 @@
 #include <arm_math.h>
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
+#include "robot_control.h"
+#include "drv_IMU_Can.h"
+#include "drv_motionSolve.h"
+
+#ifdef BSP_USING_VOFA
+    #include "vofa.h"
+#endif
 
 extern PIDInstance follow_pid_fast, follow_pid_slow;         // 跟随角pid实例
 SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0}; // 设定值规划
@@ -34,8 +41,8 @@ static Mot_base_t MotModule_Clamp_Base(Mot_base_t VxyW)
 {
     Mot_base_t temp =
         {
-            .vel.y = utils_clamp(VxyW.vel.y, -M_MAX_POSITION_Y, M_MAX_POSITION_Y),
-            .vel.x = utils_clamp(VxyW.vel.x, -M_MAX_POSITION_X, M_MAX_POSITION_X),
+            .vel.y = utils_clamp(VxyW.vel.y, -VEL_MAX_Y, VEL_MAX_Y),
+            .vel.x = utils_clamp(VxyW.vel.x, -VEL_MAX_X, VEL_MAX_X),
             .angvel = utils_clamp(VxyW.angvel, -M_MAX_ROTATE_AC, M_MAX_ROTATE_AC)};
     return temp;
 }
@@ -132,19 +139,22 @@ Mot_base_t MotPack_Only_Chass(Mot_base_t VxyW)
 // 当旋转较快时执行yaw轴电机角度补偿
 void yawAngleOffset(const float angvel, float *const yawAngel)
 {
-    // float deltaT = 0;
-    // float temp = 0;
-    // if (!FLOAT_ISEQUAL(angvel, 0))
-    // {
-    //     if (fabsf(angvel) > 100)
-    //     {
-    //         deltaT = (fabsf(angvel) / 1000.f) * (K_YAW_DeltaT);
-    //     }
-    // }
-    // /*补偿执行滞后等（单位已统一），根据角度正方向和转速正方向知补偿项为负号*/
-    // temp = *yawAngel - (angvel / 10.f) * (deltaT / 1000.f);
-    // temp = range_angle_180(temp);
-    // *yawAngel = temp;
+    float temp = 0;
+
+    if (fabsf(angvel) > 6000)
+        temp = YAW_OFFSET_FAST;
+    else if (fabsf(angvel) > 2000)
+    {
+        // temp = (fabsf(angvel) - d_YAW) / K_YAW;
+        temp = YAW_OFFSET_SLOW;
+    }
+    
+    /*补偿执行滞后等（单位已统一），根据角度正方向和转速正方向知补偿项为负号*/
+    temp = range_angle_180(temp);
+    if (angvel > 0)
+        *yawAngel -= temp;
+    else
+        *yawAngel += temp;
 }
 
 /**
@@ -156,7 +166,7 @@ void yawAngleOffset(const float angvel, float *const yawAngel)
  * @param    fol_angle 范围：[0-360°]单位度
  * @return   输出到Resolve函数的VxyW
  */
-Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_mode)
+Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
 {
     // fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
     static float anglevel_last = 0; // 记录上次角速度滤波后的值
@@ -165,8 +175,23 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
     float yaw_Omega = 0;
     // static PIDInstance *pid; 新普布跟随我用的是kuai'man
     static Mot_base_t last_speed = {0};
+
+    //     /* ---- 速度闭环 PID（卡尔曼融合速度做反馈） ---- */
+    // PIDCalculate(&fix_speed_x, fused_speed_xy.x, ctrlMsg->xyw.vel.x);
+    // PIDCalculate(&fix_speed_y, fused_speed_xy.y, ctrlMsg->xyw.vel.y);
+
+    // /* ---- 新息前馈（零延迟打滑响应） ---- */
+    // float ff_x = Innovation_Feedforward(kalman_innovation_xy.x);
+    // float ff_y = Innovation_Feedforward(kalman_innovation_xy.y);
+
+    
+
+    // ctrlMsg->xyw.vel.x += (ff_x + fix_speed_x.Output);
+    // ctrlMsg->xyw.vel.y +=( ff_y + fix_speed_y.Output);
     /*输入限制*/
     Mot_base_t VxyW = MotModule_Clamp_Base(ctrlMsg->xyw);
+    //VxyW.vel.x+=(ff_x + fix_speed_x.Output);
+    //VxyW.vel.y+=(ff_y + fix_speed_y.Output);
 
     /*确保角度为0-360*/
     utils_norm_circle_number(&fol_angle, 0, 360.f);
@@ -200,7 +225,16 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t *const ctrlMsg, uint8_t trunin_m
 
     // 新的pid计算，yaw_angle本身即为误差，所以“反馈值”参数写0
     // VxyW.angvel = anglevel_last + PIDCalculate(pid, 0, yaw_angle);
-    VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_fast, 0, yaw_angle);
+    float direction = 0;//跟随方向
+    if (fabsf(yaw_angle) > 90)// 当云台角度大于90度时，修改跟随方向
+    {
+        if (yaw_angle > 0)
+            direction=180;
+        else
+            direction=-180;
+    }
+    //direction += fol_angle;// 加入跟随角
+    VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_fast, direction, yaw_angle);
 
     /*跟随时，当功率受限时降低平移保证转向*/
     // yaw_Omega = Get_GM_Omega(ctrlMsg->arg); // 这里的arg是云台yaw或者pitch轴电机的枚举，在云台接受控制数据处定义
@@ -293,8 +327,6 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
         VxyW.vel.y = 0;
     }
 
-    float angle = 0;
-    float yaw_Omega = 0;
     uint8_t if_turn_to_follow = 0;
 
     if (ctrlMsg->motion_mode == NO_FOLLOW)
@@ -309,13 +341,11 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     {
         gyro_at_hurt(&VxyW, ctrlMsg); // 陀螺受伤时，开启变速小陀螺
     }
-
-    // 得到当前控制坐标系和底盘坐标系角度
-    angle = ctrlMsg->getYawAngel;
-
-    yawAngleOffset(VxyW.angvel, &angle); // 当小陀螺较快时执行yaw轴电机角度补偿
-
     // fol_isReverse = ctrlMsg->folIsReverse; /*本文件暂存*/
+
+    // 陀螺角度补偿
+    ctrlMsg->getYawAngel = Get_YAW_ANGLE_360f();
+    yawAngleOffset(real_xyw.angvel, &ctrlMsg->getYawAngel);
 
     return VxyW;
 }
@@ -455,6 +485,28 @@ int Set_Planner_init(void)
     return 1;
 }
 
+/* ---- 新息前馈补偿参数 ---- */
+// innovation = 正解算速度 - 卡尔曼预测速度
+// 打滑时正解算虚高 → innovation 为正大值 → 前馈输出负补偿，压低设定值
+#define INNOV_FF_GAIN       (-0.1f)  // 前馈增益（负号：innovation正=正解算虚高→需要减速补偿）
+#define INNOV_DEADZONE      (30.f)   // 前馈死区(mm/s)，小新息不响应，避免正常行驶时抖动
+
+/**
+ * @brief   新息前馈补偿计算
+ *          带死区的线性前馈，零延迟响应打滑
+ */
+static float Innovation_Feedforward(float innovation)
+{
+    if (fabsf(innovation) < INNOV_DEADZONE)
+        return 0.0f;
+    // 超过死区的部分做线性前馈
+    float sign = (innovation > 0.0f) ? 1.0f : -1.0f;
+    return INNOV_FF_GAIN * (innovation - sign * INNOV_DEADZONE);
+}
+
+#include "vofa.h"
+// float data_vofa[4]={0.0f,0.0f,0.0f,0.0f};
+extern PIDInstance fix_speed_x, fix_speed_y; // 速度闭环pid实例
 /*新修改的设定值规划s型曲线的速度趋势 并进行云台到底盘的坐标系转换*/
 void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
 {
@@ -471,18 +523,43 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     plan_acc_xyw.vel.y = set_planner_data[WHEEL_YSPEED].v;
     plan_acc_xyw.angvel = set_planner_data[WHEEL_ACSPEED].v;
 
-    if (ctrl.getYawAngel)
-    {
-        // 得到当前控制坐标系和底盘坐标系角度
-        angle = ctrl.getYawAngel;
-    }
+//     data_vofa[0] = ctrl.xyw.vel.x;
+//     data_vofa[1] = plan_xyw.vel.x;
+//     data_vofa[2] = plan_acc_xyw.vel.x;
+//     data_vofa[3] = set_planner_data[WHEEL_XSPEED].a;
+//  VOFA_Trans_Justfloat(4, data_vofa);
+//   PIDCalculate(&fix_speed_x, fused_speed_xy.x, plan_xyw.vel.x);
+//    PIDCalculate(&fix_speed_y, fused_speed_xy.y, plan_xyw.vel.y);
 
-    // Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
-    // Speed_xyw.angvel = plan_xyw.angvel;
-    // Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
-    // Force_xyw.angvel = plan_acc_xyw.angvel;
-     Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
-     Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
+
+//    /* ---- 新息前馈（零延迟打滑响应） ---- */
+//    float ff_x = Innovation_Feedforward(kalman_innovation_xy.x);
+//    float ff_y = Innovation_Feedforward(kalman_innovation_xy.y);
+
+//    data_vofa[0] = Speed_xyw.vel.x;
+//    data_vofa[1] = fused_speed_xy.x;
+//    data_vofa[2] = plan_xyw.vel.x;
+//    VOFA_Trans_Justfloat(sizeof(data_vofa), data_vofa);
+
+//    if(ctrl.motion_mode == FOLLOW_GIMBAL||ctrl.motion_mode == NO_FOLLOW)
+//    {
+
+//        plan_xyw.vel.x+=(ff_x + fix_speed_x.Output);
+//        plan_xyw.vel.y+=(ff_y + fix_speed_y.Output);
+//    }
+
+  // plan_xyw.vel.x+= fix_speed_x.Output;
+   //plan_xyw.vel.y+= fix_speed_y.Output;
+
+    // 得到当前控制坐标系和底盘坐标系角度
+    angle = ctrl.getYawAngel;
+
+    Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
+    Speed_xyw.angvel = plan_xyw.angvel;
+    Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
+    Force_xyw.angvel = plan_acc_xyw.angvel;
+    // Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
+    // Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
 // float update_input_limiter(float K_out)
 // {

@@ -44,10 +44,8 @@ float up_motor_angle_get[UP_MOTOR_NUM];   // 丝杆电机角度值
 
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
-
-// 抬升机构pid实例
+PIDInstance  fix_speed_x,fix_speed_y;
 PIDInstance up_machine_pid;
-
 // 底盘四个电机配置参数模板
 DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     // 右前轮
@@ -506,8 +504,8 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         .controller_param_init_config = {
             // todo pid参数
             .Angle_pid = {.Kp = 6.2, .Kd = 3, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 35,
-                          .MaxOut = 350, // 最大输出单位为RPM
-                          .DeadBand = 0.2
+                          .MaxOut = 350, // 最大输出单位为RPM,
+                          .DeadBand = 0.1,
 
             },
             .Speed_pid = {
@@ -561,7 +559,8 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             // todo pid参数
             .Angle_pid = {
                 .Kp = 6.2, .Kd = 3, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
-                .MaxOut = 350 // 最大输出单位为RPM
+                .MaxOut = 350 ,// 最大输出单位为RPM
+                .DeadBand = 0.1
             },
             .Speed_pid = {
                 .Kp = 32,
@@ -614,7 +613,8 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             // todo pid参数
             .Angle_pid = {
                 .Kp = 6.2, .Kd = 3, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
-                .MaxOut = 350 // 最大输出单位为RPM
+                .MaxOut = 350 ,// 最大输出单位为RPM
+                .DeadBand = 0.1,
             },
             .Speed_pid = {
                 .Kp = 32,
@@ -665,7 +665,8 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
          // todo pid参数
          .Angle_pid = {
              .Kp = 6.2, .Kd = 3, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
-             .MaxOut = 350 // 最大输出单位为RPM
+             .MaxOut = 350 ,// 最大输出单位为RPM,
+             .DeadBand = 0.1
          },
          .Speed_pid = {
              .Kp = 32,
@@ -997,6 +998,10 @@ void Follow_pid_init(void)
     pid_config.Ki = 0.2;
     pid_config.Kd = 18;
     pid_config.MaxOut = 14000;
+    pid_config.Kp = 60;
+    pid_config.Ki = 0.2;
+    pid_config.Kd = 18;
+    pid_config.MaxOut = 14000;
     pid_config.DeadBand = 5;
     pid_config.IntegralLimit = 400;
 
@@ -1006,11 +1011,36 @@ void Follow_pid_init(void)
     pid_config.Ki = 0;
     pid_config.Kd = 10;
     pid_config.MaxOut = 11000;
-    pid_config.DeadBand = 0.1;
+    pid_config.DeadBand = 0.5;
     pid_config.IntegralLimit = 400;
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
+void Fix_Speed_pid_init(void)
+{
+    PID_Init_Config_s pid_config;
+    rt_memset(&pid_config, 0, sizeof(pid_config));
+    pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
+
+    // 有新息前馈分担快速响应，PID只负责消除稳态误差
+    // Ki 降低 + 积分限幅收紧，避免打滑结束后积分回退造成"先正后反"
+    pid_config.Kp = 0.4;
+    pid_config.Ki = 0.005;
+    pid_config.Kd = 0.05;
+    pid_config.MaxOut = 2000;
+    pid_config.DeadBand = 10;
+    pid_config.IntegralLimit = 400;
+
+    PIDInit(&fix_speed_y, &pid_config);
+
+    pid_config.Kp = 0.4;
+    pid_config.Ki = 0.005;
+    pid_config.Kd = 0.05;
+    pid_config.MaxOut = 2000;
+    pid_config.DeadBand = 0.05;
+    pid_config.IntegralLimit = 400;
+    PIDInit(&fix_speed_x, &pid_config);
+}
 
 // 抬升机构pid初始化
 void Up_Machine_pid_init(void)

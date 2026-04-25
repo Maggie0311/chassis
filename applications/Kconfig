@@ -136,19 +136,19 @@ menu "Board function module"
         bool "Enable test chassis"
         default n   
 
-    menuconfig BSP_USING_VOFA    
-        bool "select using vofa"
-        depends on CORE_USING_TEST     
-        default n    
+    # menuconfig BSP_USING_VOFA    
+        # bool "select using vofa"
+        # depends on CORE_USING_TEST     
+        # default n    
 
-        config BSP_TEST_USART_NAME          #调试数据可视化串口
-            string "the specific vofa usart device"
-            depends on BSP_USING_VOFA     
-            default "uart3"
-        config BSP_TEST_USART_BOUD          #vofa波特率
-            int "the vofa usart bound"
-            depends on BSP_USING_VOFA 
-            default "115200"
+        # config BSP_TEST_USART_NAME          #调试数据可视化串口
+        #     string "the specific vofa usart device"
+        #     depends on BSP_USING_VOFA     
+        #     default "uart3"
+        # config BSP_TEST_USART_BOUD          #vofa波特率
+        #     int "the vofa usart bound"
+        #     depends on BSP_USING_VOFA 
+        #     default "115200"
 
     menuconfig CORE_USING_REMOTE        #遥控器直接调试底盘
         bool "use dji remote"

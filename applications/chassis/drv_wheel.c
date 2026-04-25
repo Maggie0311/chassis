@@ -3,6 +3,7 @@
 #include "app_monitor.h"
 #include "mod_Log.h"
 #include "robot_data.h"
+#include "Look.h"
 #include "robot_control.h"
 /*所有顺序为转向轮和驱动轮---RF-LF-LB-RB*/
 static struct rt_timer Cal_Timer;   /*线程定时器*/
@@ -34,6 +35,7 @@ static void PID_Cal_Thread(void)
     {
         rt_sem_take(&Cal_sem, RT_WAITING_FOREVER);
         SWDG_FEED(id);
+        Look_Cnt[1]++;//用于观测线程运行频率
 
 
        //Screw_Motor_Move(Forward_Screw_Motor, test_angle_up);
@@ -43,7 +45,7 @@ static void PID_Cal_Thread(void)
 
 #ifdef USE_CAPACITY_3
 
-          Power_Ctrl();
+        Power_Ctrl();
 #endif
 
         /*can报文发送*/
@@ -98,7 +100,7 @@ rt_err_t Wheels_Init(void)
                   "Cal_Timer",
                   Cal_IRQHandler,
                   RT_NULL,
-                  1,
+                  PID_CAL_PERIOD,
                   RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);//200Hz
 
     // 启动定时器

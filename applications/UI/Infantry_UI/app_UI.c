@@ -634,7 +634,7 @@ void Attach_UI_init()
 
     // 能量机关(视觉拟合状态和开启能量机关自瞄模式时显示)
     Attach_UI_Object(UiCircle, UiWhite, TRANS_ONCE, 1, UI_Aim_Point_Info);        // 能量机关中心图标圆圈
-    Attach_UI_Object(UiCircle, UiGreen, TRANS_ONCE, 1, UI_Aim_Point_Info_Hero_3);        // 能量机关中心图标圆圈
+//    Attach_UI_Object(UiCircle, UiGreen, TRANS_ONCE, 1, UI_Aim_Point_Info_Hero_3);        // 能量机关中心图标圆圈
 
 
 
@@ -725,16 +725,16 @@ void UI_If_Visual_Error_State_Change()
     UI_Checkout_Object_Change(UiExData.Visual_Error_State, last_visual_error_state, Visual_Working_EOK, UI_Aimbot_Err_Info);
     last_visual_error_state = UiExData.Visual_Error_State; // 更新视觉错误状态
 }
-// // 检查视觉最佳距离状态变化并更新中心弹道落点圆圈颜色
-// void UI_If_Aimbot_Best_Dis_Change()
-// {
-//      static uint8_t last_visual_target_found = 0; // 自瞄最佳距离上次保存状态
-//     if (last_visual_target_found != UiExData.visual_target_found)
-//     {
-//         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新准心颜色
-//     }
-//     last_visual_target_found = UiExData.visual_target_found; // 更新视觉识别标志
-// }
+// 检查视觉最佳距离状态变化并更新中心弹道落点圆圈颜色
+void UI_If_Aimbot_Best_Dis_Change()
+{
+     static uint8_t last_visual_target_found = 0; // 自瞄最佳距离上次保存状态
+    if (last_visual_target_found != UiExData.visual_target_found)
+    {
+        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新准心颜色
+    }
+    last_visual_target_found = UiExData.visual_target_found; // 更新视觉识别标志
+}
 // 检查视觉是否正常识别到敌人并更新准心颜色
 void UI_If_Visual_Target_Found_Change()
 {

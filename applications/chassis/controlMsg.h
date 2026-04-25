@@ -119,17 +119,18 @@ typedef float (*getYawAngelCallBack)(uint16_t arg); // 跟随角时yaw的角度,
 /*控制输入数据,--注意和Ctrl_data_t统一*/
 typedef struct
 {
-    Motion_mode_e mode; // 运动模式
-    float vel_x;        // 控制端所给数据单位:mm/s
-    float vel_y;        // 控制端所给数据单位:mm/s
-    float angvel;       // 控制端所给数据单位:0.1°/s
-    float pos_x;        // 偏心坐标点，单位(mm,mm)
-    float pos_y;        // 偏心坐标点，单位(mm,mm)
-    float dot_av;       // 绕点旋转角速度,单位0.1°/s
-    float fol_ang;      // 跟随角,单位°，范围(0,360°](俯视图下，底盘车头在云台枪管的逆时针方位 >0)
-    float getYawAngel;  // 跟随角时yaw的角度,单位°，范围[-0,360)
-                        // uint16_t arg;                    // 跟随得到角度的参数
-                        // uint8_t folIsReverse;            // 跟随时候，坐标系转化时角度是否取反
+    Motion_mode_e mode;              // 运动模式
+    float vel_x;                     // 控制端所给数据单位:mm/s
+    float vel_y;                     // 控制端所给数据单位:mm/s
+    float angvel;                    // 控制端所给数据单位:0.1°/s
+    float pos_x;                     // 偏心坐标点，单位(mm,mm)
+    float pos_y;                     // 偏心坐标点，单位(mm,mm)
+    float dot_av;                    // 绕点旋转角速度,单位0.1°/s
+    float fol_ang;                   // 跟随角,单位°，范围(0,360°](俯视图下，底盘车头在云台枪管的逆时针方位 >0)
+    float getYawAngel;               // 跟随角时yaw的角度,单位°，范围[-0,360)
+   // uint16_t arg;                    // 跟随得到角度的参数
+   // uint8_t folIsReverse;            // 跟随时候，坐标系转化时角度是否取反
+   unsigned sentryMode;
 
 } Ctrl_data_info_t;
 

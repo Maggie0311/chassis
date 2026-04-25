@@ -39,6 +39,11 @@
 // #define LB_Wheel_Azimuth (135.f)
 // #define RB_Wheel_Azimuth (-135.f)
 
+/*小陀螺角度补偿相关参数*/
+#define YAW_OFFSET_FAST (0.f) // 陀螺角度补偿
+#define YAW_OFFSET_SLOW (0.f) // 陀螺角度补偿
+
+
 #define KEY_C_FUN 1            // 超级电容C键功能选择：0:无功能;1:超电开关功能;2:电量保留功能
 #define SCAP_MAX_CURRENT (8.f) // 电容最大放电响应电流
 

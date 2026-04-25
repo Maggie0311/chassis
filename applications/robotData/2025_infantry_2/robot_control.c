@@ -8,6 +8,8 @@
 #include "robot_control.h"
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
+#include "Kalman.h"
+#include "drv_IMU_Can.h"
 
 #define WHEEL_MOTOR_NUM 4
 #define GIM_MOTOR_NUM 2
@@ -29,6 +31,14 @@ float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
+PIDInstance  fix_speed_x,fix_speed_y;
+
+// 卡尔曼滤波器实例
+Robotmotion_Kalman_t kf_vx; // X轴滤波器
+Robotmotion_Kalman_t kf_vy; // Y轴滤波器
+
+Vector2_t fused_speed_xy;
+Vector2_t kalman_innovation_xy;  // 卡尔曼新息，供外部前馈补偿使用
 
 // 底盘四个电机配置参数模板
 DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
@@ -60,7 +70,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
                 .speed_calc_Prescaler = 1,
 
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -103,7 +113,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -148,7 +158,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -193,7 +203,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -341,14 +351,51 @@ void Follow_pid_init(void)
     PIDInit(&follow_pid_slow, &pid_config);
 }
 
-static Mot_base_t Force_Allo_to_wheels(float motorSetForce[4], Mot_base_t *Force_xyw) // 进行加速度解算到各个轮子上
+void Fix_Speed_pid_init(void)
 {
-    Mot_base_t tarForce;                                                        // 电机输出轴上的力（N）
-    tarForce.vel.x = Force_xyw->vel.x * WEIGHT / 1000.f;                        // 整个底盘x方向力的平滑后设定值(N)
-    tarForce.vel.y = Force_xyw->vel.y * WEIGHT / 1000.f;                        // 整个底盘Y方向力的平滑后设定值(N)
-    tarForce.angvel = Force_xyw->angvel / 10.f * DEGTORAD * rotational_inertia; // 整个底盘扭矩的平滑后设定值(N·m)
+    PID_Init_Config_s pid_config;
+    rt_memset(&pid_config, 0, sizeof(pid_config));
+    pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    // Omni_Force_Resolve(tarForce, motorSetForce);
+    // 有新息前馈分担快速响应，PID只负责消除稳态误差
+    // Ki 降低 + 积分限幅收紧，避免打滑结束后积分回退造成"先正后反"
+    pid_config.Kp = 0.4;
+    pid_config.Ki = 0.005;
+    pid_config.Kd = 0.05;
+    pid_config.MaxOut = 2000;
+    pid_config.DeadBand = 10;
+    pid_config.IntegralLimit = 400;
+
+    PIDInit(&fix_speed_y, &pid_config);
+
+    pid_config.Kp = 0.4;
+    pid_config.Ki = 0.005;
+    pid_config.Kd = 0.05;
+    pid_config.MaxOut = 2000;
+    pid_config.DeadBand = 0.05;
+    pid_config.IntegralLimit = 400;
+    PIDInit(&fix_speed_x, &pid_config);
+}
+
+void Kalman_init(void)
+{
+    RobotMotion_Kalman_Init(&kf_vx,
+        0.001f,  // dt = 1ms（CHASSIS_CTRL_PERIOD = 1ms）
+        ACCEL_NOISE_STD,    // accel_noise_std：加速度标准差（m/s²），Q 由此推导
+        VELOCITY_NOISE_STD);  // velocity_noise_std：正解算速度噪声标准差（m/s），R 由此推导
+
+    RobotMotion_Kalman_Init(&kf_vy,
+        0.001f,
+        ACCEL_NOISE_STD,
+        VELOCITY_NOISE_STD);
+}
+
+float debug_gravity_ff =0;
+
+float gravity_feedforward(Mot_base_t Force_xyw)
+{
+    debug_gravity_ff = WEIGHT * imu_can_data.z_accel * 10.0f * arm_sin_f32(imu_can_data.pitch_angle * DEGTORAD) * 1000.0f; // 单位mN
+    return debug_gravity_ff;
 }
 
 // 摩擦力前馈计算 这里的数值是采集数据后在matlab中进行回归拟合得到的
@@ -369,6 +416,8 @@ static float RUN_wheel_forward_cal(float set)
     }
 }
 
+float debug_kb = 0.01f;//
+#define CLAMP(x, lo, hi) ((x) < (lo) ? (lo) : ((x) > (hi) ? (hi) : (x)))
 /**
  * @brief 将雅可比矩阵解算出的电机的力转换为电机的扭矩，进而转换为电流
  *
@@ -377,17 +426,23 @@ static float RUN_wheel_forward_cal(float set)
  */
 static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
 {
-    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+    float k_back = 1.0f + debug_kb * fabsf(imu_can_data.pitch_angle);
+    k_back = CLAMP(k_back, 1.0f, 1.5f);
+    // for (int i = 0; i < 2; i++)
+    // {
+    //     wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f +RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+    // }
+    // for (int i = 2; i < WHEEL_MOTOR_NUM; i++)
+    // {
+    //     wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] * k_back;
+    // }
+    for (int i = 0; i < 2; i++)
     {
-        if (wheel_motor[i].Motor_obj.reverse_flag == 1)
-        {
-
-            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
-        }
-        else
-        {
-            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = -motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f - RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
-        }
+        wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f * (2.0f - k_back) + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+    }
+    for (int i = 2; i < WHEEL_MOTOR_NUM; i++)
+    {
+        wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f *  k_back + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
     }
 }
 
@@ -399,15 +454,17 @@ static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
     }
 }
 
+
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
         //Omni_Resolve(*Speed_xyw, motorSetSpeed);
         Omni_Inverse_Kinematics_new(*Speed_xyw,45.0f, motorSetSpeed);
-        //  Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
-
-        // Get_force_out(motorSetForce); // 获取前馈值
+        float gravity_ff = gravity_feedforward(*Force_xyw);//加上重力前馈
+        Force_xyw->vel.x += gravity_ff;
+        Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
+        Get_force_out(motorSetForce); // 获取前馈值
     }
     if (1 == isSetValid_debug[1])
     {
@@ -423,5 +480,20 @@ void Forward_Kinematics(void)
     {
         temp[i] = wheel_motor[i].Motor_obj.speed;
     }
-    Omni_Forward_Kinematics(temp);
+    Omni_Forward_Kinematics_new(temp, 45.0f);
+
+    float fwd_vx = real_xyw.vel.x * 0.001f;  // m/s
+    float fwd_vy = real_xyw.vel.y * 0.001f;  // m/s
+
+    //完成预测 + 更新（自适应噪声）
+    RobotMotionKalman_AdaptiveProcess(&kf_vx, fwd_vx, imu_can_data.x_accel);
+    RobotMotionKalman_AdaptiveProcess(&kf_vy, fwd_vy, imu_can_data.y_accel);
+
+    //读取融合结果（m/s → mm/s）
+    fused_speed_xy.x = RobotMotionKalman_Getvelocity(&kf_vx)*1000.f;
+    fused_speed_xy.y = RobotMotionKalman_Getvelocity(&kf_vy)*1000.f;
+
+    //读取新息（m/s → mm/s），供外部前馈补偿
+    kalman_innovation_xy.x = RobotMotionKalman_GetInnovation(&kf_vx)*1000.f;
+    kalman_innovation_xy.y = RobotMotionKalman_GetInnovation(&kf_vy)*1000.f;
 }

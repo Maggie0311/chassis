@@ -41,6 +41,11 @@
 // #define LB_Wheel_Azimuth (135.f)
 // #define RB_Wheel_Azimuth (-135.f)
 
+/*小陀螺角度补偿相关参数*/
+#define YAW_OFFSET_FAST (0.f) // 陀螺角度补偿
+#define YAW_OFFSET_SLOW (0.f) // 陀螺角度补偿
+
+
 /*跟随角pid相关参数*/
 #define FOLLOW_PID_1 15, 0, 10, 0, 4000, -4000 // kp, ki, kd, i_lim, out_lim_up, out_lim_down   // 一直在跟随模式下的跟随角pid参数
 #define FOLLOW_PID_2 40, 0, 10, 0, 4000, -4000 // 由非跟随进入跟随时的跟随角pid参数，目的是为了实现非跟随模式下响应能够较快

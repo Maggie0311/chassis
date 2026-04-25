@@ -65,6 +65,9 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target, uint8_t up_or_down);
 #define Steer_Power_K2 (0.0107) //
 #define Steer_Power_C (0.f)        // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
 
+#define PID_CAL_PERIOD 5
+
 void Forward_Kinematics(void);
+void Fix_Speed_pid_init(void);
 
 #endif
