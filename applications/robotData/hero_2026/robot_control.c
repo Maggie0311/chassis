@@ -9,9 +9,6 @@
 #include "fun_powerCtrl.h"
 #include "drv_SPICAN.h"
 #include "DM_Motor.h"
-
-#include "DM_Motor.h"
-
 #include <arm_math.h>
 
 #define WHEEL_MOTOR_NUM 4
@@ -26,6 +23,8 @@
 
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
+DJI_3508_MotorInstance up_motor[UP_MOTOR_NUM];
+
 DJI_6020_MotorInstance steer_motor[STEER_MOTOR_NUM];
 DM_MotorInstance gim_motor[GIM_MOTOR_NUM];
 uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关*/
@@ -737,24 +736,7 @@ int chassis_motor_init()
      return ret;
 }
 
-DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
-    {
-        {
-            .motor_obj_init_config = {
-                .name = "Yaw_M",
-                .reverse_flag = MOTOR_DIRECTION_NORMAL,
-                .motor_type = DM4310,
-                .state = MOTOR_STATE_NOTCTRL,
-            },
-            .Motor_operate_setting = {
-                .Motor_Init = DM_Motor_Init,
-                .Motor_Enable = DM_Motor_Enable,
-                .Motor_Disable = DM_Motor_Disable,
-                .Motor_ErrorHandle = DM_Motor_ErrorHandle,
-                .Motor_RefreshData = DM_Motor_RefreshData,
-                .Motor_Control = NULL,
-                .Motor_Transmit = NULL,
-            },
+
 DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
     {
         {
@@ -795,26 +777,7 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
                 .DM_T_MIN = -18.f,
             },
         }
-            .can_init_config = {
-                .can_device_name = "can2",
-                .rx_id = 0x02,
-                .tx_id = NULL,
-                .can_module_callback = DM_Motor_RefreshData,
-                .parent = NULL,
-                .spi_slave=2
-            },
-            .DM_Motor_Measure_Init_Config = {
-                .RATIO = 1.0,
-                .ENCODER_LEN = 65535,
-                .ENCODER_ZERO_OFFSET = 5790,
-                .DM_P_MAX = 3.1415926f,
-                .DM_P_MIN = -3.1415926f,
-                .DM_V_MAX = 45.f,
-                .DM_V_MIN = -45.f,
-                .DM_T_MAX = 18.f,
-                .DM_T_MIN = -18.f,
-            },
-        }
+    
 
 };
 
