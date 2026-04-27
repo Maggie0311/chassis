@@ -761,14 +761,14 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
                 .can_device_name = "can2",
                 .rx_id = 0x02,
                 .tx_id = NULL,
-                .spi_slave = SpicanSlave_2,
                 .can_module_callback = DM_Motor_RefreshData,
                 .parent = NULL,
+                .spi_slave=NULL
             },
             .DM_Motor_Measure_Init_Config = {
                 .RATIO = 1.0,
                 .ENCODER_LEN = 65535,
-                .ENCODER_ZERO_OFFSET = 17350,//10850,
+                .ENCODER_ZERO_OFFSET = 5790,
                 .DM_P_MAX = 3.1415926f,
                 .DM_P_MIN = -3.1415926f,
                 .DM_V_MAX = 45.f,
@@ -777,19 +777,15 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
                 .DM_T_MIN = -18.f,
             },
         }
-    
 
 };
-
 
 
 int gim_motor_init()
 {
     int ret = 0;
     for (int i = 0; i < GIM_MOTOR_NUM; i++)
-    for (int i = 0; i < GIM_MOTOR_NUM; i++)
     {
-        ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_dm_motor_init_config[i]);
         ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_dm_motor_init_config[i]);
         if (ret != 0)
         {
