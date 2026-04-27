@@ -194,10 +194,10 @@ static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
     getRefData(memberGet_parm(get_temp_16, ext_game_robot_status, shooter_cooling_limit));
     gim_reftrans_msg1.cooling_limit = get_temp_16;
     /*枪口速度上限*/
-    gim_reftrans_msg1.speed_limit = Ref_Bullet_Speed_Limit();
+   // gim_reftrans_msg1.speed_limit = Ref_Bullet_Speed_Limit();
     /*枪口冷却具体值*/
-    //getRefData(memberGet_parm(get_temp_16, ext_buff_musk, cooling_buff));
-    //gim_reftrans_msg1.cooling_buff = get_temp_16;
+    getRefData(memberGet_parm(get_temp_16, ext_buff_musk, cooling_buff));
+    gim_reftrans_msg1.cooling_buff = get_temp_16;
 
     //! 因为协议修改导致字节数超了，但暂时配合云台调试
     memcpy(instance->tx_buff, &gim_reftrans_msg1, sizeof(gim_reftrans_msg1) < 8 ? sizeof(gim_reftrans_msg1) : 8);
@@ -223,34 +223,34 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
         gim_reftrans_msg2.isStartGame = 0;
 
     /*当装甲板受攻击时(距上次数据更新<20ms)返回受击装甲板id*/
-    if (IsRefDataValid(Index_robot_hurt, 20)) // 20ms内都相信此数据
-        gim_reftrans_msg2.hurtID = hurt.robot_hurt_armor;
-    else
-        gim_reftrans_msg2.hurtID = 0xFF;
+    // if (IsRefDataValid(Index_robot_hurt, 20)) // 20ms内都相信此数据
+    //     gim_reftrans_msg2.hurtID = hurt.robot_hurt_armor;
+    // else
+    //     gim_reftrans_msg2.hurtID = 0xFF;
 
-    /*获取己方颜色*/
-    gim_reftrans_msg2.tempColor = REF_TEAM_COLOR;
+    // /*获取己方颜色*/
+    // gim_reftrans_msg2.tempColor = REF_TEAM_COLOR;
 
-    /*己方前哨站是否存活*/
-    if (hurt.outpost_hp > 0)
-        gim_reftrans_msg2.ourOutpost = 1;
-    else
-        gim_reftrans_msg2.ourOutpost = 0;
+    // /*己方前哨站是否存活*/
+    // if (hurt.outpost_hp > 0)
+    //     gim_reftrans_msg2.ourOutpost = 1;
+    // else
+    //     gim_reftrans_msg2.ourOutpost = 0;
 
-    //! 配合云台调试
-    gim_reftrans_msg2.enermyOutpost = 0;
+    // //! 配合云台调试
+    // gim_reftrans_msg2.enermyOutpost = 0;
 
     /*哨兵：是否开火*/
-    // TODO:这是什么
-    uint32_t tick = 0;
-    static uint32_t lastMapTick;
-    tick = GetRefDataRefreshTick(Index_robot_command_map);
-    getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
-    if (get_temp_8 == 'F' && tick != lastMapTick)
-    {
-        lastMapTick = tick;
-        gim_reftrans_msg2.SentryIsFire = !gim_reftrans_msg2.SentryIsFire;
-    }
+    // // TODO:这是什么
+    // uint32_t tick = 0;
+    // static uint32_t lastMapTick;
+    // tick = GetRefDataRefreshTick(Index_robot_command_map);
+    // getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
+    // if (get_temp_8 == 'F' && tick != lastMapTick)
+    // {
+    //     lastMapTick = tick;
+    //     gim_reftrans_msg2.SentryIsFire = !gim_reftrans_msg2.SentryIsFire;
+    // }
 
 
     /*弹速*/
@@ -261,18 +261,20 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
     }
     else
         gim_reftrans_msg2.speed = 0;
+    getRefData(memberGet_parm(get_temp_float, ext_game_robot_pos, yaw));
+    { uint32_t _raw; rt_memcpy(&_raw, &get_temp_float, sizeof(float)); gim_reftrans_msg2.yaw_world_raw = _raw; }
 
     /*哨兵血量*/
-    getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
-    gim_reftrans_msg2.SentryHP = get_temp_16;
+    // getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
+    // gim_reftrans_msg2.SentryHP = get_temp_16;
 
-    /*云台手键盘信息*/
-    getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
-    gim_reftrans_msg2.commd_keyboard = get_temp_8;
+    // /*云台手键盘信息*/
+    // getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
+    // gim_reftrans_msg2.commd_keyboard = get_temp_8;
 
-    /*目标机器人ID（多机通信）*/
-    getRefData(memberGet_parm(get_temp_16, ext_robot_command_map, target_robot_ID));
-    gim_reftrans_msg2.target_robot_ID = get_temp_16;
+    // /*目标机器人ID（多机通信）*/
+    // getRefData(memberGet_parm(get_temp_16, ext_robot_command_map, target_robot_ID));
+    // gim_reftrans_msg2.target_robot_ID = get_temp_16;
 
     memcpy(instance->tx_buff, &gim_reftrans_msg2, sizeof(gim_reftrans_msg2) < 8 ? sizeof(gim_reftrans_msg2) : 8); // 写入报文
 }
