@@ -24,8 +24,8 @@ typedef __packed struct
     uint16_t cooling_heat;  // 枪口热量
     uint16_t cooling_rate;  // 枪口每秒冷却值
     uint16_t cooling_limit; // 枪口热量上限
-    uint16_t speed_limit;   // 枪口速度上限
-    // uint16_t cooling_buff;     // 枪口冷却具体值（直接值，值为 x 表示热量冷却增加 x/s）（26改）
+    //uint16_t speed_limit;   // 枪口速度上限
+     uint16_t cooling_buff;     // 枪口冷却具体值（直接值，值为 x 表示热量冷却增加 x/s）（26改）
     //! 字节超了
 } Gim_Reftrans1_t; // 发送给云台的枪口数据
 
@@ -34,17 +34,19 @@ typedef __packed struct
 {
     // 工作状态数据
     unsigned isStartGame : 1;   // 是否开始比赛(1为开始，0为未开始)
-    unsigned hurtID : 3;        // 装甲板ID，未受攻击时为FF
-    unsigned tempColor : 1;     // 红蓝方
-    unsigned ourOutpost : 1;    // 己方前哨战是否存活
-    unsigned enermyOutpost : 1; // 敌方前哨战是否存活
+    // unsigned hurtID : 3;        // 装甲板ID，未受攻击时为FF
+    // unsigned tempColor : 1;     // 红蓝方
+    // unsigned ourOutpost : 1;    // 己方前哨战是否存活
+    // unsigned enermyOutpost : 1; // 敌方前哨战是否存活
     unsigned speed : 16;        // 弹速
-    unsigned SentryHP : 16;     // 哨兵的血量
-#ifdef CORE_USING_SENTRY
-    unsigned SentryIsFire : 1;
-#endif
-    uint8_t commd_keyboard;   // 发送指令时，云台手按下的键盘信息 无按键按下则为 0
-    uint16_t target_robot_ID; // 要作用的目标机器人 ID           当发送位置信息时，该项为 0
+//     unsigned SentryHP : 16;     // 哨兵的血量
+// #ifdef CORE_USING_SENTRY
+//     unsigned SentryIsFire : 1;
+// #endif
+//     uint8_t commd_keyboard;   // 发送指令时，云台手按下的键盘信息 无按键按下则为 0
+//     uint16_t target_robot_ID; // 要作用的目标机器人 ID           当发送位置信息时，该项为 0
+    unsigned yaw_world_raw : 32; // 枪管朝向世界角原始位（IEEE 754 float，单位°，范围-180~180）
+    unsigned reserved : 15;      // 预留
 } Gim_Reftrans2_t;            // 发送给云台的裁判系统数据
 
 /*Rx*/

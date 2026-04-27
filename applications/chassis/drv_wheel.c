@@ -33,7 +33,7 @@ static void PID_Cal_Thread(void)
     {
         rt_sem_take(&Cal_sem, RT_WAITING_FOREVER);
         SWDG_FEED(id);
-        Look_Cnt[1]++;//用于观测线程运行频率
+        //Look_Cnt[1]++;//用于观测线程运行频率
 
         /*pid等电机控制计算*/
         Motor_Control_Loop();
