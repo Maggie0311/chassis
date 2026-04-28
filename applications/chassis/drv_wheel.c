@@ -73,7 +73,7 @@ rt_err_t Wheels_Init(void)
 #ifdef USE_CAPACITY_3
     powerCtrlInit();
 #endif
-  //  Zero_Init();
+    //Zero_Init();
     // 初始化信号量
     res = rt_sem_init(&Cal_sem, "PID_Cal_sem", 0, RT_IPC_FLAG_FIFO);
     if (res != RT_EOK)

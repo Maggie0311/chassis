@@ -81,7 +81,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x205, // TODO:设置ID
+            .rx_id = 0x201, // TODO:设置ID
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
@@ -127,7 +127,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x206, // TODO:设置ID
+            .rx_id = 0x202, // TODO:设置ID
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
@@ -175,7 +175,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x207, // TODO:设置ID
+            .rx_id = 0x203, // TODO:设置ID
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
@@ -223,7 +223,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x208, // TODO:设置ID
+            .rx_id = 0x204, // TODO:设置ID
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
@@ -334,7 +334,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 27.0,                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -380,7 +380,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 27.0,                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -409,7 +409,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         .controller_param_init_config = {
             .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 500},
             .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate|PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16384, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LB_set},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16384},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -428,7 +428,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 27.0,                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -456,8 +456,8 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         },
         .controller_param_init_config = {
             .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 500},
-            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate|PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 0, .DeadBand = 0.5,.ErrorHandleCallback=Zero_RB_set },
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
+            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate|PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16384, .DeadBand = 0.5,.ErrorHandleCallback=Zero_RB_set },
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16384},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -476,7 +476,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         .DJI3508_Motor_Measure_Init_Config = {
             .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
             .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 19.0,                // 搭配C620电调，默认减速比为19
+            .RATIO = 27.0,                // 搭配C620电调，默认减速比为19
             .ENCODER_LEN = 8192,
             .ENCODER_ZERO_OFFSET = 0.0,
         },
@@ -724,15 +724,14 @@ int chassis_motor_init()
         }
     }
     // todo 抬升机构
-    //for(int i=0;i<UP_MOTOR_NUM;i++)
-    // {
-    //     ret = Motor_Attach((MotorInstance *)&up_motor[i], (Motor_Init_Config_s *)&up_motor_init_config[i]);
-    //     if (ret != 0)
-    //     {
-    //         return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-    //     }
-    // }
-     return ret;
+    for(int i=0;i<UP_MOTOR_NUM;i++)
+    {
+        ret = Motor_Attach((MotorInstance *)&up_motor[i], (Motor_Init_Config_s *)&up_motor_init_config[i]);
+        if (ret != 0)
+        {
+            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+        }
+    }
      return ret;
 }
 
@@ -768,7 +767,7 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
             .DM_Motor_Measure_Init_Config = {
                 .RATIO = 1.0,
                 .ENCODER_LEN = 65535,
-                .ENCODER_ZERO_OFFSET = 5790,
+                .ENCODER_ZERO_OFFSET = 10354,
                 .DM_P_MAX = 3.1415926f,
                 .DM_P_MIN = -3.1415926f,
                 .DM_V_MAX = 45.f,
@@ -920,29 +919,38 @@ void Up_Motor_Angle_Read()
     }
 }
 
-// // 抬升机构对零点
-// void Up_Machine_Zero_Set(void)
-// {
-//     Screw_Motor_Move(Forward_Screw_Motor, 0); // todo
-//     Screw_Motor_Move(Back_Screw_Motor, 0);
-//     for (int i = 0; i < UP_MOTOR_NUM; i++)
-//     {
-//         if (up_motor[i].Motor_obj.Motor_ctrl.Angle_pid.ERRORHandler.ERRORType == PID_MOTOR_BLOCKED_ERROR) // 检测到堵转
-//         {
-//             Up_Motor_Angle_Read();
-//             up_motor_zero_offset[i] = up_motor_angle_get[i];
-//             if (i == 0 || i == 1)
-//             {
-//                 Screw_Motor_Move(Forward_Screw_Motor, up_motor_zero_offset[i]); // 前面、后面丝杆应该同步动
-//             }
-//             else
-//             {
-//                 Screw_Motor_Move(Back_Screw_Motor, up_motor_zero_offset[i]); // 前面、后面丝杆应该同步动
-//             }
-//             up_motor[i].Motor_obj.Motor_ctrl.Angle_pid.ERRORHandler.ERRORType = PID_ERROR_NONE; // 清除堵转错误
-//         }
-//     }
-// }
+// 抬升机构对零点
+void Up_Machine_Zero_Set(void)
+{
+   uint8_t zero_done[UP_MOTOR_NUM] = {0};
+   uint8_t remain = UP_MOTOR_NUM;
+
+   Screw_Motor_Move(Forward_Screw_Motor, -360, DOWN);
+   Screw_Motor_Move(Back_Screw_Motor, -360, DOWN);
+
+   for (uint16_t retry = 0; retry < 2000 && remain > 0; retry++)
+   {
+       Up_Motor_Angle_Read();
+       for (int i = 0; i < UP_MOTOR_NUM; i++)
+       {
+           if (zero_done[i] || up_motor[i].Motor_obj.Motor_ctrl.Angle_pid.ERRORHandler.ERRORType != PID_MOTOR_BLOCKED_ERROR)
+           {
+               continue;
+           }
+
+           up_motor_zero_offset[i] = up_motor_angle_get[i];
+           Motor_Set_Target((MotorInstance *)&up_motor[i], up_motor_zero_offset[i]);
+           up_motor[i].Motor_obj.Motor_ctrl.Angle_pid.ERRORHandler.ERRORType = PID_ERROR_NONE;
+           zero_done[i] = 1;
+           remain--;
+       }
+
+       if (remain > 0)
+       {
+           rt_thread_mdelay(1);
+       }
+   }
+}
 void Follow_pid_init(void)
 {
     PID_Init_Config_s pid_config;

@@ -25,26 +25,26 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target, uint8_t up_or_down);
 #define hero
 
 // TODO:调Pid这堆
-#define RUN_PID_Kp 180
-#define RUN_PID_Ki 1.2
+#define RUN_PID_Kp 100
+#define RUN_PID_Ki 0.5
 #define RUN_PID_Kd 0.8
 
 
 #define UP_PID_Kp_Angle 60
-#define UP_PID_Ki_Angle 0.3
-#define UP_PID_Kd_Angle 0
+#define UP_PID_Ki_Angle 0
+#define UP_PID_Kd_Angle 5
 
 #define UP_PID_Kp_Speed 35
-#define UP_PID_Ki_Speed 0
-#define UP_PID_Kd_Speed 13
+#define UP_PID_Ki_Speed 0.1
+#define UP_PID_Kd_Speed 0
 
-#define DOWN_PID_Kp_Angle 20
-#define DOWN_PID_Ki_Angle 0.1
-#define DOWN_PID_Kd_Angle 0
+#define DOWN_PID_Kp_Angle 15
+#define DOWN_PID_Ki_Angle 0
+#define DOWN_PID_Kd_Angle 5
 
 #define DOWN_PID_Kp_Speed 10
-#define DOWN_PID_Ki_Speed 0
-#define DOWN_PID_Kd_Speed 2
+#define DOWN_PID_Ki_Speed 0.02
+#define DOWN_PID_Kd_Speed 0
 
 
 #define UP 0

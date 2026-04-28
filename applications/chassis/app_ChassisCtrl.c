@@ -41,8 +41,8 @@ extern float motor_speed[4];
 static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
-     //debug_fixctrl=Cctrl;
-    //fixCtrl = debug_fixctrl;
+     debug_fixctrl=Cctrl;
+    fixCtrl = debug_fixctrl;
 //#ifdef CORE_USING_HERO
 //    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
 //    {
@@ -150,7 +150,7 @@ static rt_err_t chassisCtrlInit(void)
   //  Kalman_init();
 #ifdef CORE_USING_HERO
     //抬升机构对零点
-    //Up_Machine_Zero_Set();
+    Up_Machine_Zero_Set();
     // 抬升机构前移pid初始化
     Up_Machine_pid_init();
 #endif

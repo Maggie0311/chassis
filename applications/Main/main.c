@@ -110,18 +110,18 @@ int main(void)
         LOG_I("Gimbal_Com Init Success!");
     }
 
-    /*IMU CAN接收*/
-    result = IMU_Can_Init();
-    if (result != RT_EOK)
-    {
-        LOG_E("IMU_Can_Init Failes! Result is %d", result);
-        LOG_E("Robot Reset!");
-        Robot_Chassis_Reset(RT_TRUE);
-    }
-    else
-    {
-        LOG_I("IMU_Can_Init Success!");
-    }
+    // /*IMU CAN接收*/
+    // result = IMU_Can_Init();
+    // if (result != RT_EOK)
+    // {
+    //     LOG_E("IMU_Can_Init Failes! Result is %d", result);
+    //     LOG_E("Robot Reset!");
+    //     Robot_Chassis_Reset(RT_TRUE);
+    // }
+    // else
+    // {
+    //     LOG_I("IMU_Can_Init Success!");
+    // }
 
     /* 控制 */
     result = Chassis_Ctrl_Init();
