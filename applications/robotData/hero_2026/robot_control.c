@@ -9,6 +9,7 @@
 #include "fun_powerCtrl.h"
 #include "drv_SPICAN.h"
 #include "DM_Motor.h"
+#include "Wheel_data.h"
 #include <arm_math.h>
 
 #define WHEEL_MOTOR_NUM 4
@@ -246,6 +247,7 @@ void Zero_RF_set(PIDInstance *pid)
         up_motor_zero_offset[0] = up_motor[0].Motor_obj.total_angle;
         Motor_Set_Target((MotorInstance *)&up_motor[0], up_motor_zero_offset[0]);
         init_flag = 0;
+        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
     }
 }
 void Zero_LF_set(PIDInstance *pid)
@@ -256,6 +258,7 @@ void Zero_LF_set(PIDInstance *pid)
         up_motor_zero_offset[1] = up_motor[1].Motor_obj.total_angle;
         Motor_Set_Target((MotorInstance *)&up_motor[1], up_motor_zero_offset[1]);
         init_flag = 0;
+        up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
     }
 }
 void Zero_LB_set(PIDInstance *pid)
@@ -266,6 +269,7 @@ void Zero_LB_set(PIDInstance *pid)
         up_motor_zero_offset[2] = up_motor[2].Motor_obj.total_angle;
         Motor_Set_Target((MotorInstance *)&up_motor[2], up_motor_zero_offset[2]);
         init_flag = 0;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
     }
 }
 void Zero_RB_set(PIDInstance *pid)
@@ -276,6 +280,7 @@ void Zero_RB_set(PIDInstance *pid)
         up_motor_zero_offset[3] = up_motor[3].Motor_obj.total_angle;
         Motor_Set_Target((MotorInstance *)&up_motor[3], up_motor_zero_offset[3]);
         init_flag = 0;
+        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
     }
 }
 
@@ -314,7 +319,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
 
         .controller_param_init_config = {
             .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit, .MaxOut = 500},
-            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate |PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16384, .DeadBand = 0.5,.ErrorHandleCallback = Zero_RF_set,},
+            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit  |PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 5000, .MaxOut = 1384, .DeadBand = 0.5,.ErrorHandleCallback = Zero_RF_set,},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16384},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
@@ -360,7 +365,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         },
         .controller_param_init_config = {
             .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 500},
-            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate|PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut =16384, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LF_set},
+            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle, .IntegralLimit = 5000, .MaxOut =1380, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LF_set},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16384},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
@@ -408,8 +413,8 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         },
         .controller_param_init_config = {
             .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 500},
-            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate|PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16384, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LB_set},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16384},
+            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = 0, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 1000, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LB_set},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -456,8 +461,8 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         },
         .controller_param_init_config = {
             .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 500},
-            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate|PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16384, .DeadBand = 0.5,.ErrorHandleCallback=Zero_RB_set },
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16384},
+            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = 0, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle,  .IntegralLimit = 5000, .MaxOut = 1000, .DeadBand = 0.5,.ErrorHandleCallback=Zero_RB_set },
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -646,19 +651,19 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 3013.0,
+            .ENCODER_ZERO_OFFSET = 2812.0,
             .ctrl_mode = CTRL_MODE_CURRENT,
         },
     },
     // 右后
     {.motor_obj_init_config = {.name = "steer_RB", .reverse_flag = MOTOR_DIRECTION_REVERSE, .motor_type = GM6020, .state = MOTOR_STATE_NEED_INIT, .power_ctrl_type = POWER_CTRL_STEER}, .Motor_operate_setting = {
-                                                                                                                                                                                            .Motor_Init = DJI_6020_Motor_Init,
-                                                                                                                                                                                            .Motor_Enable = DJI_6020_Motor_Enable,
-                                                                                                                                                                                            .Motor_Disable = DJI_6020_Motor_Disable,
-                                                                                                                                                                                            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
-                                                                                                                                                                                            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
-                                                                                                                                                                                            .Motor_Control = NULL,
-                                                                                                                                                                                            .Motor_Transmit = DJI_6020_Motor_Transmit,
+            .Motor_Init = DJI_6020_Motor_Init,
+            .Motor_Enable = DJI_6020_Motor_Enable,
+            .Motor_Disable = DJI_6020_Motor_Disable,
+            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
+            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
+            .Motor_Control = NULL,
+            .Motor_Transmit = DJI_6020_Motor_Transmit,
                                                                                                                                                                                         },
      .controller_param_init_config = {
          // todo pid参数
@@ -767,7 +772,7 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_MOTOR_NUM] =
             .DM_Motor_Measure_Init_Config = {
                 .RATIO = 1.0,
                 .ENCODER_LEN = 65535,
-                .ENCODER_ZERO_OFFSET = 10354,
+                .ENCODER_ZERO_OFFSET = 53220,
                 .DM_P_MAX = 3.1415926f,
                 .DM_P_MIN = -3.1415926f,
                 .DM_V_MAX = 45.f,
@@ -814,57 +819,57 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
     if (motor == Forward_Screw_Motor&&up_or_down==UP)
     {
         up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle;
-        up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Ki=UP_PID_Ki_Angle;
-        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Angle;
-        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Kd=UP_PID_Ki_Angle;
+        up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
+        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed;
+        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
 
-        up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle;
-        up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Ki=UP_PID_Ki_Angle;
-        up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed;  
-        up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kd=UP_PID_Ki_Speed;
+        up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle-10;
+        up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle-1;
+        up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed-5;  
+        up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
         Motor_Set_Target((MotorInstance *)&up_motor[0], target+up_motor_zero_offset[0]); // TODO
-        Motor_Set_Target((MotorInstance *)&up_motor[1], target+up_motor_zero_offset[1]); // TODO
+        Motor_Set_Target((MotorInstance *)&up_motor[1], target+15+up_motor_zero_offset[1]); // TODO
     }
 
     else if(motor == Forward_Screw_Motor&&up_or_down==DOWN)
     {
         up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle;
-        up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Ki=DOWN_PID_Ki_Angle;
-        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Angle;
-        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Kd=DOWN_PID_Ki_Angle;
+        up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
+        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
+        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
 
         up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle;        
-        up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Ki=DOWN_PID_Ki_Angle;
+        up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
-        up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kd=DOWN_PID_Ki_Speed;
+        up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
         Motor_Set_Target((MotorInstance *)&up_motor[0], target+up_motor_zero_offset[0]); // TODO
         Motor_Set_Target((MotorInstance *)&up_motor[1], target+up_motor_zero_offset[1]); // TODO
     }
     else if (motor == Back_Screw_Motor&&up_or_down==UP)
     {
         up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Ki=UP_PID_Ki_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kd=UP_PID_Ki_Angle;
+        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
 
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle;
-        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Ki=UP_PID_Ki_Angle;
+        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed;
-        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kd=UP_PID_Ki_Speed;
+        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
         Motor_Set_Target((MotorInstance *)&up_motor[2], target+up_motor_zero_offset[2]); // TODO
         Motor_Set_Target((MotorInstance *)&up_motor[3], target+up_motor_zero_offset[3]); // TODO
     }
     else if(motor == Back_Screw_Motor&&up_or_down==DOWN)
     {
         up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Ki=DOWN_PID_Ki_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kd=DOWN_PID_Ki_Angle;
+        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
 
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle;        
-        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Ki=DOWN_PID_Ki_Angle;
+        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
-        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kd=DOWN_PID_Ki_Speed;
+        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
         Motor_Set_Target((MotorInstance *)&up_motor[2], target+up_motor_zero_offset[2]); // TODO
         Motor_Set_Target((MotorInstance *)&up_motor[3], target+up_motor_zero_offset[3]); // TODO
     }
@@ -901,13 +906,29 @@ int If_Target_Reached(Screw_Motor_e motor)
         }
     }
 }
-// 读取轮向电机速度值
+// 读取轮向电机速度值并积分得到位移
+float position=0;
+static rt_tick_t pos_last_tick = 0;
+static float pos_intigral[2] = {0};
 void Motor_Speed_Read()
 {
     for (int i = 0; i < UP_MOTOR_NUM; i++)
     {
-        motor_speed[i] = wheel_motor[i].Motor_obj.speed;
+        motor_speed[i] = 3.1416f*wheel_motor[i].Motor_obj.speed*WHEEL_RADIUS*2.f/60.f;
     }
+
+    rt_tick_t now_tick = rt_tick_get();
+    if (pos_last_tick == 0)
+    {
+        pos_last_tick = now_tick;
+        return;
+    }
+    float dt = (now_tick - pos_last_tick) / 1000.0f;
+    pos_last_tick = now_tick;
+
+    pos_intigral[0] += motor_speed[2] * dt;
+    pos_intigral[1] += motor_speed[3] * dt;
+    position = (pos_intigral[0] + pos_intigral[1]) / 2.0f;
 }
 
 // 读取抬升机构电机角度值
