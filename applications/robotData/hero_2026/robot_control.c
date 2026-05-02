@@ -28,6 +28,8 @@ DJI_3508_MotorInstance up_motor[UP_MOTOR_NUM];
 
 DJI_6020_MotorInstance steer_motor[STEER_MOTOR_NUM];
 DM_MotorInstance gim_motor[GIM_MOTOR_NUM];
+extern SecondOrder_Set_Follow_t set_planner_up_motor[UP_MOTOR_NUM];
+
 uint8_t isSetValid_debug[2] = {1, 1};       /*debug*,1为开，0为关*/
 float up_motor_zero_offset[UP_MOTOR_NUM]; // 轮毂电机零点
       
@@ -815,6 +817,10 @@ int gim_motor_init()
 void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
 {
 
+    SecondOrder_Set_Follow_Cal(&set_planner_up_motor[0], target, 0.0f);
+    SecondOrder_Set_Follow_Cal(&set_planner_up_motor[1], target, 0.0f); 
+    SecondOrder_Set_Follow_Cal(&set_planner_up_motor[2], target, 0.0f); 
+    SecondOrder_Set_Follow_Cal(&set_planner_up_motor[3], target, 0.0f); 
 
     if (motor == Forward_Screw_Motor&&up_or_down==UP)
     {
@@ -827,8 +833,9 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
         up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle-1;
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed-5;  
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
-        Motor_Set_Target((MotorInstance *)&up_motor[0], target+up_motor_zero_offset[0]); // TODO
-        Motor_Set_Target((MotorInstance *)&up_motor[1], target+15+up_motor_zero_offset[1]); // TODO
+
+        Motor_Set_Target((MotorInstance *)&up_motor[0], set_planner_up_motor[0].p+ up_motor_zero_offset[0]); // TODO
+        Motor_Set_Target((MotorInstance *)&up_motor[1], set_planner_up_motor[1].p+ up_motor_zero_offset[1]); // TODO
     }
 
     else if(motor == Forward_Screw_Motor&&up_or_down==DOWN)
@@ -842,8 +849,8 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
         up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
-        Motor_Set_Target((MotorInstance *)&up_motor[0], target+up_motor_zero_offset[0]); // TODO
-        Motor_Set_Target((MotorInstance *)&up_motor[1], target+up_motor_zero_offset[1]); // TODO
+        Motor_Set_Target((MotorInstance *)&up_motor[0], set_planner_up_motor[0].p+ up_motor_zero_offset[0]); // TODO
+        Motor_Set_Target((MotorInstance *)&up_motor[1], set_planner_up_motor[1].p+ up_motor_zero_offset[1]); // TODO
     }
     else if (motor == Back_Screw_Motor&&up_or_down==UP)
     {
@@ -856,8 +863,8 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
-        Motor_Set_Target((MotorInstance *)&up_motor[2], target+up_motor_zero_offset[2]); // TODO
-        Motor_Set_Target((MotorInstance *)&up_motor[3], target+up_motor_zero_offset[3]); // TODO
+        Motor_Set_Target((MotorInstance *)&up_motor[2], set_planner_up_motor[2].p+ up_motor_zero_offset[2]); // TODO
+        Motor_Set_Target((MotorInstance *)&up_motor[3], set_planner_up_motor[3].p+ up_motor_zero_offset[3]); // TODO
     }
     else if(motor == Back_Screw_Motor&&up_or_down==DOWN)
     {
@@ -870,8 +877,8 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
-        Motor_Set_Target((MotorInstance *)&up_motor[2], target+up_motor_zero_offset[2]); // TODO
-        Motor_Set_Target((MotorInstance *)&up_motor[3], target+up_motor_zero_offset[3]); // TODO
+        Motor_Set_Target((MotorInstance *)&up_motor[2], set_planner_up_motor[2].p+ up_motor_zero_offset[2]); // TODO
+        Motor_Set_Target((MotorInstance *)&up_motor[3], set_planner_up_motor[3].p+ up_motor_zero_offset[3]); // TODO
     }
 }
 /**

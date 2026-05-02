@@ -142,6 +142,7 @@ static rt_err_t chassisCtrlInit(void)
     // MotSmooth_Vxyw_init(); /*初始化平滑和模式及切换时的基本数据*/
     Set_Planner_init(); // 新修改的设定值规划结构体初始化
 
+    Set_Planner_Up_motor_init();//抬升机构四个电机设定值规划结构体初始化
     // 跟随模式PID初始化
     Follow_pid_init();
     //全局速度PID初始化

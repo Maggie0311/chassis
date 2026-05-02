@@ -5,10 +5,11 @@
 #include "robot_data.h"
 #include "Look.h"
 #include "robot_control.h"
+#include "drv_SetPlanning.h"
+
 /*所有顺序为转向轮和驱动轮---RF-LF-LB-RB*/
 static struct rt_timer Cal_Timer;   /*线程定时器*/
 static struct rt_semaphore Cal_sem; /*线程信号量*/
-
 /**
  * @brief 定时器回调,用于唤醒电机pid计算线程
  *
@@ -38,11 +39,12 @@ static void PID_Cal_Thread(void)
         //Look_Cnt[1]++;//用于观测线程运行频率
 
         Screw_Motor_Move(Forward_Screw_Motor, test_angle, test_angle_up);
-      //  Screw_Motor_Move(Back_Screw_Motor, test_angle, test_angle_up);
 
-       //Screw_Motor_Move(Forward_Screw_Motor, test_angle_up);
-      //  Screw_Motor_Move(Back_Screw_Motor,test_angle);
-      Motor_Speed_Read();
+        //  Screw_Motor_Move(Back_Screw_Motor, test_angle, test_angle_up);
+
+        // Screw_Motor_Move(Forward_Screw_Motor, test_angle_up);
+        //  Screw_Motor_Move(Back_Screw_Motor,test_angle);
+        Motor_Speed_Read();
        
 
         /*pid等电机控制计算*/

@@ -17,6 +17,7 @@
 
 extern PIDInstance follow_pid_fast, follow_pid_slow;         // 跟随角pid实例
 SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0}; // 设定值规划
+SecondOrder_Set_Follow_t set_planner_up_motor[4] = {0};         // 抬升机构设定值规划
 Mot_base_t Force_xyw = {0};
 Mot_base_t Speed_xyw = {0};
 
@@ -485,6 +486,14 @@ int Set_Planner_init(void)
     return 1;
 }
 
+int Set_Planner_Up_motor_init(void)
+{
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[0], 10, 50, PLAN_PERIOD);
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[1], 10, 50, PLAN_PERIOD);
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[2], 10, 50, PLAN_PERIOD);
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[3], 10, 50, PLAN_PERIOD);
+
+}
 /* ---- 新息前馈补偿参数 ---- */
 // innovation = 正解算速度 - 卡尔曼预测速度
 // 打滑时正解算虚高 → innovation 为正大值 → 前馈输出负补偿，压低设定值
