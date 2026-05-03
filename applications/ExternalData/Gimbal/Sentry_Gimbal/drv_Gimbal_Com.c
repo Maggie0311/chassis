@@ -354,6 +354,7 @@ rt_err_t Gimbal_Com_Init(void)
     /*注册发送can通信*/
     res += Gimbal_comTx_Attach(Shooter_msg_Index, GIMBAL_SHOOT_TX, Gimbal_RefShootdataGet_Tx);
     res += Gimbal_comTx_Attach(Mixed_msg_Index, GIMBAL_MIXDATA_TX, Gimbal_RefdataGet_Tx);
+    
     if (res)
     {
         LOG_E("gim_Tx_msg init failed, err=%d", res);
