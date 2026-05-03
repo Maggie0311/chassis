@@ -21,7 +21,7 @@ static void Cal_IRQHandler(void *parameter) //
 }
 
 
-float test_angle = 0.0f,test_angle_up=1.f;
+float test_angle = 0.0f,test_angle_up=1.f,test_angle_b = 0.0f,test_angle_up_b=1.f;
 // 电机控制部分
 //  车轮pid计算线程
 //   该线程总的来说是根据外部(Chassis_Ctrl_Thread)计算出来的底盘设定值来进行pid计算并发送数据给电机
@@ -38,8 +38,11 @@ static void PID_Cal_Thread(void)
         SWDG_FEED(id);
         //Look_Cnt[1]++;//用于观测线程运行频率
 
-        Screw_Motor_Move(Forward_Screw_Motor, test_angle, test_angle_up);
-
+        if(Zero_Check() == 4)
+        {
+          Screw_Motor_Move(Forward_Screw_Motor, test_angle, test_angle_up);
+          Screw_Motor_Move(Back_Screw_Motor, test_angle_b, test_angle_up_b);
+        }
         //  Screw_Motor_Move(Back_Screw_Motor, test_angle, test_angle_up);
 
         // Screw_Motor_Move(Forward_Screw_Motor, test_angle_up);
@@ -80,7 +83,7 @@ rt_err_t Wheels_Init(void)
 #ifdef USE_CAPACITY_3
     powerCtrlInit();
 #endif
-    //Zero_Init();
+    Zero_Init();
     // 初始化信号量
     res = rt_sem_init(&Cal_sem, "PID_Cal_sem", 0, RT_IPC_FLAG_FIFO);
     if (res != RT_EOK)

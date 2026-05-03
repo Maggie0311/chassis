@@ -151,7 +151,7 @@ static rt_err_t chassisCtrlInit(void)
   //  Kalman_init();
 #ifdef CORE_USING_HERO
     //抬升机构对零点
-    Up_Machine_Zero_Set();
+    
     // 抬升机构前移pid初始化
     Up_Machine_pid_init();
 #endif

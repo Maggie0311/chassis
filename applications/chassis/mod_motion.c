@@ -486,12 +486,14 @@ int Set_Planner_init(void)
     return 1;
 }
 
+#define UP_MOTOR_MAX_VEL 50
+#define UP_MOTOR_MAX_ACC 100
 int Set_Planner_Up_motor_init(void)
 {
-    SecondOrder_Set_Follow_init(&set_planner_up_motor[0], 10, 50, PLAN_PERIOD);
-    SecondOrder_Set_Follow_init(&set_planner_up_motor[1], 10, 50, PLAN_PERIOD);
-    SecondOrder_Set_Follow_init(&set_planner_up_motor[2], 10, 50, PLAN_PERIOD);
-    SecondOrder_Set_Follow_init(&set_planner_up_motor[3], 10, 50, PLAN_PERIOD);
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[0], UP_MOTOR_MAX_VEL, UP_MOTOR_MAX_ACC, PLAN_PERIOD);
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[1], UP_MOTOR_MAX_VEL, UP_MOTOR_MAX_ACC, PLAN_PERIOD);
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[2], UP_MOTOR_MAX_VEL, UP_MOTOR_MAX_ACC, PLAN_PERIOD);
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[3], UP_MOTOR_MAX_VEL, UP_MOTOR_MAX_ACC, PLAN_PERIOD);
 
 }
 /* ---- 新息前馈补偿参数 ---- */

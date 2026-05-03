@@ -240,7 +240,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .ENCODER_ZERO_OFFSET = 0.0,
         },
     }};
-
+uint8_t ZERO_SUCCESS = 0;
 void Zero_RF_set(PIDInstance *pid)
 {
     static uint8_t init_flag =1;
@@ -250,6 +250,7 @@ void Zero_RF_set(PIDInstance *pid)
         Motor_Set_Target((MotorInstance *)&up_motor[0], up_motor_zero_offset[0]);
         init_flag = 0;
         up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
+        ZERO_SUCCESS++;
     }
 }
 void Zero_LF_set(PIDInstance *pid)
@@ -261,6 +262,7 @@ void Zero_LF_set(PIDInstance *pid)
         Motor_Set_Target((MotorInstance *)&up_motor[1], up_motor_zero_offset[1]);
         init_flag = 0;
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
+        ZERO_SUCCESS++;
     }
 }
 void Zero_LB_set(PIDInstance *pid)
@@ -271,7 +273,8 @@ void Zero_LB_set(PIDInstance *pid)
         up_motor_zero_offset[2] = up_motor[2].Motor_obj.total_angle;
         Motor_Set_Target((MotorInstance *)&up_motor[2], up_motor_zero_offset[2]);
         init_flag = 0;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;\
+        ZERO_SUCCESS++;
     }
 }
 void Zero_RB_set(PIDInstance *pid)
@@ -283,19 +286,26 @@ void Zero_RB_set(PIDInstance *pid)
         Motor_Set_Target((MotorInstance *)&up_motor[3], up_motor_zero_offset[3]);
         init_flag = 0;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
+        ZERO_SUCCESS++;
     }
+}
+uint8_t Zero_Check(void)
+{
+    return ZERO_SUCCESS;
 }
 
 
 
 
-// void Zero_Init()
-// {
-//    Motor_Set_Target((MotorInstance *)&up_motor[0], -500);
-//    Motor_Set_Target((MotorInstance *)&up_motor[1], -500);
-//    Motor_Set_Target((MotorInstance *)&up_motor[2], -500);
-//    Motor_Set_Target((MotorInstance *)&up_motor[3], -500);
-// }
+
+
+void Zero_Init()
+{
+   Motor_Set_Target((MotorInstance *)&up_motor[0], -500);
+   Motor_Set_Target((MotorInstance *)&up_motor[1], -500);
+   Motor_Set_Target((MotorInstance *)&up_motor[2], -500);
+   Motor_Set_Target((MotorInstance *)&up_motor[3], -500);
+}
 // 抬升机构四个电机初始化
 //todo 前两轮活动范围外转子450度，后0到五百二十度
 DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
@@ -367,7 +377,7 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         },
         .controller_param_init_config = {
             .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 500},
-            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle, .IntegralLimit = 5000, .MaxOut =1380, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LF_set},
+            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle, .IntegralLimit = 5000, .MaxOut =1000, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LF_set},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16384},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
@@ -948,37 +958,7 @@ void Up_Motor_Angle_Read()
 }
 
 // 抬升机构对零点
-void Up_Machine_Zero_Set(void)
-{
-   uint8_t zero_done[UP_MOTOR_NUM] = {0};
-   uint8_t remain = UP_MOTOR_NUM;
 
-   Screw_Motor_Move(Forward_Screw_Motor, -360, DOWN);
-   Screw_Motor_Move(Back_Screw_Motor, -360, DOWN);
-
-   for (uint16_t retry = 0; retry < 2000 && remain > 0; retry++)
-   {
-       Up_Motor_Angle_Read();
-       for (int i = 0; i < UP_MOTOR_NUM; i++)
-       {
-           if (zero_done[i] || up_motor[i].Motor_obj.Motor_ctrl.Angle_pid.ERRORHandler.ERRORType != PID_MOTOR_BLOCKED_ERROR)
-           {
-               continue;
-           }
-
-           up_motor_zero_offset[i] = up_motor_angle_get[i];
-           Motor_Set_Target((MotorInstance *)&up_motor[i], up_motor_zero_offset[i]);
-           up_motor[i].Motor_obj.Motor_ctrl.Angle_pid.ERRORHandler.ERRORType = PID_ERROR_NONE;
-           zero_done[i] = 1;
-           remain--;
-       }
-
-       if (remain > 0)
-       {
-           rt_thread_mdelay(1);
-       }
-   }
-}
 void Follow_pid_init(void)
 {
     PID_Init_Config_s pid_config;
