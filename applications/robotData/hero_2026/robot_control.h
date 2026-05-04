@@ -40,6 +40,7 @@ float get_power_lim_speed(float power_max);
 #define Steer_Power_K1 (0.2769f)//(10.f)      //
 #define Steer_Power_K2 (0.0107) //
 #define Steer_Power_C (0.f)        // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
+#define WHEELS_GROUP_NUM 4
 
 #define PID_CAL_PERIOD 5
 

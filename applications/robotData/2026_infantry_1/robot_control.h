@@ -35,6 +35,7 @@ void Follow_pid_init(void);
 // #define Steer_Power_C_sum (10.0f)  // 固定静态功率（换板子也会影响该数据）
 
 #define PID_CAL_PERIOD 1
+#define WHEELS_GROUP_NUM 4
 /*电机初始化*/
 int chassis_motor_init();
 int gim_motor_init();

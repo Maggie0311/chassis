@@ -30,10 +30,10 @@
 
 /*轮子相关数据*/
 #define USING_OMNI_RESOLVE
-#define VEHICLE_LONG (331.26f)     // 前后轮间距（用于麦轮和舵轮解算），单位mm
-#define VEHICLE_WIDTH (331.26f)    // 左右轮间距（用于麦轮和舵轮解算），单位mm
-#define VEHICLE_DIAMETER (468.47f) // 对角轮间距（用于计算全向轮解算），单位mm
-#define WHEEL_RADIUS (81.5f)       // 轮子半径 单位毫米
+#define VEHICLE_LONG (421.78f)     // 前后轮间距（用于麦轮和舵轮解算），单位mm
+#define VEHICLE_WIDTH (421.78f)    // 左右轮间距（用于麦轮和舵轮解算），单位mm
+#define VEHICLE_DIAMETER (596.47f) // 对角轮间距（用于计算全向轮解算），单位mm
+#define WHEEL_RADIUS (63.5f)       // 轮子半径 单位毫米
 
 // // 底盘方位角参数,底盘正前方为0°，逆时针为正方向,单位/°，在舵向电机正解算时需要
 // #define RF_Wheel_Azimuth (-45.f)

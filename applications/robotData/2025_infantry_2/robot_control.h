@@ -38,7 +38,7 @@ void Follow_pid_init(void);
 #define ACCEL_NOISE_STD 0.2f    //越大：更信正解算速度，跟随快但噪声大；越小：更信 IMU 积分，平滑但响应慢
 #define VELOCITY_NOISE_STD 0.2f //越大： 更信 IMU，抗打滑能力强；越小：更信正解算，跟随快
 #define PID_CAL_PERIOD 1
-
+#define WHEELS_GROUP_NUM 4
 extern Vector2_t fused_speed_xy;
 extern Vector2_t kalman_innovation_xy;  // 卡尔曼新息(mm/s)，用于前馈补偿
 

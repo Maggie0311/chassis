@@ -16,6 +16,9 @@
 #define WHEEL_LF 1
 #define WHEEL_LH 2
 #define WHEEL_RH 3
+#define TRACK_R 4
+#define TRACK_L 5
+
 
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
@@ -65,7 +68,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x201, // TODO:设置ID
+            .rx_id = 0x202, // TODO:设置ID
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
@@ -82,7 +85,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LF",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -108,7 +111,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x202, // TODO:设置ID
+            .rx_id = 0x203, // TODO:设置ID
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
@@ -153,7 +156,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x203, // TODO:设置ID
+            .rx_id = 0x204, // TODO:设置ID
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
@@ -171,7 +174,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LR",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .reverse_flag = MOTOR_DIRECTION_NORMAL,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -198,7 +201,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
         .can_init_config = {
             .can_device_name = "can1",
-            .rx_id = 0x204, // TODO:设置ID
+            .rx_id = 0x201, // TODO:设置ID
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
@@ -212,20 +215,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
     }};
 
-int chassis_motor_init()
-{
-    int ret = 0;
-    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
-    {
-        ret = Motor_Attach((MotorInstance *)&wheel_motor[i], (Motor_Init_Config_s *)&wheel_motor_init_config[i]);
-        Power_Motor_Attach((MotorInstance *)&wheel_motor[i]);
-        if (ret != 0)
-        {
-            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-        }
-    }
-    return ret;
-}
+
 
 //新增履带电机配置模板
 DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
@@ -237,7 +227,7 @@ DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
-            .index = 0,
+            .index = TRACK_R,
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,
@@ -260,8 +250,8 @@ DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
             .Feedforward_Type = FEEDFORWARD_NONE,
         },
         .can_init_config = {
-            .can_device_name = "can1",
-            .rx_id = 0x205, // TODO:设置ID
+            .can_device_name = "can2",
+            .rx_id = 0x207, // TODO:设置ID
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
@@ -281,7 +271,7 @@ DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
-            .index = 0,
+            .index = TRACK_L,
         },
         .Motor_operate_setting = {
             .Motor_Init = DJI_3508_Motor_Init,
@@ -304,8 +294,8 @@ DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
             .Feedforward_Type = FEEDFORWARD_NONE,
         },
         .can_init_config = {
-            .can_device_name = "can1",
-            .rx_id = 0x205, // TODO:设置ID
+            .can_device_name = "can2",
+            .rx_id = 0x206, // TODO:设置ID
             .tx_id = 0x200,
             .can_module_callback = DJI_3508_Motor_RefreshData,
             .parent = NULL,
@@ -334,7 +324,21 @@ int track_motor_init()
     }
     return ret;
 }
-
+int chassis_motor_init()
+{
+    int ret = 0;
+    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+    {
+        ret = Motor_Attach((MotorInstance *)&wheel_motor[i], (Motor_Init_Config_s *)&wheel_motor_init_config[i]);
+        Power_Motor_Attach((MotorInstance *)&wheel_motor[i]);
+        if (ret != 0)
+        {
+            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+        }
+    }
+    track_motor_init();
+    return ret;
+}
 DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
     // YAW轴电机
     {
@@ -391,7 +395,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
 
      .can_init_config = {
          .can_device_name = "can2",
-         .rx_id = 0x207, // TODO:设置ID
+         .rx_id = 0x206, // TODO:设置ID
          .tx_id = NULL,
          .can_module_callback = DJI_6020_Motor_RefreshData,
          .parent = NULL,
@@ -409,21 +413,21 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
 
 int gim_motor_init()
 {
-    int ret = 0;
-    for (int i = 0; i < GIM_MOTOR_NUM; i++)
-    {
-        ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_motor_init_config[i]);
-        if (ret != 0)
-        {
-            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-        }
-        ret = Gim_Motor_Attach((MotorInstance *)&gim_motor[i]);
-        if (ret != 0)
-        {
-            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-        }
-    }
-    return ret;
+    // int ret = 0;
+    // for (int i = 0; i < GIM_MOTOR_NUM; i++)
+    // {
+    //     ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_motor_init_config[i]);
+    //     if (ret != 0)
+    //     {
+    //         return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+    //     }
+    //     ret = Gim_Motor_Attach((MotorInstance *)&gim_motor[i]);
+    //     if (ret != 0)
+    //     {
+    //         return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+    //     }
+    // }
+    // return ret;
 }
 
 void Follow_pid_init(void)

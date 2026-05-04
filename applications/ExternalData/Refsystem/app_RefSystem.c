@@ -157,18 +157,18 @@ void Ref_Bulid_If_Hurt(void *data)
         }
 }
 
-#include "vofa.h"
-     float vofa_data[3]={0,0,0};
-void vofa_look(void *data){
-    ext_game_robot_pos_t *ext_game_robot_pos = (ext_game_robot_pos_t *)data;
+// #include "vofa.h"
+//      float vofa_data[3]={0,0,0};
+// void vofa_look(void *data){
+//     ext_game_robot_pos_t *ext_game_robot_pos = (ext_game_robot_pos_t *)data;
 
 
-     vofa_data[0] = ext_game_robot_pos->x;
-     vofa_data[1] = ext_game_robot_pos->y;
-   //  gim_reftrans_msg2.yaw_world_raw = ext_game_robot_pos->yaw;
-		vofa_data[2]=ext_game_robot_pos->yaw;
-     VOFA_Trans_Justfloat(3, vofa_data);
-}
+//      vofa_data[0] = ext_game_robot_pos->x;
+//      vofa_data[1] = ext_game_robot_pos->y;
+//    //  gim_reftrans_msg2.yaw_world_raw = ext_game_robot_pos->yaw;
+// 		vofa_data[2]=ext_game_robot_pos->yaw;
+//      VOFA_Trans_Justfloat(3, vofa_data);
+// }
 
 /*裁判系统数据加工*/
 
@@ -295,7 +295,7 @@ rt_err_t Ref_Init(void)
     Attach_Ref_rec_callback(Index_game_robot_survivors,Ref_Bulid_If_Hurt);
     Attach_Ref_rec_callback(Index_game_robot_status,Ref_Robot_ID);
     Attach_Ref_rec_callback(Index_robot_hurt,Ref_Robot_Set_Hurt);
-    Attach_Ref_rec_callback(Index_game_robot_pos, vofa_look);
+   // Attach_Ref_rec_callback(Index_game_robot_pos, vofa_look);
 
     return res;
 }

@@ -32,7 +32,7 @@
 #define SAFE_MIN 1e-12f // 防止除零的最小值
 #define WHEEL_RUN 0
 #define WHEEL_ANGLE 1
-#define WHEELS_GROUP_NUM 4
+
 
 Power_info_t PowerInfo;
 PowerCtrl_t PowerCtrl;
