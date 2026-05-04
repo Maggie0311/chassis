@@ -20,7 +20,7 @@ static void Cal_IRQHandler(void *parameter) //
     rt_sem_release(&Cal_sem);
 }
 
-
+uint8_t up_flag=0;
 float test_angle = 0.0f,test_angle_up=1.f,test_angle_b = 0.0f,test_angle_up_b=1.f;
 // 电机控制部分
 //  车轮pid计算线程
@@ -39,10 +39,11 @@ static void PID_Cal_Thread(void)
         //Look_Cnt[1]++;//用于观测线程运行频率
 
         if(Zero_Check() == 4)
-        {
+          //up_flag = 1;
+         // if(up_flag)
           Screw_Motor_Move(Forward_Screw_Motor, test_angle, test_angle_up);
-          Screw_Motor_Move(Back_Screw_Motor, test_angle_b, test_angle_up_b);
-        }
+        //  Screw_Motor_Move(Back_Screw_Motor, test_angle_b, test_angle_up_b);}
+        
         //  Screw_Motor_Move(Back_Screw_Motor, test_angle, test_angle_up);
 
         // Screw_Motor_Move(Forward_Screw_Motor, test_angle_up);

@@ -70,12 +70,13 @@ typedef enum
     SLOW_GYRO,         // 慢陀螺
     FAST_GYRO,         // 快陀螺
     CHANGE_GYRO,       // 变速陀螺
-    CHASS_STOP_RESET,  // 底盘立即停止并在一段时间后复位（平步）
-    FOLLOWBACK_GIMBAL, // 反向跟随
-    MOVE_BACK,         // 倒车
-    CHASS_AUTO,        // 底盘自主
-    JUMP,              // 跳跃
+    CHASSIS_DANGLING_X,
     GO_UPSTAIRS,       // 上台阶
+    CHASS_AUTO,
+    // FOLLOWBACK_GIMBAL, // 反向跟随
+    // MOVE_BACK,         // 倒车        // 底盘自主
+    // JUMP,              // 跳跃
+    
     MOTION_MODE_NUM,
 } Motion_mode_e;
 

@@ -70,5 +70,5 @@ uint8_t Zero_Check(void);
 
 void Forward_Kinematics(void);
 void Fix_Speed_pid_init(void);
-
+void chasis_dangling_x(void);
 #endif

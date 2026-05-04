@@ -391,7 +391,7 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
     switch (*status)
     {
     case Forward_Screw_Move_Up:
-     //   Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_UP_Target);
+     //   Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_UP_Target,0);
         Vxyw.vel.x = 0;
         Vxyw.vel.y = 0;
         Vxyw.angvel = 0;
@@ -416,7 +416,7 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         Vxyw.vel.x = 0;
         Vxyw.vel.y = 0;
         Vxyw.angvel = 0;
-        // Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_Down_Target);
+        // Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_Down_Target,1);
         reach_flag = If_Target_Reached(Forward_Screw_Motor);
         i_last_tick = rt_tick_get();
         if (reach_flag == 1)

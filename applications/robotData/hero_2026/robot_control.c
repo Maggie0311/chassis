@@ -1114,3 +1114,11 @@ float get_power_lim_speed(float power_max)
         speed_max = 1000;
     return speed_max;
 }
+
+void chasis_dangling_x(void)
+{
+     Motor_Set_Target((MotorInstance *)&steer_motor[0],-45 ); 
+     Motor_Set_Target((MotorInstance *)&steer_motor[1],45 ); 
+     Motor_Set_Target((MotorInstance *)&steer_motor[2],-45 ); 
+     Motor_Set_Target((MotorInstance *)&steer_motor[3],45 ); 
+}
