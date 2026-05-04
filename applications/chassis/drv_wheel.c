@@ -41,9 +41,10 @@ static void PID_Cal_Thread(void)
         if(Zero_Check() == 4)
           //up_flag = 1;
          // if(up_flag)
+				{
           Screw_Motor_Move(Forward_Screw_Motor, test_angle, test_angle_up);
-        //  Screw_Motor_Move(Back_Screw_Motor, test_angle_b, test_angle_up_b);}
-        
+          Screw_Motor_Move(Back_Screw_Motor, test_angle_b, test_angle_up_b);
+        }
         //  Screw_Motor_Move(Back_Screw_Motor, test_angle, test_angle_up);
 
         // Screw_Motor_Move(Forward_Screw_Motor, test_angle_up);

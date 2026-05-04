@@ -555,7 +555,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 2237.0,
+            .ENCODER_ZERO_OFFSET = 2257.0,
             .ctrl_mode = CTRL_MODE_CURRENT,
         }},
 
@@ -609,7 +609,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 6987.0,
+            .ENCODER_ZERO_OFFSET = 7037.0,
             .ctrl_mode = CTRL_MODE_CURRENT,
         },
     },
@@ -663,7 +663,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 2812.0,
+            .ENCODER_ZERO_OFFSET = 5685.0,
             .ctrl_mode = CTRL_MODE_CURRENT,
         },
     },
@@ -715,7 +715,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
          .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
          .RATIO = 1.0,
          .ENCODER_LEN = 8192,
-         .ENCODER_ZERO_OFFSET = 4624.0,
+         .ENCODER_ZERO_OFFSET = 4494.0,
          .ctrl_mode = CTRL_MODE_CURRENT,
      }}};
 int chassis_motor_init()
@@ -826,14 +826,18 @@ int gim_motor_init()
  */
 void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
 {
-
-    SecondOrder_Set_Follow_Cal(&set_planner_up_motor[0], target, 0.0f);
-    SecondOrder_Set_Follow_Cal(&set_planner_up_motor[1], target, 0.0f); 
-    SecondOrder_Set_Follow_Cal(&set_planner_up_motor[2], target, 0.0f); 
-    SecondOrder_Set_Follow_Cal(&set_planner_up_motor[3], target, 0.0f); 
-
-    if (motor == Forward_Screw_Motor&&up_or_down==UP)
+   if(motor == Forward_Screw_Motor)
     {
+        SecondOrder_Set_Follow_Cal(&set_planner_up_motor[0], target, 0.0f);
+        SecondOrder_Set_Follow_Cal(&set_planner_up_motor[1], target, 0.0f); 
+    }
+    else
+   { 
+       SecondOrder_Set_Follow_Cal(&set_planner_up_motor[2], target, 0.0f); 
+       SecondOrder_Set_Follow_Cal(&set_planner_up_motor[3], target, 0.0f); 
+    }
+    if (motor == Forward_Screw_Motor&&up_or_down==UP)
+     {
         up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle;
         up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
         up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed;
@@ -849,7 +853,7 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
     }
 
     else if(motor == Forward_Screw_Motor&&up_or_down==DOWN)
-    {
+     { 
         up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle;
         up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
         up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;

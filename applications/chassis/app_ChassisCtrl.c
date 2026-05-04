@@ -44,12 +44,12 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
      debug_fixctrl=Cctrl;
     fixCtrl = debug_fixctrl;
 #ifdef CORE_USING_HERO
-   if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
-   {
-       Motor_Speed_Read();                                // 获取底盘轮向电机速度
-       fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
-       fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
-   }
+//    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
+//    {
+//        Motor_Speed_Read();                                // 获取底盘轮向电机速度
+//        fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
+//        fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
+//    }
 #endif
 
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
