@@ -43,8 +43,8 @@ Ctrl_data_t debug_fixctrl;
 static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
-   fixCtrl = debug_fixctrl;
-   /// debug_fixctrl = fixCtrl;
+   //fixCtrl = debug_fixctrl;
+    debug_fixctrl = fixCtrl;
 
 
     
