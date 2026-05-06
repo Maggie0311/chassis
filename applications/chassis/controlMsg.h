@@ -107,12 +107,15 @@ typedef enum
 {
     Forward_Screw_Move_Up,
     Chassis_Move_Forward,
+    Chassis_Move_Back,
     Forward_Screw_Move_Down,
     Chassis_Move_Forward_Twice,
     Back_Screw_Move_Up,
     Chassis_Move_Forward_Third,
     Back_Screw_Move_Down,
     Up_Stairs_Finished,
+    Down_Stairs_Finished,
+    Pre_To_Down,
 } Machine_Status;
 
 typedef float (*getYawAngelCallBack)(uint16_t arg); // 跟随角时yaw的角度,单位°，范围[-180,180)

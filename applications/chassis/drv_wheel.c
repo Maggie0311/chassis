@@ -6,7 +6,9 @@
 #include "Look.h"
 #include "robot_control.h"
 #include "drv_SetPlanning.h"
-
+#include "app_ChassisCtrl.h"
+extern uint8_t test_stair;
+extern uint8_t  test_stair_down;
 /*所有顺序为转向轮和驱动轮---RF-LF-LB-RB*/
 static struct rt_timer Cal_Timer;   /*线程定时器*/
 static struct rt_semaphore Cal_sem; /*线程信号量*/
@@ -38,9 +40,9 @@ static void PID_Cal_Thread(void)
         SWDG_FEED(id);
         //Look_Cnt[1]++;//用于观测线程运行频率
 
-        if(Zero_Check() == 4)
+        if(Zero_Check() == 4&&test_stair==0&&test_stair_down==0)
           //up_flag = 1;
-         // if(up_flag)
+        //  if(up_flag)
 				{
           Screw_Motor_Move(Forward_Screw_Motor, test_angle, test_angle_up);
           Screw_Motor_Move(Back_Screw_Motor, test_angle_b, test_angle_up_b);

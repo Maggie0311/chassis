@@ -20,7 +20,7 @@
 #define GYRO_ANGEL_MINLIM (6.0f) // 陀螺模式下上坡角度阈值，单位度，超过此角度时不论功率如何都开始限制旋转保证平移性
 
 // 英雄抬升机构电机目标角度
-#define Screw_Motor_UP_Target (0.0f)   // TODO
+#define Screw_Motor_UP_Target (480.0f)   // TODO
 #define Screw_Motor_Down_Target (0.0f) // TODO
 #define Screw_Motor_ZeroOffset (0.0f)  // TODO
 
@@ -98,5 +98,6 @@ Vector2_t MotModule_Transform(Vector2_t speed, float theta);
 
 // 抬升机构状态机
 Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4]);
+Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4]);
 
 #endif

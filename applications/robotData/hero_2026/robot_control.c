@@ -247,8 +247,9 @@ void Zero_RF_set(PIDInstance *pid)
     if (init_flag)
     {
         up_motor_zero_offset[0] = up_motor[0].Motor_obj.total_angle;
-        Motor_Set_Target((MotorInstance *)&up_motor[0], up_motor_zero_offset[0]);
+        Motor_Set_Target((MotorInstance *)&up_motor[0], up_motor_zero_offset[0]+5);
         init_flag = 0;
+        up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.MaxOut=500;
         up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
         ZERO_SUCCESS++;
     }
@@ -259,8 +260,9 @@ void Zero_LF_set(PIDInstance *pid)
     if (init_flag)
     {
         up_motor_zero_offset[1] = up_motor[1].Motor_obj.total_angle;
-        Motor_Set_Target((MotorInstance *)&up_motor[1], up_motor_zero_offset[1]);
+        Motor_Set_Target((MotorInstance *)&up_motor[1], up_motor_zero_offset[1]+5);
         init_flag = 0;
+        up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.MaxOut=500;
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
         ZERO_SUCCESS++;
     }
@@ -271,9 +273,10 @@ void Zero_LB_set(PIDInstance *pid)
     if (init_flag)
     {
         up_motor_zero_offset[2] = up_motor[2].Motor_obj.total_angle;
-        Motor_Set_Target((MotorInstance *)&up_motor[2], up_motor_zero_offset[2]);
+        Motor_Set_Target((MotorInstance *)&up_motor[2], up_motor_zero_offset[2]+5);
         init_flag = 0;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;\
+        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.MaxOut=500;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
         ZERO_SUCCESS++;
     }
 }
@@ -283,8 +286,9 @@ void Zero_RB_set(PIDInstance *pid)
     if (init_flag)
     {
         up_motor_zero_offset[3] = up_motor[3].Motor_obj.total_angle;
-        Motor_Set_Target((MotorInstance *)&up_motor[3], up_motor_zero_offset[3]);
+        Motor_Set_Target((MotorInstance *)&up_motor[3], up_motor_zero_offset[3]+5);
         init_flag = 0;
+        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.MaxOut=500;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
         ZERO_SUCCESS++;
     }
@@ -293,10 +297,6 @@ uint8_t Zero_Check(void)
 {
     return ZERO_SUCCESS;
 }
-
-
-
-
 
 
 void Zero_Init()
@@ -330,8 +330,8 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit, .MaxOut = 500},
-            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit  |PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 5000, .MaxOut = 1384, .DeadBand = 0.5,.ErrorHandleCallback = Zero_RF_set,},
+            .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit, .MaxOut = 300},
+            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit  |PID_ErrorHandle, .IntegralLimit = 5000, .MaxOut = 3000, .DeadBand = 0.5,.ErrorHandleCallback = Zero_RF_set,},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16384},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
@@ -376,8 +376,8 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
         .controller_param_init_config = {
-            .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 500},
-            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle, .IntegralLimit = 5000, .MaxOut =1000, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LF_set},
+            .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 300},
+            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle, .IntegralLimit = 5000, .MaxOut =3000, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LF_set},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16384},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
@@ -424,8 +424,8 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 500},
-            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = 0, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 1000, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LB_set},
+            .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 300},
+            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle, .IntegralLimit = 3000, .MaxOut = 3000, .DeadBand = 0.5,.ErrorHandleCallback=Zero_LB_set},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
@@ -472,8 +472,8 @@ DJI_3508_Motor_Init_Config_s up_motor_init_config[UP_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 500},
-            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = 0, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle,  .IntegralLimit = 5000, .MaxOut = 1000, .DeadBand = 0.5,.ErrorHandleCallback=Zero_RB_set },
+            .Angle_pid = {.Kp = DOWN_PID_Kp_Angle, .Ki = DOWN_PID_Ki_Angle, .Kd = DOWN_PID_Kd_Angle, .Improve = PID_Integral_Limit , .MaxOut = 300},
+            .Speed_pid = {.Kp = DOWN_PID_Kp_Speed, .Ki = DOWN_PID_Ki_Speed, .Kd = DOWN_PID_Kd_Speed, .Improve = PID_Integral_Limit |PID_ErrorHandle,  .IntegralLimit = 5000, .MaxOut = 3000, .DeadBand = 0.5,.ErrorHandleCallback=Zero_RB_set },
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 16000},
             .Closeloop_Type = SPEED_LOOP|MULTI_ANGLE_LOOP,
             .Calc_Pre = {
@@ -868,14 +868,14 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
     }
     else if (motor == Back_Screw_Motor&&up_or_down==UP)
     {
-        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle;
+        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle+20;
         up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed+5;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
 
-        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle;
+        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle+20;
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
-        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed;
+        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed+5;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
         Motor_Set_Target((MotorInstance *)&up_motor[2], set_planner_up_motor[2].p+ up_motor_zero_offset[2]); // TODO
         Motor_Set_Target((MotorInstance *)&up_motor[3], set_planner_up_motor[3].p+ up_motor_zero_offset[3]); // TODO
@@ -895,6 +895,19 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
         Motor_Set_Target((MotorInstance *)&up_motor[3], set_planner_up_motor[3].p+ up_motor_zero_offset[3]); // TODO
     }
 }
+
+int If_Ready_To_Down(float target)
+{
+ 
+   up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=2000;
+   up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=2000;
+//     Motor_Set_Target((MotorInstance *)&up_motor[2], -400);
+//    Motor_Set_Target((MotorInstance *)&up_motor[3], -400);
+   if(fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 300.0f&&fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) <300.f)
+   return 1;
+   else 
+   return 0;
+}
 /**
  * @brief 判断电机是否到达目标角度
  *
@@ -902,11 +915,11 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
  * @param move 电机移动方向
  * @return int 1为到达目标角度，0为未到达目标角度
  */
-int If_Target_Reached(Screw_Motor_e motor)
+int If_Target_Reached(Screw_Motor_e motor,float target)
 {
     if (motor == Forward_Screw_Motor)
     {
-        if (fabsf(up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Err) < 5.0f && fabsf(up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Err) < 5.0f)
+        if (fabsf(up_motor[0].Motor_obj.total_angle-target-up_motor_zero_offset[0]) < 5.0f && fabsf(target+up_motor_zero_offset[1]-up_motor[1].Motor_obj.total_angle) < 5.0f)
         {
             return 1;
         }
@@ -917,7 +930,7 @@ int If_Target_Reached(Screw_Motor_e motor)
     }
     else if (motor == Back_Screw_Motor)
 {
-    if (fabsf(up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Err) < 5.0f && fabsf(up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Err) < 5.0f)
+   if (fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 5.0f && fabsf(target+up_motor_zero_offset[3]-up_motor[3].Motor_obj.total_angle) < 5.0f)
         {
             return 1;
         }
@@ -928,7 +941,7 @@ int If_Target_Reached(Screw_Motor_e motor)
     }
 }
 // 读取轮向电机速度值并积分得到位移
-float position=0;
+//float position=0;
 static rt_tick_t pos_last_tick = 0;
 static float pos_intigral[2] = {0};
 void Motor_Speed_Read()
@@ -949,7 +962,7 @@ void Motor_Speed_Read()
 
     pos_intigral[0] += motor_speed[2] * dt;
     pos_intigral[1] += motor_speed[3] * dt;
-    position = (pos_intigral[0] + pos_intigral[1]) / 2.0f;
+    //position = (pos_intigral[0] + pos_intigral[1]) / 2.0f;
 }
 
 // 读取抬升机构电机角度值
@@ -1029,10 +1042,10 @@ void Up_Machine_pid_init(void)
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 0; // TODO
+    pid_config.Kp = 8; // TODO
     pid_config.Ki = 0;
-    pid_config.Kd = 0;
-    pid_config.MaxOut = 0;
+    pid_config.Kd = 4;
+    pid_config.MaxOut = 400;
     pid_config.DeadBand = 0;
     pid_config.IntegralLimit = 0;
     PIDInit(&up_machine_pid, &pid_config);

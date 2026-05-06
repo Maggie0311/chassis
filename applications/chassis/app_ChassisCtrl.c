@@ -29,7 +29,7 @@ static void ChassCtrl_IRQHandler(void *parameter)
 {
     rt_sem_release(&ChassCtrl_sem);
 }
-
+uint8_t test_stair=0,test_stair_down=0;
 // debug
 Ctrl_data_t debug_fixctrl;
 Machine_Status status=Forward_Screw_Move_Up;
@@ -46,17 +46,26 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 #ifdef CORE_USING_HERO
 //    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
 //    {
-//        Motor_Speed_Read();                                // 获取底盘轮向电机速度
-//        fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
-//        fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
-//    }
+    if(test_stair)
+    {
+        Motor_Speed_Read();                                // 获取底盘轮向电机速度
+       fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
+       fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
+   }
+   else if(test_stair_down)
+   {
+    Motor_Speed_Read();                                // 获取底盘轮向电机速度
+       fixCtrl.xyw = Down_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
+       fixCtrl.motion_mode = GO_UPSTAIRS;   
+
+   }
 #endif
 
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
 #ifdef CORE_USING_HERO
-    // case GO_UPSTAIRS: // 英雄上台阶
-    //     break;
+    case GO_UPSTAIRS: // 英雄上台阶
+        break;
     case CHASSIS_DANGLING_X: // 底盘悬空X轴
         chasis_dangling_x();
         break;
@@ -93,7 +102,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     //  修改pid的设定值
     //  chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
 		if(fixCtrl.motion_mode!=CHASSIS_DANGLING_X)
-    chassis_ctrl(&Speed_xyw, &Force_xyw);
+             chassis_ctrl(&Speed_xyw, &Force_xyw);
 }
 
 uint32_t rt_tick = 0;
