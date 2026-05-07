@@ -270,6 +270,10 @@ uint8_t move_at_no_follow(Ctrl_data_t *const fixCtrl)
     {
         ret = 1;
     }
+    #ifdef CORE_USING_2026_INFANTRY_2
+     ret = 0;
+
+    #endif
     return ret;
 }
 
@@ -346,6 +350,10 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
 
     // 陀螺角度补偿
     ctrlMsg->getYawAngel = Get_YAW_ANGLE_360f();
+     #ifdef CORE_USING_2026_INFANTRY_2
+     if(ctrlMsg->motion_mode == NO_FOLLOW)
+        ctrlMsg->getYawAngel=0;
+    #endif
     yawAngleOffset(real_xyw.angvel, &ctrlMsg->getYawAngel);
 
     return VxyW;
