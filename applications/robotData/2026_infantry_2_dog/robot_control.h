@@ -24,8 +24,8 @@ void Follow_pid_init(void);
 
 #define Power_C_sum (4.0f) // 固定静态功率（换板子也会影响该数据）
 
-#define Wheel_Power_K1 (50.f)       //(4.5e+02) //(1.15e+02) //(1.0e+02)
-#define Wheel_Power_K2 (0.00097)   //(1.0e-07) //(6.0e-07)  //(4.1e-07)
+#define Wheel_Power_K1 (487.8)//(50.f)       //(4.5e+02) //(1.15e+02) //(1.0e+02)
+#define Wheel_Power_K2 (0.00057)//(0.00097)   //(1.0e-07) //(6.0e-07)  //(4.1e-07)
 #define Wheel_Power_C (7.f)     
 // #define Wheel_Power_C_sum (6.0f)   // 固定静态功率（换板子也会影响该数据）
 // TODO 此处参数需要测试修改

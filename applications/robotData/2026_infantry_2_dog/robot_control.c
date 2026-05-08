@@ -57,8 +57,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Speed_pid = {.Kp = RUN_PID_Kp+30, .Ki = RUN_PID_Ki+0.5, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit , .CoefA = 502.0, .CoefB = 2.0, .IntegralLimit = 6000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -101,8 +101,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Speed_pid = {.Kp = RUN_PID_Kp+30, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd+0.5, .Improve = PID_Integral_Limit , .CoefA = 502.0, .CoefB = 2.0, .IntegralLimit = 4500, .MaxOut = 16000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 15000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -146,8 +146,8 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Speed_pid = {.Kp = RUN_PID_Kp+10, .Ki = RUN_PID_Ki+0.5, .Kd = RUN_PID_Kd+0.5, .Improve = PID_Integral_Limit , .CoefA = 502.0, .CoefB = 2.0, .IntegralLimit = 6000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 13000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
@@ -191,7 +191,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit , .CoefA = 502.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -240,7 +240,7 @@ DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit , .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -267,7 +267,7 @@ DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Track_LF",
-            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -284,7 +284,7 @@ DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -491,18 +491,24 @@ static float RUN_wheel_forward_cal(float set)
 static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
 {
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
-    {
-        if (wheel_motor[i].Motor_obj.reverse_flag == 1)
-        {
-
-            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
-        }
-        else
-        {
-            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = -motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f - RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
-        }
+   { // {
+       //     if(i==0||i==3)
+       //     {
+       //     wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real  + 2000;//RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+       //     }
+       //     if(i==1||i==2)
+       //     {
+       //         wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real  +2200;//1.7* RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+       //     }
+       if(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target>200.0f)
+           wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real  + 2200.0f;//RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+       if (wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target<-200.0f)
+           wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real  -2200.0f;//RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+           else
+               wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real + 11.0f * wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target; // RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
     }
 }
+
 
 static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
 {
@@ -511,15 +517,26 @@ static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
         Motor_Set_Target((MotorInstance *)&wheel_motor[i], motorSetSpeed[i]);
     }
 }
+float vel_x=0;
+void Inverse_to_Track(Mot_base_t Speed_xyw)
+{
+    
+        vel_x = Speed_xyw.vel.x*RADTORPM/150.f;
+        // Motor_Set_Target((MotorInstance *)&track_motor[0], vel_x);
+        // Motor_Set_Target((MotorInstance *)&track_motor[1], vel_x);
+
+
+}
 
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
 {
     if (1 == isSetValid_debug[0])
     {
         Omni_Inverse_Kinematics_new(*Speed_xyw, 45.f, motorSetSpeed); // 底盘速度解算到各个电机上
+        Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
         //  Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
-
-        // Get_force_out(motorSetForce); // 获取前馈值
+        Inverse_to_Track(*Speed_xyw);
+        Get_force_out(motorSetForce); // 获取前馈值
     }
     if (1 == isSetValid_debug[1])
     {

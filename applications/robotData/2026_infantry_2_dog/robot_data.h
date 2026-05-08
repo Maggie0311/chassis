@@ -56,10 +56,10 @@
 #define rotational_inertia 0.5f       // 转动惯量 kg·m²
 #define PLAN_PERIOD (float)0.02      // s,频率为250Hz
 #define VEL_MAX_X (float)4000         //    mm/s
-#define VEL_MAX_Y (float)3000         //    mm/s
+#define VEL_MAX_Y (float)4000         //    mm/s
 #define VEL_MAX_W (float)10000        //   0.1°/s
-#define ACC_MAX_X (float)3500         // mm/s²
-#define ACC_MAX_Y (float)3500         // mm/s²
+#define ACC_MAX_X (float)4500         // mm/s²
+#define ACC_MAX_Y (float)4500         // mm/s²
 #define ACC_MAX_W (float)22000         // 0.1°/s²
 #define DOUBLE_ACC_MAX_X (float)30000 // mm / s³
 #define DOUBLE_ACC_MAX_Y (float)30000 // mm / s³

@@ -22,7 +22,7 @@
 #include <ulog.h>
 #endif
 
-#define RunERRhigh 800
+#define RunERRhigh 900
 #define RunERRlow 200
 
 #define AngleERRhigh 200
@@ -386,14 +386,14 @@ void get_true_RLS(void)
     if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0]>0.f && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
         
-       //RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
-         // RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );
+      // RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+        // RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
     else if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power < 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
-       // RLS_Update(&RunRLS, RunPhi, RunRLS.now_power -RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+      // RLS_Update(&RunRLS, RunPhi, RunRLS.now_power -RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
@@ -840,11 +840,11 @@ void Power_re_allo(void)
         // 按照误差比例的置信度分配
         if (if_wheel_used[group] == 1)
             Motor_power[group][WHEEL_RUN].allo_power_set =
-                RunKcoe * fabsf(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sum * Power_Set.power_set_run + (1 - RunKcoe) * Power_Set.run_ratio[group] * Power_Set.power_set_run;
+                RunKcoe * SQUARE(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sq_sum * Power_Set.power_set_run + (1 - RunKcoe) * Power_Set.run_ratio[group] * Power_Set.power_set_run;
 
         if (if_steer_used[group] == 1)
             Motor_power[group][WHEEL_ANGLE].allo_power_set =
-                AngleKcoe * fabsf(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sum * Power_Set.power_set_steer + (1 - AngleKcoe) * Power_Set.angle_ratio[group] * Power_Set.power_set_steer;
+                AngleKcoe * SQUARE(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sq_sum * Power_Set.power_set_steer + (1 - AngleKcoe) * Power_Set.angle_ratio[group] * Power_Set.power_set_steer;
     }
 }
 
