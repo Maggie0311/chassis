@@ -142,13 +142,13 @@ void yawAngleOffset(const float angvel, float *const yawAngel)
 {
     float temp = 0;
 
-    if (fabsf(angvel) > 6000)
-        temp = YAW_OFFSET_FAST;
-    else if (fabsf(angvel) > 2000)
-    {
-        // temp = (fabsf(angvel) - d_YAW) / K_YAW;
-        temp = YAW_OFFSET_SLOW;
-    }
+//    if (fabsf(angvel) > 6000)
+//        temp = YAW_OFFSET_FAST;
+//    else if (fabsf(angvel) > 2000)
+//    {
+//        // temp = (fabsf(angvel) - d_YAW) / K_YAW;
+//        temp = YAW_OFFSET_SLOW;
+//    }
     
     /*补偿执行滞后等（单位已统一），根据角度正方向和转速正方向知补偿项为负号*/
     temp = range_angle_180(temp);

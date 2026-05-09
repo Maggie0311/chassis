@@ -15,7 +15,7 @@
 // 输入限幅参数 底盘坐标系为前进为y轴，右手为x轴的右手坐标系
 #define M_MAX_ROTATE_AC 9000  // 底盘最大自旋角速度，单位0.1°/s
 #define M_MAX_POSITION_Y 2000 // 旋转轴坐标最大值，单位mm --暂时去除未用
-#define M_MAX_POSITION_X 2000 // --暂时去除未用
+#define M_MAX_POSITION_X  8000//时去除未用
 
 #define GYRO_ANGEL_MINLIM (6.0f) // 陀螺模式下上坡角度阈值，单位度，超过此角度时不论功率如何都开始限制旋转保证平移性
 

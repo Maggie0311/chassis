@@ -4,8 +4,6 @@
 #include "controlMsg.h"
 #include "robot_data.h"
 #define USING_OMNI_RESOLVE
-int chassis_motor_init();
-void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw);
 
 int gim_motor_init();
 void Follow_pid_init(void);
@@ -15,8 +13,8 @@ void Follow_pid_init(void);
 #define PITCH_MOTOR 1
 
 // TODO:调Pid这堆
-#define RUN_PID_Kp 96
-#define RUN_PID_Ki 0.5
+#define RUN_PID_Kp 80
+#define RUN_PID_Ki 0.4
 
 #define RUN_PID_Kd 0.8
 
@@ -40,7 +38,7 @@ void Follow_pid_init(void);
 int chassis_motor_init();
 int gim_motor_init();
 int track_motor_init();
-void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw);
+void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e motion_mode);
 void Forward_Kinematics(void);
 
 #endif

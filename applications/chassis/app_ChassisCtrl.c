@@ -34,7 +34,9 @@ static void ChassCtrl_IRQHandler(void *parameter)
 Ctrl_data_t debug_fixctrl;
 
 
-
+extern Mot_base_t real_xyw;
+extern float test_off_x;
+extern float test_off_y;
 
 /**
  * @brief    模式状态调度 总的来说就是根据云台控制的运动方式，得到底盘坐标系下的Vx,Vy矢量
@@ -46,7 +48,8 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
    //fixCtrl = debug_fixctrl;
     debug_fixctrl = fixCtrl;
 
-
+    // fixCtrl.xyw.vel.x-=real_xyw.vel.x;
+    // fixCtrl.xyw.vel.y-=real_xyw.vel.y;
     
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
@@ -80,7 +83,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     // debug_fixctrl = fixCtrl;
     //  修改pid的设定值
     //  chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
-    chassis_ctrl(&Speed_xyw, &Force_xyw);
+    chassis_ctrl(&Speed_xyw, &Force_xyw, fixCtrl.motion_mode);
 }
 
 uint32_t rt_tick = 0;

@@ -849,7 +849,7 @@ void Power_re_allo(void)
 }
 
 /*功率控制周期为1ms，但裁判系统数据频率只有50Hz(20ms)*/
-void Power_Ctrl(void)
+    void Power_Ctrl(void)
 {
     // 得到功率控制相关数据
     getPowerData();

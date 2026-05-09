@@ -57,14 +57,14 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp+30, .Ki = RUN_PID_Ki+0.5, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit , .CoefA = 502.0, .CoefB = 2.0, .IntegralLimit = 6000, .MaxOut = 16000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 8000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
 
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -101,13 +101,13 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp+30, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd+0.5, .Improve = PID_Integral_Limit , .CoefA = 502.0, .CoefB = 2.0, .IntegralLimit = 4500, .MaxOut = 16000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 15000},
+            .Speed_pid = {.Kp = RUN_PID_Kp+10, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 4500, .MaxOut = 8000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -146,13 +146,13 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp+10, .Ki = RUN_PID_Ki+0.5, .Kd = RUN_PID_Kd+0.5, .Improve = PID_Integral_Limit , .CoefA = 502.0, .CoefB = 2.0, .IntegralLimit = 6000, .MaxOut = 16000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 13000},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd+0.5, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 8000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -191,13 +191,13 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit , .CoefA = 502.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit| PID_ChangingIntegrationRate , .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 8000, .DeadBand = 0.5},
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
                 .speed_calc_Prescaler = 1,
             },
-            .Feedforward_Type = FEEDFORWARD_NONE,
+            .Feedforward_Type = CURRENT_FEEDFORWARD,
         },
         .can_init_config = {
             .can_device_name = "can1",
@@ -240,7 +240,7 @@ DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit , .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit|PID_ChangingIntegrationRate , .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -284,7 +284,7 @@ DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 16000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit|PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 7000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 7000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -316,7 +316,7 @@ int track_motor_init()
     int ret = 0;
     for (int i = 0; i < TRACK_MOTOR_NUM; i++)
     {
-        ret = Motor_Attach((MotorInstance *)&track_motor[i], (Motor_Init_Config_s *)&track_motor_init_config[i]);
+       // ret = Motor_Attach((MotorInstance *)&track_motor[i], (Motor_Init_Config_s *)&track_motor_init_config[i]);
         if (ret != 0)
         {
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
@@ -436,9 +436,9 @@ void Follow_pid_init(void)
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 40;
+    pid_config.Kp = 32;
     pid_config.Ki = 0;
-    pid_config.Kd = 15;
+    pid_config.Kd = 20;
     pid_config.MaxOut = 16000;
     pid_config.DeadBand = 0.1;
     pid_config.IntegralLimit = 600;
@@ -509,6 +509,35 @@ static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
     }
 }
 
+float test_off_x = 250;  // 质心向前(+x)偏移，单位mm
+float test_off_y = -50;   // 质心向左(+y)偏移，单位mm
+float ff_torque[WHEEL_MOTOR_NUM];
+Mot_base_t centripetal_force = {0};
+
+/**
+ * @brief 陀螺旋转时的离心力动力学前馈
+ *        质心偏离旋转中心时，旋转产生的离心力需要各轮额外提供牵引力来维持圆周运动。
+ *        向心力方向：从质心指向旋转中心，即 (-x, -y) 方向
+ *
+ * @param omega_rad_s  底盘实际角速度，单位 rad/s
+ */
+static void Gyro_Centripetal_Feedforward(float omega_rad_s)
+{
+    float w2 = omega_rad_s * omega_rad_s;
+
+    // 向心加速度分量，方向指向旋转中心（取负号）
+    centripetal_force.vel.x = -w2 * test_off_x;
+    centripetal_force.vel.y = -w2 * test_off_y;
+
+    Omni_Force_Resolve(centripetal_force, 45.f, ff_torque);
+
+    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+    {
+        wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward =
+            ff_torque[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque
+                        / wheel_motor[i].dji3508_motor_measure.current_to_real*13.7f/19.2f;
+    }
+}
 
 static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
 {
@@ -528,16 +557,28 @@ void Inverse_to_Track(Mot_base_t Speed_xyw)
 
 }
 
-void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
+void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e motion_mode)
 {
     if (1 == isSetValid_debug[0])
     {
+        if(motion_mode == FAST_GYRO)
+           Speed_xyw->angvel*=0.8;
         Omni_Inverse_Kinematics_new(*Speed_xyw, 45.f, motorSetSpeed); // 底盘速度解算到各个电机上
         Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
         //  Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
-        Inverse_to_Track(*Speed_xyw);
-        Get_force_out(motorSetForce); // 获取前馈值
+        //Inverse_to_Track(*Speed_xyw);
+       // Get_force_out(motorSetForce); // 获取前馈值
     }
+
+    // 陀螺模式下叠加离心力前馈（累加到 Get_force_out 已设的前馈上）
+    if (motion_mode == FAST_GYRO || motion_mode == SLOW_GYRO || motion_mode == CHANGE_GYRO)
+    {
+        float omega = real_xyw.angvel  *0.1f* DEGTORAD; // 0.1°/s -> rad/s
+        Gyro_Centripetal_Feedforward(omega);
+    }
+    else 
+    Gyro_Centripetal_Feedforward(0);
+
     if (1 == isSetValid_debug[1])
     {
         Wheel_Speed_Set(motorSetSpeed); // 设置电机速度环设定值
@@ -552,5 +593,5 @@ void Forward_Kinematics(void)
     {
         temp[i] = wheel_motor[i].Motor_obj.speed;
     }
-    Omni_Forward_Kinematics(temp);
+    Omni_Forward_Kinematics_new(temp, 45.0f);
 }
