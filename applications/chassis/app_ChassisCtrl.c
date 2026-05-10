@@ -45,7 +45,7 @@ extern float test_off_y;
 static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
-   //fixCtrl = debug_fixctrl;
+//    fixCtrl = debug_fixctrl;
     debug_fixctrl = fixCtrl;
 
     // fixCtrl.xyw.vel.x-=real_xyw.vel.x;

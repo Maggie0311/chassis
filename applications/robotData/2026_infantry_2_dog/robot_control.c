@@ -57,7 +57,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 8000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp-10, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 8000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -101,7 +101,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
             .Motor_Transmit = DJI_3508_Motor_Transmit,
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp+10, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 4500, .MaxOut = 8000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 4500, .MaxOut = 8000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -146,7 +146,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd+0.5, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 8000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit | PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 8000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -191,7 +191,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
 
         },
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit| PID_ChangingIntegrationRate , .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 8000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp+10, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit| PID_ChangingIntegrationRate , .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 8000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
@@ -316,7 +316,7 @@ int track_motor_init()
     int ret = 0;
     for (int i = 0; i < TRACK_MOTOR_NUM; i++)
     {
-       // ret = Motor_Attach((MotorInstance *)&track_motor[i], (Motor_Init_Config_s *)&track_motor_init_config[i]);
+        ret = Motor_Attach((MotorInstance *)&track_motor[i], (Motor_Init_Config_s *)&track_motor_init_config[i]);
         if (ret != 0)
         {
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
@@ -371,7 +371,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 574,
+            .ENCODER_ZERO_OFFSET = 528,
             .ctrl_mode = CTRL_MODE_VOLTAGE,
         }},
     // pitch轴电机
@@ -436,7 +436,7 @@ void Follow_pid_init(void)
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 32;
+    pid_config.Kp = 45;
     pid_config.Ki = 0;
     pid_config.Kd = 20;
     pid_config.MaxOut = 16000;
@@ -482,6 +482,36 @@ static float RUN_wheel_forward_cal(float set)
     }
 }
 
+float test_off_x = 250;  // 质心向前(+x)偏移，单位mm
+float test_off_y = -50;   // 质心向左(+y)偏移，单位mm
+float ff_gyro_gain=1.0f;
+float ff_torque[WHEEL_MOTOR_NUM];
+Mot_base_t centripetal_force = {0};
+float centripetal_force_forward[WHEEL_MOTOR_NUM];
+/**
+ * @brief 陀螺旋转时的离心力动力学前馈
+ *        质心偏离旋转中心时，旋转产生的离心力需要各轮额外提供牵引力来维持圆周运动。
+ *        向心力方向：从质心指向旋转中心，即 (-x, -y) 方向
+ *
+ * @param omega_rad_s  底盘实际角速度，单位 rad/s
+ */
+static void Gyro_Centripetal_Feedforward(float omega_rad_s)
+{
+    float w2 = omega_rad_s * omega_rad_s*ff_gyro_gain;
+
+    // 向心加速度分量，方向指向旋转中心（取负号）
+    centripetal_force.vel.x = -w2 * test_off_x;
+    centripetal_force.vel.y = -w2 * test_off_y;
+
+    Omni_Force_Resolve(centripetal_force, 45.f, ff_torque);
+
+    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+    {
+        centripetal_force_forward[i] =
+            ff_torque[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque
+                        / wheel_motor[i].dji3508_motor_measure.current_to_real*13.7f/19.2f;
+    }
+}
 /**
  * @brief 将雅可比矩阵解算出的电机的力转换为电机的扭矩，进而转换为电流
  *
@@ -501,43 +531,19 @@ static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
        //         wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real  +2200;//1.7* RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
        //     }
        if(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target>200.0f)
-           wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real  + 2200.0f;//RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
-       if (wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target<-200.0f)
-           wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real  -2200.0f;//RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+          { wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real*13.7f/19.2f  + centripetal_force_forward[i]+2000.0f;//RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward=utils_clamp(wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward, -7000.0f, 7000.0f);}
+      else if (wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target<-200.0f)
+           {wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real*13.7f/19.2f +centripetal_force_forward[i] -2000.0f;//RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward=utils_clamp(wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward, -7000.0f, 7000.0f);}
            else
-               wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real + 11.0f * wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target; // RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+              { wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real *13.7f/19.2f+ 10.0f * wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target+centripetal_force_forward[i]; // RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward=utils_clamp(wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward, -7000.0f, 7000.0f);}
+
     }
 }
 
-float test_off_x = 250;  // 质心向前(+x)偏移，单位mm
-float test_off_y = -50;   // 质心向左(+y)偏移，单位mm
-float ff_torque[WHEEL_MOTOR_NUM];
-Mot_base_t centripetal_force = {0};
 
-/**
- * @brief 陀螺旋转时的离心力动力学前馈
- *        质心偏离旋转中心时，旋转产生的离心力需要各轮额外提供牵引力来维持圆周运动。
- *        向心力方向：从质心指向旋转中心，即 (-x, -y) 方向
- *
- * @param omega_rad_s  底盘实际角速度，单位 rad/s
- */
-static void Gyro_Centripetal_Feedforward(float omega_rad_s)
-{
-    float w2 = omega_rad_s * omega_rad_s;
-
-    // 向心加速度分量，方向指向旋转中心（取负号）
-    centripetal_force.vel.x = -w2 * test_off_x;
-    centripetal_force.vel.y = -w2 * test_off_y;
-
-    Omni_Force_Resolve(centripetal_force, 45.f, ff_torque);
-
-    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
-    {
-        wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward =
-            ff_torque[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque
-                        / wheel_motor[i].dji3508_motor_measure.current_to_real*13.7f/19.2f;
-    }
-}
 
 static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
 {
@@ -551,8 +557,8 @@ void Inverse_to_Track(Mot_base_t Speed_xyw)
 {
     
         vel_x = Speed_xyw.vel.x*RADTORPM/150.f;
-        // Motor_Set_Target((MotorInstance *)&track_motor[0], vel_x);
-        // Motor_Set_Target((MotorInstance *)&track_motor[1], vel_x);
+        Motor_Set_Target((MotorInstance *)&track_motor[0], vel_x);
+        Motor_Set_Target((MotorInstance *)&track_motor[1], vel_x);
 
 
 }
@@ -561,16 +567,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
 {
     if (1 == isSetValid_debug[0])
     {
-        if(motion_mode == FAST_GYRO)
-           Speed_xyw->angvel*=0.8;
-        Omni_Inverse_Kinematics_new(*Speed_xyw, 45.f, motorSetSpeed); // 底盘速度解算到各个电机上
-        Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
-        //  Force_Allo_to_wheels(motorSetForce, Force_xyw);        // 进行加速度解算到各个电机上
-        //Inverse_to_Track(*Speed_xyw);
-       // Get_force_out(motorSetForce); // 获取前馈值
-    }
-
-    // 陀螺模式下叠加离心力前馈（累加到 Get_force_out 已设的前馈上）
+            // 陀螺模式下叠加离心力前馈（累加到 Get_force_out 已设的前馈上）
     if (motion_mode == FAST_GYRO || motion_mode == SLOW_GYRO || motion_mode == CHANGE_GYRO)
     {
         float omega = real_xyw.angvel  *0.1f* DEGTORAD; // 0.1°/s -> rad/s
@@ -578,6 +575,14 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
     }
     else 
     Gyro_Centripetal_Feedforward(0);
+        //if(motion_mode == FAST_GYRO)
+        //   Speed_xyw->angvel*=0.8;
+
+        Omni_Inverse_Kinematics_new(*Speed_xyw, 45.f, motorSetSpeed); // 底盘速度解算到各个电机上
+        Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
+      //  Inverse_to_Track(*Speed_xyw);
+       Get_force_out(motorSetForce); // 获取前馈值
+    }
 
     if (1 == isSetValid_debug[1])
     {

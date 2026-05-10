@@ -52,18 +52,18 @@
 
 /*设定值规划及前馈相关参数*/
 /*底盘速度设定值的平滑，SMOOTH_ADD/SMOOTH_PERIOD m/s^2（或100°/s^2） (类型float)*/
-#define WEIGHT 20.0f                  // 质量 kg
+#define WEIGHT 25.0f                  // 质量 kg
 #define rotational_inertia 0.5f       // 转动惯量 kg·m²
 #define PLAN_PERIOD (float)0.005      // s,频率为250Hz
-#define VEL_MAX_X (float)3500         //    mm/s
-#define VEL_MAX_Y (float)3500         //    mm/s
+#define VEL_MAX_X (float)4000         //    mm/s
+#define VEL_MAX_Y (float)4000         //    mm/s
 #define VEL_MAX_W (float)8300        //   0.1°/s
 #define ACC_MAX_X (float)4500         // mm/s²
 #define ACC_MAX_Y (float)4500         // mm/s²
-#define ACC_MAX_W (float)22000         // 0.1°/s²
+#define ACC_MAX_W (float)16000         // 0.1°/s²
 #define DOUBLE_ACC_MAX_X (float)30000 // mm / s³
 #define DOUBLE_ACC_MAX_Y (float)30000 // mm / s³
-#define DOUBLE_ACC_MAX_W (float)200000 // 0.1°/ s³
+#define DOUBLE_ACC_MAX_W (float)160000 // 0.1°/ s³
 
 #endif
 
