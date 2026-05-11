@@ -83,7 +83,11 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     // debug_fixctrl = fixCtrl;
     //  修改pid的设定值
     //  chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
-    chassis_ctrl(&Speed_xyw, &Force_xyw, fixCtrl.motion_mode);
+    #ifdef CORE_USING_2026_INFANTRY_2
+    chassis_ctrl(&Speed_xyw, &Force_xyw,fixCtrl.motion_mode);
+    #else
+    chassis_ctrl(&Speed_xyw, &Force_xyw );
+    #endif
 }
 
 uint32_t rt_tick = 0;

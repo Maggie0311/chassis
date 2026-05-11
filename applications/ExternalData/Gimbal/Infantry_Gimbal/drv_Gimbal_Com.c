@@ -43,23 +43,29 @@ uint8_t test_mode=1;
  ***/
 static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
 {
-    gimbal_ctrl.dongMode = 1;
+    
     gimbal_ctrl.vel_x = (float)MSG_READ_2BYTES(instance->rx_buff[0], instance->rx_buff[1]);
     gimbal_ctrl.vel_y = (float)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
     gimbal_ctrl.mode = (Motion_mode_e)(instance->rx_buff[6]);
+    #ifdef CORE_USING_2026_INFANTRY_2
+    gimbal_ctrl.dongMode = 1;
     gimbal_ctrl.dongMode = (instance->rx_buff[7]);
+    #endif
     // ulog_d("gim","vx,vy:%.2f,%.2f",gimbal_ctrl.vel_x,gimbal_ctrl.vel_y);
 
     // 云台跟随角外部修改
     if (gimbal_ctrl.mode == NO_FOLLOW)
     {
         gimbal_ctrl.fol_ang = 0;
+        gimbal_ctrl.angvel = 0;
+        #ifdef CORE_USING_2026_INFANTRY_2
         if(gimbal_ctrl.dongMode)
         {
             gimbal_ctrl.angvel = 0;
         }
         else
         gimbal_ctrl.angvel = (float)MSG_READ_2BYTES(instance->rx_buff[4], instance->rx_buff[5]);
+        #endif
         
     }
     if (gimbal_ctrl.mode == FOLLOW_GIMBAL)
@@ -81,10 +87,12 @@ static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
     Source_WriteData_s(CS_GIMBAL, &gimbal_ctrl);
 }
 
+#ifdef CORE_USING_2026_INFANTRY_2
 uint8_t Get_if_DongMode(void)
 {
     return gimbal_ctrl.dongMode;
 }
+#endif
 /***
  * @brief    处理云台发送的各类数据报文
  * @param    instance
