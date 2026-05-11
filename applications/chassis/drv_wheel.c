@@ -5,10 +5,13 @@
 #include "robot_data.h"
 #include "Look.h"
 #include "robot_control.h"
+#include "drv_SetPlanning.h"
+#include "app_ChassisCtrl.h"
+extern uint8_t test_stair;
+extern uint8_t  test_stair_down;
 /*所有顺序为转向轮和驱动轮---RF-LF-LB-RB*/
 static struct rt_timer Cal_Timer;   /*线程定时器*/
 static struct rt_semaphore Cal_sem; /*线程信号量*/
-
 /**
  * @brief 定时器回调,用于唤醒电机pid计算线程
  *
@@ -19,6 +22,8 @@ static void Cal_IRQHandler(void *parameter) //
     rt_sem_release(&Cal_sem);
 }
 
+uint8_t up_flag=0;
+float test_angle = 0.0f,test_angle_up=1.f,test_angle_b = 0.0f,test_angle_up_b=1.f;
 // 电机控制部分
 //  车轮pid计算线程
 //   该线程总的来说是根据外部(Chassis_Ctrl_Thread)计算出来的底盘设定值来进行pid计算并发送数据给电机
@@ -34,6 +39,12 @@ static void PID_Cal_Thread(void)
         rt_sem_take(&Cal_sem, RT_WAITING_FOREVER);
         SWDG_FEED(id);
         //Look_Cnt[1]++;//用于观测线程运行频率
+
+        // if(Zero_Check() == 4&&test_stair==0&&test_stair_down==0)
+		// 	{
+        //   Screw_Motor_Move(Forward_Screw_Motor, test_angle, test_angle_up);
+        //   Screw_Motor_Move(Back_Screw_Motor, test_angle_b, test_angle_up_b);
+        // }
 
         /*pid等电机控制计算*/
         Motor_Control_Loop();
@@ -68,7 +79,9 @@ rt_err_t Wheels_Init(void)
 #ifdef USE_CAPACITY_3
     powerCtrlInit();
 #endif
-
+#ifdef CORE_USING_HERO
+    Zero_Init();
+#endif
     // 初始化信号量
     res = rt_sem_init(&Cal_sem, "PID_Cal_sem", 0, RT_IPC_FLAG_FIFO);
     if (res != RT_EOK)

@@ -58,10 +58,10 @@ rt_uint8_t Get_UI_Reset_Flg(void)
 }
 
 // 获取二维按键当前处于哪个菜单下
-ui_option_display_e Get_UI_Option_Flag(void)
-{ // UI
-    return (ui_option_display_e)gimbal_mixdata_msg.current_menu;
-}
+//ui_option_display_e Get_UI_Option_Flag(void)
+//{ // UI
+//    return (ui_option_display_e)gimbal_mixdata_msg.current_menu;
+//}
 
 
 

@@ -159,6 +159,13 @@ rt_bool_t Get_Gimbal_Stuck_State(void)
     return gimbal_mixdata_msg.strike_stuck;
 }
 
+#ifdef CORE_USING_HERO
+// 获取英雄是否需要上台阶
+rt_bool_t Get_If_Go_Upstairs(void)
+{
+    return gimbal_mixdata_msg.hero_if_go_upstairs;
+}
+#endif
 
 
 // 得到当前云台错误状态

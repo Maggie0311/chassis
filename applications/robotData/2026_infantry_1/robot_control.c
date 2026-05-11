@@ -9,6 +9,8 @@
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
 
+#include "DM_Motor.h"
+
 #define WHEEL_MOTOR_NUM 4
 #define GIM_MOTOR_NUM 2
 

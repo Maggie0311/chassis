@@ -13,9 +13,12 @@ void Follow_pid_init(void);
 
 float get_power_lim_speed(float power_max);
 
-
-
-
+void Motor_Speed_Read();
+void Up_Machine_pid_init(void);
+int If_Target_Reached(Screw_Motor_e motor,float target);
+void Up_Motor_Angle_Read();
+void Screw_Motor_Move(Screw_Motor_e motor, float target, uint8_t up_or_down);
+int If_Ready_To_Down(float target);
 // 云台电机是否大小yaw
 #define YAW_MOTOR 0
 #define PITCH_MOTOR 1
@@ -23,8 +26,29 @@ float get_power_lim_speed(float power_max);
 
 // TODO:调Pid这堆
 #define RUN_PID_Kp 100
-#define RUN_PID_Ki 0.6
-#define RUN_PID_Kd 7
+#define RUN_PID_Ki 0.5
+#define RUN_PID_Kd 0.8
+
+
+#define UP_PID_Kp_Angle 37
+#define UP_PID_Ki_Angle 0
+#define UP_PID_Kd_Angle 5
+
+#define UP_PID_Kp_Speed 15
+#define UP_PID_Ki_Speed 0.02
+#define UP_PID_Kd_Speed 0
+
+#define DOWN_PID_Kp_Angle 12
+#define DOWN_PID_Ki_Angle 0
+#define DOWN_PID_Kd_Angle 5
+
+#define DOWN_PID_Kp_Speed 5
+#define DOWN_PID_Ki_Speed 0.01
+#define DOWN_PID_Kd_Speed 0
+
+
+#define UP 0
+#define DOWN 1
 
 #define POWER_CTRL 1//功率控制开关，1为开启，0为不开
 
@@ -43,8 +67,9 @@ float get_power_lim_speed(float power_max);
 #define WHEELS_GROUP_NUM 4
 
 #define PID_CAL_PERIOD 5
+uint8_t Zero_Check(void);
 
 void Forward_Kinematics(void);
 void Fix_Speed_pid_init(void);
-
+void chasis_dangling_x(void);
 #endif

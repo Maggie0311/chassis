@@ -353,6 +353,8 @@ DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_DM_MOTOR_NUM] =
 
 };
 
+
+
 int gim_motor_init()
 {
     int ret = 0;

@@ -1058,7 +1058,7 @@ void Get_UI_Data(void)
     getRefData(memberGet_parm(UiExData.powerbuff, ext_power_heat_data, chassis_power_buffer)); // 缓冲能量J
 
     // 更新菜单状态
-    UiExData.MenuOption = Get_UI_Option_Flag();
+    //UiExData.MenuOption = Get_UI_Option_Flag();
     UI_If_Option_Flag_Change();
 
     // UiExData.Local_Chassis_Mode = Get_Local_Chassis_Type(); // 当前的本地底盘模式(0功率优先 1血量优先)

@@ -83,6 +83,15 @@ static void Gimbal_MixData_Rx_call(CANInstance *instance)
         Robot_Chassis_Reset(RT_TRUE);
 }
 
+uint8_t get_up_stairs_flag(void)
+{
+    return gimbal_mixdata_msg.up_stairs_flag;
+}
+uint8_t get_down_stairs_flag(void)
+{
+    return gimbal_mixdata_msg.down_stairs_flag;
+}
+
 /***
  * @brief    处理云台发送的imu数据报文
  * @param    instance

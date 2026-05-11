@@ -29,14 +29,16 @@ static void ChassCtrl_IRQHandler(void *parameter)
 {
     rt_sem_release(&ChassCtrl_sem);
 }
-
+uint8_t test_stair=0,test_stair_down=0;
 // debug
 Ctrl_data_t debug_fixctrl;
-
+Machine_Status status=Forward_Screw_Move_Up;
+extern float motor_speed[4];
 
 extern Mot_base_t real_xyw;
 extern float test_off_x;
 extern float test_off_y;
+
 
 /**
  * @brief    模式状态调度 总的来说就是根据云台控制的运动方式，得到底盘坐标系下的Vx,Vy矢量
@@ -45,14 +47,42 @@ extern float test_off_y;
 static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 {
     Ctrl_data_t fixCtrl = Cctrl;
-//    fixCtrl = debug_fixctrl;
-    debug_fixctrl = fixCtrl;
+     debug_fixctrl=Cctrl;
+    fixCtrl = debug_fixctrl;
+#ifdef CORE_USING_HERO
+//    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
+//    {
+    if(get_up_stairs_flag()&&get_chassis_up_stairs_finish()==0)
+    {
+        Motor_Speed_Read();                                // 获取底盘轮向电机速度
+       fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
+       fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
+   }
+   else if(get_down_stairs_flag())
+   {
+       Screw_Motor_Move(Back_Screw_Motor, 520, 0);
 
-    // fixCtrl.xyw.vel.x-=real_xyw.vel.x;
-    // fixCtrl.xyw.vel.y-=real_xyw.vel.y;
-    
+    //    Motor_Speed_Read();                                // 获取底盘轮向电机速度
+    //    fixCtrl.xyw = Down_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
+    //    fixCtrl.motion_mode = GO_UPSTAIRS;   
+   }
+   else 
+   {
+       status=Forward_Screw_Move_Up;
+       Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
+       Screw_Motor_Move(Back_Screw_Motor, 0, 1);
+   }
+#endif
+
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
+#ifdef CORE_USING_HERO
+    case GO_UPSTAIRS: // 英雄上台阶
+        break;
+    case CHASSIS_DANGLING_X: // 底盘悬空X轴
+        chasis_dangling_x();
+        break;
+#endif
     case CHASS_AUTO: // 底盘自主
         fixCtrl.xyw = MotPack_Only_Chass(fixCtrl.xyw);
         break;
@@ -63,8 +93,8 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
         fixCtrl.xyw = MotPack_Small_Top(&fixCtrl);
         break;
     case FOLLOW_GIMBAL: // 跟随，以云台坐标系控制底盘
-    case MOVE_BACK:
-    case FOLLOWBACK_GIMBAL:
+//    case MOVE_BACK:
+  //  case FOLLOWBACK_GIMBAL:
     {
         /* 前馈 + PID 叠加补偿，仅跟随模式生效（小陀螺不用IMU数据） */
         // fixCtrl.xyw.vel.x += (ff_x + fix_speed_x.Output);
@@ -73,11 +103,12 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
         break;
 
     }
+
     default: // 底盘自主
         fixCtrl.xyw = MotPack_Only_Chass(fixCtrl.xyw);
         break;
     }
-    //debug_fixctrl = fixCtrl; // 控制源控制数据
+    // debug_fixctrl = fixCtrl; // 控制源控制数据
                              // fixCtrl.xyw = MotPack_Power_Limit(&fixCtrl);
     Set_Plan_Vxyw_Process(fixCtrl);
     // debug_fixctrl = fixCtrl;
@@ -85,8 +116,11 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     //  chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
     #ifdef CORE_USING_2026_INFANTRY_2
     chassis_ctrl(&Speed_xyw, &Force_xyw,fixCtrl.motion_mode);
+    #elif CORE_USING_HERO
+    if(fixCtrl.motion_mode!=CHASSIS_DANGLING_X)
+      chassis_ctrl(&Speed_xyw, &Force_xyw );
     #else
-    chassis_ctrl(&Speed_xyw, &Force_xyw );
+      chassis_ctrl(&Speed_xyw, &Force_xyw );
     #endif
 }
 
@@ -113,6 +147,7 @@ static void Chassis_Ctrl_Thread(void *parameter)
             if (nowCtrlSrc->data)
             {
                 Ctrl_data = (Ctrl_data_t *)nowCtrlSrc->data; /*得到原始设定值*/
+                Ctrl_data->xyw.angvel = 5000;                // 视觉控制掉线时默认转速
                 Ctrl_data->xyw.angvel = 5000;                // 视觉控制掉线时默认转速
             }
         }
@@ -141,13 +176,19 @@ static rt_err_t chassisCtrlInit(void)
     // MotSmooth_Vxyw_init(); /*初始化平滑和模式及切换时的基本数据*/
     Set_Planner_init(); // 新修改的设定值规划结构体初始化
 
+    Set_Planner_Up_motor_init();//抬升机构四个电机设定值规划结构体初始化
     // 跟随模式PID初始化
     Follow_pid_init();
     //全局速度PID初始化
     // Fix_Speed_pid_init();
     // 卡尔曼滤波融合初始化 
   //  Kalman_init();
-
+#ifdef CORE_USING_HERO
+    //抬升机构对零点
+    
+    // 抬升机构前移pid初始化
+    Up_Machine_pid_init();
+#endif
     // 初始化信号量
     res = rt_sem_init(&ChassCtrl_sem, "Cctrl_sem", 0, RT_IPC_FLAG_FIFO);
     if (res != RT_EOK)

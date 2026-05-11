@@ -69,26 +69,54 @@ typedef enum
     FOLLOW_GIMBAL,     // 跟随
     SLOW_GYRO,         // 慢陀螺
     FAST_GYRO,         // 快陀螺
-    CHANGE_GYRO,        // 变速陀螺
-    CHASS_STOP_RESET,  // 底盘立即停止并在一段时间后复位（平步）
-    FOLLOWBACK_GIMBAL, // 反向跟随
-    MOVE_BACK,         // 倒车
-    CHASS_AUTO,        // 底盘自主
-    JUMP,              // 跳跃
-    NOOOOO,
+    CHANGE_GYRO,       // 变速陀螺
+    CHASSIS_DANGLING_X,
+    GO_UPSTAIRS,       // 上台阶
+    CHASS_AUTO,
+    // FOLLOWBACK_GIMBAL, // 反向跟随
+    // MOVE_BACK,         // 倒车        // 底盘自主
+    // JUMP,              // 跳跃
+    
     MOTION_MODE_NUM,
 } Motion_mode_e;
 
 typedef struct
 {
-    Motion_mode_e motion_mode;          // 底盘模式
-    Mot_base_t xyw;                     // xy平移速度矢量,单位mm/s; 自转角速度,单位0.1°/s
-    Vector2_t pos;                      // 偏心坐标点，单位(mm,mm)
-    float dot_angvel;                   // 绕点旋转角速度,单位0.1°/s
-    float fol_angle;                    // 跟随目标角度,单位°，范围(0,360°](俯视图下，底盘车头在云台枪管的逆时针方位 >0)
-    float getYawAngel;                  // 跟随角时yaw的角度,单位°，范围[0,360°)
-  //  uint8_t folIsReverse;               // 跟随时候，坐标系转化时角度是否取反
+    Motion_mode_e motion_mode; // 底盘模式
+    Mot_base_t xyw;            // xy平移速度矢量,单位mm/s; 自转角速度,单位0.1°/s
+    Vector2_t pos;             // 偏心坐标点，单位(mm,mm)
+    float dot_angvel;          // 绕点旋转角速度,单位0.1°/s
+    float fol_angle;           // 跟随目标角度,单位°，范围(0,360°](俯视图下，底盘车头在云台枪管的逆时针方位 >0)
+    float getYawAngel;         // 跟随角时yaw的角度,单位°，范围[0,360°)
+                               //  uint8_t folIsReverse;               // 跟随时候，坐标系转化时角度是否取反
 } Ctrl_data_t;
+
+typedef enum
+{
+    Forward_Screw_Motor,
+    Back_Screw_Motor,
+} Screw_Motor_e;
+
+typedef enum
+{
+    Screw_Move_Up,
+    Screw_Move_Down,
+} Screw_Move_e;
+
+typedef enum
+{
+    Forward_Screw_Move_Up,
+    Chassis_Move_Forward,
+    Chassis_Move_Back,
+    Forward_Screw_Move_Down,
+    Chassis_Move_Forward_Twice,
+    Back_Screw_Move_Up,
+    Chassis_Move_Forward_Third,
+    Back_Screw_Move_Down,
+    Up_Stairs_Finished,
+    Down_Stairs_Finished,
+    Pre_To_Down,
+} Machine_Status;
 
 typedef float (*getYawAngelCallBack)(uint16_t arg); // 跟随角时yaw的角度,单位°，范围[-180,180)
 

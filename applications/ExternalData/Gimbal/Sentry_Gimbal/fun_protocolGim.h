@@ -99,8 +99,7 @@ uint8_t Get_if_aimbot_best_dis(void);
 // 获取云台发送给底盘关于视觉是否正常识别的标志位
 uint8_t Get_Gim_Visual_Target_Found(void);
 
-// 得到当前是否处于哨兵模式
-uint8_t getIsSentryMode(void);
+
 
 /***
  * @brief:   获取云台端传来的发弹模式(单发/三连发)
@@ -190,6 +189,9 @@ extern rt_bool_t Get_Gimbal_Stuck_State(void);
 
 // 获取视觉模块异常状态
 extern Visual_Error_State_Enum Get_Visual_Working_Error_State(void);
+
+// 获取英雄是否需要上台阶
+extern rt_bool_t Get_If_Go_Upstairs(void);
 
 uint8_t get_chassis_pitch(float *pitch);
 uint8_t get_chassis_roll(float *roll);

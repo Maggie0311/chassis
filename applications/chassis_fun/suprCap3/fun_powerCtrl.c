@@ -623,7 +623,8 @@ void get_pre_power(void)
     }
 }
 
-static void Power_lim_allo_to_wheels()
+static void 
+    Power_lim_allo_to_wheels()
 {
     /*程序在运行这个函数的时候，PID的输出wheel[group][wheel_type].motor.spe.out已经根据初始化时的设置进行方向回反了，
      * 因为已经使用过了Motor_SpeedPIDCalculate函数计算过PID了，
@@ -781,7 +782,7 @@ static void Power_lim_allo_to_wheels()
     for (group = 0; group < WHEELS_GROUP_NUM; group++)
     {
         //  Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output=0;
-        //  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
+         // Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
     }
 
     // for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
@@ -870,7 +871,4 @@ __weak float getScRate(void)
     return 0;
 }
 
-float get_k_power_allo()
-{
-    return PowerCtrl.k_power_allo_wheel;
-}
+

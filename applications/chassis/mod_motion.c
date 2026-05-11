@@ -15,9 +15,9 @@
     #include "vofa.h"
 #endif
 
-extern PIDInstance follow_pid_fast, follow_pid_slow; // 跟随角pid实例
-
+extern PIDInstance follow_pid_fast, follow_pid_slow;         // 跟随角pid实例
 SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0}; // 设定值规划
+SecondOrder_Set_Follow_t set_planner_up_motor[4] = {0};         // 抬升机构设定值规划
 Mot_base_t Force_xyw = {0};
 Mot_base_t Speed_xyw = {0};
 
@@ -359,6 +359,244 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     return VxyW;
 }
 
+#ifdef CORE_USING_HERO
+uint8_t up_stairs_finish=0;
+extern PIDInstance up_machine_pid;
+float intigral[2];
+static rt_tick_t i_last_tick = 0;
+
+/**
+ * @brief 积分
+ *
+ * @param motor_type 0后轮，1前轮
+ * @param motor_speed
+ * @return float
+ */
+float Motor_Position_Cal(uint8_t motor_type, float motor_speed[4])
+{
+    rt_tick_t now_tick = rt_tick_get();
+    float dt = (now_tick - i_last_tick) / 1000.0f;
+
+    if (motor_type)
+    {
+        intigral[0] += motor_speed[0] * dt;
+        intigral[1] += motor_speed[1] * dt;
+    }
+    else
+    {
+        intigral[0] += motor_speed[2] * dt;
+        intigral[1] += motor_speed[3] * dt;
+    }
+
+    i_last_tick = now_tick;
+    return (intigral[0] + intigral[1]) / 2.0f;
+}
+    float position = 0.0f; // 底盘电机速度积分出来的位置
+Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
+{
+    Mot_base_t Vxyw = {0};
+    int reach_flag = 0;    // 丝杆电机是否到位 1为到位
+
+    switch (*status)
+    {
+    case Forward_Screw_Move_Up:
+        Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_UP_Target,0);
+        Screw_Motor_Move(Back_Screw_Motor, -10,1);
+        Vxyw.vel.x = 0;
+        Vxyw.vel.y = 0;
+        Vxyw.angvel = 0;
+        reach_flag = If_Target_Reached(Forward_Screw_Motor,Screw_Motor_UP_Target);
+        i_last_tick = rt_tick_get();
+        if (reach_flag == 1)
+        {
+           *status = Chassis_Move_Forward;
+        }
+        break;
+    case Chassis_Move_Forward:
+        position = Motor_Position_Cal(0, motor_speed);
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 400); // TODO设置向前动0.01m
+        if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
+        {
+            *status = Forward_Screw_Move_Down;
+        }
+        break;
+    case Forward_Screw_Move_Down:
+        intigral[0] = 0;
+        intigral[1] = 0;
+        Vxyw.vel.x = 0;
+        Vxyw.vel.y = 0;
+        Vxyw.angvel = 0;
+         Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_Down_Target,0);
+        reach_flag = If_Target_Reached(Forward_Screw_Motor,Screw_Motor_Down_Target);
+        Screw_Motor_Move(Back_Screw_Motor, 500,0);
+        if(If_Target_Reached(Back_Screw_Motor,500))
+          reach_flag++;
+        i_last_tick = rt_tick_get();
+        if (reach_flag > 1)
+        {
+            *status = Chassis_Move_Forward_Twice;
+            reach_flag=0;
+        }
+        break;
+    case Chassis_Move_Forward_Twice:
+        position = Motor_Position_Cal(0, motor_speed);
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 550); // TODO设置向前动0.01m
+        if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
+        {
+            *status = Back_Screw_Move_Up;
+        }
+        break;
+    case Back_Screw_Move_Up:
+        intigral[0] = 0;
+        intigral[1] = 0;
+        Vxyw.vel.x = 0;
+        Vxyw.vel.y = 0;
+        Vxyw.angvel = 0;
+         Screw_Motor_Move(Back_Screw_Motor, 0,1);
+        reach_flag = If_Target_Reached(Back_Screw_Motor,0);
+        i_last_tick = rt_tick_get();
+        if (reach_flag == 1)
+        {
+            *status = Chassis_Move_Forward_Third;
+        }
+        break;
+    case Chassis_Move_Forward_Third:
+        position = Motor_Position_Cal(1, motor_speed);
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 100); // TODO设置向前动0.01m
+        if (fabsf(up_machine_pid.Err) < 1.0f)                      // TODO dong多少
+        {
+            *status = Back_Screw_Move_Down;
+        }
+        break;
+    case Back_Screw_Move_Down:
+        intigral[0] = 0;
+        intigral[1] = 0;
+        Vxyw.vel.x = 0;
+        Vxyw.vel.y = 0;
+        Vxyw.angvel = 0;
+        // Screw_Motor_Move(Back_Screw_Motor, Screw_Motor_Down_Target);
+        reach_flag = If_Target_Reached(Back_Screw_Motor,Screw_Motor_Down_Target);
+        i_last_tick = rt_tick_get();
+        if (reach_flag == 1)
+        {
+            *status = Up_Stairs_Finished;
+        }
+        break;
+    case Up_Stairs_Finished:
+        up_stairs_finish=1;
+        *status = Forward_Screw_Move_Up;
+        break;
+    default:
+        break;
+    }
+    return Vxyw;
+}
+uint8_t get_chassis_up_stairs_finish(void)
+{
+    return up_stairs_finish;
+}
+
+Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])
+{
+    Mot_base_t Vxyw = {0};
+    int reach_flag = 0;    // 丝杆电机是否到位 1为到位
+
+    switch (*status)
+    {
+    case Forward_Screw_Move_Up:
+        //static uint8_t pre=0;
+        //if(pre==0)
+       // {
+          //  pre=1;
+           Screw_Motor_Move(Back_Screw_Motor, Screw_Motor_UP_Target,1);
+        //}
+        Vxyw.vel.x = -100;
+        Vxyw.vel.y = 0;
+        Vxyw.angvel = 0;
+        reach_flag = If_Ready_To_Down(480);
+        i_last_tick = rt_tick_get();
+        if (reach_flag == 1)
+        {
+           *status = Back_Screw_Move_Down;
+           reach_flag=0;
+        }
+        break;
+        case Back_Screw_Move_Down:
+         Vxyw.vel.x = 0;
+        reach_flag=If_Target_Reached(Back_Screw_Motor,Screw_Motor_Down_Target);
+        if(reach_flag)
+        {
+           *status = Chassis_Move_Back;
+           reach_flag=0;
+        }
+    case Chassis_Move_Back:
+        intigral[0] = 0;
+        intigral[1] = 0;
+        position = Motor_Position_Cal(0, motor_speed);
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, -750); // TODO设置向前动0.01m
+        if (fabsf(up_machine_pid.Err) < 25.0f)                      // TODO dong多少
+        {
+            *status = Forward_Screw_Move_Down;
+        }
+        break;
+    case Forward_Screw_Move_Down:
+        intigral[0] = 0;
+        intigral[1] = 0;
+        Vxyw.vel.x = 0;
+        Vxyw.vel.y = 0;
+        Vxyw.angvel = 0;
+         Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_UP_Target,0);
+        reach_flag = If_Target_Reached(Forward_Screw_Motor,Screw_Motor_UP_Target);
+        Screw_Motor_Move(Back_Screw_Motor, 0,0);
+        if(If_Target_Reached(Back_Screw_Motor,0))
+          reach_flag++;
+        i_last_tick = rt_tick_get();
+        if (reach_flag > 1)
+        {
+            *status = Chassis_Move_Forward_Twice;
+            reach_flag=0;
+        }
+        break;
+    case Chassis_Move_Forward_Twice:
+
+        intigral[0] = 0;
+        intigral[1] = 0;
+        position = Motor_Position_Cal(0, motor_speed);
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, -600); // TODO设置向前动0.01m
+        if (fabsf(up_machine_pid.Err) < 40.0f)                      // TODO dong多少
+        {
+            *status = Back_Screw_Move_Up;
+        }
+        break;
+    case Back_Screw_Move_Up:
+        intigral[0] = 0;
+        intigral[1] = 0;
+        Vxyw.vel.x = 0;
+        Vxyw.vel.y = 0;
+        Vxyw.angvel = 0;
+         Screw_Motor_Move(Forward_Screw_Motor, 0,1);
+        reach_flag = If_Target_Reached(Forward_Screw_Motor,0);
+        i_last_tick = rt_tick_get();
+        if (reach_flag == 1)
+        {
+            *status = Down_Stairs_Finished;
+        }
+        break;
+    case Down_Stairs_Finished:
+        break;
+    default:
+        break;
+    }
+    return Vxyw;
+}
+
+
+
+
+
+
+
+#endif
 /*新修改的设定值规划函数初始化 */
 int Set_Planner_init(void)
 {
@@ -368,6 +606,16 @@ int Set_Planner_init(void)
     return 1;
 }
 
+#define UP_MOTOR_MAX_VEL 100
+#define UP_MOTOR_MAX_ACC 100
+int Set_Planner_Up_motor_init(void)
+{
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[0], UP_MOTOR_MAX_VEL, UP_MOTOR_MAX_ACC, PLAN_PERIOD);
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[1], UP_MOTOR_MAX_VEL, UP_MOTOR_MAX_ACC, PLAN_PERIOD);
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[2], UP_MOTOR_MAX_VEL, UP_MOTOR_MAX_ACC, PLAN_PERIOD);
+    SecondOrder_Set_Follow_init(&set_planner_up_motor[3], UP_MOTOR_MAX_VEL, UP_MOTOR_MAX_ACC, PLAN_PERIOD);
+
+}
 /* ---- 新息前馈补偿参数 ---- */
 // innovation = 正解算速度 - 卡尔曼预测速度
 // 打滑时正解算虚高 → innovation 为正大值 → 前馈输出负补偿，压低设定值
@@ -444,7 +692,6 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     // Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
     // Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
-
 // float update_input_limiter(float K_out)
 // {
 //     /* 1. 计算控制误差 */

@@ -21,16 +21,16 @@
 #error "SCPR_CAN_DEVICE_NAME is not defined right!"
 #endif
 
-#define GIMBAL_SPI_USE 2 // 使用从机2
-#define SCPR_SPI_USE 1   // 使用从机1
+#define GIMBAL_SPI_USE 0 // 使用从机2
+#define SCPR_SPI_USE 2   // 使用从机1
 
 /*功率控制相关参数*/
 
 /*轮子相关数据*/
 #define USING_MECANUM_RESOLVE
-#define VEHICLE_LONG (428.f)      // 前后轮间距（用于麦轮和舵轮解算），单位mm
+#define VEHICLE_LONG (430.f)      // 前后轮间距（用于麦轮和舵轮解算），单位mm
 #define VEHICLE_WIDTH (456.f)     // 左右轮间距（用于麦轮和舵轮解算），单位mm
-#define VEHICLE_DIAMETER (625.4f) // 对角轮间距（用于计算全向轮解算），单位mm
+#define VEHICLE_DIAMETER (626.7f) // 对角轮间距（用于计算全向轮解算），单位mm
 #define WHEEL_RADIUS (60.f)       // 轮子半径 单位毫米
 
 // // 底盘方位角参数,底盘正前方为0°，逆时针为正方向,单位/°，在舵向电机正解算时需要
