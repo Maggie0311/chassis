@@ -293,7 +293,7 @@ rt_err_t Ref_Init(void)
 
     /*注册裁判系统数据更新后的回调函数*/
     Attach_Ref_rec_callback(Index_game_robot_survivors,Ref_Bulid_If_Hurt);
-   // Attach_Ref_rec_callback(Index_game_robot_status,Ref_Robot_ID);
+   Attach_Ref_rec_callback(Index_game_robot_status,Ref_Robot_ID);
     Attach_Ref_rec_callback(Index_robot_hurt,Ref_Robot_Set_Hurt);
   //  Attach_Ref_rec_callback(Index_game_robot_pos, vofa_look);
 

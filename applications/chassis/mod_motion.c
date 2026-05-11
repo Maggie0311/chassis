@@ -352,6 +352,7 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
 }
 
 #ifdef CORE_USING_HERO
+uint8_t up_stairs_finish=0;
 extern PIDInstance up_machine_pid;
 float intigral[2];
 static rt_tick_t i_last_tick = 0;
@@ -474,11 +475,17 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         }
         break;
     case Up_Stairs_Finished:
+        up_stairs_finish=1;
+        *status = Forward_Screw_Move_Up;
         break;
     default:
         break;
     }
     return Vxyw;
+}
+uint8_t get_chassis_up_stairs_finish(void)
+{
+    return up_stairs_finish;
 }
 
 Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])

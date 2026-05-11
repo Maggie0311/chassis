@@ -73,11 +73,12 @@ typedef __packed struct
     // 控制区
     unsigned chassis_reset : 1; // 底盘复位指令
     unsigned GimIfSuperCapOutput : 1; // 底盘功率限制(是否开启超级电容电量自动节省)(C键)
+    unsigned up_stairs_flag : 1; // 上台阶完成标志位
+    unsigned down_stairs_flag : 1; // 下台阶完成标志位
     unsigned ctrl_rsv : 30;           // bit2~31: 控制区保留位
 
     //UI绘制区
     unsigned ui_reset : 1;                // 重置 UI 标志位
-    unsigned current_menu : 4;            // 当前所处菜单
     unsigned aimbot_mode : 3;             // 瞄准模式
     unsigned self_color : 1;              // 当前己方颜色
     // 离线模块数据
@@ -125,5 +126,6 @@ extern rt_tick_t gimbal_ui_data_msg_freshtick;
 
 //云台通信初始化
 rt_err_t Gimbal_Com_Init(void);
-
+uint8_t get_up_stairs_flag(void);
+uint8_t get_down_stairs_flag(void);
 #endif

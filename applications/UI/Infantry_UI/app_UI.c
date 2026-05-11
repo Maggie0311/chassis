@@ -877,7 +877,7 @@ void Get_UI_Data(void)
     UiExData.Color_Myself = Get_Color_Myself(); // 当前自瞄的己方颜色
 
         // 更新菜单状态
-    UiExData.MenuOption = Get_UI_Option_Flag();
+   // UiExData.MenuOption = Get_UI_Option_Flag();
     UI_If_Option_Flag_Change();
 
         UiExData.Energy_is_already = Get_Energy_is_already();   // 能量机关视觉拟合状态

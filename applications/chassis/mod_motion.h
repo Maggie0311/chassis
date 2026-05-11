@@ -99,5 +99,5 @@ Vector2_t MotModule_Transform(Vector2_t speed, float theta);
 // 抬升机构状态机
 Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4]);
 Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4]);
-
+uint8_t get_chassis_up_stairs_finish(void);
 #endif
