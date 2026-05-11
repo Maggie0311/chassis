@@ -55,12 +55,17 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
    else if(get_down_stairs_flag())
    {
        Screw_Motor_Move(Back_Screw_Motor, 520, 0);
+
     //    Motor_Speed_Read();                                // 获取底盘轮向电机速度
     //    fixCtrl.xyw = Down_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
     //    fixCtrl.motion_mode = GO_UPSTAIRS;   
    }
-   else if(get_down_stairs_flag()==0)
-       Screw_Motor_Move(Back_Screw_Motor, 3, 1);
+   else 
+   {
+       status=Forward_Screw_Move_Up;
+       Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
+       Screw_Motor_Move(Back_Screw_Motor, 0, 1);
+   }
 #endif
 
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改

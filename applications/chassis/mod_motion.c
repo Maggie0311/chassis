@@ -407,7 +407,7 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
     case Chassis_Move_Forward:
         position = Motor_Position_Cal(0, motor_speed);
         Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 400); // TODO设置向前动0.01m
-        if (fabsf(up_machine_pid.Err) < 25.0f)                      // TODO dong多少
+        if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
         {
             *status = Forward_Screw_Move_Down;
         }
@@ -420,8 +420,8 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         Vxyw.angvel = 0;
          Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_Down_Target,0);
         reach_flag = If_Target_Reached(Forward_Screw_Motor,Screw_Motor_Down_Target);
-        Screw_Motor_Move(Back_Screw_Motor, 530,0);
-        if(If_Target_Reached(Back_Screw_Motor,530))
+        Screw_Motor_Move(Back_Screw_Motor, 500,0);
+        if(If_Target_Reached(Back_Screw_Motor,500))
           reach_flag++;
         i_last_tick = rt_tick_get();
         if (reach_flag > 1)
@@ -432,7 +432,7 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         break;
     case Chassis_Move_Forward_Twice:
         position = Motor_Position_Cal(0, motor_speed);
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 650); // TODO设置向前动0.01m
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 550); // TODO设置向前动0.01m
         if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
         {
             *status = Back_Screw_Move_Up;

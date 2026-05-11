@@ -30,7 +30,7 @@ int If_Ready_To_Down(float target);
 #define RUN_PID_Kd 0.8
 
 
-#define UP_PID_Kp_Angle 45
+#define UP_PID_Kp_Angle 37
 #define UP_PID_Ki_Angle 0
 #define UP_PID_Kd_Angle 5
 
@@ -38,11 +38,11 @@ int If_Ready_To_Down(float target);
 #define UP_PID_Ki_Speed 0.02
 #define UP_PID_Kd_Speed 0
 
-#define DOWN_PID_Kp_Angle 20
+#define DOWN_PID_Kp_Angle 12
 #define DOWN_PID_Ki_Angle 0
 #define DOWN_PID_Kd_Angle 5
 
-#define DOWN_PID_Kp_Speed 10
+#define DOWN_PID_Kp_Speed 5
 #define DOWN_PID_Ki_Speed 0.01
 #define DOWN_PID_Kd_Speed 0
 
