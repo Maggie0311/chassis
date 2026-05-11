@@ -11,6 +11,7 @@
 #include "drv_motionSolve.h"
 #include "robot_control.h"
 #include "drv_GimMotor.h"
+#include "fun_protocolGim.h"
 #include  "fun_powerCtrl.h"
 #ifdef BSP_USING_LOG
 #define LOG_TAG "Ctrl"
@@ -116,7 +117,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     //  chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
     #ifdef CORE_USING_2026_INFANTRY_2
     chassis_ctrl(&Speed_xyw, &Force_xyw,fixCtrl.motion_mode);
-    #elif CORE_USING_HERO
+    #elif defined(CORE_USING_HERO)
     if(fixCtrl.motion_mode!=CHASSIS_DANGLING_X)
       chassis_ctrl(&Speed_xyw, &Force_xyw );
     #else

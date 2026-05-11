@@ -13,6 +13,15 @@ rt_tick_t Get_Gim_FreshTick(void)
     return gimbal_mixdata_msg_freshtick;
 }
 
+uint8_t get_up_stairs_flag(void)
+{
+    return gimbal_mixdata_msg.up_stairs_flag;
+}
+uint8_t get_down_stairs_flag(void)
+{
+    return gimbal_mixdata_msg.down_stairs_flag;
+}
+
 /****************************英雄绘制UI专用接口*************************** */
 /***
  * @brief 返回底盘运动模式
