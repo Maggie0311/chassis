@@ -107,7 +107,7 @@ typedef struct
     float roll;
 } imu_euler_t;
 
-
+uint8_t Get_if_DongMode(void);
 extern Gim_mixData_Rx_t gimbal_mixdata_msg;
 extern imu_euler_t gimbal_imudata_msg;
 extern rt_tick_t imu_data_freshtick;

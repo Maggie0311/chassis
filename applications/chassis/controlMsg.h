@@ -106,7 +106,12 @@ typedef struct
     float getYawAngel;               // 跟随角时yaw的角度,单位°，范围[-0,360)
    // uint16_t arg;                    // 跟随得到角度的参数
    // uint8_t folIsReverse;            // 跟随时候，坐标系转化时角度是否取反
-   unsigned sentryMode;
+#ifdef CORE_USING_SENTRY
+   unsigned sentryMode : 1; // 哨兵模式
+#endif
+#ifdef CORE_USING_2026_INFANTRY_2
+   unsigned  dongMode :1;
+#endif
 
 } Ctrl_data_info_t;
 

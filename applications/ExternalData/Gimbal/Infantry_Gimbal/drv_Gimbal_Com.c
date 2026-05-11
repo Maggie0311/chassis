@@ -32,6 +32,9 @@ imu_euler_t gimbal_imudata_msg;
 rt_tick_t imu_data_freshtick = 0;
 rt_tick_t gimbal_mixdata_msg_freshtick = 0;
 
+
+Ctrl_data_info_t gimbal_ctrl;
+uint8_t test_mode=1;
 /*---------------------------信息接收-----------------------------------------------------------------------------*/
 /*接收回调*/
 /***
@@ -40,11 +43,11 @@ rt_tick_t gimbal_mixdata_msg_freshtick = 0;
  ***/
 static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
 {
-    static Ctrl_data_info_t gimbal_ctrl;
+    gimbal_ctrl.dongMode = 1;
     gimbal_ctrl.vel_x = (float)MSG_READ_2BYTES(instance->rx_buff[0], instance->rx_buff[1]);
     gimbal_ctrl.vel_y = (float)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
     gimbal_ctrl.mode = (Motion_mode_e)(instance->rx_buff[6]);
-
+    gimbal_ctrl.dongMode = test_mode;//(instance->rx_buff[7]);
     // ulog_d("gim","vx,vy:%.2f,%.2f",gimbal_ctrl.vel_x,gimbal_ctrl.vel_y);
 
     // 云台跟随角外部修改
@@ -72,6 +75,10 @@ static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
     Source_WriteData_s(CS_GIMBAL, &gimbal_ctrl);
 }
 
+uint8_t Get_if_DongMode(void)
+{
+    return gimbal_ctrl.dongMode;
+}
 /***
  * @brief    处理云台发送的各类数据报文
  * @param    instance

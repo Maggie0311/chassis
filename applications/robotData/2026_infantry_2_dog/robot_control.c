@@ -7,6 +7,7 @@
 #include "robot_control.h"
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
+#include "drv_Gimbal_Com.h"
 
 #define WHEEL_MOTOR_NUM 4
 #define GIM_MOTOR_NUM 2
@@ -580,7 +581,16 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
 
         Omni_Inverse_Kinematics_new(*Speed_xyw, 45.f, motorSetSpeed); // 底盘速度解算到各个电机上
         Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
-      //  Inverse_to_Track(*Speed_xyw);
+        if(Get_if_DongMode()==0)
+        {
+            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 1548;
+            Inverse_to_Track(*Speed_xyw);
+        }
+        else
+        {
+            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 528;
+        }
+
        Get_force_out(motorSetForce); // 获取前馈值
     }
 
@@ -600,3 +610,4 @@ void Forward_Kinematics(void)
     }
     Omni_Forward_Kinematics_new(temp, 45.0f);
 }
+
