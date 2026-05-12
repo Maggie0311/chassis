@@ -126,6 +126,5 @@ extern rt_tick_t gimbal_ui_data_msg_freshtick;
 
 //云台通信初始化
 rt_err_t Gimbal_Com_Init(void);
-uint8_t get_up_stairs_flag(void);
-uint8_t get_down_stairs_flag(void);
+
 #endif

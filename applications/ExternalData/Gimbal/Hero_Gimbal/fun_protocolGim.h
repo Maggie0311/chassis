@@ -152,6 +152,10 @@ extern rt_bool_t Get_Gimbal_Stuck_State(void);
 // 获取视觉模块异常状态
 extern Visual_Error_State_Enum Get_Visual_Working_Error_State(void);
 
+//英雄上台阶标志位
+extern uint8_t get_up_stairs_flag(void);
+//英雄下台阶标志位
+extern uint8_t get_down_stairs_flag(void);
 //! 未发暂时留空
 // // 获取当前的本地底盘模式(0功率优先 1血量优先)
 // extern Local_Chassis_Mode_Enum Get_Local_Chassis_Type(void);

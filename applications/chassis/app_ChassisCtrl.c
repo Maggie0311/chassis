@@ -11,6 +11,7 @@
 #include "drv_motionSolve.h"
 #include "robot_control.h"
 #include "drv_GimMotor.h"
+#include "fun_protocolGim.h"
 #include  "fun_powerCtrl.h"
 #ifdef BSP_USING_LOG
 #define LOG_TAG "Ctrl"
