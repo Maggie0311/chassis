@@ -52,13 +52,13 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 #ifdef CORE_USING_HERO
 //    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
 //    {
-    if(get_up_stairs_flag()&&get_chassis_up_stairs_finish()==0)
+    if(get_up_stairs_flag()&&get_chassis_up_stairs_finish()==0&&Zero_Check() == 4)
     {
         Motor_Speed_Read();                                // 获取底盘轮向电机速度
        fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
        fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
    }
-   else if(get_down_stairs_flag())
+   else if(get_down_stairs_flag()&&Zero_Check() == 4)
    {
        Screw_Motor_Move(Back_Screw_Motor, 520, 0);
 
@@ -116,7 +116,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     //  chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
     #ifdef CORE_USING_2026_INFANTRY_2
     chassis_ctrl(&Speed_xyw, &Force_xyw,fixCtrl.motion_mode);
-    #elif CORE_USING_HERO
+    #elif defined(CORE_USING_HERO)
     if(fixCtrl.motion_mode!=CHASSIS_DANGLING_X)
       chassis_ctrl(&Speed_xyw, &Force_xyw );
     #else
