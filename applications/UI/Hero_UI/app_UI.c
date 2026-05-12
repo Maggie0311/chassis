@@ -1111,9 +1111,9 @@ rt_err_t UI_Init(void)
     serial_UI = rt_device_find(BSP_REF_USART_NAME);
     Attach_UI_init(); // 注册UI对象
 
-    // while (REF_ROBO_ID == 0 || REF_CLIENT_ID == 0)
-    // {
-    // }
+    while (REF_ROBO_ID == 0 || REF_CLIENT_ID == 0)
+    {
+    }
 
     // 初始化信号量
     res = rt_sem_init(&UI_sem, "Cctrl_sem", 0, RT_IPC_FLAG_FIFO);

@@ -370,8 +370,8 @@ rt_err_t Gimbal_Com_Init(void)
     res += Gimbal_comRx_Attach(mixData_msg_Index, GIMBAL_DATA_RX, Gimbal_MixData_Rx_call);
     // res += Gimbal_comRx_Attach(Imu_msg_Index, GIMBAL_IMU_DATA_RX, Gimbal_imuData_Rx_call);
 #if defined HREO_UI_SPECIAL
-    // res += Gimbal_comRx_Attach(Ui_light_msg_Index, GIMBAL_UI_LIGHT_DATA_RX, Gimbal_ui_light_Rx_call);
-    // res += Gimbal_comRx_Attach(Ui_bullet_msg_Index, GIMBAL_UI_BULLET_DATA_RX, Gimbal_ui_bullet_Rx_call);
+    res += Gimbal_comRx_Attach(Ui_light_msg_Index, GIMBAL_UI_LIGHT_DATA_RX, Gimbal_ui_light_Rx_call);
+    res += Gimbal_comRx_Attach(Ui_bullet_msg_Index, GIMBAL_UI_BULLET_DATA_RX, Gimbal_ui_bullet_Rx_call);
 #endif
     if (res)
     {

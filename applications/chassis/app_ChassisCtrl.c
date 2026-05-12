@@ -39,7 +39,7 @@ extern float motor_speed[4];
 extern Mot_base_t real_xyw;
 extern float test_off_x;
 extern float test_off_y;
-
+extern uint8_t up_stairs_finish;
 
 /**
  * @brief    模式状态调度 总的来说就是根据云台控制的运动方式，得到底盘坐标系下的Vx,Vy矢量
@@ -53,7 +53,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 #ifdef CORE_USING_HERO
 //    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
 //    {
-    if(get_up_stairs_flag()&&get_chassis_up_stairs_finish()==0&&Zero_Check() == 4)
+    if(get_up_stairs_flag()&&Zero_Check() == 4)
     {
         Motor_Speed_Read();                                // 获取底盘轮向电机速度
        fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
@@ -67,11 +67,12 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     //    fixCtrl.xyw = Down_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
     //    fixCtrl.motion_mode = GO_UPSTAIRS;   
    }
-   else 
+   else if(Zero_Check() == 4)
    {
        status=Forward_Screw_Move_Up;
        Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
        Screw_Motor_Move(Back_Screw_Motor, 0, 1);
+       up_stairs_finish=0;
    }
 #endif
 

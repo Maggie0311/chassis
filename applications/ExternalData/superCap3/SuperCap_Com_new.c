@@ -112,6 +112,7 @@ static void getSuprCapComData(Scpr_ComTx_t *Cmd)
     if (rt_tick_get() - Get_Gim_FreshTick() > 500)
     {
         Cmd->Whether_To_Output = 0;
+        power_ctrl_close=1;
     }
     else
     {

@@ -30,7 +30,7 @@ int If_Ready_To_Down(float target);
 #define RUN_PID_Kd 0.8
 
 
-#define UP_PID_Kp_Angle 37
+#define UP_PID_Kp_Angle 43
 #define UP_PID_Ki_Angle 0
 #define UP_PID_Kd_Angle 5
 
@@ -66,6 +66,7 @@ int If_Ready_To_Down(float target);
 #define Steer_Power_C (0.f)        // 电机静态功率;其效果可以合并计入下面的固定静态功率中，所以暂时不用
 #define WHEELS_GROUP_NUM 4
 
+#define CHASSIS_CTRL_PERIOD 10
 #define PID_CAL_PERIOD 5
 uint8_t Zero_Check(void);
 

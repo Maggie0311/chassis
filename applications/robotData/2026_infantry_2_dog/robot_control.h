@@ -34,6 +34,7 @@ void Follow_pid_init(void);
 
 #define WHEELS_GROUP_NUM 6
 #define PID_CAL_PERIOD 1
+#define CHASSIS_CTRL_PERIOD 2
 /*电机初始化*/
 int chassis_motor_init();
 int gim_motor_init();

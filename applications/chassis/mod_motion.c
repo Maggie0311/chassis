@@ -400,6 +400,10 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
     switch (*status)
     {
     case Forward_Screw_Move_Up:
+        intigral[0] = 0;
+        intigral[1] = 0;
+        Vxyw.vel.x = 0;
+        Vxyw.vel.y = 0;
         Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_UP_Target,0);
         Screw_Motor_Move(Back_Screw_Motor, -10,1);
         Vxyw.vel.x = 0;
@@ -414,7 +418,7 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         break;
     case Chassis_Move_Forward:
         position = Motor_Position_Cal(0, motor_speed);
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 400); // TODO设置向前动0.01m
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 350); // TODO设置向前动0.01m
         if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
         {
             *status = Forward_Screw_Move_Down;
@@ -428,8 +432,8 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         Vxyw.angvel = 0;
          Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_Down_Target,0);
         reach_flag = If_Target_Reached(Forward_Screw_Motor,Screw_Motor_Down_Target);
-        Screw_Motor_Move(Back_Screw_Motor, 500,0);
-        if(If_Target_Reached(Back_Screw_Motor,500))
+        Screw_Motor_Move(Back_Screw_Motor, 530,0);
+        if(If_Target_Reached(Back_Screw_Motor,530))
           reach_flag++;
         i_last_tick = rt_tick_get();
         if (reach_flag > 1)
@@ -440,7 +444,7 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         break;
     case Chassis_Move_Forward_Twice:
         position = Motor_Position_Cal(0, motor_speed);
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 550); // TODO设置向前动0.01m
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 560); // TODO设置向前动0.01m
         if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
         {
             *status = Back_Screw_Move_Up;
@@ -483,9 +487,15 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         }
         break;
     case Up_Stairs_Finished:
+    {
+        intigral[0] = 0;
+        intigral[1] = 0;
+        Vxyw.vel.x = 0;
+        Vxyw.vel.y = 0;
+        Vxyw.angvel = 0;
         up_stairs_finish=1;
-        *status = Forward_Screw_Move_Up;
         break;
+    }
     default:
         break;
     }
