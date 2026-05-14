@@ -1,6 +1,5 @@
 #include "func_Visual_Com.h"
 #include "ThreadCtrl.h"
-#include "controlMsg.h"
 #include "app_RefSystem.h"
 #include "drv_utils.h"
 #include "drv_wheel.h"
@@ -39,13 +38,11 @@ static struct rt_semaphore Visual_sem; // 信号量
 extern radar_cardata_t radar_data[VISUAL_DATA_NUM_MAX]; // 视觉给雷达的机器人识别数据
 extern radar_RxData_t radar_Rxdata;
 //内部数据
-VisualComRX_t ComRxdata;               // ComRxdata:通信接受的原始数据
 VisualCtrl_t VisualCtrl;        //视觉发送的控制相关数据最终转化为的控制数据（写入数据源中）
 
 //接收视觉发送的数据
 Ctrl_info_t visual_rx_ctrl;     //视觉发送的控制原数据，经过处理后设置到VisualCtrl中
 sentry_cmd_info_t visual_rx_sentry_cmd_info; //视觉发送来的哨兵自主决策指令
-// visual_data_t visual_rx_radar[6];
 
 //给视觉发送的数据
 Game_info_t visual_tx_game_info;        //给视觉发送的比赛信息
@@ -53,11 +50,8 @@ Game_robot_survivors_t visual_tx_game_robot_survivors;//给视觉发送的机器
 Robot_info_t visual_tx_robot_info;      //给视觉发送的机器人数据（自己的数据）
 Bullet_remaining_t visual_tx_bullet_remaining; // 给视觉发送子弹剩余发射数和剩余金币数量
 Robot_wheel_odometry_t visual_tx_Robot_wheel_odometry;     //底盘正解算后的x\y方向速度
-// Event_data_t visual_tx_event_data;      //给视觉发送的场地事件信息
-// Robot_position_t visual_tx_robot_pos;   //给视觉发送本机器人位置相关数据
-// Ground_robot_position_t visual_tx_ground_robot_position; // 给视觉发送地面机器人位置数据(除了自身以外的地面机器人数据)
-// Sentry_info_t visual_tx_sentry_info; // 给视觉发送哨兵自主决策反馈数据    
-// Robot_command_map_t visual_tx_robot_command_map;    //给视觉发送云台手发送给哨兵的信息
+ext_sentry_info_t visual_tx_sentry_info;    //哨兵自主决策信息同步
+com_opponent_position_t visual_tx_opponent_position; // 对方机器人位置信息
 
 static uint8_t visual_com_tx_buff[512]; // 视觉通信发送数据缓冲区
 static uint8_t visual_com_rx_buff[512]; // 视觉通信接收数据缓冲区
@@ -68,20 +62,30 @@ static void get_visual_need_ref_data()
     static ext_game_robot_survivors_t visual_tx_game_robot_survivors_temp={0};
     static ext_bullet_remaining_t visual_tx_bullet_remaining_temp={0};
     static ext_game_state_t visual_tx_game_state_temp ={0};
-    // static ext_event_data_t visual_tx_event_data_temp={0};
-    // static ext_game_robot_pos_t visual_tx_robot_pos_temp={0};
-    // static ext_sentry_info_t visual_tx_sentry_info_temp={0};
-    // static ext_robot_command_map_t visual_tx_robot_command_map_temp={0};
+    static ext_event_data_t visual_tx_event_data_temp ={0};
+
     uint16_t getdata_temp_16;
     uint8_t getdata_temp_8;
 
+    /*比赛阶段信息*/
     getRefData(structGet_pram(visual_tx_game_state_temp,ext_game_state));
     visual_tx_game_info.game_type = visual_tx_game_state_temp.game_data.game_type;
     visual_tx_game_info.game_progress = visual_tx_game_state_temp.game_data.game_progress;
     getRefData(memberGet_parm(getdata_temp_16,ext_game_state,stage_remain_time));
     visual_tx_game_info.stage_remain_time = getdata_temp_16;
+    getRefData(bitGet_parm(getdata_temp_8,ext_dart_info,dart_info,6,3));
+    visual_tx_game_info.dart_target = getdata_temp_8;
+    getRefData(bitGet_parm(getdata_temp_8, ext_event_data, event_type, 3, 2));
+    visual_tx_game_info.small_energy_state = getdata_temp_8;
+    getRefData(structGet_pram(visual_tx_event_data_temp, ext_event_data));
+    visual_tx_game_info.small_energy_state = visual_tx_event_data_temp.small_energy_state;  
+    visual_tx_game_info.big_energy_state = visual_tx_event_data_temp.big_energy_state;  
+
+    /*己方血量信息*/
     getRefData(structGet_pram(visual_tx_game_robot_survivors_temp,ext_game_robot_survivors));
     rt_memcpy(&visual_tx_game_robot_survivors,&visual_tx_game_robot_survivors_temp,sizeof(visual_tx_game_robot_survivors));
+    
+    /*机器人信息*/
     getRefData(memberGet_parm(getdata_temp_8,ext_game_robot_status,robot_id));
     visual_tx_robot_info.robot_id = getdata_temp_8;
     getRefData(memberGet_parm(getdata_temp_8,ext_game_robot_status,robot_level));
@@ -90,43 +94,26 @@ static void get_visual_need_ref_data()
     visual_tx_robot_info.remain_HP = getdata_temp_16;
     getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,max_HP));
     visual_tx_robot_info.max_HP = getdata_temp_16;
-    // getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,shooter_cooling_rate));
-    // visual_tx_robot_info.shooter_cooling_rate = getdata_temp_16;
     getRefData(structGet_pram(visual_tx_bullet_remaining_temp,ext_bullet_remaining));
     visual_tx_robot_info.bullet_remaining_num_17mm = visual_tx_bullet_remaining_temp.bullet_remaining_num_17mm;
-    visual_tx_bullet_remaining.bullet_remaining_num_42mm = visual_tx_bullet_remaining_temp.bullet_remaining_num_42mm;
-    visual_tx_bullet_remaining.coin_remaining_num = visual_tx_bullet_remaining_temp.coin_remaining_num;
-    visual_tx_bullet_remaining.projectile_allowance_fortress = visual_tx_bullet_remaining_temp.projectile_allowance_fortress;
     getRefData(memberGet_parm(getdata_temp_16, ext_game_robot_status, shooter_cooling_limit));
     visual_tx_robot_info.shooter_cooling_limit = getdata_temp_16;
     getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,chassis_power_limit));
     visual_tx_robot_info.chassis_power_limit = getdata_temp_16;
-    //getRefData(structGet_pram(visual_tx_bullet_remaining_temp,ext_bullet_remaining));
 
-    //rt_memcpy(&visual_tx_bullet_remaining, &visual_tx_bullet_remaining_temp, sizeof(visual_tx_bullet_remaining_temp));
+    /*剩余发弹量与金币数*/
+    visual_tx_bullet_remaining.bullet_remaining_num_17mm = visual_tx_bullet_remaining_temp.bullet_remaining_num_17mm;
+    visual_tx_bullet_remaining.coin_remaining_num = visual_tx_bullet_remaining_temp.coin_remaining_num;
+    visual_tx_bullet_remaining.projectile_allowance_fortress = visual_tx_bullet_remaining_temp.projectile_allowance_fortress;
 
-    // getRefData(structGet_pram(visual_tx_event_data_temp,ext_event_data));
-    // rt_memcpy(&visual_tx_event_data,&visual_tx_event_data_temp,sizeof(visual_tx_event_data));
-    // getRefData(structGet_pram(visual_tx_robot_pos_temp,ext_game_robot_pos));
-    // rt_memcpy(&visual_tx_robot_pos,&visual_tx_robot_pos_temp,sizeof(visual_tx_robot_pos));
-    // visual_tx_ground_robot_position.hero_x=get_robot_pos(pos_x, robot_hero);
-    // visual_tx_ground_robot_position.hero_y=get_robot_pos(pos_y, robot_hero);
-    // visual_tx_ground_robot_position.engineer_x=get_robot_pos(pos_x, robot_engineer);
-    // visual_tx_ground_robot_position.engineer_y=get_robot_pos(pos_y, robot_engineer);
-    // visual_tx_ground_robot_position.standard_3_x=get_robot_pos(pos_x, robot_standard_3);
-    // visual_tx_ground_robot_position.standard_3_y=get_robot_pos(pos_y, robot_standard_3);
-    // visual_tx_ground_robot_position.standard_4_x=get_robot_pos(pos_x, robot_standard_4);
-    // visual_tx_ground_robot_position.standard_4_y=get_robot_pos(pos_y, robot_standard_4);
+    /*哨兵自主决策信息*/
+    getRefData(structGet_pram(visual_tx_sentry_info,ext_sentry_info));
 
-    // getRefData(structGet_pram(visual_tx_sentry_info_temp,ext_sentry_info));
-    // rt_memcpy(&visual_tx_sentry_info,&visual_tx_sentry_info_temp,sizeof(visual_tx_sentry_info));
-    // getRefData(structGet_pram(visual_tx_robot_command_map_temp,ext_robot_command_map));
-    // rt_memcpy(&visual_tx_robot_command_map,&visual_tx_robot_command_map_temp,sizeof(visual_tx_robot_command_map));
+    /*底盘正解算后的x\y方向速度*/
     static Mot_base_t chass_xyw={0};
     chass_xyw.vel=MotModule_Transform(Get_realmotion().vel,-Get_YAW_ANGLE_360f());
     visual_tx_Robot_wheel_odometry.vel_x = chass_xyw.vel.x;
     visual_tx_Robot_wheel_odometry.vel_y = chass_xyw.vel.y;
-
 }
 
 #ifdef VISUAL_USART_USING_NORMAL
@@ -259,9 +246,6 @@ rt_err_t Visual_rtt_uart_Init(const char *name, rt_err_t (*rx_cb)(rt_device_t de
 
 /****************接收部分*************************************************** */
 
-
-//数据
-VisualComRX_t ComRxdata_temp;
 /**
  * @brief 有视觉导航时使用的电控处理
  */
@@ -290,21 +274,6 @@ static void Visual_Ctrl_Receive_callback(void* data_p)
 
     VisualCtrl.ctrlData.getYawAngel = Get_YAW_ANGLE_360f();
     Source_WriteData_s(CS_Visual, (void *)&VisualCtrl.ctrlData);//将数据源写入到控制数据中
-}
-
-//todo 需要做成回调函数处理
-static void vsDatadeal(void*data_p)
-{
-    // if (ComRxdata.data_num != 0)
-    //     for (uint8_t i = 0; i < ComRxdata.data_num; i++)
-    //     {
-    //         if (ComRxdata.radar_data[i].robot_ID <= 5 && ComRxdata.radar_data[i].robot_ID != 0)
-    //             radar_data[ComRxdata.radar_data[i].robot_ID - 1] = *(radar_cardata_t *)&ComRxdata.radar_data[i].x;
-    //         else if (ComRxdata.radar_data[i].robot_ID == 7)
-    //             radar_data[5] = *(radar_cardata_t *)&ComRxdata.radar_data[i].x;
-    //         else
-    //             continue;
-    //     };
 }
 
 static void visualRxThread(void *parameter)
@@ -376,12 +345,9 @@ rt_err_t VisualInit(void)
     Attach_SendCmd(VisualData_Serial,CMD_ID_ROBOT_INFO,CMD_SET_ROBOT_INFO,sizeof(visual_tx_robot_info), (void*)&visual_tx_robot_info);
     Attach_SendCmd(VisualData_Serial,CMD_ID_Bullet_remaining,CMD_SET_Bullet_remaining,sizeof(visual_tx_bullet_remaining), (void*)&visual_tx_bullet_remaining);
     Attach_SendCmd(VisualData_Serial,CMD_ID_Robot_wheel_odometry,CMD_SET_Robot_wheel_odometry,sizeof(visual_tx_Robot_wheel_odometry),(void*)&visual_tx_Robot_wheel_odometry);
-    //Attach_SendCmd(VisualData_Serial,CMD_ID_EVENT_DATA,CMD_SET_EVENT_DATA,sizeof(visual_tx_event_data), (void*)&visual_tx_event_data);
-    //Attach_SendCmd(VisualData_Serial,CMD_ID_ROBOT_POSITION,CMD_SET_ROBOT_POSITION,sizeof(visual_tx_robot_pos), (void*)&visual_tx_robot_pos);
-    //Attach_SendCmd(VisualData_Serial,CMD_ID_Ground_robot_position,CMD_SET_Ground_robot_position,sizeof(visual_tx_ground_robot_position), (void*)&visual_tx_ground_robot_position);
-    //Attach_SendCmd(VisualData_Serial,CMD_ID_Sentry_info,CMD_SET_Sentry_info,sizeof(visual_tx_sentry_info), (void*)&visual_tx_sentry_info);
-    //Attach_SendCmd(VisualData_Serial,CMD_ID_Robot_command_map,CMD_SET_Robot_command_map,sizeof(visual_tx_robot_command_map), (void*)&visual_tx_robot_command_map);
-    
+    Attach_SendCmd(VisualData_Serial,CMD_ID_Sentry_INFO,CMD_SET_Sentry_INFO,sizeof(visual_tx_sentry_info),(void*)&visual_tx_sentry_info);
+    Attach_SendCmd(VisualData_Serial,CMD_ID_opponent_position,CMD_SET_opponent_position,sizeof(visual_tx_opponent_position),(void*)&visual_tx_opponent_position);
+
 
     //初始化接收命令ID和回调函数
     Attach_Receive_callback(CMD_ID_VISUAL_CTRL, sizeof(visual_rx_ctrl), (void *)&visual_rx_ctrl, Visual_Ctrl_Receive_callback);
@@ -399,9 +365,4 @@ rt_err_t VisualInit(void)
         return RT_ERROR;
 
     return ret;
-}
-
-sentry_cmd_info_t get_sentry_cmd_data(void)
-{
-    return visual_rx_sentry_cmd_info;
 }

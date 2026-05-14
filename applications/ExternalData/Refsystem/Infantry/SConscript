@@ -1,0 +1,11 @@
+from building import *
+
+cwd = GetCurrentDir()
+src = Glob('*.c')
+CPPPATH = [cwd]
+
+if GetDepend(['CORE_USING_2026_INFANTRY_1']):
+    group = DefineGroup('RefSystem', src, depend = [''], CPPPATH = CPPPATH)
+else:
+    group = []
+Return('group')

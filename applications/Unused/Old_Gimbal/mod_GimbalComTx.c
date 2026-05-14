@@ -27,7 +27,7 @@ uint8_t gimTxDebug = 1;
 static rt_uint16_t Ref_Shooter_Cooling_Heat(void)
 {
     uint16_t heat_temp;
-    switch(REF_ROBO_ID)
+    switch(ref_IdData.self_id)
     {
         case REF_ROBO_R1_HERO:
         case REF_ROBO_B1_HERO:

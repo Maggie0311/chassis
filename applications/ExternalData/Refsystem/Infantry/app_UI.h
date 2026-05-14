@@ -3,7 +3,6 @@
 #include "drv_GimMotor.h"
 #include "SuperCap_Com_new.h"
 #include "fun_protocolGim.h"
-#include "app_RefSystem.h"
 #include "robot_data.h"
 
 // UI需要获取的数据
@@ -71,4 +70,4 @@ typedef struct UI_Used_Data_t
     unsigned IfAllow_Heat_Shoot : 1;      // 英雄是否允许超热量射击, 1 代表允许
 } UI_Used_Data_t;
 
-rt_err_t UI_init(void);
+void UI_Init(void);
