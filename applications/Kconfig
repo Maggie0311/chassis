@@ -10,6 +10,7 @@ menu "Choose Car model Config"
         config CORE_USING_HERO      #英雄
             bool "hero"
 		config CORE_USING_SENTRY    #哨兵
+        select BSP_USING_VISUAL_USART
 			bool "sentry"
 		config CORE_USING_ENGINEER  #工程
 			bool "engineer"			
@@ -19,7 +20,7 @@ menu "Choose Car model Config"
         choice
             prompt "select Types of sentry robot" 
             default CORE_USING_OMNI_SENTRY
-              
+
             #全向轮哨兵-26新
             config CORE_USING_OMNI_SENTRY
                 bool "omni wheel sentry"    

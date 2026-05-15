@@ -18,6 +18,8 @@ typedef struct UI_Used_Data_t
 
     float GM_IMU_Pitch; // 云台imu pitch
 
+    uint8_t Track_State; // 履带状态
+
     strike_mode_e Strike_Mode; // 显示子弹模式,有单发与三连发
 
     ui_motion_mode_e Motion_Mode; // 底盘模式

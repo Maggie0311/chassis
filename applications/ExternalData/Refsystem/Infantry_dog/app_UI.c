@@ -7,6 +7,7 @@
 #include "app_UI.h"
 #include "UI_data.h"
 #include "app_RefSystem.h"
+#include "fun_protocolGim.h"
 
 // UI需要使用到的外部数据
 UI_Used_Data_t UiExData;
@@ -582,6 +583,22 @@ void UI_Hole_Rect(UI_Object *object)
                 UI_HOLE_RECT_X2, UI_HOLE_RECT_Y2);
 }
 
+void UI_Track_State(UI_Object *object)
+{
+    static char txt1[2][12] = {" Track Off ", " Track ON "};
+    uint8_t track_remain = UiExData.Track_State;
+    if (track_remain == 0)
+    {
+        UI_Set_String(object, UiOrange, Draw_TRACK_STATE_WIDTH, Ui_layer_4, UI_TRACK_STATE_CENTER_X - UI_TRACK_SIZE * 3,
+                      UI_TRACK_STATE_CENTER_Y + UI_TRACK_SIZE * 3, UI_TRACK_SIZE, txt1[0], sizeof(txt1[0]));
+    }
+    else if (track_remain == 1)
+    {
+        UI_Set_String(object, UiOrange, Draw_TRACK_STATE_WIDTH, Ui_layer_4, UI_TRACK_STATE_CENTER_X - UI_TRACK_SIZE * 3,
+                      UI_TRACK_STATE_CENTER_Y + UI_TRACK_SIZE * 3, UI_TRACK_SIZE, txt1[1], sizeof(txt1[1]));
+    }
+}
+
 /// <summary>
 ///                 注册部分初始化
 /// </summary>
@@ -592,6 +609,13 @@ void Attach_UI_init()
     Attach_UI_Object(UiRect, UiGreen, TRANS_ONCE, 1, UI_SuperCap_Border);    // 绘制超电矩形框
     Attach_UI_Object(UiLine, UiGreen, TRANS_FOREVER, 1, UI_SuperCap_Shape);  // 绘制超电矩形框内部的柱状线
     Attach_UI_Object(UiStr, UiGreen, TRANS_FOREVER, 4, UI_SuperCap_Key);     // 绘制超电的开关字符
+    
+    //履带标志
+    Attach_UI_Object(UiStr, UiOrange, TRANS_FOREVER, 4, UI_Track_State); // 绘制履带状态
+    
+     // 洞对准 — 洞口矩形 (TRANS_ONCE 常驻显示，方便标定)
+    Attach_UI_Object(UiRect, UiGreen, TRANS_ONCE, 1, UI_Hole_Rect);
+
     // 绘制无线充电标志
     Attach_UI_Object(UiArc, UiCyan, TRANS_NULL, 0, UI_Wireless_Charge_Arc_1); //
     Attach_UI_Object(UiArc, UiCyan, TRANS_NULL, 0, UI_Wireless_Charge_Arc_2); //
@@ -602,8 +626,8 @@ void Attach_UI_init()
     Attach_UI_Object(UiLine, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Line_1); // 绘制云台的姿态信息（三条短线）
     Attach_UI_Object(UiLine, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Line_2); // 绘制云台的姿态信息（三条短线）
     Attach_UI_Object(UiLine, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Line_3); // 绘制云台的姿态信息（三条短线）
-    Attach_UI_Object(UiStr, UiTeam, TRANS_ONCE, 1, UI_GimbalPosture_Pitch_word); // 绘制云台的姿态信息（pitch字符）
-    Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Pitch); // 绘制云台的姿态信息（pitch具体数值）
+    // Attach_UI_Object(UiStr, UiTeam, TRANS_ONCE, 1, UI_GimbalPosture_Pitch_word); // 绘制云台的姿态信息（pitch字符）
+    // Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Pitch); // 绘制云台的姿态信息（pitch具体数值）
 
     // 堵弹标志UI
     Attach_UI_Object(UiStr, UiOrange, TRANS_NULL, 0, UI_StrikeStuck_Info); // 绘制堵弹标志
@@ -622,7 +646,7 @@ void Attach_UI_init()
     Attach_UI_Object(UiStr, UiTeam, TRANS_ONCE, 1, UI_Aimbot_Color);       //  自瞄颜色显示
 
     //绘制缓冲能量相关提示
-    Attach_UI_Object(UiInt,UiGreen,TRANS_FOREVER,1,UI_PowerBuff_Value);//缓冲能量显示数值 当数值变成15一下变色
+    // Attach_UI_Object(UiInt,UiGreen,TRANS_FOREVER,1,UI_PowerBuff_Value);//缓冲能量显示数值 当数值变成15一下变色
 
     // 绘制车道线
     Attach_UI_Object(UiLine, UiTeam, TRANS_ONCE, 1, UI_LaneLine_1); //  绘制车道线第1条
@@ -806,6 +830,7 @@ static rt_uint8_t getIfBuildAttacked(void)
 void Get_UI_Data(void)
 {
     /******************************未用****************************************/
+    UiExData.Track_State = Get_Track_On();
     UiExData.Local_AmmoBooster_Mode = Get_Local_AmmoBooster_Type();
     // UiExData.Local_Robot_Level = Get_Local_Robot_Level();
     UiExData.Gimbal_Motor_Offline = Get_Gimbal_Motor_Offline_State();
@@ -860,7 +885,7 @@ void Get_UI_Data(void)
     UiExData.Ch_IMU_Data = get_chassis_imu_data(); // 得到底盘三轴欧拉角--绘制辅助瞄准线
 #endif
     UiExData.GM_YAW_360F = Get_YAW_ANGLE_360f(); // 获取云台,yaw --绘制辅助瞄准线
-    UiExData.GM_Pitch = Get_PITCH_ANGLE_360f();  // 云台电机,pitch--绘制辅助瞄准线
+    // UiExData.GM_Pitch = Get_PITCH_ANGLE_360f();  // 云台电机,pitch--绘制辅助瞄准线
 
     // UiExData.GM_IMU_Pitch = Get_Gimbal_IMU_Data(IMU_PITCH); // 云台imu pitch--显示云台Pitch轴角度
     UiExData.Strike_Mode = Get_StrikeMode(); // 更新子弹模式,有单发与三连发模式(这里已经不再使用该变量来作为单发和连发的判断依据)

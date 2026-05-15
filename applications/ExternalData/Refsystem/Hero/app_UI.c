@@ -658,9 +658,6 @@ void Attach_UI_init()
     // 能量机关(视觉拟合状态和开启能量机关自瞄模式时显示) 能量机关和准心
     //Attach_UI_Object(UiCircle, UiWhite, TRANS_ONCE, 1, UI_Aim_Point_Info);        // 能量机关中心图标圆圈
    
-    // 洞对准 — 洞口矩形 (TRANS_ONCE 常驻显示，方便标定)
-    Attach_UI_Object(UiRect, UiGreen, TRANS_ONCE, 1, UI_Hole_Rect);
-
     // 绘制菜单选项卡(这里的每一行都是一个单独的菜单元素，因此不同的菜单实际上需要修改每一行的内容即可)
     Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line1);
     Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line2);
