@@ -848,35 +848,42 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed-5;  
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
 
+        
+        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
+        up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
         Motor_Set_Target((MotorInstance *)&up_motor[0], set_planner_up_motor[0].p+ up_motor_zero_offset[0]); // TODO
         Motor_Set_Target((MotorInstance *)&up_motor[1], set_planner_up_motor[1].p+ up_motor_zero_offset[1]); // TODO
     }
 
     else if(motor == Forward_Screw_Motor&&up_or_down==DOWN)
      { 
-        up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle+10;
+        up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle;
         up_motor[0].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
-        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed+5;
+        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
         up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
 
         up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle;        
         up_motor[1].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
         up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
+
+        up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=2000;
+        up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=2000;
         Motor_Set_Target((MotorInstance *)&up_motor[0], set_planner_up_motor[0].p+ up_motor_zero_offset[0]); // TODO
         Motor_Set_Target((MotorInstance *)&up_motor[1], set_planner_up_motor[1].p+ up_motor_zero_offset[1]); // TODO
     }
     else if (motor == Back_Screw_Motor&&up_or_down==UP)
     {
-        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle+20;
+        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle;
         up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed+5;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
-
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle+20;
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed+5;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
+        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
         Motor_Set_Target((MotorInstance *)&up_motor[2], set_planner_up_motor[2].p+ up_motor_zero_offset[2]); // TODO
         Motor_Set_Target((MotorInstance *)&up_motor[3], set_planner_up_motor[3].p+ up_motor_zero_offset[3]); // TODO
     }
@@ -886,11 +893,13 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
         up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=3000;
 
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle;        
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
+        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=3000;
         Motor_Set_Target((MotorInstance *)&up_motor[2], set_planner_up_motor[2].p+ up_motor_zero_offset[2]); // TODO
         Motor_Set_Target((MotorInstance *)&up_motor[3], set_planner_up_motor[3].p+ up_motor_zero_offset[3]); // TODO
     }
@@ -899,15 +908,38 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
 int If_Ready_To_Down(float target)
 {
  
-   up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=2000;
-   up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=2000;
+   up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=1000;
+   up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=1000;
 //     Motor_Set_Target((MotorInstance *)&up_motor[2], -400);
 //    Motor_Set_Target((MotorInstance *)&up_motor[3], -400);
    if(fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 300.0f&&fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) <300.f)
-   return 1;
+   {
+     up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=10000;
+     up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=10000;
+     return 1;
+   }
    else 
    return 0;
 }
+
+int If_Ready_To_Down_F(float target)
+{
+ 
+   up_motor[0].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=800;
+   up_motor[1].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=800;
+//     Motor_Set_Target((MotorInstance *)&up_motor[2], -400);
+//    Motor_Set_Target((MotorInstance *)&up_motor[3], -400);
+   if(fabsf(up_motor[0].Motor_obj.total_angle-target-up_motor_zero_offset[0]) < 280.0f&&fabsf(up_motor[1].Motor_obj.total_angle-target-up_motor_zero_offset[1]) <280.f)
+   {
+     up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
+     up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
+     return 1;
+   }
+   else 
+   return 0;
+}
+
+
 /**
  * @brief 判断电机是否到达目标角度
  *
@@ -919,7 +951,7 @@ int If_Target_Reached(Screw_Motor_e motor,float target)
 {
     if (motor == Forward_Screw_Motor)
     {
-        if (fabsf(up_motor[0].Motor_obj.total_angle-target-up_motor_zero_offset[0]) < 5.0f && fabsf(target+up_motor_zero_offset[1]-up_motor[1].Motor_obj.total_angle) < 5.0f)
+        if (fabsf(up_motor[0].Motor_obj.total_angle-target-up_motor_zero_offset[0]) < 20.0f && fabsf(target+up_motor_zero_offset[1]-up_motor[1].Motor_obj.total_angle) < 20.0f)
         {
             return 1;
         }
@@ -930,7 +962,7 @@ int If_Target_Reached(Screw_Motor_e motor,float target)
     }
     else if (motor == Back_Screw_Motor)
 {
-   if (fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 5.0f && fabsf(target+up_motor_zero_offset[3]-up_motor[3].Motor_obj.total_angle) < 5.0f)
+   if (fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 20.0f && fabsf(target+up_motor_zero_offset[3]-up_motor[3].Motor_obj.total_angle) < 20.0f)
         {
             return 1;
         }

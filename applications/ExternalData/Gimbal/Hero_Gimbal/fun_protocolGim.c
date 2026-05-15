@@ -21,7 +21,14 @@ uint8_t get_down_stairs_flag(void)
 {
     return gimbal_mixdata_msg.down_stairs_flag;
 }
-
+uint8_t get_forward_up(void)
+{
+    return gimbal_mixdata_msg.forward_up;
+}
+uint8_t get_back_up(void)
+{
+    return gimbal_mixdata_msg.back_up;
+}
 /****************************英雄绘制UI专用接口*************************** */
 /***
  * @brief 返回底盘运动模式

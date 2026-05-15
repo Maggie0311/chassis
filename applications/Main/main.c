@@ -39,8 +39,7 @@
 #include <ulog.h>
 #endif
 
-int main(void)
-{
+int main(void){
     int result = 0;
     /*上电提示音*/
 #ifdef BSP_USING_BUZZER

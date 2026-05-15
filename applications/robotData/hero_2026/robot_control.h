@@ -19,6 +19,7 @@ int If_Target_Reached(Screw_Motor_e motor,float target);
 void Up_Motor_Angle_Read();
 void Screw_Motor_Move(Screw_Motor_e motor, float target, uint8_t up_or_down);
 int If_Ready_To_Down(float target);
+int If_Ready_To_Down_F(float target);
 // 云台电机是否大小yaw
 #define YAW_MOTOR 0
 #define PITCH_MOTOR 1
@@ -38,11 +39,11 @@ int If_Ready_To_Down(float target);
 #define UP_PID_Ki_Speed 0.02
 #define UP_PID_Kd_Speed 0
 
-#define DOWN_PID_Kp_Angle 12
+#define DOWN_PID_Kp_Angle 10
 #define DOWN_PID_Ki_Angle 0
 #define DOWN_PID_Kd_Angle 5
 
-#define DOWN_PID_Kp_Speed 5
+#define DOWN_PID_Kp_Speed 4
 #define DOWN_PID_Ki_Speed 0.01
 #define DOWN_PID_Kd_Speed 0
 
