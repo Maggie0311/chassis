@@ -246,7 +246,7 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
         gim_reftrans_msg2.hurtID = 0xFF;
 
     /*获取己方颜色*/
-    gim_reftrans_msg2.tempColor = REF_TEAM_COLOR;
+    gim_reftrans_msg2.tempColor = ref_IdData.team_color;
 
     /*己方前哨站是否存活*/
     if (hurt.outpost_hp > 0)

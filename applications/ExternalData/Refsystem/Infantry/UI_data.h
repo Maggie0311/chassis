@@ -2,6 +2,7 @@
 #define __CUSTOMUI_GRAPHPARAMETERS_H
 
 #include "board.h"
+#include "HRef_ID.h"
 
 #ifndef PI
 #define PI 3.14159265f

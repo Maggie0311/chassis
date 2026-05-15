@@ -6,6 +6,7 @@
 #include "app_RefSystem.h"
 #include "robot_data.h"
 #include "drv_draw_UI.h"
+#include "drv_RefReceive.h"
 
 // UI需要获取的数据
 typedef struct UI_Used_Data_t

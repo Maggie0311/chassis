@@ -6,6 +6,7 @@
 #include "drv_draw_UI.h"
 #include "app_UI.h"
 #include "UI_data.h"
+#include "app_RefSystem.h"
 
 // UI需要使用到的外部数据
 UI_Used_Data_t UiExData;

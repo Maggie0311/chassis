@@ -4,6 +4,7 @@
 #include "SuperCap_Com_new.h"
 #include "fun_protocolGim.h"
 #include "robot_data.h"
+#include "HRef_ID.h"
 
 // UI需要获取的数据
 typedef struct UI_Used_Data_t

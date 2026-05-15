@@ -195,11 +195,11 @@ static void getGimData(void)
     }
 #endif
     // 0为红方，1为蓝方
-    if (REF_TEAM_COLOR == RED_TEAM)
-        REF_TEAM_COLOR = 0;
-    else if (REF_TEAM_COLOR == BLUE_TEAM)
-        REF_TEAM_COLOR = 1;
-    TxGimMsg.tempColor = REF_TEAM_COLOR;
+    if (ref_IdData.team_color == RED_TEAM)
+        ref_IdData.team_color = 0;
+    else if (ref_IdData.team_color == BLUE_TEAM)
+        ref_IdData.team_color = 1;
+    TxGimMsg.tempColor = ref_IdData.team_color;
 }
 
 /***
