@@ -132,17 +132,15 @@ uint8_t RefGetIsFlySlope(void)
     return ret_flag;
 }
 
-sentry_cmd_info_t Sentry_Decision_Update(void);
+sentry_cmd_info_t Sentry_Decision_Update(void)
 {
     return visual_rx_sentry_cmd_info;
 }
 
 void opponent_position_update(void *data,Ref_Robot_e sender)
 {
-    if (sender == Ref_RADAR)
-    {
-        visual_tx_opponent_position = *data;
-    }
+    com_opponent_position_t *opponent_position = (com_opponent_position_t *)data;
+    visual_tx_opponent_position = *opponent_position;
 }
 
 rt_err_t Ref_Init(void)

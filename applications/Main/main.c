@@ -6,7 +6,6 @@
 #include "app_ChassisCtrl.h"
 #include "func_MonHandling.h"
 //#include "app_UI.h"
-#include "custom_message.h"
 #include "app_RefSystem.h"
 
 #ifdef BSP_USING_RGB_LIGHT
@@ -17,7 +16,6 @@
 #endif
 #ifdef BSP_USING_VISUAL_USART
 #include "func_Visual_Com.h"
-#include "sentry_cmd.h"
 #endif
 #include "protect.h"
 #include "drv_IMU_Can.h"
@@ -161,17 +159,17 @@ int main(void)
 #endif
 
 #ifdef CORE_USING_SENTRY
-    result = Sentry_Data_Send_Init();
-    if (result != RT_EOK)
-    {
-        LOG_E("Sentry_Data_Send Init Failes! Result is %d", result);
-        LOG_E("Robot Reset!");
-        Robot_Chassis_Reset(RT_TRUE);
-    }
-    else
-    {
-        LOG_I("Sentry_Data_Send Init Success!");
-    }
+    // result = Sentry_Data_Send_Init();
+    // if (result != RT_EOK)
+    // {
+    //     LOG_E("Sentry_Data_Send Init Failes! Result is %d", result);
+    //     LOG_E("Robot Reset!");
+    //     Robot_Chassis_Reset(RT_TRUE);
+    // }
+    // else
+    // {
+    //     LOG_I("Sentry_Data_Send Init Success!");
+    // }
  #else
      if (UI_Init() != RT_EOK)
          Robot_Chassis_Reset(RT_TRUE);

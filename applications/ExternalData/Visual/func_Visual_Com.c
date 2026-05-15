@@ -34,9 +34,7 @@ static struct rt_completion completion;   // 完成量
 static struct rt_semaphore Visual_sem; // 信号量
 #endif
 
-//外部数据
-extern radar_cardata_t radar_data[VISUAL_DATA_NUM_MAX]; // 视觉给雷达的机器人识别数据
-extern radar_RxData_t radar_Rxdata;
+
 //内部数据
 VisualCtrl_t VisualCtrl;        //视觉发送的控制相关数据最终转化为的控制数据（写入数据源中）
 
@@ -75,8 +73,6 @@ static void get_visual_need_ref_data()
     visual_tx_game_info.stage_remain_time = getdata_temp_16;
     getRefData(bitGet_parm(getdata_temp_8,ext_dart_info,dart_info,6,3));
     visual_tx_game_info.dart_target = getdata_temp_8;
-    getRefData(bitGet_parm(getdata_temp_8, ext_event_data, event_type, 3, 2));
-    visual_tx_game_info.small_energy_state = getdata_temp_8;
     getRefData(structGet_pram(visual_tx_event_data_temp, ext_event_data));
     visual_tx_game_info.small_energy_state = visual_tx_event_data_temp.small_energy_state;  
     visual_tx_game_info.big_energy_state = visual_tx_event_data_temp.big_energy_state;  

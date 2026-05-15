@@ -1,6 +1,8 @@
 #ifndef _VISUAL_DATA_H_
 #define _VISUAL_DATA_H_
 
+#include <board.h>
+
 /******************视觉发送，底盘接收*************************************** */
 //控制数据，包含x和y的线速度和角速度，以及小陀螺模式，跟随角度
 typedef __packed struct
@@ -11,19 +13,6 @@ typedef __packed struct
     uint8_t is_tyro;                                   // 小陀螺模式
     uint16_t virt_yaw;                                 // 跟随虚拟角度【0~360】单位：0.1度
 }Ctrl_info_t;
-
-//哨兵自主决策指令信息子命令id:0x120(0x301)
-typedef __packed struct
-{
-    uint32_t confirm_revive : 1;                // 0bit, 是否确认复活，0表示不复活，1表示复活
-    uint32_t confirm_exchange_revive : 1;       // 1bit, 确认是否兑换立即复活，0表示不兑换，1表示兑换
-    uint32_t exchange_ammo_amount : 11;         // 2-12bit, 将要兑换的发弹量值，从0开始递增
-    uint32_t exchange_ammo_request_count : 4;   // 13-16bit, 远程兑换发弹量的请求次数，从0开始递增，每次变化只能是1
-    uint32_t exchange_health_request_count : 4; // 17-20bit, 远程兑换血量的请求次数，从0开始递增，每次变化只能是1
-    uint32_t sentry_status : 2;                 // 21-22bit, 哨兵当前姿态
-    uint32_t energy_mechanism_activate : 1;     // 23bit, 是否激活能量机关，0为默认，1表示激活
-    uint32_t reserved : 8;                      // 24-31bit, 保留位，当前未使用
-} sentry_cmd_info_t;
 
 /******************底盘发送，视觉接收*************************************** */
 typedef __packed struct 
