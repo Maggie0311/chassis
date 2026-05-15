@@ -574,6 +574,13 @@ void UI_Frequency_Info(UI_Object *object)
                20, frequency); // 绘制帧率信息
 }
 
+// 洞对准 — 洞口轮廓矩形
+void UI_Hole_Rect(UI_Object *object)
+{
+    UI_Set_Rect(object, UiGreen, UI_HOLE_LINE_WIDTH, UI_HOLE_LAYER,
+                UI_HOLE_RECT_X1, UI_HOLE_RECT_Y1,
+                UI_HOLE_RECT_X2, UI_HOLE_RECT_Y2);
+}
 
 /// <summary>
 ///                 注册部分初始化

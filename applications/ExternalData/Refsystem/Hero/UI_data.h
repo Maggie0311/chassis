@@ -73,4 +73,11 @@
 #define UI_ABS_PITCH_CENTER_X 1200
 #define UI_ABS_PITCH_CENTER_Y 450
 
+#define UI_HOLE_RECT_X1  0   // TODO: 标定
+#define UI_HOLE_RECT_Y1  500   // TODO: 标定
+#define UI_HOLE_RECT_X2  600  // TODO: 标定
+#define UI_HOLE_RECT_Y2  780   // TODO: 标定
+#define UI_HOLE_LINE_WIDTH 3
+#define UI_HOLE_LAYER  Ui_layer_6
+
 #endif
