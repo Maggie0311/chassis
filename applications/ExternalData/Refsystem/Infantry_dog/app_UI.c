@@ -6,6 +6,7 @@
 #include "drv_draw_UI.h"
 #include "app_UI.h"
 #include "UI_data.h"
+#include "app_RefSystem.h"
 
 // UI需要使用到的外部数据
 UI_Used_Data_t UiExData;
@@ -926,7 +927,7 @@ void Get_UI_Data(void)
 }
 
 // 用户初始化函数
-void UI_Init(void)
+void UI_Send_Init(void)
 {
     UI_Set_Operation(Attach_UI_init,Get_UI_Data);
 }

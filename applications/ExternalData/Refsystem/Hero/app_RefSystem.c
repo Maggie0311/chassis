@@ -136,7 +136,7 @@ rt_err_t Ref_Init(void)
 {
     rt_err_t res;
 
-    UI_Init();
+    UI_Send_Init();
 
     /*注册裁判系统数据更新后的回调函数*/
     Attach_Ref_rec_callback(Index_game_robot_survivors,Ref_Bulid_If_Hurt);
