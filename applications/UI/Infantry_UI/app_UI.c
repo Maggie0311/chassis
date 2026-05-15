@@ -254,13 +254,13 @@ void UI_PowerBuff_Value(UI_Object *object)
     uint16_t powerbuff = UiExData.powerbuff;
     if (powerbuff <= 15)
     {
-        UI_Set_Int(object, UiGreen,4,Ui_layer_5,550,200,80,powerbuff);
-        UI_Set_Color(object, UiOrange);
+        //UI_Set_Int(object, UiGreen,4,Ui_layer_5,550,200,80,powerbuff);
+       // UI_Set_Color(object, UiOrange);
     }
     else
     {
-        UI_Set_Int(object, UiGreen,4,Ui_layer_5,550,200,30,powerbuff);
-        UI_Set_Color(object, UiGreen);
+       // UI_Set_Int(object, UiGreen,4,Ui_layer_5,550,200,30,powerbuff);
+       // UI_Set_Color(object, UiGreen);
     }
 }
 //  绘制车道线第1条
@@ -585,6 +585,14 @@ void UI_Frequency_Info(UI_Object *object)
                20, frequency); // 绘制帧率信息
 }
 
+// 洞对准 — 洞口轮廓矩形
+void UI_Hole_Rect(UI_Object *object)
+{
+    UI_Set_Rect(object, UiGreen, UI_HOLE_LINE_WIDTH, UI_HOLE_LAYER,
+                UI_HOLE_RECT_X1, UI_HOLE_RECT_Y1,
+                UI_HOLE_RECT_X2, UI_HOLE_RECT_Y2);
+}
+
 
 /// <summary>
 ///                 注册部分初始化
@@ -649,6 +657,8 @@ void Attach_UI_init()
     Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_3); // 能量机关五条直线和五个圆圈
     Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_4); // 能量机关五条直线和五个圆圈
     Attach_UI_Object(UiCircle, UiWhite, TRANS_NULL, 0, UI_EnergyR_Line_Circle_5); // 能量机关五条直线和五个圆圈
+    // 洞对准 — 洞口矩形 (TRANS_ONCE 常驻显示，方便标定)
+    Attach_UI_Object(UiRect, UiGreen, TRANS_ONCE, 1, UI_Hole_Rect);
     // 绘制菜单选项卡(这里的每一行都是一个单独的菜单元素，因此不同的菜单实际上需要修改每一行的内容即可)
     Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line1);
     Attach_UI_Object(UiStr, UiCyan, TRANS_NULL, 0, MenuSystem_Info_Line2);

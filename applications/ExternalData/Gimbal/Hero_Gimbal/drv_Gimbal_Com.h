@@ -75,6 +75,8 @@ typedef __packed struct
     unsigned GimIfSuperCapOutput : 1; // 底盘功率限制(是否开启超级电容电量自动节省)(C键)
     unsigned up_stairs_flag : 1; // 上台阶完成标志位
     unsigned down_stairs_flag : 1; // 下台阶完成标志位
+    unsigned forward_up : 1; // 测试台阶标志位
+    unsigned back_up : 1; // 测试台阶下标志位
     unsigned ctrl_rsv : 30;           // bit2~31: 控制区保留位
 
     //UI绘制区

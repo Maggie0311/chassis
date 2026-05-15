@@ -227,6 +227,8 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
     // 新的pid计算，yaw_angle本身即为误差，所以“反馈值”参数写0
     // VxyW.angvel = anglevel_last + PIDCalculate(pid, 0, yaw_angle);
     float direction = 0;//跟随方向
+    
+    #ifndef CORE_USING_HERO
     if (fabsf(yaw_angle) > 90)// 当云台角度大于90度时，修改跟随方向
     {
         if (yaw_angle > 0)
@@ -234,6 +236,8 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
         else
             direction=-180;
     }
+    #endif
+    
     //direction += fol_angle;// 加入跟随角
     VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_fast, direction, yaw_angle);
 
@@ -356,6 +360,8 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     // #endif
     yawAngleOffset(real_xyw.angvel, &ctrlMsg->getYawAngel);
 
+    VxyW.angvel*=get_k_power_allo();
+
     return VxyW;
 }
 
@@ -430,10 +436,10 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         Vxyw.vel.x = 0;
         Vxyw.vel.y = 0;
         Vxyw.angvel = 0;
-         Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_Down_Target,0);
+         Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_Down_Target,1);
         reach_flag = If_Target_Reached(Forward_Screw_Motor,Screw_Motor_Down_Target);
-        Screw_Motor_Move(Back_Screw_Motor, 530,0);
-        if(If_Target_Reached(Back_Screw_Motor,530))
+        Screw_Motor_Move(Back_Screw_Motor, 520,0);
+        if(If_Target_Reached(Back_Screw_Motor,520))
           reach_flag++;
         i_last_tick = rt_tick_get();
         if (reach_flag > 1)
@@ -444,7 +450,7 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         break;
     case Chassis_Move_Forward_Twice:
         position = Motor_Position_Cal(0, motor_speed);
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 560); // TODO设置向前动0.01m
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 500); // TODO设置向前动0.01m
         if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
         {
             *status = Back_Screw_Move_Up;
@@ -524,6 +530,7 @@ Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])
         Vxyw.vel.y = 0;
         Vxyw.angvel = 0;
         reach_flag = If_Ready_To_Down(480);
+       //  Screw_Motor_Move(Back_Screw_Motor, 530,0);
         i_last_tick = rt_tick_get();
         if (reach_flag == 1)
         {
@@ -533,47 +540,57 @@ Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])
         break;
         case Back_Screw_Move_Down:
          Vxyw.vel.x = 0;
-        reach_flag=If_Target_Reached(Back_Screw_Motor,Screw_Motor_Down_Target);
+         Vxyw.vel.y = 0;
+         Screw_Motor_Move(Back_Screw_Motor, 530,1);
+        reach_flag=If_Target_Reached(Back_Screw_Motor,530);
         if(reach_flag)
         {
            *status = Chassis_Move_Back;
-           reach_flag=0;
+            reach_flag=0;
+            intigral[0] = 0;
+            intigral[1] = 0;
         }
     case Chassis_Move_Back:
-        intigral[0] = 0;
-        intigral[1] = 0;
-        position = Motor_Position_Cal(0, motor_speed);
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, -750); // TODO设置向前动0.01m
-        if (fabsf(up_machine_pid.Err) < 25.0f)                      // TODO dong多少
+       
+        Vxyw.vel.x=-100;
+         Vxyw.vel.y = 0;
+          Screw_Motor_Move(Back_Screw_Motor, 530,0);
+        //position = Motor_Position_Cal(0, motor_speed);
+        //Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, -350); // TODO设置向前动0.01m
+        Screw_Motor_Move(Forward_Screw_Motor, 480,1);
+        reach_flag=If_Ready_To_Down_F(480);
+        if (reach_flag)                      // TODO dong多少
         {
             *status = Forward_Screw_Move_Down;
+            intigral[0] = 0;
+            intigral[1] = 0;
         }
         break;
     case Forward_Screw_Move_Down:
-        intigral[0] = 0;
-        intigral[1] = 0;
+        
         Vxyw.vel.x = 0;
         Vxyw.vel.y = 0;
         Vxyw.angvel = 0;
-         Screw_Motor_Move(Forward_Screw_Motor, Screw_Motor_UP_Target,0);
-        reach_flag = If_Target_Reached(Forward_Screw_Motor,Screw_Motor_UP_Target);
-        Screw_Motor_Move(Back_Screw_Motor, 0,0);
+         Screw_Motor_Move(Forward_Screw_Motor, 490,1);
+        reach_flag = If_Target_Reached(Forward_Screw_Motor,490);
+        Screw_Motor_Move(Back_Screw_Motor, 0,1);
         if(If_Target_Reached(Back_Screw_Motor,0))
           reach_flag++;
         i_last_tick = rt_tick_get();
         if (reach_flag > 1)
         {
             *status = Chassis_Move_Forward_Twice;
+            intigral[0] = 0;
+            intigral[1] = 0;
             reach_flag=0;
         }
         break;
     case Chassis_Move_Forward_Twice:
 
-        intigral[0] = 0;
-        intigral[1] = 0;
+         Screw_Motor_Move(Forward_Screw_Motor, 490,0);
         position = Motor_Position_Cal(0, motor_speed);
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, -600); // TODO设置向前动0.01m
-        if (fabsf(up_machine_pid.Err) < 40.0f)                      // TODO dong多少
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, -400); // TODO设置向前动0.01m
+        if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
         {
             *status = Back_Screw_Move_Up;
         }
@@ -593,6 +610,7 @@ Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])
         }
         break;
     case Down_Stairs_Finished:
+
         break;
     default:
         break;
