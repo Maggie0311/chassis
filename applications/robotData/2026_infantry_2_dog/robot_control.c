@@ -586,9 +586,14 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
             gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 1548;
             Inverse_to_Track(*Speed_xyw);
         }
-        else
+        else if(Get_Track_On())
         {
             gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 528;
+            Inverse_to_Track(*Speed_xyw);
+        }
+        else 
+        {
+            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 528;   
         }
 
        Get_force_out(motorSetForce); // 获取前馈值

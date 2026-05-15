@@ -83,8 +83,13 @@ typedef __packed struct
     unsigned visual_target_found : 2;  // 视觉是否找到目标（用于在UI上提示操作手是否找到目标）
     unsigned Energy_is_already : 1;    // 能量机关拟合完成标志位
     unsigned Wire_less_charge : 1;     // 无线充电标志位（1打开无线充电，0关闭无线充电）
-    unsigned reserve : 4;              // 保留位
-
+    #ifdef CORE_USING_2026_INFANTRY_2
+    unsigned if_track_on : 1; // 当前是否为云台认为的最佳射击距离
+    unsigned reserve : 3;              // 保留位
+    #else
+    unsigned reserve : 4;
+    #endif
+    
     unsigned Gimbal_if_reset : 1; // 云台是否发生了复位事件
     unsigned Key_ctrl : 1;        // ctrl 键是否按下-按下时采用高的加速度值
     // 离线模块数据
