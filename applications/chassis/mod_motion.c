@@ -450,7 +450,7 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         break;
     case Chassis_Move_Forward_Twice:
         position = Motor_Position_Cal(0, motor_speed);
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 500); // TODO设置向前动0.01m
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 560); // TODO设置向前动0.01m
         if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
         {
             *status = Back_Screw_Move_Up;
