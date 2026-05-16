@@ -70,7 +70,6 @@ typedef __packed struct
 #define CMD_ID_ROBOT_INFO 0x07 // 向视觉发送机器人信息（自身信息）
 #define CMD_ID_Bullet_remaining 0x09 // 向视觉发送剩余子弹数和剩余金币数量
 #define CMD_ID_Robot_wheel_odometry 0x0D  // 底盘向导航发送的底盘正解算信息
-#define CMD_ID_Sentry_INFO 0x0E  // 向视觉发送哨兵自主决策反馈信息
 #define CMD_ID_opponent_position 0x0F //  向视觉发送雷达发送的对方机器人位置信息
 
 //200/x = f(Hz)
