@@ -73,4 +73,4 @@ typedef struct UI_Used_Data_t
     unsigned IfAllow_Heat_Shoot : 1;      // 英雄是否允许超热量射击, 1 代表允许
 } UI_Used_Data_t;
 
-void UI_Init(void);
+void UI_Send_Init(void);

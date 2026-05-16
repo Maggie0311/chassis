@@ -77,4 +77,4 @@ typedef struct UI_Used_Data_t
 
 } UI_Used_Data_t;
 
-void UI_init(void);
+void UI_Send_Init(void);
