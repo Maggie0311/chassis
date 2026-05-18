@@ -257,6 +257,7 @@ static void getPowerData(void)
     // 得到裁判系统数据并做基本限幅
     getRefDataAndInfo();
 }
+uint8_t test_wr = 0;
 /**
  * @brief 超电输出功能开关
  *
@@ -308,7 +309,8 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
 
 
     #ifdef CORE_USING_INFANTRY
-    if (!PowerCtrl_Close_Flag[0] && Get_Wireless_Charge())
+    //if (!PowerCtrl_Close_Flag[0] && Get_Wireless_Charge())
+    if (!PowerCtrl_Close_Flag[0] && test_wr)
     {
         Set_SuprCap_OutputMode(2); // 只放不充（无线充电期间禁止超电充电）
     }

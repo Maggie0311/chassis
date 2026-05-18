@@ -212,7 +212,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
     #ifdef CORE_USING_INFANTRY
 
     if(test_wireless)
-     yaw_angle+=135;
+     yaw_angle-=45;
       
     #endif
     // if (fabs(yaw_angle) >= 15.f) // 跟随角较大时，修改跟随角PID为较大参数
