@@ -201,10 +201,10 @@ void UI_Aimbot_Err_Info(UI_Object *object)
 // 自瞄模式显示
 void UI_Aimbot_Mode(UI_Object *object)
 {
-    static char string[3][15] = {"aimbot", "aimbuf small", "aimbuf large"};
+    static char string[3][15] = {"aimbot", "outpost", "dangling"};
     int mode = 0;
     mode = UiExData.Aimbot_Mode; // 得到当前自瞄模式
-    if (mode >= AIMBOT_MODE && mode <= AIMBUFF_VAR_MODE)
+    if (mode >= AIMBOT_MODE && mode <= DANGLING_MODE)
     {
         UI_Set_String(object, UiCyan, 2, Ui_layer_5, UI_AIMBOT_PRIO_CENTER_X + UI_AIMBOT_MODE_SIZE * 8, UI_AIMBOT_PRIO_CENTER_Y,
                       UI_AIMBOT_MODE_SIZE, string[mode], sizeof(string[mode]));
@@ -309,29 +309,29 @@ int aim_point_normal_y = 490;
 // 绘制准心位置（这里分为打符模式和普通自瞄模式两种情况，并且在能量机关拟合结束，或者自瞄最佳距离时会自动变色为队伍颜色）
 void UI_Aim_Point_Info(UI_Object *object)
 {
-    if (UiExData.Aimbot_Mode == AIMBUFF_CONST_MODE || UiExData.Aimbot_Mode == AIMBUFF_VAR_MODE)
-    {
-        // if (UiExData.Energy_is_already == 1)
-        // {
-        //     UI_Set_Circle(object, UiTeam, 3, Ui_layer_0, aim_point_energy_x, aim_point_energy_y, 15);
-        // }
-        // else
-        // {
-        //     UI_Set_Circle(object, UiWhite, 3, Ui_layer_0, aim_point_energy_x, aim_point_energy_y, 15);
-        // }
-    }
-    else
-    {
-        //!云台(视觉)目前还没加些功能
-        // if (UiExData.if_aimbot_best_dis) // 附加功能：用来判断是否为最佳距离，如果是最佳距离，则将颜色置为队伍颜色，否则置为白色
-        // {
-        //     UI_Set_Circle(object, UiTeam, 3, Ui_layer_0, aim_point_normal_x, aim_point_normal_y, 15);
-        // }
-        // else
-        // {
-        //     UI_Set_Circle(object, UiWhite, 3, Ui_layer_0, aim_point_normal_x, aim_point_normal_y, 15);
-        // }
-    }
+    // if (UiExData.Aimbot_Mode == AIMBUFF_CONST_MODE || UiExData.Aimbot_Mode == AIMBUFF_VAR_MODE)
+    // {
+    //     // if (UiExData.Energy_is_already == 1)
+    //     // {
+    //     //     UI_Set_Circle(object, UiTeam, 3, Ui_layer_0, aim_point_energy_x, aim_point_energy_y, 15);
+    //     // }
+    //     // else
+    //     // {
+    //     //     UI_Set_Circle(object, UiWhite, 3, Ui_layer_0, aim_point_energy_x, aim_point_energy_y, 15);
+    //     // }
+    // }
+    // else
+    // {
+    //     //!云台(视觉)目前还没加些功能
+    //     // if (UiExData.if_aimbot_best_dis) // 附加功能：用来判断是否为最佳距离，如果是最佳距离，则将颜色置为队伍颜色，否则置为白色
+    //     // {
+    //     //     UI_Set_Circle(object, UiTeam, 3, Ui_layer_0, aim_point_normal_x, aim_point_normal_y, 15);
+    //     // }
+    //     // else
+    //     // {
+    //     //     UI_Set_Circle(object, UiWhite, 3, Ui_layer_0, aim_point_normal_x, aim_point_normal_y, 15);
+    //     // }
+    // }
 }
 // 绘制视觉能量机关拟合成功后的能量机关图形
 // 绘制能量机关中心圆圈
@@ -609,6 +609,16 @@ void UI_Hero_Allow_Heat_Shoot(UI_Object *object)
         UI_Set_String(object, UiOrange, 2, Ui_layer_0, 960, 200, 25, txt[1], sizeof(txt[1]));
     }
 }
+
+void UI_Gimbal_Pose_Pitch(UI_Object *object)
+{
+    UI_Set_Float(object, UiOrange, 10, Ui_layer_5, 300, 720, 120, Get_GimbalFB_Pitch());
+}
+
+void UI_Gimbal_Pose_Yaw(UI_Object *object)
+{
+    UI_Set_Float(object, UiCyan, 10, Ui_layer_5, 1200, 720, 120, Get_GimbalFB_Yaw());
+}
 /// <summary>
 ///                 注册部分初始化
 /// </summary>
@@ -676,7 +686,10 @@ void Attach_UI_init()
     Attach_UI_Object(UiRect, UiPink, TRANS_ONCE, 1, UI_Hero_Aim_Rect_4);    // 绘制英雄瞄准线第4条
     // 绘制英雄是否允许超热量射击的矩形框
     Attach_UI_Object(UiStr, UiOrange, TRANS_ONCE, 1, UI_Hero_Allow_Heat_Shoot); // 绘制英雄是否允许超热量射击
-    // todo英雄特有需求UI绘制
+    
+    // 绘制英雄的云台姿态UI
+    Attach_UI_Object(UiFloat,UiOrange,TRANS_NULL,0,UI_Gimbal_Pose_Pitch);
+    Attach_UI_Object(UiFloat,UiCyan,TRANS_NULL,0,UI_Gimbal_Pose_Yaw);
 
     // Attach_UI_Object(UiCircle, UiGreen, TRANS_FOREVER, 1, UI_Guide_Light_Circle); // 英雄吊射基地引导灯
     // Attach_UI_Object(UiCircle, UiTeam, TRANS_FOREVER, 1, UI_Big_Bullet_Circle);   // 英雄大弹丸
@@ -707,6 +720,17 @@ void UI_If_Aimbot_Change()
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aimbot_Mode);    // 更新自瞄模式
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新准心位置和颜色
 
+        if (UiExData.Aimbot_Mode == DANGLING_MODE)//吊射模式下显示云台姿态
+        {
+            Drv_Set_Object_Visualable(UI_CREATE,UI_Gimbal_Pose_Pitch);        // 显示云台姿态
+            Drv_Set_Object_Visualable(UI_CREATE,UI_Gimbal_Pose_Yaw);        // 显示云台姿态
+        }
+        else
+        {
+            Drv_Set_Object_Visualable(UI_DELDTE,UI_Gimbal_Pose_Pitch);        // 删除云台姿态
+            Drv_Set_Object_Visualable(UI_DELDTE,UI_Gimbal_Pose_Yaw);        // 删除云台姿态
+        }
+        
     //     if (AIMBUFF_CONST_MODE == UiExData.Aimbot_Mode || AIMBUFF_VAR_MODE == UiExData.Aimbot_Mode)
     //     {
     //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Circle);        // 显示能量机关图形
@@ -735,6 +759,12 @@ void UI_If_Aimbot_Change()
     //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_Circle_4); // 删除能量机关图形
     //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_Circle_5); // 删除能量机关图形
     //     }
+    }
+
+    if (UiExData.Aimbot_Mode == DANGLING_MODE)//吊射模式下显示云台姿态
+    {
+        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Pitch);        // 显示云台姿态
+        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Yaw);        // 显示云台姿态
     }
     last_aimbot_state = UiExData.Aimbot_Mode; // 更新自瞄状态
 }
