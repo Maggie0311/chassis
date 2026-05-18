@@ -68,37 +68,39 @@ typedef enum
     Msg_num_Rx,      // 报文种数
 } GimCom_Rx_index_e; // 接收报文索引
 
+/* 角度编解码: -180.00~+180.00°, 0.01°/LSB, 16bit uint */
+#define CAN_U16_TO_ANGLE(raw) (((float)(raw) / 100.0f) - 180.0f)
+
 typedef __packed struct
 {
-    // 控制区
-    unsigned chassis_reset : 1; // 底盘复位指令
-    unsigned GimIfSuperCapOutput : 1; // 底盘功率限制(是否开启超级电容电量自动节省)(C键)
-    unsigned up_stairs_flag : 1; // 上台阶完成标志位
-    unsigned down_stairs_flag : 1; // 下台阶完成标志位
-    unsigned forward_up : 1; // 测试台阶标志位
-    unsigned back_up : 1; // 测试台阶下标志位
-    unsigned ctrl_rsv : 30;           // bit2~31: 控制区保留位
+    // ---- Word 0: 控制区 bit[0:31] ----
+    unsigned chassis_reset  : 1;   // bit0:  底盘复位指令
+    unsigned supercap_switch : 1;  // bit1:  超电开关(C键翻转)
+    unsigned step_up        : 1;   // bit2:  上台阶(Ctrl+Z翻转)
+    unsigned step_down      : 1;   // bit3:  下台阶(Ctrl+X翻转)
+    unsigned lift_front     : 1;   // bit4:  前抬升(Ctrl+R翻转)
+    unsigned lift_rear      : 1;   // bit5:  后抬升(Ctrl+F翻转)
+    unsigned yaw_angle      : 16;  // bit6-21:  Yaw反馈角(0.01°/LSB)
+    unsigned motion_mode    : 4;   // bit22-25: 底盘运动模式 ← 位置变了!
+    unsigned ctrl_rsv       : 6;   // bit26-31: 控制区保留位
 
-    //UI绘制区
-    unsigned ui_reset : 1;                // 重置 UI 标志位
-    unsigned aimbot_mode : 3;             // 瞄准模式
-    unsigned self_color : 1;              // 当前己方颜色
-    // 离线模块数据
-    unsigned visual_com_online : 1;       // 视觉通信是否正常
-    unsigned visual_working_correct : 1;  // 视觉工作是否正常
-    unsigned yaw_motor_online : 1;        // Yaw 轴电机通信正常
-    unsigned pitch_motor_online : 1;      // Pitch 轴电机通信正常
-    unsigned rub_started : 1;             // 摩擦轮已开启
-    unsigned rub_comm_online : 1;          // bit46: 摩擦轮通信异常(任一异常即置1)
-    unsigned launch_motor_online : 1;      // 播弹盘电机通信正常
-    unsigned strike_stuck : 1;             // 发射机构卡弹
-
-    unsigned allow_heat_shoot : 1;       // 允许超热量
-    unsigned now_client_control : 1;       // 当前使用客户端模式
-    unsigned Gimbal_if_reset : 1;          // 云台是否发生了复位事件
-    unsigned motion_mode : 4;             // 底盘模式
-    unsigned ui_rsv : 8;                  // bit56~63: UI区保留位
-} Gim_mixData_Rx_t; // 杂项数据包
+    // ---- Word 1: UI区 bit[32:63] ----
+    unsigned ui_reset              : 1;   // bit32: UI重置标志
+    unsigned aimbot_mode           : 3;   // bit33-35: 瞄准模式
+    unsigned self_color            : 1;   // bit36: 己方颜色
+    unsigned visual_com_online     : 1;   // bit37: 视觉通信在线
+    unsigned visual_working_correct : 1;  // bit38: 视觉工作正常
+    unsigned yaw_motor_online      : 1;   // bit39: Yaw电机在线
+    unsigned pitch_motor_online    : 1;   // bit40: Pitch电机在线
+    unsigned rub_started           : 1;   // bit41: 摩擦轮已开启
+    unsigned rub_comm_error        : 1;   // bit42: 摩擦轮通信异常
+    unsigned launch_motor_online   : 1;   // bit43: 拨弹盘电机在线
+    unsigned strike_stuck          : 1;   // bit44: 发射机构卡弹
+    unsigned allow_overheat_flag   : 1;   // bit45: 允许超热量标志(B键翻转)
+    unsigned now_client_control    : 1;   // bit46: 客户端控制模式
+    unsigned gimbal_reset          : 1;   // bit47: 云台复位状态
+    unsigned pitch_angle           : 16;  // bit48-63: Pitch反馈角(0.01°/LSB)
+} Gim_mixData_Rx_t; // 原 Gim_mixData_Rx_t, 协议升级
 
 typedef struct
 {
@@ -120,10 +122,10 @@ typedef struct
 } hero_light_bullet_t;
 
 extern Gim_mixData_Rx_t gimbal_mixdata_msg;
+extern rt_tick_t gimbal_mixdata_msg_freshtick;
 extern imu_euler_t gimbal_imudata_msg;
 extern hero_light_bullet_t gimbal_ui_data_msg;
 extern rt_tick_t imu_data_freshtick;
-extern rt_tick_t gimbal_mixdata_msg_freshtick;
 extern rt_tick_t gimbal_ui_data_msg_freshtick;
 
 //云台通信初始化

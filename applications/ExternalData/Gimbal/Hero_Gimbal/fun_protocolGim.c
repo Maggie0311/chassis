@@ -4,7 +4,7 @@
 // 获取云台端对超电允许放电的状态
 uint8_t GetGimIfSuperCapOutput(void)
 { // powerCtrl
-    return gimbal_mixdata_msg.GimIfSuperCapOutput;
+    return gimbal_mixdata_msg.supercap_switch;
 }
 
 // 读取上一次云台控制信息刷新时间
@@ -15,19 +15,19 @@ rt_tick_t Get_Gim_FreshTick(void)
 
 uint8_t get_up_stairs_flag(void)
 {
-    return gimbal_mixdata_msg.up_stairs_flag;
+    return gimbal_mixdata_msg.step_up;
 }
 uint8_t get_down_stairs_flag(void)
 {
-    return gimbal_mixdata_msg.down_stairs_flag;
+    return gimbal_mixdata_msg.step_down;
 }
 uint8_t get_forward_up(void)
 {
-    return gimbal_mixdata_msg.forward_up;
+    return gimbal_mixdata_msg.lift_front;
 }
 uint8_t get_back_up(void)
 {
-    return gimbal_mixdata_msg.back_up;
+    return gimbal_mixdata_msg.lift_rear;
 }
 /****************************英雄绘制UI专用接口*************************** */
 /***
@@ -85,7 +85,7 @@ rt_uint8_t Get_UI_Reset_Flg(void)
 rt_uint8_t Get_Gim_Reset_Status(void)
 { // UI
     if (rt_tick_get() - gimbal_mixdata_msg_freshtick < 100)
-        return (gimbal_mixdata_msg.Gimbal_if_reset);
+        return (gimbal_mixdata_msg.gimbal_reset);
     else
         return 0;
 }
@@ -107,7 +107,7 @@ rt_uint8_t Get_Gimbal_Motor_Offline_State(void)
     rt_uint8_t OfflineMotor = 0;
     OfflineMotor |= (!gimbal_mixdata_msg.yaw_motor_online) << gimErr_yaw;
     OfflineMotor |= (!gimbal_mixdata_msg.pitch_motor_online) << gimErr_pitch;
-    OfflineMotor |= (!gimbal_mixdata_msg.rub_comm_online) << gimErr_Rub;
+    OfflineMotor |= (!gimbal_mixdata_msg.rub_comm_error) << gimErr_Rub;
     OfflineMotor |= (!gimbal_mixdata_msg.launch_motor_online) << gimErr_launch;
     return OfflineMotor;
 }
@@ -133,7 +133,7 @@ uint8_t getGimErrState(void)
 // 允许超热量射击
 uint8_t Get_Allow_Heat_Shoot(void)
 { // UI
-    return gimbal_mixdata_msg.allow_heat_shoot;
+    return gimbal_mixdata_msg.allow_overheat_flag;
 }
 
 // 获取视觉模块异常状态
@@ -150,6 +150,18 @@ Visual_Error_State_Enum Get_Visual_Working_Error_State(void)
     default:
         return Visual_Com_Failure;
     }
+}
+
+// 获取云台反馈的Yaw角度(°), 仅在吊射模式(DANGLING_MODE)有效
+float Get_GimbalFB_Yaw(void)
+{
+    return CAN_U16_TO_ANGLE(gimbal_mixdata_msg.yaw_angle);
+}
+
+// 获取云台反馈的Pitch角度(°), 仅在吊射模式(DANGLING_MODE)有效
+float Get_GimbalFB_Pitch(void)
+{
+    return CAN_U16_TO_ANGLE(gimbal_mixdata_msg.pitch_angle);
 }
 
 //!让yy添加   未发先不加

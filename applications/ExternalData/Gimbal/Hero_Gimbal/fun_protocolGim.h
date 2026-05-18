@@ -35,12 +35,8 @@ typedef enum
 typedef enum
 {
     AIMBOT_MODE = 0,    // 普通自瞄
-    AIMBUFF_CONST_MODE, // 小能量机关
-    AIMBUFF_VAR_MODE,   // 大能量机关
-    ROTATING_OUTPOST,   // 旋转击打前哨战
-    STATIC_OUTPOST,     // 静止击打前哨战
-    OUTPOST_MODE_F,     // 第三种击打前哨战的模式
-    DANGLING_MODE       // 吊射模式
+    AIMBUFF_CONST_MODE, // 前哨
+    DANGLING_MODE,   // 吊射模式
 } ui_aimbot_mode_e;
 
 typedef enum
@@ -159,6 +155,10 @@ extern uint8_t get_down_stairs_flag(void);
 
 extern uint8_t get_forward_up(void);
 extern uint8_t get_back_up(void);
+
+// 获取云台反馈的 Yaw/Pitch 角度(单位:度, 范围 -180.00~+180.00, 仅在吊射模式有效)
+extern float Get_GimbalFB_Yaw(void);
+extern float Get_GimbalFB_Pitch(void);
 
 //! 未发暂时留空
 // // 获取当前的本地底盘模式(0功率优先 1血量优先)
