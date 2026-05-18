@@ -307,7 +307,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
 
 
 
-
+    #ifdef CORE_USING_INFANTRY
     if (!PowerCtrl_Close_Flag[0] && Get_Wireless_Charge())
     {
         Set_SuprCap_OutputMode(2); // 只放不充（无线充电期间禁止超电充电）
@@ -324,6 +324,22 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         PowerCtrl_Close_Flag[0] = 1;
 		pre_button_state=0;
     }
+    #else
+
+     if (if_used_up == 0 && user_enable == 1)
+    {
+        Set_SuprCap_OutputMode(1); // 正常充放
+        PowerCtrl_Close_Flag[0] = 0;
+    }
+    else
+    {
+        Set_SuprCap_OutputMode(0); // 电量耗尽 → 关闭
+        PowerCtrl_Close_Flag[0] = 1;
+		pre_button_state=0;
+    }
+
+    #endif
+
          #ifdef CORE_USING_SENTRY
                  Set_SuprCap_OutputMode(1); // 正常充放
         PowerCtrl_Close_Flag[0] = 0;
