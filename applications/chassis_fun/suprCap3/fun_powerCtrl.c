@@ -57,7 +57,7 @@ uint8_t if_steer_used[WHEELS_GROUP_NUM] = {0}; // 记录电机是否被使用
 uint8_t if_wheel_used[WHEELS_GROUP_NUM] = {0}; // 记录电机是否被使用
                                                // 0:不使用 1:使用
 
-MotorInstance *Motor_Power_Pointer[2][5];
+MotorInstance *Motor_Power_Pointer[2][WHEELS_GROUP_NUM];
 uint8_t get_over_voltage_flag=0;
 uint8_t run_count = 0;
 uint8_t angle_count = 0;
@@ -283,6 +283,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         }
     }
 
+   
     // 云台按键边沿检测
     if (pre_button_state != GimIfSuperCapOutput)
     {
@@ -304,8 +305,15 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
 
     }
 
+
+
+
+    if (!PowerCtrl_Close_Flag[0] && Get_Wireless_Charge())
+    {
+        Set_SuprCap_OutputMode(2); // 只放不充（无线充电期间禁止超电充电）
+    }
     // 正常工作：超电在线且未耗尽时正常充放
-    if (if_used_up == 0&&user_enable==1)
+    else if (if_used_up == 0 && user_enable == 1)
     {
         Set_SuprCap_OutputMode(1); // 正常充放
         PowerCtrl_Close_Flag[0] = 0;
@@ -316,6 +324,10 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         PowerCtrl_Close_Flag[0] = 1;
 		pre_button_state=0;
     }
+         #ifdef CORE_USING_SENTRY
+                 Set_SuprCap_OutputMode(1); // 正常充放
+        PowerCtrl_Close_Flag[0] = 0;
+        #endif
 
     // ── 满电滞回控制（暂时注释，备用）──────────────────────────────────
     // 防止接近满电时反复充放电过热：
@@ -393,7 +405,7 @@ void get_true_RLS(void)
     }
     else if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power < 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
-       //RLS_Update(&RunRLS, RunPhi, RunRLS.now_power -RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+      // RLS_Update(&RunRLS, RunPhi, RunRLS.now_power -RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
@@ -682,11 +694,11 @@ static void Power_lim_allo_to_wheels()
         {
             if (if_wheel_used[group] == 1)
             {
-                Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = 0;
+                //Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = 0;
             }
             if (if_steer_used[group] == 1)
             {
-                Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = 0;
+                //Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = 0;
             }
         }
     }

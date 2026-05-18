@@ -360,7 +360,8 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     // #endif
     yawAngleOffset(real_xyw.angvel, &ctrlMsg->getYawAngel);
 
-    VxyW.angvel*=get_k_power_allo();
+    if(VxyW.vel.x>500||VxyW.vel.y>500)
+     VxyW.angvel=VxyW.angvel*get_k_power_allo()*get_k_power_allo();
 
     return VxyW;
 }
@@ -713,12 +714,12 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     // 得到当前控制坐标系和底盘坐标系角度
     angle = ctrl.getYawAngel;
 
-    Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
-    Speed_xyw.angvel = plan_xyw.angvel;
-    Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
-    Force_xyw.angvel = plan_acc_xyw.angvel;
-    // Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
-    // Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
+    // Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
+    // Speed_xyw.angvel = plan_xyw.angvel;
+    // Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
+    // Force_xyw.angvel = plan_acc_xyw.angvel;
+    Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
+    Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
 // float update_input_limiter(float K_out)
 // {

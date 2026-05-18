@@ -73,7 +73,7 @@
 // 预留能量控制响应时间 一般大于200ms 单位ms
 #define Supr_Cap_DelayTime (600)
 // 预留能量，单位j
-#define PowerCtrlReamin (30)
+#define PowerCtrlReamin (35)
 // 裁判系统功率反馈延时时间  单位ms
 #define RefPowerData_RefTime (500)
 // 强制预留能量，单位j

@@ -53,6 +53,13 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 #ifdef CORE_USING_HERO
 //    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
 //    {
+    {
+        static uint8_t last_up_stairs_flag = 0;
+        uint8_t cur_up_stairs_flag = get_up_stairs_flag();
+        if (cur_up_stairs_flag && !last_up_stairs_flag)
+            status = Forward_Screw_Move_Up;
+        last_up_stairs_flag = cur_up_stairs_flag;
+    }
     if(get_up_stairs_flag()&&Zero_Check() == 4)
    //if(test_stair&&Zero_Check() == 4)
     {

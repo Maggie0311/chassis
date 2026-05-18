@@ -149,7 +149,10 @@ static rt_err_t Send_To_Scpr(Scpr_ComTx_t *cmd)
 {
     /*更新发送数据*/
 	//cmd->Whether_To_Output=2;
-    //cmd->Whether_To_Output = 1;
+    #ifdef CORE_USING_SENTRY
+    cmd->Whether_To_Output = 1;
+    #endif
+    
     scpr_caninstance.tx_buff[0] = (uint8_t)(cmd->Whether_To_Output);
     scpr_caninstance.tx_buff[1] = (uint8_t)(cmd->isdataRef);
     scpr_caninstance.tx_buff[2] = (uint8_t)(cmd->isFlySlope);

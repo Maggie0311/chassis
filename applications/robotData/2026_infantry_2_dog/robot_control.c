@@ -20,6 +20,10 @@
 #define TRACK_R 4
 #define TRACK_L 5
 
+/* 过洞左边速度补偿：comp = 1.0 + OFFSET + K * |vx|。OFFSET处理低速段，K处理高速段斜率 */
+#define DONG_LEFT_SPEED_OFFSET 0.01f    /* 低速基础补偿 */
+#define DONG_LEFT_SPEED_K     0.00001f  /* 速度增量系数 */
+
 
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
@@ -318,6 +322,7 @@ int track_motor_init()
     for (int i = 0; i < TRACK_MOTOR_NUM; i++)
     {
         ret = Motor_Attach((MotorInstance *)&track_motor[i], (Motor_Init_Config_s *)&track_motor_init_config[i]);
+        Power_Motor_Attach((MotorInstance *)&track_motor[i]);
         if (ret != 0)
         {
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
@@ -557,6 +562,8 @@ float vel_x=0;
 void Inverse_to_Track(Mot_base_t Speed_xyw)
 {
     
+        track_motor[0].Motor_obj.Motor_ctrl.Current_pid.MaxOut=7000;
+        track_motor[1].Motor_obj.Motor_ctrl.Current_pid.MaxOut=7000;
         vel_x = Speed_xyw.vel.x*RADTORPM/150.f;
         Motor_Set_Target((MotorInstance *)&track_motor[0], vel_x);
         Motor_Set_Target((MotorInstance *)&track_motor[1], vel_x);
@@ -564,6 +571,38 @@ void Inverse_to_Track(Mot_base_t Speed_xyw)
 
 }
 
+
+void fix_dong(float motorSetSpeed[WHEEL_MOTOR_NUM], float vx)
+{
+    wheel_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=RUN_PID_Kp;
+    wheel_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=RUN_PID_Kp;
+
+    wheel_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=8000;
+    wheel_motor[2].Motor_obj.Motor_ctrl.Current_pid.MaxOut=8000;
+
+    wheel_motor[1].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=8000;
+    wheel_motor[1].Motor_obj.Motor_ctrl.Current_pid.MaxOut=8000;
+
+    /* 左边轮速度补偿：offset保证低速有基础补偿，K控制高速增量 */
+    float comp = 1.0f + DONG_LEFT_SPEED_OFFSET + DONG_LEFT_SPEED_K * fabsf(vx);
+    motorSetSpeed[1] *= comp;
+    motorSetSpeed[2] *= comp;
+}
+
+void no_track()
+{
+    wheel_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=RUN_PID_Kp;
+    wheel_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=RUN_PID_Kp;
+
+    wheel_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=8000;
+    wheel_motor[2].Motor_obj.Motor_ctrl.Current_pid.MaxOut=8000;
+
+    wheel_motor[1].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=8000;
+    wheel_motor[1].Motor_obj.Motor_ctrl.Current_pid.MaxOut=8000;
+
+       track_motor[0].Motor_obj.Motor_ctrl.Current_pid.MaxOut=0;
+        track_motor[1].Motor_obj.Motor_ctrl.Current_pid.MaxOut=0;
+}
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e motion_mode)
 {
     if (1 == isSetValid_debug[0])
@@ -585,6 +624,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
         {
             gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 1548;
             Inverse_to_Track(*Speed_xyw);
+            fix_dong(motorSetSpeed, Speed_xyw->vel.x);
         }
         else if(Get_Track_On())
         {
@@ -593,6 +633,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
         }
         else 
         {
+            no_track();
             gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 528;   
         }
 
@@ -604,6 +645,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
         Wheel_Speed_Set(motorSetSpeed); // 设置电机速度环设定值
     }
 }
+
 
 /*正解算对应函数*/
 void Forward_Kinematics(void)
