@@ -69,6 +69,7 @@ typedef __packed struct
 #define CMD_ID_GAME_ROBOT_survivors 0x05 // 向视觉发送机器人血量信息
 #define CMD_ID_ROBOT_INFO 0x07 // 向视觉发送机器人信息（自身信息）
 #define CMD_ID_Bullet_remaining 0x09 // 向视觉发送剩余子弹数和剩余金币数量
+#define CMD_ID_Sentry_info 0x0B // 给视觉发送哨兵自主决策反馈数据（裁判系统反馈信息）
 #define CMD_ID_Robot_wheel_odometry 0x0D  // 底盘向导航发送的底盘正解算信息
 #define CMD_ID_opponent_position 0x0F //  向视觉发送雷达发送的对方机器人位置信息
 
@@ -85,7 +86,7 @@ typedef __packed struct
 // #define CMD_ID_EVENT_DATA 0x06 // 向视觉发送场地事件信息
 // #define CMD_ID_ROBOT_POSITION 0x08 // 向视觉发送本机器人位置信息（自身位置信息）
 // #define CMD_ID_Ground_robot_position 0x0A // 向视觉发送地面机器人位置信息（自家机器人信息）
-// #define CMD_ID_Sentry_info 0x0B // 给视觉发送哨兵自主决策反馈数据（裁判系统反馈信息）
+
 // #define CMD_ID_Robot_command_map 0x0C // 给视觉发送云台手发送给哨兵的点位信息（云台手命令哨兵前往的位置）
 
 //设置 发送次数（有限次就写正整数，无限次发送写-1） 和 每几个周期发送一次

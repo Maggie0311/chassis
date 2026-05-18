@@ -117,16 +117,6 @@ menu "Board function module"
             bool "select superCap_3"
     endchoice    
 
-    menu "CAN device set"
-        config GIMBAL_CAN_DEVICE_NAME       #云台CAN设备名称
-            int "the specific gimbal can device"
-            default "2"
-
-        config SCPR_CAN_DEVICE_NAME            #超级电容CAN设备名称
-            int "the specific superCap can device"
-            default "1"
-    endmenu
-
     #是否开启rtt监视
     config CORE_USING_RTT_MONITOR
         bool "Enable RTT monitor"
