@@ -157,7 +157,7 @@ void yawAngleOffset(const float angvel, float *const yawAngel)
     else
         *yawAngel += temp;
 }
-
+uint8_t test_wireless= 0;
 /**
  * @brief    底盘跟随云台运动,即所有控制方向都是以云台坐标系而言的 正前方为云台枪管方向
  * @note     输入的VxyW.angvel没有使用 该函数不改变也不限制输入速度单位
@@ -185,6 +185,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
     // float ff_x = Innovation_Feedforward(kalman_innovation_xy.x);
     // float ff_y = Innovation_Feedforward(kalman_innovation_xy.y);
 
+
     
 
     // ctrlMsg->xyw.vel.x += (ff_x + fix_speed_x.Output);
@@ -208,6 +209,12 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
 
     yaw_angle = ctrlMsg->getYawAngel;
 
+    #ifdef CORE_USING_INFANTRY
+
+    if(test_wireless)
+     yaw_angle+=135;
+      
+    #endif
     // if (fabs(yaw_angle) >= 15.f) // 跟随角较大时，修改跟随角PID为较大参数
     // {
     //     pid = &follow_pid_fast;
@@ -220,6 +227,7 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
     /*将fol_angle转化为(-180.0°,180.0°]度*/
     fol_angle = range_angle_180(fol_angle);
     yaw_angle = range_angle_180(yaw_angle);
+
 
     /*计算跟随时的动态角速度大小 fol_angle即表示pid的target*/
     // PID_Calculate(&angfol_pid, yaw_angle);
