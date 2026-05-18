@@ -715,6 +715,8 @@ void UI_If_Stuck_Change()
 void UI_If_Aimbot_Change()
 {
     static uint8_t last_aimbot_state = 0;          // 自瞄上次保存状态
+    static uint8_t gimbal_pose_created = 0;         // 云台pitch/yaw元素是否已创建的标志位
+
     if (last_aimbot_state != UiExData.Aimbot_Mode) // 自瞄状态变化
     {
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aimbot_Mode);    // 更新自瞄模式
@@ -722,15 +724,17 @@ void UI_If_Aimbot_Change()
 
         if (UiExData.Aimbot_Mode == DANGLING_MODE)//吊射模式下显示云台姿态
         {
-            Drv_Set_Object_Visualable(UI_CREATE,UI_Gimbal_Pose_Pitch);        // 显示云台姿态
-            Drv_Set_Object_Visualable(UI_CREATE,UI_Gimbal_Pose_Yaw);        // 显示云台姿态
+            Drv_Set_Object_Visualable(UI_CREATE,UI_Gimbal_Pose_Pitch);        // 创建云台pitch显示
+            Drv_Set_Object_Visualable(UI_CREATE,UI_Gimbal_Pose_Yaw);          // 创建云台yaw显示
+            gimbal_pose_created = 1;                                          // 标记已创建
         }
-        else
+        else if (gimbal_pose_created) // 仅在已创建过的情况下才删除
         {
             Drv_Set_Object_Visualable(UI_DELDTE,UI_Gimbal_Pose_Pitch);        // 删除云台姿态
-            Drv_Set_Object_Visualable(UI_DELDTE,UI_Gimbal_Pose_Yaw);        // 删除云台姿态
+            Drv_Set_Object_Visualable(UI_DELDTE,UI_Gimbal_Pose_Yaw);          // 删除云台姿态
+            gimbal_pose_created = 0;                                          // 清除标志位
         }
-        
+
     //     if (AIMBUFF_CONST_MODE == UiExData.Aimbot_Mode || AIMBUFF_VAR_MODE == UiExData.Aimbot_Mode)
     //     {
     //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Circle);        // 显示能量机关图形
@@ -761,10 +765,10 @@ void UI_If_Aimbot_Change()
     //     }
     }
 
-    if (UiExData.Aimbot_Mode == DANGLING_MODE)//吊射模式下显示云台姿态
+    if (UiExData.Aimbot_Mode == DANGLING_MODE && gimbal_pose_created)//元素已创建后，持续刷新云台姿态数值
     {
-        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Pitch);        // 显示云台姿态
-        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Yaw);        // 显示云台姿态
+        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Pitch);
+        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Yaw);
     }
     last_aimbot_state = UiExData.Aimbot_Mode; // 更新自瞄状态
 }
@@ -1069,7 +1073,7 @@ void Get_UI_Data(void)
     // UI_If_Visual_Target_Found_Change();                           // 检查自瞄识别敌方状态是否改变,并进行相应的检查和处理
     // UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据
     // UI_If_Hero_Bullet_Change();                 // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
-    // UI_If_Hero_Light_Change();                  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
+    UI_If_Hero_Light_Change();                  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
 
 /*******************************未用**************************************** */
     // UiExData.GM_IMU_Pitch = Get_Gimbal_IMU_Data(IMU_PITCH); // 云台imu pitch--显示云台Pitch轴角度
