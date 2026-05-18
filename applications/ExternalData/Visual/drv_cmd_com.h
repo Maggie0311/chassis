@@ -102,8 +102,8 @@ typedef struct
 
 //   ************发送部分**************** 
 typedef enum {
-    TRANS_FOREVER = -1, // 永久发送
-    TRANS_ONCE = 1,     // 单次发送，可以发送多次，发送的次数强制类型转换即可
+    VISUAL_TRANS_FOREVER = -1, // 永久发送
+    VISUAL_TRANS_ONCE = 1,     // 单次发送，可以发送多次，发送的次数强制类型转换即可
                         // 这里写为枚举是为了清楚显示永久发送写-1即可（用枚举表示） 
 } TransType_t;
 

@@ -247,7 +247,7 @@ uint32_t Send_Cmd_Packet(rt_device_t serial,void* tx_buff,uint32_t tx_buff_size,
     {
         if(sendCtrl[i].CmdID != 0 && sendCtrl[i].serial == serial) // 如果命令ID不为0，且命令ID被绑定的串口和此次运行的串口是一致的，表示该命令有效
         {
-            if(sendCtrl[i].TransType == TRANS_FOREVER)
+            if(sendCtrl[i].TransType == VISUAL_TRANS_FOREVER)
             {
                 // 永久发送
                 if(sendCtrl[i].send_period == 0 || (sendCtrl[i].send_period > 0 && (run_times % sendCtrl[i].send_period) == 0))
