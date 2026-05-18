@@ -48,7 +48,7 @@ Game_robot_survivors_t visual_tx_game_robot_survivors;//给视觉发送的机器
 Robot_info_t visual_tx_robot_info;      //给视觉发送的机器人数据（自己的数据）
 Bullet_remaining_t visual_tx_bullet_remaining; // 给视觉发送子弹剩余发射数和剩余金币数量
 Robot_wheel_odometry_t visual_tx_Robot_wheel_odometry;     //底盘正解算后的x\y方向速度
-//ext_sentry_info_t visual_tx_sentry_info;    //哨兵自主决策信息同步
+ext_sentry_info_t visual_tx_sentry_info;    //哨兵自主决策信息同步
 com_opponent_position_t visual_tx_opponent_position; // 对方机器人位置信息
 
 static uint8_t visual_com_tx_buff[512]; // 视觉通信发送数据缓冲区
@@ -103,7 +103,7 @@ static void get_visual_need_ref_data()
     visual_tx_bullet_remaining.projectile_allowance_fortress = visual_tx_bullet_remaining_temp.projectile_allowance_fortress;
 
     /*哨兵自主决策信息*/
-    //getRefData(structGet_pram(visual_tx_sentry_info,ext_sentry_info));
+    getRefData(structGet_pram(visual_tx_sentry_info,ext_sentry_info));
 
     /*底盘正解算后的x\y方向速度*/
     static Mot_base_t chass_xyw={0};
@@ -341,7 +341,7 @@ rt_err_t VisualInit(void)
     Attach_SendCmd(VisualData_Serial,CMD_ID_ROBOT_INFO,CMD_SET_ROBOT_INFO,sizeof(visual_tx_robot_info), (void*)&visual_tx_robot_info);
     Attach_SendCmd(VisualData_Serial,CMD_ID_Bullet_remaining,CMD_SET_Bullet_remaining,sizeof(visual_tx_bullet_remaining), (void*)&visual_tx_bullet_remaining);
     Attach_SendCmd(VisualData_Serial,CMD_ID_Robot_wheel_odometry,CMD_SET_Robot_wheel_odometry,sizeof(visual_tx_Robot_wheel_odometry),(void*)&visual_tx_Robot_wheel_odometry);
-    // Attach_SendCmd(VisualData_Serial,CMD_ID_Sentry_info,CMD_SET_Sentry_INFO,sizeof(visual_tx_sentry_info),(void*)&visual_tx_sentry_info);
+    Attach_SendCmd(VisualData_Serial,CMD_ID_Sentry_info,CMD_SET_Sentry_INFO,sizeof(visual_tx_sentry_info),(void*)&visual_tx_sentry_info);
     Attach_SendCmd(VisualData_Serial,CMD_ID_opponent_position,CMD_SET_opponent_position,sizeof(visual_tx_opponent_position),(void*)&visual_tx_opponent_position);
 
 

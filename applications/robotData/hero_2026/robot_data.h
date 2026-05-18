@@ -4,22 +4,10 @@
 #include "rtconfig.h"
 
 // #define GIMBAL_CAN_DEV USED_CAN2        // 云台can设备
-#if GIMBAL_CAN_DEVICE_NAME == 1
-#define GIMBAL_CAN_DEV "can1"
-#elif GIMBAL_CAN_DEVICE_NAME == 2
 #define GIMBAL_CAN_DEV "can2"
-#else
-#error "GIMBAL_CAN_DEVICE_NAME is not defined right!"
-#endif
 
 // #define SCPR_CAN_DEV USED_CAN1          // 超级电容设备
-#if SCPR_CAN_DEVICE_NAME == 1
-#define SCPR_CAN_DEV "can1"
-#elif SCPR_CAN_DEVICE_NAME == 2
 #define SCPR_CAN_DEV "can2"
-#else
-#error "SCPR_CAN_DEVICE_NAME is not defined right!"
-#endif
 
 #define GIMBAL_SPI_USE 0 // 使用从机2
 #define SCPR_SPI_USE 2   // 使用从机1
