@@ -113,21 +113,28 @@ void UI_GimbalPosture_Line_3(UI_Object *object)
                 X_OFFSET - SCOPE_CIRCLE_RADIUS * sinf(yaw_rel * angleTorad + (i - 1) * PI / 2),
                 Y_OFFSET + SCOPE_CIRCLE_RADIUS * cosf(yaw_rel * angleTorad + (i - 1) * PI / 2));
 }
+
 // 绘制云台的姿态信息（pitch字符）
 void UI_GimbalPosture_Pitch_word(UI_Object *object)
 {
     static char txt1[10] = "Pitch"; // 俯仰角
-    UI_Set_String(object, UiTeam, 2, Ui_layer_5, UI_ABS_PITCH_CENTER_X, UI_ABS_PITCH_CENTER_Y + UI_PITCH_SIZE * 1.5f,
-                  UI_PITCH_SIZE, txt1, sizeof(txt1));
+    UI_Set_String(object, UiPink, 10, Ui_layer_5, 400, 800,
+                  50, txt1, sizeof(txt1));
 }
 
-// 绘制云台的姿态信息（pitch具体数值）
-void UI_GimbalPosture_Pitch(UI_Object *object)
+void UI_GimbalPosture_Yaw_word(UI_Object *object)
 {
-    float pitch = UiExData.GM_Pitch; // 获取俯仰角
-    UI_Set_Float(object, UiTeam, 2, Ui_layer_5, UI_ABS_PITCH_CENTER_X, UI_ABS_PITCH_CENTER_Y,
-                 UI_PITCH_SIZE, pitch);
+    static char txt1[10] = "Yaw"; // 偏航角
+    UI_Set_String(object, UiPink, 10, Ui_layer_5, 1600, 800,
+                  50, txt1, sizeof(txt1));
 }
+// // 绘制云台的姿态信息（pitch具体数值）
+// void UI_GimbalPosture_Pitch(UI_Object *object)
+// {
+//     float pitch = UiExData.GM_Pitch; // 获取俯仰角
+//     UI_Set_Float(object, UiTeam, 2, Ui_layer_5, UI_ABS_PITCH_CENTER_X, UI_ABS_PITCH_CENTER_Y,
+//                  UI_PITCH_SIZE, pitch);
+// }
 
 // 绘制堵弹标志
 void UI_StrikeStuck_Info(UI_Object *object)
@@ -176,7 +183,7 @@ void UI_Motion_Mode(UI_Object *object)
     motionmode = UiExData.Motion_Mode; // 得到当前运动模式
     if (motionmode >= UI_NO_FOLLOW && motionmode <= UI_Change_GYRO)
     {
-        UI_Set_String(object, motionmode, 6, Ui_layer_5, 740, 800, 60, txt[motionmode], sizeof(txt[motionmode]));
+        UI_Set_String(object, motionmode, 6, Ui_layer_8, 740, 800, 60, txt[motionmode], sizeof(txt[motionmode]));
     }
 }
 
@@ -612,12 +619,12 @@ void UI_Hero_Allow_Heat_Shoot(UI_Object *object)
 
 void UI_Gimbal_Pose_Pitch(UI_Object *object)
 {
-    UI_Set_Float(object, UiOrange, 10, Ui_layer_5, 300, 720, 120, Get_GimbalFB_Pitch());
+    UI_Set_Float(object, UiOrange, 10, Ui_layer_9, 300, 720, 120, Get_GimbalFB_Pitch());
 }
 
 void UI_Gimbal_Pose_Yaw(UI_Object *object)
 {
-    UI_Set_Float(object, UiCyan, 10, Ui_layer_5, 1200, 720, 120, Get_GimbalFB_Yaw());
+    UI_Set_Float(object, UiCyan, 10, Ui_layer_9, 1200, 720, 120, Get_GimbalFB_Yaw());
 }
 /// <summary>
 ///                 注册部分初始化
@@ -639,8 +646,9 @@ void Attach_UI_init()
     Attach_UI_Object(UiLine, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Line_1); // 绘制云台的姿态信息（三条短线）
     Attach_UI_Object(UiLine, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Line_2); // 绘制云台的姿态信息（三条短线）
     Attach_UI_Object(UiLine, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Line_3); // 绘制云台的姿态信息（三条短线）
-    Attach_UI_Object(UiStr, UiTeam, TRANS_ONCE, 1, UI_GimbalPosture_Pitch_word); // 绘制云台的姿态信息（pitch字符）
-    Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Pitch); // 绘制云台的姿态信息（pitch具体数值）
+    Attach_UI_Object(UiStr, UiTeam, TRANS_NULL, 0, UI_GimbalPosture_Pitch_word); // 绘制云台的姿态信息（pitch字符）
+    Attach_UI_Object(UiStr, UiTeam, TRANS_NULL, 0, UI_GimbalPosture_Yaw_word); // 绘制云台的姿态信息（yaw字符）
+    // Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Pitch); // 绘制云台的姿态信息（pitch具体数值）
 
     // 堵弹标志UI
     Attach_UI_Object(UiStr, UiOrange, TRANS_NULL, 0, UI_StrikeStuck_Info); // 绘制堵弹标志
@@ -684,7 +692,7 @@ void Attach_UI_init()
     Attach_UI_Object(UiRect, UiOrange, TRANS_ONCE, 1, UI_Hero_Aim_Rect_2);  // 绘制英雄瞄准线第2条
     Attach_UI_Object(UiRect, UiMagenta, TRANS_ONCE, 1, UI_Hero_Aim_Rect_3); // 绘制英雄瞄准线第3条
     Attach_UI_Object(UiRect, UiPink, TRANS_ONCE, 1, UI_Hero_Aim_Rect_4);    // 绘制英雄瞄准线第4条
-    // 绘制英雄是否允许超热量射击的矩形框
+    // 绘制英雄是否允许超热量射击的矩形框9
     Attach_UI_Object(UiStr, UiOrange, TRANS_ONCE, 1, UI_Hero_Allow_Heat_Shoot); // 绘制英雄是否允许超热量射击
     
     // 绘制英雄的云台姿态UI
@@ -716,23 +724,41 @@ void UI_If_Aimbot_Change()
 {
     static uint8_t last_aimbot_state = 0;          // 自瞄上次保存状态
     static uint8_t gimbal_pose_created = 0;         // 云台pitch/yaw元素是否已创建的标志位
+    static uint8_t last_ui_reset_flag = 0;         // UI重置标志位上次保存状态
+    if (UiExData.Aimbot_Mode == DANGLING_MODE && gimbal_pose_created)//元素已创建后，持续刷新云台姿态数值
+    { 
+        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Pitch);
+        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Yaw);
+    }
 
+    if(UiExData.UI_Reset_Flag!=last_ui_reset_flag&&UiExData.Aimbot_Mode==DANGLING_MODE)
+    {
+        Drv_Set_Object_Visualable(UI_CREATE, UI_Gimbal_Pose_Pitch);        // 更新云台pitch显示
+        Drv_Set_Object_Visualable(UI_CREATE, UI_Gimbal_Pose_Yaw);          // 更新云台yaw显示
+        Drv_Set_Object_Visualable(UI_CREATE, UI_GimbalPosture_Pitch_word);        // 更新云台pitch显示
+        Drv_Set_Object_Visualable(UI_CREATE, UI_GimbalPosture_Yaw_word);          // 更新云台yaw显示
+        last_ui_reset_flag=UiExData.UI_Reset_Flag;
+    }
     if (last_aimbot_state != UiExData.Aimbot_Mode) // 自瞄状态变化
     {
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aimbot_Mode);    // 更新自瞄模式
         Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新准心位置和颜色
 
-        if (UiExData.Aimbot_Mode == DANGLING_MODE)//吊射模式下显示云台姿态
+        if (UiExData.Aimbot_Mode == DANGLING_MODE&&gimbal_pose_created==0)//吊射模式下显示云台姿态
         {
             Drv_Set_Object_Visualable(UI_CREATE,UI_Gimbal_Pose_Pitch);        // 创建云台pitch显示
             Drv_Set_Object_Visualable(UI_CREATE,UI_Gimbal_Pose_Yaw);          // 创建云台yaw显示
             gimbal_pose_created = 1;                                          // 标记已创建
+            Drv_Set_Object_Visualable(UI_CREATE,UI_GimbalPosture_Pitch_word);        // 创建云台pitch显示
+            Drv_Set_Object_Visualable(UI_CREATE,UI_GimbalPosture_Yaw_word);          // 创建云台yaw显示
         }
         else if (gimbal_pose_created) // 仅在已创建过的情况下才删除
         {
             Drv_Set_Object_Visualable(UI_DELDTE,UI_Gimbal_Pose_Pitch);        // 删除云台姿态
             Drv_Set_Object_Visualable(UI_DELDTE,UI_Gimbal_Pose_Yaw);          // 删除云台姿态
             gimbal_pose_created = 0;                                          // 清除标志位
+            Drv_Set_Object_Visualable(UI_DELDTE,UI_GimbalPosture_Pitch_word);        // 删除云台pitch显示
+            Drv_Set_Object_Visualable(UI_DELDTE,UI_GimbalPosture_Yaw_word);          // 删除云台yaw显示
         }
 
     //     if (AIMBUFF_CONST_MODE == UiExData.Aimbot_Mode || AIMBUFF_VAR_MODE == UiExData.Aimbot_Mode)
@@ -763,14 +789,10 @@ void UI_If_Aimbot_Change()
     //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_Circle_4); // 删除能量机关图形
     //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_Circle_5); // 删除能量机关图形
     //     }
+    last_aimbot_state = UiExData.Aimbot_Mode; // 更新自瞄状态
     }
 
-    if (UiExData.Aimbot_Mode == DANGLING_MODE && gimbal_pose_created)//元素已创建后，持续刷新云台姿态数值
-    {
-        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Pitch);
-        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Yaw);
-    }
-    last_aimbot_state = UiExData.Aimbot_Mode; // 更新自瞄状态
+    
 }
 // 检查视觉错误状态变化并更新UI显示
 void UI_If_Visual_Error_State_Change()
@@ -1073,7 +1095,7 @@ void Get_UI_Data(void)
     // UI_If_Visual_Target_Found_Change();                           // 检查自瞄识别敌方状态是否改变,并进行相应的检查和处理
     // UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据
     // UI_If_Hero_Bullet_Change();                 // 检查英雄弹丸识别数据是否改变,并进行相应的检查和处理
-    UI_If_Hero_Light_Change();                  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
+    // UI_If_Hero_Light_Change();                  // 检查英雄基地引导灯识别数据是否改变,并进行相应的检查和处理
 
 /*******************************未用**************************************** */
     // UiExData.GM_IMU_Pitch = Get_Gimbal_IMU_Data(IMU_PITCH); // 云台imu pitch--显示云台Pitch轴角度
