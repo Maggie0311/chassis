@@ -51,6 +51,8 @@ typedef struct UI_Used_Data_t
     unsigned UI_Reset_Flag : 1;            // 重置 UI 的标志位, 翻转时需要重置
     rt_time_t Last_UI_refresh_Time;        // 上一次 UI 刷新时间
     unsigned IfAllow_Heat_Shoot : 1;       // 英雄是否允许超热量射击, 1 代表允许
+
+    unsigned If_Up_Stairs : 1; // 英雄是否要进入上台阶
      //!云台(视觉)目前还没加些功能
     //unsigned if_aimbot_best_dis : 1;       // 当前是否为云台认为的最佳射击距离
     //hero_light_bullet_t Hero_UI_Data;     // 英雄视觉识别的基地引导灯和弹丸数据

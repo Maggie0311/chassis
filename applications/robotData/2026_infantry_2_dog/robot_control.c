@@ -6,7 +6,7 @@
 #include "drv_motionSolve.h"
 #include "robot_control.h"
 #include "drv_GimMotor.h"
-#include "fun_powerCtrl.h"
+ #include "fun_powerCtrl.h"
 #include "drv_Gimbal_Com.h"
 
 #define WHEEL_MOTOR_NUM 4
@@ -567,9 +567,8 @@ void Inverse_to_Track(Mot_base_t Speed_xyw)
         vel_x = Speed_xyw.vel.x*RADTORPM/150.f;
         Motor_Set_Target((MotorInstance *)&track_motor[0], vel_x);
         Motor_Set_Target((MotorInstance *)&track_motor[1], vel_x);
-
-
 }
+
 
 
 void fix_dong(float motorSetSpeed[WHEEL_MOTOR_NUM], float vx)
@@ -602,7 +601,12 @@ void no_track()
 
        track_motor[0].Motor_obj.Motor_ctrl.Current_pid.MaxOut=0;
         track_motor[1].Motor_obj.Motor_ctrl.Current_pid.MaxOut=0;
+
+ Motor_Set_Target((MotorInstance *)&track_motor[0], 0);
+        Motor_Set_Target((MotorInstance *)&track_motor[1], 0);
 }
+
+uint8_t track_on_flag=0;
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e motion_mode)
 {
     if (1 == isSetValid_debug[0])
@@ -625,16 +629,19 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
             gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 1548;
             Inverse_to_Track(*Speed_xyw);
             fix_dong(motorSetSpeed, Speed_xyw->vel.x);
+            track_on_flag=1;
         }
-        else if(Get_Track_On())
+            else if(Get_Track_real_state())
         {
             gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 528;
             Inverse_to_Track(*Speed_xyw);
+            track_on_flag=1;
         }
         else 
         {
             no_track();
-            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 528;   
+            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 528; 
+            track_on_flag=0;  
         }
 
        Get_force_out(motorSetForce); // 获取前馈值

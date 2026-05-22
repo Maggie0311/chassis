@@ -1,5 +1,5 @@
 #include "fun_protocolGim.h"
-
+#include "robot_control.h"
 /***
  * @brief:   获取云台端传来的发弹模式(单发/三连发)(低射频/高射频)
  * @param:   None
@@ -85,6 +85,13 @@ uint8_t Get_Wireless_Charge(void)
 uint8_t Get_Track_On(void)
 {
     return gimbal_mixdata_msg.if_track_on;
+}
+
+extern uint8_t track_on_flag;
+
+uint8_t Get_Track_real_state(void)
+{
+    return track_on_flag;
 }
 #endif
 // 读取当前是否需要超级电容充电, 返回 1 为不需要

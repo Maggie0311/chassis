@@ -830,7 +830,7 @@ static rt_uint8_t getIfBuildAttacked(void)
 void Get_UI_Data(void)
 {
     /******************************未用****************************************/
-    UiExData.Track_State = Get_Track_On();
+    UiExData.Track_State = Get_Track_real_state();
     UiExData.Local_AmmoBooster_Mode = Get_Local_AmmoBooster_Type();
     // UiExData.Local_Robot_Level = Get_Local_Robot_Level();
     UiExData.Gimbal_Motor_Offline = Get_Gimbal_Motor_Offline_State();

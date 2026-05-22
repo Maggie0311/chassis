@@ -309,9 +309,10 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
 
 
     #ifdef CORE_USING_INFANTRY
-    //if (!PowerCtrl_Close_Flag[0] && Get_Wireless_Charge())
-    if (!PowerCtrl_Close_Flag[0] && test_wr)
+    if ( Get_Wireless_Charge())//!PowerCtrl_Close_Flag[0] &&
+    //if (!PowerCtrl_Close_Flag[0] && test_wr)
     {
+			PowerCtrl_Close_Flag[0]=0;
         Set_SuprCap_OutputMode(2); // 只放不充（无线充电期间禁止超电充电）
     }
     // 正常工作：超电在线且未耗尽时正常充放
@@ -423,7 +424,7 @@ void get_true_RLS(void)
     }
     else if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0] && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power < 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
-      // RLS_Update(&RunRLS, RunPhi, RunRLS.now_power -RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+     //RLS_Update(&RunRLS, RunPhi, RunRLS.now_power -RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
     }
@@ -814,6 +815,13 @@ static void Power_lim_allo_to_wheels()
         //  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
     }
 
+    #ifdef CORE_USING_2026_INFANTRY_2
+    if(!Get_Track_real_state())
+    {
+         Motor_Power_Pointer[WHEEL_RUN][4]->Motor_obj.Motor_ctrl.Current_pid.Output=0;
+         Motor_Power_Pointer[WHEEL_RUN][5]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
+    }
+    #endif
     // for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
     // {
     //     //        轮向电机调整方向
