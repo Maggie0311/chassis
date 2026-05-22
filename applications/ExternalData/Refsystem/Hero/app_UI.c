@@ -633,23 +633,26 @@ extern float up_motor_angle_get[4];
 void UI_Forward_Screw(UI_Object *object)
 {
     Up_Motor_Angle_Read();
-    float forward_screw_height=400.f+up_motor_angle_get[0]*100.0f/Screw_Forward_Motor_UP_Target;
+    float forward_screw_height=600.f+up_motor_angle_get[0]*100.0f/Screw_Forward_Motor_UP_Target;
     UI_Set_Line(object,UiCyan,10,Ui_layer_9,300,600,300,(int)forward_screw_height);
 }
 
 void UI_Backward_Screw(UI_Object *object)
 {
     Up_Motor_Angle_Read();
-    float backward_screw_height=400.f+up_motor_angle_get[2]*100.0f/Screw_Back_Motor_UP_Target;
+    float backward_screw_height=600.f+up_motor_angle_get[2]*100.0f/Screw_Back_Motor_UP_Target;
     UI_Set_Line(object,UiCyan,10,Ui_layer_9,400,600,400,(int)backward_screw_height);
 }
 // 英雄是否要进入上台阶状态变化
-void UI_Up_Stairs_Rect(UI_Object *object)
+void UI_Up_Stairs_Car(UI_Object *object)
 {
     Up_Motor_Angle_Read();
-    float forward_screw_height=400.f+up_motor_angle_get[0]*100.0f/Screw_Forward_Motor_UP_Target;
-    float backward_screw_height=400.f+up_motor_angle_get[2]*100.0f/Screw_Back_Motor_UP_Target;
-     UI_Set_Rect(object, UiCyan, 5, Ui_layer_0, 300, (int)forward_screw_height,600,(int)backward_screw_height+100);
+    float forward_screw_height=600.f+up_motor_angle_get[0]*100.0f/Screw_Forward_Motor_UP_Target;
+    float backward_screw_height=600.f+up_motor_angle_get[2]*100.0f/Screw_Back_Motor_UP_Target;
+    UI_Set_Line(object,UiPink,10,Ui_layer_9,300,(int)forward_screw_height,300,(int)forward_screw_height+50.f);//车高为50 定前向为粉色
+    UI_Set_Line(object,UiCyan,10,Ui_layer_9,400,(int)backward_screw_height,400,(int)backward_screw_height+50.f);//车高为50 
+    UI_Set_Line(object,UiCyan,10,Ui_layer_9,300,(int)forward_screw_height,400,(int)backward_screw_height);
+    UI_Set_Line(object,UiCyan,10,Ui_layer_9,300,(int)forward_screw_height+50.f,400,(int)backward_screw_height+50.f);
 }
 /// <summary>
 ///                 注册部分初始化
@@ -727,7 +730,7 @@ void Attach_UI_init()
     //绘制英雄抬升机构状态UI
     Attach_UI_Object(UiLine,UiCyan,TRANS_NULL,0,UI_Forward_Screw);//抬升机构前向显示
     Attach_UI_Object(UiLine,UiCyan,TRANS_NULL,0,UI_Backward_Screw);//抬升机构后向显示
-    Attach_UI_Object(UiRect,UiCyan,TRANS_NULL,0,UI_Up_Stairs_Rect);//上台阶矩形框
+    Attach_UI_Object(UiRect,UiCyan,TRANS_NULL,0,UI_Up_Stairs_Car);//上台阶矩形框
 
 
     // Attach_UI_Object(UiCircle, UiGreen, TRANS_FOREVER, 1, UI_Guide_Light_Circle); // 英雄吊射基地引导灯
@@ -933,14 +936,14 @@ void UI_If_Up_Stairs_Change()
     { 
         Drv_Set_Object_Visualable(UI_MODIFY,UI_Forward_Screw);
         Drv_Set_Object_Visualable(UI_MODIFY,UI_Backward_Screw);
-        Drv_Set_Object_Visualable(UI_MODIFY,UI_Up_Stairs_Rect);
+        Drv_Set_Object_Visualable(UI_MODIFY,UI_Up_Stairs_Car);
     }
 
     if(UiExData.UI_Reset_Flag!=last_ui_reset_flag&&UiExData.If_Up_Stairs)
     {
         Drv_Set_Object_Visualable(UI_CREATE, UI_Forward_Screw);        // 更新云台pitch显示
         Drv_Set_Object_Visualable(UI_CREATE, UI_Backward_Screw);          // 更新云台yaw显示
-        Drv_Set_Object_Visualable(UI_CREATE, UI_Up_Stairs_Rect);        // 更新上台阶矩形显示
+        Drv_Set_Object_Visualable(UI_CREATE, UI_Up_Stairs_Car);        // 更新上台阶矩形显示
         last_ui_reset_flag=UiExData.UI_Reset_Flag;
     }
     if (last_up_stairs != UiExData.If_Up_Stairs) // 上台阶状态变化
@@ -949,14 +952,14 @@ void UI_If_Up_Stairs_Change()
         {
             Drv_Set_Object_Visualable(UI_CREATE,UI_Forward_Screw);        // 创建云台pitch显示  
             Drv_Set_Object_Visualable(UI_CREATE,UI_Backward_Screw);          // 创建云台yaw显示
-            Drv_Set_Object_Visualable(UI_CREATE, UI_Up_Stairs_Rect);        // 创建上台阶矩形显示
+            Drv_Set_Object_Visualable(UI_CREATE, UI_Up_Stairs_Car);        // 创建上台阶矩形显示
             screw_pose_created = 1;                                          // 标记已创建
         }
         else if (screw_pose_created) // 仅在已创建过的情况下才删除
         {
             Drv_Set_Object_Visualable(UI_DELDTE,UI_Forward_Screw);        // 删除云台姿态
             Drv_Set_Object_Visualable(UI_DELDTE,UI_Backward_Screw);          // 删除云台姿态    
-            Drv_Set_Object_Visualable(UI_DELDTE, UI_Up_Stairs_Rect);        // 删除上台阶矩形显示
+            Drv_Set_Object_Visualable(UI_DELDTE, UI_Up_Stairs_Car);        // 删除上台阶矩形显示
             screw_pose_created = 0;                                          // 清除标志位
         }
     last_up_stairs = UiExData.If_Up_Stairs; // 更新上台阶状态
