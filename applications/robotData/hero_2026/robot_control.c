@@ -8,6 +8,7 @@
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
 #include "drv_SPICAN.h"
+
 #include "DM_Motor.h"
 #include "Wheel_data.h"
 #include <arm_math.h>
@@ -876,26 +877,26 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
     {
         up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle;
         up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed+5;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
-        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle+20;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16384;
+        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle+5;
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed+5;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
-        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
+        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16384;
         Motor_Set_Target((MotorInstance *)&up_motor[2], set_planner_up_motor[2].p+ up_motor_zero_offset[2]); // TODO
         Motor_Set_Target((MotorInstance *)&up_motor[3], set_planner_up_motor[3].p+ up_motor_zero_offset[3]); // TODO
     }
     else if(motor == Back_Screw_Motor&&up_or_down==DOWN)
     {
-        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle;
+        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle+10;
         up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=3000;
 
-        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle;        
+        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle+10;        
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
