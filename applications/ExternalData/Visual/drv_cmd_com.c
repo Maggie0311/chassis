@@ -64,7 +64,7 @@ typedef struct {
 
 static unsigned char receive_fault_count = 0;// 收到数据后解析校验失败计数
 
-#define MAX_SEND_CMD_NUM 20     // 最大发送命令数量
+#define MAX_SEND_CMD_NUM 30     // 最大发送命令数量
 #define MAX_RECEIVE_CMD_NUM 10  // 最大接收命令数量
 #define MAX_DEVICE_NUM 10       // 最大同时注册设备数量（一般这么多应该足够了吧  囧 ）
 static ComSendCtrl_t sendCtrl[MAX_SEND_CMD_NUM];            // 发送控制结构体（与发送命令对应）
