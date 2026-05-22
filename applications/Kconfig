@@ -163,7 +163,7 @@ menu "Board function module"
         config BSP_VISUAL_USART_BOUD
             int "the Visual usart bound"
             depends on BSP_USING_VISUAL_USART  
-            default "115200"
+            default "460800"
 
         if BSP_USING_VISUAL_USART
             choice
