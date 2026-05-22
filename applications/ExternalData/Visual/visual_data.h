@@ -82,7 +82,7 @@ typedef __packed struct
 #define CMD_SET_Robot_wheel_odometry -1,20 // 给视觉发送地盘姿态正解算后的x、y方向速度数据数据
 #define CMD_SET_Sentry_INFO -1,50 // 向视觉发送哨兵自主决策反馈信息（裁判系统以1Hz频率反馈）
 #define CMD_SET_opponent_position -1,5 // 向视觉发送对方机器人位置信息（30Hz左右频率反馈）
-#define CMD_SET_Robot_command_map -1,10 // 给视觉发送云台手发送给哨兵的点位信息（云台手命令哨兵前往的位置）
+#define CMD_SET_Robot_command_map -1,20 // 给视觉发送云台手发送给哨兵的点位信息（云台手命令哨兵前往的位置）
 
 #define CMD_ID_VISUAL_RADAR 0x02 // 视觉发送雷达数据ID
 // #define CMD_ID_EVENT_DATA 0x06 // 向视觉发送场地事件信息

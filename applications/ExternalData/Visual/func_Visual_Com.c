@@ -107,7 +107,7 @@ static void get_visual_need_ref_data()
     getRefData(structGet_pram(visual_tx_sentry_info,ext_sentry_info));
 
     /*云台手发送的机器人位置*/
-    // getRefData(structGet_pram(visual_tx_robot_command_map,ext_robot_command_map));
+    getRefData(structGet_pram(visual_tx_robot_command_map,ext_robot_command_map));
 
     /*底盘正解算后的x\y方向速度*/
     static Mot_base_t chass_xyw={0};
