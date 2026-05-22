@@ -629,11 +629,11 @@ void UI_Gimbal_Pose_Yaw(UI_Object *object)
 }
 
 extern float up_motor_angle_get[4];
-//前面丝杆高度映射
+//前面丝杆高度映射（左侧）
 void UI_Forward_Screw(UI_Object *object)
 {
     Up_Motor_Angle_Read();
-    float forward_screw_height=600.f+up_motor_angle_get[0]*100.0f/Screw_Forward_Motor_UP_Target;
+    float forward_screw_height=600.f+up_motor_angle_get[1]*100.0f/Screw_Forward_Motor_UP_Target;
     UI_Set_Line(object,UiCyan,5,Ui_layer_9,300,600,300,(int)forward_screw_height);
 }
 
@@ -647,7 +647,7 @@ void UI_Backward_Screw(UI_Object *object)
 void UI_Up_Stairs_Car_1(UI_Object *object)
 {
     Up_Motor_Angle_Read();
-    float forward_screw_height=600.f+up_motor_angle_get[0]*100.0f/Screw_Forward_Motor_UP_Target;
+    float forward_screw_height=600.f+up_motor_angle_get[1]*100.0f/Screw_Forward_Motor_UP_Target;
     UI_Set_Line(object,UiPink,5,Ui_layer_9,300,(int)forward_screw_height,300,(int)forward_screw_height+50.f);//车高为50 定前向为粉色
 }
 
@@ -661,7 +661,7 @@ void UI_Up_Stairs_Car_2(UI_Object *object)
 void UI_Up_Stairs_Car_3(UI_Object *object)
 {
     Up_Motor_Angle_Read();
-    float forward_screw_height=600.f+up_motor_angle_get[0]*100.0f/Screw_Forward_Motor_UP_Target;
+    float forward_screw_height=600.f+up_motor_angle_get[1]*100.0f/Screw_Forward_Motor_UP_Target;
     float backward_screw_height=600.f+up_motor_angle_get[2]*100.0f/Screw_Back_Motor_UP_Target;
     UI_Set_Line(object,UiCyan,5,Ui_layer_9,300,(int)forward_screw_height,400,(int)backward_screw_height);
 
@@ -670,15 +670,61 @@ void UI_Up_Stairs_Car_3(UI_Object *object)
 void UI_Up_Stairs_Car_4(UI_Object *object)
 {
     Up_Motor_Angle_Read();
-    float forward_screw_height=600.f+up_motor_angle_get[0]*100.0f/Screw_Forward_Motor_UP_Target;
+    float forward_screw_height=600.f+up_motor_angle_get[1]*100.0f/Screw_Forward_Motor_UP_Target;
     float backward_screw_height=600.f+up_motor_angle_get[2]*100.0f/Screw_Back_Motor_UP_Target;
     UI_Set_Line(object,UiCyan,5,Ui_layer_9,300,(int)forward_screw_height+50.f,400,(int)backward_screw_height+50.f);
 
 }
-/// <summary>
-///                 注册部分初始化
-/// </summary>
-void Attach_UI_init()
+
+//抬升机构丝杆映射（右侧）
+void UI_Forward_Screw_Right(UI_Object *object)
+{
+    Up_Motor_Angle_Read();
+    float forward_screw_height = 600.f + up_motor_angle_get[0] * 100.0f / Screw_Forward_Motor_UP_Target;
+    UI_Set_Line(object, UiCyan, 5, Ui_layer_9, 1620, 600, 1620, (int)forward_screw_height);
+}
+
+void UI_Backward_Screw_Right(UI_Object *object)
+{
+    Up_Motor_Angle_Read();
+    float backward_screw_height=600.f+up_motor_angle_get[3]*100.0f/Screw_Back_Motor_UP_Target;
+    UI_Set_Line(object,UiCyan,5,Ui_layer_9,1720,600,1720,(int)backward_screw_height);
+}
+
+void UI_Up_Stairs_Car_1_Right(UI_Object *object)
+{
+    Up_Motor_Angle_Read();
+    float forward_screw_height = 600.f + up_motor_angle_get[0] * 100.0f / Screw_Forward_Motor_UP_Target;
+    UI_Set_Line(object, UiPink, 5, Ui_layer_9, 1620, (int)forward_screw_height, 1620, (int)forward_screw_height + 50.f); // 车高为50 定前向为粉色
+}
+
+void UI_Up_Stairs_Car_2_Right(UI_Object *object)
+{
+    Up_Motor_Angle_Read();
+    float backward_screw_height = 600.f + up_motor_angle_get[3] * 100.0f / Screw_Back_Motor_UP_Target;
+    UI_Set_Line(object, UiCyan, 5, Ui_layer_9, 1720, (int)backward_screw_height, 1720, (int)backward_screw_height + 50.f); // 车高为50
+}
+
+void UI_Up_Stairs_Car_3_Right(UI_Object *object)
+{
+    Up_Motor_Angle_Read();
+    float forward_screw_height = 600.f + up_motor_angle_get[0] * 100.0f / Screw_Forward_Motor_UP_Target;
+    float backward_screw_height = 600.f + up_motor_angle_get[3] * 100.0f / Screw_Back_Motor_UP_Target;
+    UI_Set_Line(object,UiCyan,5,Ui_layer_9,1620,(int)forward_screw_height,1720,(int)backward_screw_height);
+}
+
+
+void UI_Up_Stairs_Car_4_Right(UI_Object *object)
+{
+    Up_Motor_Angle_Read();
+    float forward_screw_height = 600.f + up_motor_angle_get[0] * 100.0f / Screw_Forward_Motor_UP_Target;
+    float backward_screw_height = 600.f + up_motor_angle_get[3] * 100.0f / Screw_Back_Motor_UP_Target;
+    UI_Set_Line(object, UiCyan, 5, Ui_layer_9, 1620, (int)forward_screw_height + 50.f, 1720, (int)backward_screw_height + 50.f);
+}
+    /// <summary>
+    ///                 注册部分初始化
+    /// </summary>
+    void Attach_UI_init()
 {
     // 超级电容UI
     Attach_UI_Object(UiFloat, UiGreen, TRANS_FOREVER, 1, UI_SuperCap_Value); // 绘制超电数值
@@ -748,15 +794,20 @@ void Attach_UI_init()
     Attach_UI_Object(UiFloat,UiOrange,TRANS_NULL,0,UI_Gimbal_Pose_Pitch);//云台pitch显示
     Attach_UI_Object(UiFloat,UiCyan,TRANS_NULL,0,UI_Gimbal_Pose_Yaw);//云台yaw显示
 
-    //绘制英雄抬升机构状态UI
+    //绘制英雄抬升机构状态UI（左侧）
     Attach_UI_Object(UiLine,UiCyan,TRANS_FOREVER, 1,UI_Forward_Screw);//抬升机构前向显示
     Attach_UI_Object(UiLine,UiCyan,TRANS_FOREVER, 1,UI_Backward_Screw);//抬升机构后向显示
     Attach_UI_Object(UiLine,UiPink,TRANS_FOREVER, 1,UI_Up_Stairs_Car_1);//上台阶矩形框
     Attach_UI_Object(UiLine,UiCyan,TRANS_FOREVER, 1,UI_Up_Stairs_Car_2);//上台阶矩形框
     Attach_UI_Object(UiLine,UiCyan,TRANS_FOREVER, 1,UI_Up_Stairs_Car_3);//上台阶矩形框      
     Attach_UI_Object(UiLine,UiCyan,TRANS_FOREVER, 1,UI_Up_Stairs_Car_4);//上台阶矩形框
-
-
+    // 绘制英雄抬升机构状态UI（右侧）
+    Attach_UI_Object(UiLine, UiCyan, TRANS_FOREVER, 1, UI_Forward_Screw_Right);   // 抬升机构前向显示
+    Attach_UI_Object(UiLine, UiCyan, TRANS_FOREVER, 1, UI_Backward_Screw_Right);  // 抬升机构后向显示
+    Attach_UI_Object(UiLine, UiPink, TRANS_FOREVER, 1, UI_Up_Stairs_Car_1_Right); // 上台阶矩形框
+    Attach_UI_Object(UiLine, UiCyan, TRANS_FOREVER, 1, UI_Up_Stairs_Car_2_Right); // 上台阶矩形框
+    Attach_UI_Object(UiLine, UiCyan, TRANS_FOREVER, 1, UI_Up_Stairs_Car_3_Right); // 上台阶矩形框
+    Attach_UI_Object(UiLine, UiCyan, TRANS_FOREVER, 1, UI_Up_Stairs_Car_4_Right); // 上台阶矩形框
 
     // Attach_UI_Object(UiCircle, UiGreen, TRANS_FOREVER, 1, UI_Guide_Light_Circle); // 英雄吊射基地引导灯
     // Attach_UI_Object(UiCircle, UiTeam, TRANS_FOREVER, 1, UI_Big_Bullet_Circle);   // 英雄大弹丸

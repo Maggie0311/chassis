@@ -143,20 +143,25 @@ void UI_StrikeStuck_Info(UI_Object *object)
     }
 }
 
-// int x1_aimbot=690;
-// int y1_aimbot=410;
-// int x2_aimbot=1260;
-// int y2_aimbot=660;
+int x1_aimbot=690;
+int y1_aimbot=410;
+int x2_aimbot=1260;
+int y2_aimbot=660;
+//todo 
+int x1_energy=710;
+int y1_energy=410;
+int x2_energy=1300;
+int y2_energy=660;
 // 相机位置辅助矩形框
 void UI_Camera_Assist_Rect(UI_Object *object)
 {
-    // if(AIMBUFF_CONST_MODE==UiExData.Aimbot_Mode||AIMBUFF_VAR_MODE==UiExData.Aimbot_Mode)
-    // {
-    //     UI_Set_Rect(object, UiWhite, 2, Ui_layer_5, x1_energy, y1_energy, x2_energy, y2_energy);
-    // }
-    // else
-    // {
-    // UI_Set_Rect(object, UiWhite, 2, Ui_layer_5, x1_aimbot, y1_aimbot, x2_aimbot, y2_aimbot);
+    if(AIMBUFF_CONST_MODE==UiExData.Aimbot_Mode||AIMBUFF_VAR_MODE==UiExData.Aimbot_Mode)
+    {
+        UI_Set_Rect(object, UiWhite, 2, Ui_layer_5, x1_energy, y1_energy, x2_energy, y2_energy);
+    }
+    else
+    {
+    UI_Set_Rect(object, UiWhite, 2, Ui_layer_5, x1_aimbot, y1_aimbot, x2_aimbot, y2_aimbot);
     if (UiExData.visual_target_found)
     {
         UI_Set_Rect(object, UiTeam, 2, Ui_layer_5, 690, 410, 1260, 660);
@@ -165,7 +170,7 @@ void UI_Camera_Assist_Rect(UI_Object *object)
     {
         UI_Set_Rect(object, UiWhite, 2, Ui_layer_5, 690, 410, 1260, 660);
     }
-    // }
+    }
 }
 // int motion_mode_x=740;
 // int motion_mode_y=800;
@@ -633,7 +638,7 @@ void Attach_UI_init()
     Attach_UI_Object(UiStr, UiOrange, TRANS_NULL, 0, UI_StrikeStuck_Info); // 绘制堵弹标志
 
     // 相机位置辅助矩形框UI
-    //Attach_UI_Object(UiRect, UiWhite, TRANS_ONCE, 1, UI_Camera_Assist_Rect); // 绘制相机位置辅助矩形框
+    Attach_UI_Object(UiRect, UiWhite, TRANS_ONCE, 1, UI_Camera_Assist_Rect); // 绘制相机位置辅助矩形框
 
     // 显示当前底盘运动模式
     Attach_UI_Object(UiStr, UiYellow, TRANS_FOREVER, 5, UI_Motion_Mode); // 显示当前底盘运动模式
