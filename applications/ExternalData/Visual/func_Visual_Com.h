@@ -14,7 +14,6 @@ typedef struct
 
 extern sentry_cmd_info_t visual_rx_sentry_cmd_info;
 extern com_opponent_position_t visual_tx_opponent_position;
-
 // 与视觉通信线程
 rt_err_t VisualInit(void);
 
