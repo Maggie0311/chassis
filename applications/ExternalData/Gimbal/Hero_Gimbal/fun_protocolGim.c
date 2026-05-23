@@ -1,4 +1,5 @@
 #include "fun_protocolGim.h"
+#include "app_RefSystem.h" //Tx数据来源
 
 /***************************英雄底盘控制相关接口*************************** */
 // 获取云台端对超电允许放电的状态
@@ -61,7 +62,7 @@ ui_aimbot_mode_e Get_Aimbot_Mode(void)
  */
 My_Color_Enum Get_Color_Myself(void)
 { // UI
-    return (My_Color_Enum)gimbal_mixdata_msg.self_color;
+    return (My_Color_Enum)ref_IdData.team_color;//英雄直接从裁判系统获取
 }
 
 /***

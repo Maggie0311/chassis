@@ -8,6 +8,8 @@
 #include "robot_data.h"
 #include "mod_motion.h"
 #include "robot_control.h"
+#include "app_RefSystem.h" 
+
 // UI需要使用到的外部数据
 UI_Used_Data_t UiExData;
 
