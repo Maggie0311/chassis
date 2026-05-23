@@ -24,8 +24,8 @@ typedef __packed struct
     uint16_t cooling_heat;     // 枪口热量
     uint16_t cooling_rate;     // 枪口每秒冷却值
     uint16_t cooling_limit;    // 枪口热量上限
-    uint16_t speed_limit;      // 枪口速度上限
-    //uint16_t cooling_buff;     // 枪口冷却具体值（直接值，值为 x 表示热量冷却增加 x/s）（26改）
+    // uint16_t speed_limit;      // 枪口速度上限
+    uint16_t cooling_buff;     // 枪口冷却具体值（直接值，值为 x 表示热量冷却增加 x/s）（26改）
     //!字节超了
 } Gim_Reftrans1_t;        // 发送给云台的枪口数据
 

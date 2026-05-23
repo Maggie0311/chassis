@@ -211,10 +211,10 @@ static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
     getRefData(memberGet_parm(get_temp_16, ext_game_robot_status, shooter_cooling_limit));
     gim_reftrans_msg1.cooling_limit = get_temp_16;
     /*枪口速度上限*/
-    gim_reftrans_msg1.speed_limit = Ref_Bullet_Speed_Limit();
+    // gim_reftrans_msg1.speed_limit = Ref_Bullet_Speed_Limit();
     /*枪口冷却具体值*/
-    //getRefData(memberGet_parm(get_temp_16, ext_buff_musk, cooling_buff));
-    //gim_reftrans_msg1.cooling_buff = get_temp_16;
+    getRefData(memberGet_parm(get_temp_16, ext_buff_musk, cooling_buff));
+    gim_reftrans_msg1.cooling_buff = get_temp_16;
 
     //! 因为协议修改导致字节数超了，但暂时配合云台调试
     memcpy(instance->tx_buff, &gim_reftrans_msg1, sizeof(gim_reftrans_msg1) < 8 ? sizeof(gim_reftrans_msg1) : 8);
