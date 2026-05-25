@@ -51,6 +51,7 @@ Robot_wheel_odometry_t visual_tx_Robot_wheel_odometry;     //底盘正解算后�
 ext_sentry_info_t visual_tx_sentry_info;    //哨兵自主决策信息同步
 com_opponent_position_t visual_tx_opponent_position; // 对方机器人位置信息
 ext_robot_command_map_t visual_tx_robot_command_map; // 云台手发送的机器人位置
+ext_ground_robot_position_t visual_tx_ground_robot_position; // 己方机器人位置信息
 
 static uint8_t visual_com_tx_buff[2048]; // 视觉通信发送数据缓冲区
 static uint8_t visual_com_rx_buff[512]; // 视觉通信接收数据缓冲区
@@ -81,6 +82,9 @@ static void get_visual_need_ref_data()
     /*己方血量信息*/
     getRefData(structGet_pram(visual_tx_game_robot_survivors_temp,ext_game_robot_survivors));
     rt_memcpy(&visual_tx_game_robot_survivors,&visual_tx_game_robot_survivors_temp,sizeof(visual_tx_game_robot_survivors));
+
+    /*己方位置信息*/
+    getRefData(structGet_pram(visual_tx_ground_robot_position,ext_ground_robot_position));
     
     /*机器人信息*/
     getRefData(memberGet_parm(getdata_temp_8,ext_game_robot_status,robot_id));
@@ -344,6 +348,7 @@ rt_err_t VisualInit(void)
     Attach_SendCmd(VisualData_Serial,CMD_ID_GAME_ROBOT_survivors,CMD_SET_GAME_ROBOT_survivors,sizeof(visual_tx_game_robot_survivors), (void*)&visual_tx_game_robot_survivors);
     Attach_SendCmd(VisualData_Serial,CMD_ID_ROBOT_INFO,CMD_SET_ROBOT_INFO,sizeof(visual_tx_robot_info), (void*)&visual_tx_robot_info);
     Attach_SendCmd(VisualData_Serial,CMD_ID_Bullet_remaining,CMD_SET_Bullet_remaining,sizeof(visual_tx_bullet_remaining), (void*)&visual_tx_bullet_remaining);
+    Attach_SendCmd(VisualData_Serial,CMD_ID_Ground_robot_position,CMD_SET_Ground_robot_position,sizeof(visual_tx_ground_robot_position), (void*)&visual_tx_ground_robot_position);
     // Attach_SendCmd(VisualData_Serial,CMD_ID_Robot_wheel_odometry,CMD_SET_Robot_wheel_odometry,sizeof(visual_tx_Robot_wheel_odometry),(void*)&visual_tx_Robot_wheel_odometry);
     Attach_SendCmd(VisualData_Serial,CMD_ID_Sentry_info,CMD_SET_Sentry_INFO,sizeof(visual_tx_sentry_info),(void*)&visual_tx_sentry_info);
     Attach_SendCmd(VisualData_Serial,CMD_ID_opponent_position,CMD_SET_opponent_position,sizeof(visual_tx_opponent_position),(void*)&visual_tx_opponent_position);
