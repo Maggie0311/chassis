@@ -191,7 +191,7 @@ static rt_uint16_t Ref_Bullet_Speed_Limit(void)
 }
 
 Gim_Reftrans1_t gim_reftrans_msg1;
-Gim_Reftrans2_t gim_reftrans_msg2;
+
 
 /**
  * @brief 转发裁判系统数据1的数据获取函数
@@ -211,78 +211,78 @@ static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
     getRefData(memberGet_parm(get_temp_16, ext_game_robot_status, shooter_cooling_limit));
     gim_reftrans_msg1.cooling_limit = get_temp_16;
     /*枪口速度上限*/
-    gim_reftrans_msg1.speed_limit = Ref_Bullet_Speed_Limit();
+    // gim_reftrans_msg1.speed_limit = Ref_Bullet_Speed_Limit();
     /*枪口冷却具体值*/
-    //getRefData(memberGet_parm(get_temp_16, ext_buff_musk, cooling_buff));
-    //gim_reftrans_msg1.cooling_buff = get_temp_16;
+    getRefData(memberGet_parm(get_temp_16, ext_buff_musk, cooling_buff));
+    gim_reftrans_msg1.cooling_buff = get_temp_16;
 
     //! 因为协议修改导致字节数超了，但暂时配合云台调试
     memcpy(instance->tx_buff, &gim_reftrans_msg1, sizeof(gim_reftrans_msg1) < 8 ? sizeof(gim_reftrans_msg1) : 8);
 }
 
-/**
- * @brief 转发裁判系统数据2的数据获取函数
- *
- * @param instance
- */
-static void Gimbal_RefdataGet_Tx(CANInstance *instance)
-{
-    rt_memset(&gim_reftrans_msg2, 0, sizeof(gim_reftrans_msg2));
-    uint8_t get_temp_8; // 暂存裁判系统信息
-    uint16_t get_temp_16;
-    float get_temp_float;
+// /**
+//  * @brief 转发裁判系统数据2的数据获取函数
+//  *
+//  * @param instance
+//  */
+// static void Gimbal_RefdataGet_Tx(CANInstance *instance)
+// {
+//     rt_memset(&gim_reftrans_msg2, 0, sizeof(gim_reftrans_msg2));
+//     uint8_t get_temp_8; // 暂存裁判系统信息
+//     uint16_t get_temp_16;
+//     float get_temp_float;
 
-    /*是否开始比赛*/
-    getRefData(bitGet_parm(get_temp_8, ext_game_state, game_data, 4, 4));
-    if (get_temp_8 == 4) // 比赛中
-        gim_reftrans_msg2.isStartGame = 1;
-    else
-        gim_reftrans_msg2.isStartGame = 0;
+//     /*是否开始比赛*/
+//     getRefData(bitGet_parm(get_temp_8, ext_game_state, game_data, 4, 4));
+//     if (get_temp_8 == 4) // 比赛中
+//         gim_reftrans_msg2.isStartGame = 1;
+//     else
+//         gim_reftrans_msg2.isStartGame = 0;
 
-    /*当装甲板受攻击时(距上次数据更新<20ms)返回受击装甲板id*/
-    if (IsRefDataValid(Index_robot_hurt, 20)) // 20ms内都相信此数据
-        gim_reftrans_msg2.hurtID = hurt.robot_hurt_armor;
-    else
-        gim_reftrans_msg2.hurtID = 0xFF;
+//     /*当装甲板受攻击时(距上次数据更新<20ms)返回受击装甲板id*/
+//     if (IsRefDataValid(Index_robot_hurt, 20)) // 20ms内都相信此数据
+//         gim_reftrans_msg2.hurtID = hurt.robot_hurt_armor;
+//     else
+//         gim_reftrans_msg2.hurtID = 0xFF;
 
-    /*获取己方颜色*/
-    gim_reftrans_msg2.tempColor = ref_IdData.team_color;
+//     /*获取己方颜色*/
+//     gim_reftrans_msg2.tempColor = ref_IdData.team_color;
 
-    /*己方前哨站是否存活*/
-    if (hurt.outpost_hp > 0)
-        gim_reftrans_msg2.ourOutpost = 1;
-    else
-        gim_reftrans_msg2.ourOutpost = 0;
+//     /*己方前哨站是否存活*/
+//     if (hurt.outpost_hp > 0)
+//         gim_reftrans_msg2.ourOutpost = 1;
+//     else
+//         gim_reftrans_msg2.ourOutpost = 0;
 
-    //! 配合云台调试
-    gim_reftrans_msg2.enermyOutpost = 0;
+//     //! 配合云台调试
+//     gim_reftrans_msg2.enermyOutpost = 0;
 
-    /*弹速*/
-    if (IsRefDataValid(Index_shoot_data, 20)) // 20ms内有射击则更新弹速，否则弹速为0
-    {
-        getRefData(memberGet_parm(get_temp_float, ext_shoot_data, bullet_speed));
-        gim_reftrans_msg2.speed = (uint16_t)(get_temp_float * 100);
-    }
-    else
-        gim_reftrans_msg2.speed = 0;
+//     /*弹速*/
+//     if (IsRefDataValid(Index_shoot_data, 20)) // 20ms内有射击则更新弹速，否则弹速为0
+//     {
+//         getRefData(memberGet_parm(get_temp_float, ext_shoot_data, bullet_speed));
+//         gim_reftrans_msg2.speed = (uint16_t)(get_temp_float * 100);
+//     }
+//     else
+//         gim_reftrans_msg2.speed = 0;
 
-    // /*哨兵血量*/
-    // getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
-    // gim_reftrans_msg2.SentryHP = get_temp_16;
+//     // /*哨兵血量*/
+//     // getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
+//     // gim_reftrans_msg2.SentryHP = get_temp_16;
 
-    /*剩余发弹量 */
-    getRefData(memberGet_parm(get_temp_16, ext_bullet_remaining, bullet_remaining_num_42mm));
-    gim_reftrans_msg2.remaining_bullet_num = get_temp_16;
-    /*云台手键盘信息*/
-    getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
-    gim_reftrans_msg2.commd_keyboard = get_temp_8;
+//     /*剩余发弹量 */
+//     getRefData(memberGet_parm(get_temp_16, ext_bullet_remaining, bullet_remaining_num_42mm));
+//     gim_reftrans_msg2.remaining_bullet_num = get_temp_16;
+//     /*云台手键盘信息*/
+//     getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
+//     gim_reftrans_msg2.commd_keyboard = get_temp_8;
 
-    /*目标机器人ID（多机通信）*/
-    getRefData(memberGet_parm(get_temp_16, ext_robot_command_map, target_robot_ID));
-    gim_reftrans_msg2.target_robot_ID = get_temp_16;
+//     /*目标机器人ID（多机通信）*/
+//     getRefData(memberGet_parm(get_temp_16, ext_robot_command_map, target_robot_ID));
+//     gim_reftrans_msg2.target_robot_ID = get_temp_16;
 
-    memcpy(instance->tx_buff, &gim_reftrans_msg2, sizeof(gim_reftrans_msg2) < 8 ? sizeof(gim_reftrans_msg2) : 8); // 写入报文
-}
+//     memcpy(instance->tx_buff, &gim_reftrans_msg2, sizeof(gim_reftrans_msg2) < 8 ? sizeof(gim_reftrans_msg2) : 8); // 写入报文
+// }
 
 /**
  * @brief 给云台的信息发送线程
@@ -358,7 +358,7 @@ rt_err_t Gimbal_Com_Init(void)
 
     /*注册发送can通信*/
     res += Gimbal_comTx_Attach(Shooter_msg_Index, GIMBAL_SHOOT_TX, Gimbal_RefShootdataGet_Tx);
-    res += Gimbal_comTx_Attach(Mixed_msg_Index, GIMBAL_MIXDATA_TX, Gimbal_RefdataGet_Tx);
+    // res += Gimbal_comTx_Attach(Mixed_msg_Index, GIMBAL_MIXDATA_TX, Gimbal_RefdataGet_Tx);
     if (res)
     {
         LOG_E("gim_Tx_msg init failed, err=%d", res);

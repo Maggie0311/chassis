@@ -377,7 +377,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 528,
+            .ENCODER_ZERO_OFFSET = 2476,
             .ctrl_mode = CTRL_MODE_VOLTAGE,
         }},
     // pitch轴电机
@@ -626,21 +626,21 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
         Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
         if(Get_if_DongMode()==0)
         {
-            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 1548;
+            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 3676;
             Inverse_to_Track(*Speed_xyw);
             fix_dong(motorSetSpeed, Speed_xyw->vel.x);
             track_on_flag=1;
         }
             else if(Get_Track_On())
         {
-            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 528;
+            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 2590;
             Inverse_to_Track(*Speed_xyw);
             track_on_flag=1;
         }
         else 
         {
             no_track();
-            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 528; 
+            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 2590; 
             track_on_flag=0;  
         }
 
