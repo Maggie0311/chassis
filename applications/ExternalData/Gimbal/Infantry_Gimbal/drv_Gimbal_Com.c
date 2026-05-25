@@ -8,9 +8,10 @@
 #include "app_monitor.h"
 #include "mod_Log.h"
 
-#include "app_RefSystem.h" //Tx数据来源
-#include "controlMsg.h"    //云台控制数据去向
+#include "app_RefSystem.h"    //Tx数据来源
+#include "controlMsg.h"       //云台控制数据去向
 #include "drv_GimMotor.h"
+#include "drv_motionSolve.h"  //正解算数据
 
 #ifdef BSP_USING_LOG
 #define LOG_TAG "gim_com"
@@ -48,7 +49,7 @@ static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
     gimbal_ctrl.vel_y = (float)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
     gimbal_ctrl.mode = (Motion_mode_e)(instance->rx_buff[6]);
     #ifdef CORE_USING_2026_INFANTRY_2
-    gimbal_ctrl.dongMode = 1;
+   // gimbal_ctrl.dongMode = 1;
     gimbal_ctrl.dongMode = (instance->rx_buff[7]);
     #endif
     // ulog_d("gim","vx,vy:%.2f,%.2f",gimbal_ctrl.vel_x,gimbal_ctrl.vel_y);
@@ -59,7 +60,7 @@ static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
         gimbal_ctrl.fol_ang = 0;
         gimbal_ctrl.angvel = 0;
         #ifdef CORE_USING_2026_INFANTRY_2
-        if(gimbal_ctrl.dongMode)
+        if(!gimbal_ctrl.dongMode)
         {
             gimbal_ctrl.angvel = 0;
         }
@@ -225,37 +226,14 @@ static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
 static void Gimbal_RefdataGet_Tx(CANInstance *instance)
 {
     rt_memset(&gim_reftrans_msg2, 0, sizeof(gim_reftrans_msg2));
-    uint8_t get_temp_8; // 暂存裁判系统信息
-    uint16_t get_temp_16;
-    float get_temp_float;
 
-    /*是否开始比赛*/
-    getRefData(bitGet_parm(get_temp_8, ext_game_state, game_data, 4, 4));
-    if (get_temp_8 == 4) // 比赛中
-        gim_reftrans_msg2.isStartGame = 1;
-    else
-        gim_reftrans_msg2.isStartGame = 0;
-
-    /*当装甲板受攻击时(距上次数据更新<20ms)返回受击装甲板id*/
-    if (IsRefDataValid(Index_robot_hurt, 20)) // 20ms内都相信此数据
-        gim_reftrans_msg2.hurtID = hurt.robot_hurt_armor;
-    else
-        gim_reftrans_msg2.hurtID = 0xFF;
-
-    /*获取己方颜色*/
-    gim_reftrans_msg2.tempColor = ref_IdData.team_color;
-
-    /*己方前哨站是否存活*/
-    if (hurt.outpost_hp > 0)
-        gim_reftrans_msg2.ourOutpost = 1;
-    else
-        gim_reftrans_msg2.ourOutpost = 0;
-
-    //! 配合云台调试
-    gim_reftrans_msg2.enermyOutpost = 0;
+    Mot_base_t real_motion = Get_realmotion();
+    gim_reftrans_msg2.vx = (int16_t)real_motion.vel.x;
+    gim_reftrans_msg2.vy = (int16_t)real_motion.vel.y;
 
     /*弹速*/
-    if (IsRefDataValid(Index_shoot_data, 20)) // 20ms内有射击则更新弹速，否则弹速为0
+    float get_temp_float;
+    if (IsRefDataValid(Index_shoot_data, 20))
     {
         getRefData(memberGet_parm(get_temp_float, ext_shoot_data, bullet_speed));
         gim_reftrans_msg2.speed = (uint16_t)(get_temp_float * 100);
@@ -263,19 +241,7 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
     else
         gim_reftrans_msg2.speed = 0;
 
-    /*哨兵血量*/
-    getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
-    gim_reftrans_msg2.SentryHP = get_temp_16;
-
-    /*云台手键盘信息*/
-    getRefData(memberGet_parm(get_temp_8, ext_robot_command_map, commd_keyboard));
-    gim_reftrans_msg2.commd_keyboard = get_temp_8;
-
-    /*目标机器人ID（多机通信）*/
-    getRefData(memberGet_parm(get_temp_16, ext_robot_command_map, target_robot_ID));
-    gim_reftrans_msg2.target_robot_ID = get_temp_16;
-
-    memcpy(instance->tx_buff, &gim_reftrans_msg2, sizeof(gim_reftrans_msg2) < 8 ? sizeof(gim_reftrans_msg2) : 8); // 写入报文
+    memcpy(instance->tx_buff, &gim_reftrans_msg2, sizeof(gim_reftrans_msg2) < 8 ? sizeof(gim_reftrans_msg2) : 8);
 }
 
 /**

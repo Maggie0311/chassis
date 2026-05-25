@@ -29,20 +29,13 @@ typedef __packed struct
     //! 字节超了
 } Gim_Reftrans1_t; // 发送给云台的枪口数据
 
-//! 云台还未修改，暂时保持老版
+//! 底盘正解算速度 + 弹速
 typedef __packed struct
 {
-    // 工作状态数据
-    unsigned isStartGame : 1;   // 是否开始比赛(1为开始，0为未开始)
-    unsigned hurtID : 3;        // 装甲板ID，未受攻击时为FF
-    unsigned tempColor : 1;     // 红蓝方
-    unsigned ourOutpost : 1;    // 己方前哨战是否存活
-    unsigned enermyOutpost : 1; // 敌方前哨战是否存活
-    unsigned speed : 16;        // 弹速
-    unsigned SentryHP : 16;     // 哨兵的血量
-    uint8_t commd_keyboard;   // 发送指令时，云台手按下的键盘信息 无按键按下则为 0
-    uint16_t target_robot_ID; // 要作用的目标机器人 ID           当发送位置信息时，该项为 0
-} Gim_Reftrans2_t;            // 发送给云台的裁判系统数据
+    int16_t vx;     // 底盘正解算X方向速度（mm/s）
+    int16_t vy;     // 底盘正解算Y方向速度（mm/s）
+    uint16_t speed; // 弹速（m/s * 100）
+} Gim_Reftrans2_t;  // 发送给云台的底盘速度和弹速数据
 
 /*Rx*/
 #define MSG_READ_2BYTES(low, high) ((rt_int16_t)(((low) << 8) | high)) // 二字节读取宏
@@ -102,6 +95,7 @@ typedef __packed struct
     unsigned left_rub_motor_online : 1;  // 左侧摩擦轮电机通信正常
     unsigned launch_motor_online : 1;    // 播弹盘电机通信正常
     unsigned strike_stuck : 1;           // 发射机构卡弹
+    int8_t  pitch_angle;
 
 } Gim_mixData_Rx_t; // 杂项数据包
 

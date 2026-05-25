@@ -14,7 +14,7 @@ void Follow_pid_init(void);
 
 // TODO:调Pid这堆
 #define RUN_PID_Kp 120
-#define RUN_PID_Ki 0.6
+#define RUN_PID_Ki 0.5
 
 #define RUN_PID_Kd 0.8
 
