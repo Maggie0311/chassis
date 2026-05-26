@@ -119,15 +119,15 @@ void UI_GimbalPosture_Line_3(UI_Object *object)
 void UI_GimbalPosture_Pitch_word(UI_Object *object)
 {
     static char txt1[10] = "Pitch"; // 俯仰角
-    UI_Set_String(object, UiTeam, 2, Ui_layer_5, UI_ABS_PITCH_CENTER_X, UI_ABS_PITCH_CENTER_Y + UI_PITCH_SIZE * 1.5f,
+    UI_Set_String(object, UiTeam, 5, Ui_layer_5, UI_ABS_PITCH_CENTER_X, UI_ABS_PITCH_CENTER_Y + UI_PITCH_SIZE * 1.5f,
                   UI_PITCH_SIZE, txt1, sizeof(txt1));
 }
 
 // 绘制云台的姿态信息（pitch具体数值）
 void UI_GimbalPosture_Pitch(UI_Object *object)
 {
-    float pitch = UiExData.GM_Pitch; // 获取俯仰角
-    UI_Set_Float(object, UiTeam, 2, Ui_layer_5, UI_ABS_PITCH_CENTER_X, UI_ABS_PITCH_CENTER_Y,
+    float pitch = UiExData.GM_IMU_Pitch; // 获取俯仰角
+    UI_Set_Float(object, UiTeam, 5, Ui_layer_5, UI_ABS_PITCH_CENTER_X, UI_ABS_PITCH_CENTER_Y,
                  UI_PITCH_SIZE, pitch);
 }
 
@@ -631,8 +631,8 @@ void Attach_UI_init()
     Attach_UI_Object(UiLine, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Line_1); // 绘制云台的姿态信息（三条短线）
     Attach_UI_Object(UiLine, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Line_2); // 绘制云台的姿态信息（三条短线）
     Attach_UI_Object(UiLine, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Line_3); // 绘制云台的姿态信息（三条短线）
-    // Attach_UI_Object(UiStr, UiTeam, TRANS_ONCE, 1, UI_GimbalPosture_Pitch_word); // 绘制云台的姿态信息（pitch字符）
-    // Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Pitch); // 绘制云台的姿态信息（pitch具体数值）
+    Attach_UI_Object(UiStr, UiTeam, TRANS_ONCE, 1, UI_GimbalPosture_Pitch_word); // 绘制云台的姿态信息（pitch字符）
+    Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_GimbalPosture_Pitch); // 绘制云台的姿态信息（pitch具体数值）
 
     // 堵弹标志UI
     Attach_UI_Object(UiStr, UiOrange, TRANS_NULL, 0, UI_StrikeStuck_Info); // 绘制堵弹标志
@@ -892,7 +892,7 @@ void Get_UI_Data(void)
     UiExData.GM_YAW_360F = Get_YAW_ANGLE_360f(); // 获取云台,yaw --绘制辅助瞄准线
     // UiExData.GM_Pitch = Get_PITCH_ANGLE_360f();  // 云台电机,pitch--绘制辅助瞄准线
 
-    // UiExData.GM_IMU_Pitch = Get_Gimbal_IMU_Data(IMU_PITCH); // 云台imu pitch--显示云台Pitch轴角度
+    UiExData.GM_IMU_Pitch = get_chassis_imu_data().pitch; // 云台imu pitch--显示云台Pitch轴角度
     UiExData.Strike_Mode = Get_StrikeMode(); // 更新子弹模式,有单发与三连发模式(这里已经不再使用该变量来作为单发和连发的判断依据)
 
     UiExData.Motion_Mode = Get_Motion_Mode(); // 显示当前运动模式(跟随/不跟随/小陀螺/快陀螺/变速陀螺)

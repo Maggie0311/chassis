@@ -224,23 +224,23 @@ uint8_t get_chassis_pitch(float *pitch)
         return 0;
 }
 
-uint8_t get_chassis_roll(float *roll)
-{ // motion
-    if (rt_tick_get() - imu_data_freshtick < 100)
-    {
-        *roll = gimbal_imudata_msg.roll;
-        return 1;
-    }
-    else
-        return 0;
-}
+// uint8_t get_chassis_roll(float *roll)
+// { // motion
+//     if (rt_tick_get() - imu_data_freshtick < 100)
+//     {
+//         *roll = gimbal_imudata_msg.roll;
+//         return 1;
+//     }
+//     else
+//         return 0;
+// }
 
 imu_euler_t get_chassis_imu_data(void)
 { // UI
     if (rt_tick_get() - imu_data_freshtick < 100)
         return gimbal_imudata_msg;
     else
-        return (imu_euler_t){0, 0, 0};
+        return (imu_euler_t){0, 0};
 }
 
 uint8_t get_Key_ctrl(void)

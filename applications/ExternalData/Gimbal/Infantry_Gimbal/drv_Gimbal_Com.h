@@ -42,7 +42,7 @@ typedef __packed struct
 
 #define GIMBAL_CTRL_RX 0x100 // 云台控制底盘相关ID（rx_gimctrl）
 #define GIMBAL_DATA_RX 0x401 // 从云台接收的各类数据ID（rx_gimData）
-// #define GIMBAL_IMU_DATA_RX 0x402 // 从云台接收的IMU数据ID（rx_gimIMU）
+#define GIMBAL_IMU_DATA_RX 0x402 // 从云台接收的IMU数据ID（rx_gimIMU）
 typedef enum
 {
     Ctrl_msg_Index,    // 底盘控制
@@ -103,7 +103,7 @@ typedef struct
 {
     float yaw;
     float pitch;
-    float roll;
+    // float roll;
 } imu_euler_t;
 
 
