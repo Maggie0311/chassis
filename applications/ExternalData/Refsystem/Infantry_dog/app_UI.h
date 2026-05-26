@@ -16,7 +16,7 @@ typedef struct UI_Used_Data_t
     float GM_YAW_360F;       // 云台编码器角度
     float GM_Pitch;          // 云台编码器角度
 
-    float GM_IMU_Pitch; // 云台imu pitch
+    int8_t GM_IMU_Pitch; // 云台imu pitch
 
     uint8_t Track_State; // 履带状态
 

@@ -1,5 +1,7 @@
 #include "fun_protocolGim.h"
 #include "robot_control.h"
+#include "app_RefSystem.h" //Tx数据来源
+
 /***
  * @brief:   获取云台端传来的发弹模式(单发/三连发)(低射频/高射频)
  * @param:   None
@@ -40,10 +42,9 @@ ui_aimbot_mode_e Get_Aimbot_Mode(void)
  * @return My_Color_Enum    自方颜色
  */
 My_Color_Enum Get_Color_Myself(void)
-{ // UI
-    return (My_Color_Enum)gimbal_mixdata_msg.self_color;
+{                                                // UI
+    return (My_Color_Enum)ref_IdData.team_color; // 英雄直接从裁判系统获取
 }
-
 /***
  * @brief 返回Ui重置标志位
  * @retval
@@ -251,6 +252,10 @@ uint8_t get_Key_ctrl(void)
         return 0;
 }
 
+uint8_t Get_gimbal_imu_pitch(void)
+{
+    return gimbal_mixdata_msg.pitch_angle;
+}
 // 获取本地的机器人等级
 // rt_uint8_t Get_Local_Robot_Level(void)
 // {

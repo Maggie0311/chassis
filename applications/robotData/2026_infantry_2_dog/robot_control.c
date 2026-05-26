@@ -624,7 +624,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
 
         Omni_Inverse_Kinematics_new(*Speed_xyw, 45.f, motorSetSpeed); // 底盘速度解算到各个电机上
         Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
-        if(Get_if_DongMode()==0)
+        if(Get_if_DongMode()==1)
         {
             gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 3676;
             Inverse_to_Track(*Speed_xyw);
