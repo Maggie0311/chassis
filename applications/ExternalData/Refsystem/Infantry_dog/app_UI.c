@@ -604,6 +604,103 @@ void UI_Track_State(UI_Object *object)
     }
 }
 
+
+// 检查自瞄状态并更新UI显示（包括更新右下角的字符，如果是能量机关模式，会显示能量机关的UI，如果能量机关拟合状态完成，则还会将颜色设置为队伍颜色）
+void UI_If_Aimbot_Change()
+{
+    static uint8_t last_aimbot_state = 0;          // 自瞄上次保存状态
+    static uint8_t gimbal_pose_created = 0;         // 云台pitch/yaw元素是否已创建的标志位
+    static uint8_t last_ui_reset_flag = 0;         // UI重置标志位上次保存状态
+    if (UiExData.Aimbot_Mode == DANGLING_MODE && gimbal_pose_created)//元素已创建后，持续刷新云台姿态数值
+    { 
+        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Pitch);
+        Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Yaw);
+    }
+
+    if(UiExData.UI_Reset_Flag!=last_ui_reset_flag&&UiExData.Aimbot_Mode==DANGLING_MODE)
+    {
+        Drv_Set_Object_Visualable(UI_CREATE, UI_Gimbal_Pose_Pitch);        // 更新云台pitch显示
+        Drv_Set_Object_Visualable(UI_CREATE, UI_Gimbal_Pose_Yaw);          // 更新云台yaw显示
+        Drv_Set_Object_Visualable(UI_CREATE, UI_GimbalPosture_Pitch_word);        // 更新云台pitch显示
+        Drv_Set_Object_Visualable(UI_CREATE, UI_GimbalPosture_Yaw_word);          // 更新云台yaw显示
+        last_ui_reset_flag=UiExData.UI_Reset_Flag;
+    }
+    if (last_aimbot_state != UiExData.Aimbot_Mode) // 自瞄状态变化
+    {
+        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aimbot_Mode);    // 更新自瞄模式
+        Drv_Set_Object_Visualable(UI_MODIFY, UI_Aim_Point_Info); // 更新准心位置和颜色
+
+        if (UiExData.Aimbot_Mode == DANGLING_MODE&&gimbal_pose_created==0)//吊射模式下显示云台姿态
+        {
+            Drv_Set_Object_Visualable(UI_CREATE,UI_Gimbal_Pose_Pitch);        // 创建云台pitch显示
+            Drv_Set_Object_Visualable(UI_CREATE,UI_Gimbal_Pose_Yaw);          // 创建云台yaw显示
+            gimbal_pose_created = 1;                                          // 标记已创建
+            Drv_Set_Object_Visualable(UI_CREATE,UI_GimbalPosture_Pitch_word);        // 创建云台pitch显示
+            Drv_Set_Object_Visualable(UI_CREATE,UI_GimbalPosture_Yaw_word);          // 创建云台yaw显示
+        }
+        else if (gimbal_pose_created) // 仅在已创建过的情况下才删除
+        {
+            Drv_Set_Object_Visualable(UI_DELDTE,UI_Gimbal_Pose_Pitch);        // 删除云台姿态
+            Drv_Set_Object_Visualable(UI_DELDTE,UI_Gimbal_Pose_Yaw);          // 删除云台姿态
+            gimbal_pose_created = 0;                                          // 清除标志位
+            Drv_Set_Object_Visualable(UI_DELDTE,UI_GimbalPosture_Pitch_word);        // 删除云台pitch显示
+            Drv_Set_Object_Visualable(UI_DELDTE,UI_GimbalPosture_Yaw_word);          // 删除云台yaw显示
+        }
+
+    //     if (AIMBUFF_CONST_MODE == UiExData.Aimbot_Mode || AIMBUFF_VAR_MODE == UiExData.Aimbot_Mode)
+    //     {
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Circle);        // 显示能量机关图形
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Line_1);        // 显示能量机关图形
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Line_2);        // 显示能量机关图形
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Line_3);        // 显示能量机关图形
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Line_4);        // 显示能量机关图形
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Line_5);        // 显示能量机关图形
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Line_Circle_1); // 显示能量机关图形
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Line_Circle_2); // 显示能量机关图形
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Line_Circle_3); // 显示能量机关图形
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Line_Circle_4); // 显示能量机关图形
+    //         Drv_Set_Object_Visualable(UI_CREATE, UI_EnergyR_Line_Circle_5); // 显示能量机关图形
+    //     }
+    //     else
+    //     {
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Circle);        // 删除能量机关图形
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_1);        // 删除能量机关图形
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_2);        // 删除能量机关图形
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_3);        // 删除能量机关图形
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_4);        // 删除能量机关图形
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_5);        // 删除能量机关图形
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_Circle_1); // 删除能量机关图形
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_Circle_2); // 删除能量机关图形
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_Circle_3); // 删除能量机关图形
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_Circle_4); // 删除能量机关图形
+    //         Drv_Set_Object_Visualable(UI_DELDTE, UI_EnergyR_Line_Circle_5); // 删除能量机关图形
+    //     }
+    last_aimbot_state = UiExData.Aimbot_Mode; // 更新自瞄状态
+    }
+
+    
+}
+void UI_If_Enemy_detected_Change()
+{
+    static uint8_t last_enemy_detected=0;//是否有被检测到的机器人
+    static uint8_t enemy1_pose_created = 0;         // 该敌人已经被创建
+    static uint8_t enemy2_pose_created = 0;         // 该敌人已经被创建
+    static uint8_t enemy3_pose_created = 0;         // 该敌人已经被创建
+    static uint8_t enemy4_pose_created = 0;         // 该敌人已经被创建
+    static uint8_t enemy7_pose_created = 0;         // 该敌人已经被创建
+
+    if(enemy1_pose_created)
+    {
+
+    }
+
+
+}
+
+void UI_Enemy_1_Position(UI_Object *object)
+{
+    
+}
 /// <summary>
 ///                 注册部分初始化
 /// </summary>
@@ -685,6 +782,15 @@ void Attach_UI_init()
 
     // UI帧率显示
     Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_Frequency_Info); // 帧率显示
+
+    //透视UI
+    Attach_UI_Object(UiCircle, UiCyan, TRANS_NULL, 0, UI_Enemy_1_Position);//敌方英雄位置
+    Attach_UI_Object(UiCircle, UiOrange, TRANS_NULL, 0, UI_Enemy_2_Position);//敌方工程位置
+    Attach_UI_Object(UiCircle, UiGreen, TRANS_NULL, 0, UI_Enemy_3_Position);//敌方步兵位置
+    Attach_UI_Object(UiCircle, UiMagenta, TRANS_NULL, 0, UI_Enemy_4_Position);//敌方步兵位置
+    Attach_UI_Object(UiCircle, UiPink, TRANS_NULL, 0, UI_Enemy_7_Position);//敌方哨兵位置
+
+
 }
 
 // 检查无线充电状态变化并更新UI显示
@@ -920,6 +1026,10 @@ void Get_UI_Data(void)
         UI_Reset_All();                              // 复位UI函数
         UiExData.UI_Reset_Flag = Get_UI_Reset_Flg(); // 更新UI复位标志位
     }
+
+    UiExData.If_Enemy_detected=Get_If_1_detected()||Get_If_2_detected()||Get_If_3_detected()||Get_If_4_detected()||Get_If_7_detected();
+    UI_If_Enemy_detected_Change();
+
     /******************************未用****************************************/
 //     #ifdef HREO_UI_SPECIAL
 //     UiExData.Hero_UI_Data = get_hero_ui_data(); // 英雄视觉识别的基地引导灯和弹丸数据

@@ -47,6 +47,7 @@ typedef struct UI_Used_Data_t
     rt_uint8_t Chassis_Motor_Offline;                   // 底盘电机离线情况, 从低到高分别为：右前、左前、左后、右后、Yaw轴电机, 置 1 表示离线
     // unsigned sentryIsErr : 1;          // 哨兵是否在启动区
 
+    
     unsigned Magazine_Status : 1;          // 弹仓状态
     unsigned Bulid_If_Hurt : 1;            // 建筑物状态
     unsigned Client_Mode : 1;              // 当前处于客户端控制模式
@@ -69,7 +70,7 @@ typedef struct UI_Used_Data_t
     unsigned if_aimbot_best_dis : 1;       // 当前是否为云台认为的最佳射击距离
     unsigned visual_target_found : 1;      // 视觉是否找到目标（用于在UI上提示操作手是否找到目标）
     rt_time_t Last_UI_refresh_Time;        // 上一次 UI 刷新时间
-
+    unsigned If_Enemy_detected : 1;        // 是否检测到敌人, 1 代表检测到敌人
     unsigned IfAllow_Heat_Shoot : 1;      // 英雄是否允许超热量射击, 1 代表允许
 } UI_Used_Data_t;
 
