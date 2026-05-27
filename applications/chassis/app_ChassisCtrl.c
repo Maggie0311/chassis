@@ -201,7 +201,7 @@ static rt_err_t chassisCtrlInit(void)
     //全局速度PID初始化
     // Fix_Speed_pid_init();
     // 卡尔曼滤波融合初始化 
-   Kalman_init();
+//    Kalman_init();
 #ifdef CORE_USING_HERO
     //抬升机构对零点
     
