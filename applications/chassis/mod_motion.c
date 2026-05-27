@@ -244,24 +244,40 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
             direction=-180;
     }
     #endif
-    #ifdef CORE_USING_2026_INFANTRY_2
-      direction = 0;
-    #endif
+#ifdef CORE_USING_2026_INFANTRY_2
+
+    if (Get_if_DongMode())
+        direction = get_imu_yaw();
+    else
+        direction = 0;
+
+#endif
 
     #ifdef CORE_USING_INFANTRY
       if(Get_Wireless_Charge())
          direction=0;
     #endif
+
     //direction += fol_angle;// 加入跟随角
     VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_fast, direction, yaw_angle);
+#ifdef CORE_USING_2026_INFANTRY_2
 
-    /*跟随时，当功率受限时降低平移保证转向*/
-    // yaw_Omega = Get_GM_Omega(ctrlMsg->arg); // 这里的arg是云台yaw或者pitch轴电机的枚举，在云台接受控制数据处定义
-    // yawAngleOffset(yaw_Omega, &yaw_angle);  // 当旋转较快时执行yaw轴电机角度补偿
+    if (Get_if_DongMode())
+    {
+        if (direction - get_yaw_target() > 180)
+            direction -= 360;
+        else if (direction - get_yaw_target() < -180)
+            direction += 360;
+        VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_slow, direction, get_yaw_target());
+    }
+#endif
+        /*跟随时，当功率受限时降低平移保证转向*/
+        // yaw_Omega = Get_GM_Omega(ctrlMsg->arg); // 这里的arg是云台yaw或者pitch轴电机的枚举，在云台接受控制数据处定义
+        // yawAngleOffset(yaw_Omega, &yaw_angle);  // 当旋转较快时执行yaw轴电机角度补偿
 
-    /*将云台的控制速度矢量转化到底盘坐标系上*/
-    // VxyW.vel = MotModule_Transform(VxyW.vel, yaw_angle);
-    return VxyW;
+        /*将云台的控制速度矢量转化到底盘坐标系上*/
+        // VxyW.vel = MotModule_Transform(VxyW.vel, yaw_angle);
+        return VxyW;
 }
 
 /**

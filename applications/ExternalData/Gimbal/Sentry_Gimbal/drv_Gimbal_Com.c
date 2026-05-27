@@ -98,8 +98,8 @@ static void Gimbal_MixData_Rx_call(CANInstance *instance)
  ***/
 static void Gimbal_imuData_Rx_call(CANInstance *instance)
 {
-    gimbal_imudata_msg.pitch = *((float *)&instance->rx_buff[0]);
-    gimbal_imudata_msg.roll = *((float *)&instance->rx_buff[4]);
+    gimbal_imudata_msg.yaw = *((float *)&instance->rx_buff[0]);
+    gimbal_imudata_msg.pitch = *((float *)&instance->rx_buff[4]);
     imu_data_freshtick = rt_tick_get();
 }
 

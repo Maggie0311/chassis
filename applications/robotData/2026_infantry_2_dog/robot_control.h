@@ -41,5 +41,5 @@ int gim_motor_init();
 int track_motor_init();
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e motion_mode);
 void Forward_Kinematics(void);
-
+int16_t get_yaw_target(void);
 #endif

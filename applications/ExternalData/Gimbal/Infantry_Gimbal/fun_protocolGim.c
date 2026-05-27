@@ -252,12 +252,16 @@ uint8_t get_Key_ctrl(void)
         return 0;
 }
 
-uint8_t Get_gimbal_imu_pitch(void)
-{
-    return gimbal_mixdata_msg.pitch_angle;
-}
+//uint8_t Get_gimbal_imu_pitch(void)
+//{
+//    return gimbal_mixdata_msg.pitch_angle;
+//}
 // 获取本地的机器人等级
 // rt_uint8_t Get_Local_Robot_Level(void)
 // {
 //     return gimbal_mixdata_msg.set_level + 1;
 // }
+int16_t get_imu_yaw(void)
+{
+    return gimbal_mixdata_msg.yaw_angle;
+}

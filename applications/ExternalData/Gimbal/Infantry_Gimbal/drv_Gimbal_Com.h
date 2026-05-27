@@ -10,7 +10,6 @@ typedef void (*Gimbal_TransDataGet_ptr)(CANInstance *instance); // 获取需要�
 
 #define GIMBAL_SHOOT_TX 0x105   // 裁判系统枪管信息ID
 #define GIMBAL_MIXDATA_TX 0x106 // 向云台发送各类数据ID
-
 typedef enum
 {
     Shooter_msg_Index, // 枪管信息
@@ -43,6 +42,8 @@ typedef __packed struct
 #define GIMBAL_CTRL_RX 0x100 // 云台控制底盘相关ID（rx_gimctrl）
 #define GIMBAL_DATA_RX 0x401 // 从云台接收的各类数据ID（rx_gimData）
 #define GIMBAL_IMU_DATA_RX 0x402 // 从云台接收的IMU数据ID（rx_gimIMU）
+#define TEST_RX 0x090 // 测试ID（rx_testimbal）
+#define TEST_RX_2 0x091 // 测试ID（tx_testimbal）
 typedef enum
 {
     Ctrl_msg_Index,    // 底盘控制
@@ -95,8 +96,8 @@ typedef __packed struct
     unsigned left_rub_motor_online : 1;  // 左侧摩擦轮电机通信正常
     unsigned launch_motor_online : 1;    // 播弹盘电机通信正常
     unsigned strike_stuck : 1;           // 发射机构卡弹
-    int8_t  pitch_angle;
-
+    int16_t  yaw_angle;
+    
 } Gim_mixData_Rx_t; // 杂项数据包
 
 typedef struct

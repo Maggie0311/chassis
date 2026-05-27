@@ -895,19 +895,19 @@ void Attach_UI_init()
     // UI帧率显示
     Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_Frequency_Info); // 帧率显示
 
-    //透视UI 圆圈显示
-    Attach_UI_Object(UiCircle, UiCyan, TRANS_NULL, 0, UI_Enemy_1_Position);//敌方英雄位置
-    Attach_UI_Object(UiCircle, UiOrange, TRANS_NULL, 0, UI_Enemy_2_Position);//敌方工程位置
-    Attach_UI_Object(UiCircle, UiGreen, TRANS_NULL, 0, UI_Enemy_3_Position);//敌方步兵位置
-    Attach_UI_Object(UiCircle, UiMagenta, TRANS_NULL, 0, UI_Enemy_4_Position);//敌方步兵位置
-    Attach_UI_Object(UiCircle, UiPink, TRANS_NULL, 0, UI_Enemy_7_Position);//敌方哨兵位置
-    Attach_UI_Object(UiCircle, UiWhite, TRANS_ONCE, 0, UI_Enemy_Big_circle); // 敌方大圆圈
-    //数字显示
-    Attach_UI_Object(UiInt, UiWhite, TRANS_NULL, 0, UI_Enemy_Num_1); // 敌方数字显示
-    Attach_UI_Object(UiInt, UiWhite, TRANS_NULL, 0, UI_Enemy_Num_2); // 敌方数字显示
-    Attach_UI_Object(UiInt, UiWhite, TRANS_NULL, 0, UI_Enemy_Num_3); // 敌方数字显示
-    Attach_UI_Object(UiInt, UiWhite, TRANS_NULL, 0, UI_Enemy_Num_4); // 敌方数字显示
-    Attach_UI_Object(UiInt, UiWhite, TRANS_NULL, 0, UI_Enemy_Num_7); // 敌方数字显示
+    // //透视UI 圆圈显示
+    // Attach_UI_Object(UiCircle, UiCyan, TRANS_NULL, 0, UI_Enemy_1_Position);//敌方英雄位置
+    // Attach_UI_Object(UiCircle, UiOrange, TRANS_NULL, 0, UI_Enemy_2_Position);//敌方工程位置
+    // Attach_UI_Object(UiCircle, UiGreen, TRANS_NULL, 0, UI_Enemy_3_Position);//敌方步兵位置
+    // Attach_UI_Object(UiCircle, UiMagenta, TRANS_NULL, 0, UI_Enemy_4_Position);//敌方步兵位置
+    // Attach_UI_Object(UiCircle, UiPink, TRANS_NULL, 0, UI_Enemy_7_Position);//敌方哨兵位置
+    // Attach_UI_Object(UiCircle, UiWhite, TRANS_ONCE, 0, UI_Enemy_Big_circle); // 敌方大圆圈
+    // //数字显示
+    // Attach_UI_Object(UiInt, UiWhite, TRANS_NULL, 0, UI_Enemy_Num_1); // 敌方数字显示
+    // Attach_UI_Object(UiInt, UiWhite, TRANS_NULL, 0, UI_Enemy_Num_2); // 敌方数字显示
+    // Attach_UI_Object(UiInt, UiWhite, TRANS_NULL, 0, UI_Enemy_Num_3); // 敌方数字显示
+    // Attach_UI_Object(UiInt, UiWhite, TRANS_NULL, 0, UI_Enemy_Num_4); // 敌方数字显示
+    // Attach_UI_Object(UiInt, UiWhite, TRANS_NULL, 0, UI_Enemy_Num_7); // 敌方数字显示
 }
 
 // 检查无线充电状态变化并更新UI显示
@@ -1114,7 +1114,7 @@ void Get_UI_Data(void)
     UiExData.GM_YAW_360F = Get_YAW_ANGLE_360f(); // 获取云台,yaw --绘制辅助瞄准线
     // UiExData.GM_Pitch = Get_PITCH_ANGLE_360f();  // 云台电机,pitch--绘制辅助瞄准线
 
-    UiExData.GM_IMU_Pitch = Get_gimbal_imu_pitch(); // 云台imu pitch--显示云台Pitch轴角度
+    //UiExData.GM_IMU_Pitch = Get_gimbal_imu_pitch(); // 云台imu pitch--显示云台Pitch轴角度
     UiExData.Strike_Mode = Get_StrikeMode(); // 更新子弹模式,有单发与三连发模式(这里已经不再使用该变量来作为单发和连发的判断依据)
 
     UiExData.Motion_Mode = Get_Motion_Mode(); // 显示当前运动模式(跟随/不跟随/小陀螺/快陀螺/变速陀螺)
