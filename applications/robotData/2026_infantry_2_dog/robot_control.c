@@ -243,7 +243,7 @@ DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
         },
 
         .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp+20, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit|PID_ChangingIntegrationRate , .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 9000, .DeadBand = 0.5},
+            .Speed_pid = {.Kp = RUN_PID_Kp+60, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit|PID_ChangingIntegrationRate , .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 9000, .DeadBand = 0.5},
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 9000},
             .Closeloop_Type = SPEED_LOOP,
             .Calc_Pre = {
