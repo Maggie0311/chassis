@@ -707,17 +707,17 @@ static void Power_lim_allo_to_wheels()
 
     PowerCtrl.power_allo_flag = power_allo_flag_temp; // 功率分配标志位
 #if IF_USED_ALLO_LEVEL == 2
-    if (PowerCtrl.Power_Maxlim < 1.0f)
+    if (PowerCtrl.Power_Maxlim < 15.0f)
     {
         for (group = 0; group < WHEELS_GROUP_NUM; group++)
         {
             if (if_wheel_used[group] == 1)
             {
-                //Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = 0;
+                Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = 0;
             }
             if (if_steer_used[group] == 1)
             {
-                //Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = 0;
+                Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = 0;
             }
         }
     }
