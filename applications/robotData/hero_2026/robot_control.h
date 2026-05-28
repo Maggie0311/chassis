@@ -6,7 +6,7 @@
 
 #define USING_STEER_RESOLVE
 int chassis_motor_init();
-void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw);
+void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw,uint8_t motion_mode);
 
 int gim_motor_init();
 void Follow_pid_init(void);
@@ -70,7 +70,7 @@ int If_Ready_To_Down_F(float target);
 #define CHASSIS_CTRL_PERIOD 10
 #define PID_CAL_PERIOD 5
 uint8_t Zero_Check(void);
-
+void chasis_zero_x(void);
 void Forward_Kinematics(void);
 void Fix_Speed_pid_init(void);
 void chasis_dangling_x(void);

@@ -61,14 +61,14 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
         last_up_stairs_flag = cur_up_stairs_flag;
     //}
     if(get_up_stairs_flag()&&Zero_Check() == 4)
-   //* if(test_stair&&Zero_Check() == 4)
+   // if(test_stair&&Zero_Check() == 4)
     {
         Motor_Speed_Read();                                // 获取底盘轮向电机速度
        fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
        fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
    }
    else if(get_down_stairs_flag()&&Zero_Check() == 4)
-  //* else if(test_stair_down&&Zero_Check() == 4)
+   //else if(test_stair_down&&Zero_Check() == 4)
    {
     //   Screw_Motor_Move(Back_Screw_Motor, 520, 0);
 
@@ -78,11 +78,14 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
    }
    else if(get_forward_up()&&Zero_Check() == 4)
    {
-         Screw_Motor_Move(Forward_Screw_Motor, 480, 0);
+         Screw_Motor_Move(Forward_Screw_Motor, 500, 0);
+        Screw_Motor_Move(Back_Screw_Motor, 0, 1);
    }
    else if(get_back_up()&&Zero_Check() == 4)
    {
-         Screw_Motor_Move(Back_Screw_Motor, 500, 0);
+         Screw_Motor_Move(Back_Screw_Motor, 560, 0);
+         Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
+
    }
    else if(Zero_Check() == 4)
    {
@@ -137,9 +140,9 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     chassis_ctrl(&Speed_xyw, &Force_xyw,fixCtrl.motion_mode);
     #elif defined(CORE_USING_HERO)
     if(fixCtrl.motion_mode!=CHASSIS_DANGLING_X)
-      chassis_ctrl(&Speed_xyw, &Force_xyw );
+      chassis_ctrl(&Speed_xyw, &Force_xyw,fixCtrl.motion_mode);
     #else
-      chassis_ctrl(&Speed_xyw, &Force_xyw );
+      chassis_ctrl(&Speed_xyw, &Force_xyw);
     #endif
 }
 

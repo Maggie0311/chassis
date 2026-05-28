@@ -38,7 +38,6 @@
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 #endif
-
 int main(void){
     int result = 0;
     /*上电提示音*/

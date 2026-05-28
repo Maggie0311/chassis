@@ -16,6 +16,7 @@
 #endif
 
 extern PIDInstance follow_pid_fast, follow_pid_slow;         // 跟随角pid实例
+extern uint8_t rear_screw_stall;                              // 后丝杆堵转标志
 SecondOrder_Set_Follow_t set_planner_data[SMOOTH_NUM] = {0}; // 设定值规划
 SecondOrder_Set_Follow_t set_planner_up_motor[4] = {0};         // 抬升机构设定值规划
 Mot_base_t Force_xyw = {0};
@@ -441,12 +442,12 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         intigral[1] = 0;
         Vxyw.vel.x = 0;
         Vxyw.vel.y = 0;
-        Screw_Motor_Move(Forward_Screw_Motor, Screw_Forward_Motor_UP_Target,0);
+        Screw_Motor_Move(Forward_Screw_Motor, Screw_Forward_Motor_UP_Target+10,0);
         Screw_Motor_Move(Back_Screw_Motor, -10,1);
         Vxyw.vel.x = 0;
         Vxyw.vel.y = 0;
         Vxyw.angvel = 0;
-        reach_flag = If_Target_Reached(Forward_Screw_Motor,Screw_Forward_Motor_UP_Target);
+        reach_flag = If_Target_Reached(Forward_Screw_Motor,Screw_Forward_Motor_UP_Target+10);
         i_last_tick = rt_tick_get();
         if (reach_flag == 1)
         {
@@ -454,8 +455,9 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         }
         break;
     case Chassis_Move_Forward:
+        chasis_zero_x();
         position = Motor_Position_Cal(0, motor_speed);
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 300); // TODO设置向前动0.01m
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 400); // TODO设置向前动0.01m
         if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
         {
             *status = Forward_Screw_Move_Down;
@@ -469,8 +471,8 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         Vxyw.angvel = 0;
          Screw_Motor_Move(Forward_Screw_Motor, Screw_Forward_Motor_Down_Target,1);
         reach_flag = If_Target_Reached(Forward_Screw_Motor,Screw_Forward_Motor_Down_Target);
-        Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target,0);
-        if(If_Target_Reached(Back_Screw_Motor,Screw_Back_Motor_UP_Target))
+        Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target+10,0);
+        if(If_Target_Reached(Back_Screw_Motor,Screw_Back_Motor_UP_Target+10))
           reach_flag++;
         i_last_tick = rt_tick_get();
         if (reach_flag > 1)
@@ -480,8 +482,18 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         }
         break;
     case Chassis_Move_Forward_Twice:
+    Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target+20,0);
         position = Motor_Position_Cal(0, motor_speed);
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 580); // TODO设置向前动0.01m
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 560); // TODO设置向前动0.01m
+        if (rear_screw_stall)
+        {
+            // 后丝杆堵转，重置X速度规划器以立即停车让丝杆升上去
+            Vxyw.vel.x = 0;
+            set_planner_data[WHEEL_XSPEED].p = 0;
+            set_planner_data[WHEEL_XSPEED].v = 0;
+            Vxyw.vel.x = 0;
+            rear_screw_stall = 0;
+        }
         if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
         {
             *status = Back_Screw_Move_Up;
@@ -493,6 +505,14 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         Vxyw.vel.x = 0;
         Vxyw.vel.y = 0;
         Vxyw.angvel = 0;
+        if (rear_screw_stall)
+        {
+            // 后丝杆堵转，重置X速度规划器以立即停车让丝杆升上去
+            Vxyw.vel.x = 0;
+            set_planner_data[WHEEL_XSPEED].p = 0;
+            set_planner_data[WHEEL_XSPEED].v = 0;
+            rear_screw_stall = 0;
+        }
          Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_Down_Target,1);
         reach_flag = If_Target_Reached(Back_Screw_Motor,Screw_Back_Motor_Down_Target);
         i_last_tick = rt_tick_get();
@@ -555,12 +575,13 @@ Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])
         //if(pre==0)
        // {
           //  pre=1;
+          chasis_zero_x();
            Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target,1);
         //}
         Vxyw.vel.x = -100;
         Vxyw.vel.y = 0;
         Vxyw.angvel = 0;
-        reach_flag = If_Ready_To_Down(Screw_Forward_Motor_UP_Target);
+        reach_flag = If_Ready_To_Down(Screw_Back_Motor_UP_Target);
        //  Screw_Motor_Move(Back_Screw_Motor, 530,0);
         i_last_tick = rt_tick_get();
         if (reach_flag == 1)
@@ -572,8 +593,8 @@ Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])
         case Back_Screw_Move_Down:
          Vxyw.vel.x = 0;
          Vxyw.vel.y = 0;
-         Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target+10,0);
-        reach_flag=If_Target_Reached(Back_Screw_Motor,Screw_Back_Motor_UP_Target+10);
+         Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target+20,0);
+        reach_flag=If_Target_Reached(Back_Screw_Motor,Screw_Back_Motor_UP_Target+20);
         if(reach_flag)
         {
            *status = Chassis_Move_Back;
@@ -745,12 +766,35 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     // 得到当前控制坐标系和底盘坐标系角度
     angle = ctrl.getYawAngel;
 
-    // Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
-    // Speed_xyw.angvel = plan_xyw.angvel;
-    // Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
-    // Force_xyw.angvel = plan_acc_xyw.angvel;
-    Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
-    Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
+#ifdef CORE_USING_HERO
+    if (ctrl.motion_mode == GO_UPSTAIRS)
+    {
+        // 上下台阶模式：状态机输出的速度已在底盘坐标系，跳过云台→底盘坐标变换
+        // 同时重置规划器状态，避免从 FOLLOW_GIMBAL 切换过来时规划器输出残留
+        // （线速度太小会落入舵轮死区导致轮子保持 O 字形不变）
+        set_planner_data[WHEEL_XSPEED].p = ctrl.xyw.vel.x;
+        set_planner_data[WHEEL_YSPEED].p = ctrl.xyw.vel.y;
+        set_planner_data[WHEEL_XSPEED].v = 0;
+        set_planner_data[WHEEL_YSPEED].v = 0;
+        set_planner_data[WHEEL_ACSPEED].p = 0;
+        set_planner_data[WHEEL_ACSPEED].v = 0;
+
+        Speed_xyw.vel = ctrl.xyw.vel;
+        Speed_xyw.angvel = 0;
+        Force_xyw.vel.x = 0;
+        Force_xyw.vel.y = 0;
+        Force_xyw.angvel = 0;
+    }
+    else
+#endif
+    {
+        Speed_xyw.vel = MotModule_Transform(plan_xyw.vel, angle); // 对线速度进行坐标系转换
+        Speed_xyw.angvel = plan_xyw.angvel;
+        Force_xyw.vel = MotModule_Transform(plan_acc_xyw.vel, angle); // 对线加速度进行坐标系转换
+        Force_xyw.angvel = plan_acc_xyw.angvel;
+    }
+    // Speed_xyw.vel = MotModule_Transform(ctrl.xyw.vel, angle);//控制量直接进行转换，不用平滑处理
+    // Speed_xyw.angvel = ctrl.xyw.angvel; // 角速度不参与平滑规划
 }
 // float update_input_limiter(float K_out)
 // {

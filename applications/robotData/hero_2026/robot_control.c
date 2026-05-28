@@ -45,6 +45,8 @@ float motor_speed[UP_MOTOR_NUM];          // 轮向电机速度值
 float up_motor_zero_offset[UP_MOTOR_NUM]; // 丝杆电机零点
 float up_motor_angle_get[UP_MOTOR_NUM];   // 丝杆电机角度值
 
+uint8_t rear_screw_stall = 0;             // 后丝杆堵转标志，由堵转回调置1，状态机消费后清零
+
 // 跟随角pid实例
 PIDInstance follow_pid_fast, follow_pid_slow;
 PIDInstance  fix_speed_x,fix_speed_y;
@@ -280,6 +282,7 @@ void Zero_LB_set(PIDInstance *pid)
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
         ZERO_SUCCESS++;
     }
+    rear_screw_stall = 1;
 }
 void Zero_RB_set(PIDInstance *pid)
 {
@@ -293,6 +296,7 @@ void Zero_RB_set(PIDInstance *pid)
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16000;
         ZERO_SUCCESS++;
     }
+    rear_screw_stall = 1;
 }
 uint8_t Zero_Check(void)
 {
@@ -610,7 +614,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 3118.0,
+            .ENCODER_ZERO_OFFSET = 2239.0,
             .ctrl_mode = CTRL_MODE_CURRENT,
         },
     },
@@ -890,15 +894,15 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
     }
     else if(motor == Back_Screw_Motor&&up_or_down==DOWN)
     {
-        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle+10;
+        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle+20;
         up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed+5;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=3000;
 
-        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle+10;        
+        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=DOWN_PID_Kp_Angle+20;        
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=DOWN_PID_Kd_Angle;
-        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed;
+        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=DOWN_PID_Kp_Speed+5;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=DOWN_PID_Ki_Speed;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=3000;
         Motor_Set_Target((MotorInstance *)&up_motor[2], set_planner_up_motor[2].p+ up_motor_zero_offset[2]); // TODO
@@ -1129,7 +1133,7 @@ static void Wheel_Speed_Set(float motorSetSpeed_run[WHEEL_MOTOR_NUM], float moto
 }
 
 //**
-void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
+void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw,uint8_t motion_mode)
 {
     if (1 == isSetValid_debug[0])
     {
@@ -1141,6 +1145,10 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw)
     if (1 == isSetValid_debug[1])
     {
         Wheel_Speed_Set(motorSetSpeed_run, motorSetAngle_steer); // 设置电机速度环设定值
+    }
+    if(motion_mode==GO_UPSTAIRS)
+    {
+        chasis_zero_x();
     }
 }
 
@@ -1171,4 +1179,12 @@ void chasis_dangling_x(void)
      Motor_Set_Target((MotorInstance *)&steer_motor[1],45 ); 
      Motor_Set_Target((MotorInstance *)&steer_motor[2],-45 ); 
      Motor_Set_Target((MotorInstance *)&steer_motor[3],45 ); 
+}
+
+void chasis_zero_x(void)
+{
+     Motor_Set_Target((MotorInstance *)&steer_motor[0],0 ); 
+     Motor_Set_Target((MotorInstance *)&steer_motor[1],0 ); 
+     Motor_Set_Target((MotorInstance *)&steer_motor[2],0 ); 
+     Motor_Set_Target((MotorInstance *)&steer_motor[3],0 ); 
 }
