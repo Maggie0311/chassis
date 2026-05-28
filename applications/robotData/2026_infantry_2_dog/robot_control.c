@@ -629,21 +629,20 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
                 yaw_angle_target = get_imu_yaw();
 
             gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 3676;
-            Inverse_to_Track(*Speed_xyw);
+         //   Inverse_to_Track(*Speed_xyw);
             fix_dong(motorSetSpeed, Speed_xyw->vel.x);
-            track_on_flag=1;
+           // track_on_flag=0;
         }
-            else if(Get_Track_On())
-        {
+        else 
             gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 2590;
+       if(Get_Track_On())
+        {
             Inverse_to_Track(*Speed_xyw);
             track_on_flag=1;
         }
         else 
         {
-        
             no_track();
-            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 2590; 
             track_on_flag=0;  
         }
         last_dong_mode = Get_if_DongMode();
