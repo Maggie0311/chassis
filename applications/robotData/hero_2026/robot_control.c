@@ -1126,7 +1126,10 @@ static void Wheel_Speed_Set(float motorSetSpeed_run[WHEEL_MOTOR_NUM], float moto
 {
     for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
     {
-        motorSetSpeed_run[i] *= arm_cos_f32(steer_motor[i].Motor_obj.Motor_ctrl.Angle_pid.Err * 0.0174533);
+        float cos_factor = arm_cos_f32(steer_motor[i].Motor_obj.Motor_ctrl.Angle_pid.Err * 0.0174533);
+        if (cos_factor < 0.0f)
+            cos_factor = 0.0f; // 舵向误差>90°时不反转轮速，轮速方向由运动学解算器决定
+        motorSetSpeed_run[i] *= cos_factor;
         Motor_Set_Target((MotorInstance *)&wheel_motor[i], motorSetSpeed_run[i]);
         Motor_Set_Target((MotorInstance *)&steer_motor[i], motorSetAngle_steer[i]);
     }
@@ -1145,10 +1148,6 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw,uint8_t motion_mo
     if (1 == isSetValid_debug[1])
     {
         Wheel_Speed_Set(motorSetSpeed_run, motorSetAngle_steer); // 设置电机速度环设定值
-    }
-    if(motion_mode==GO_UPSTAIRS)
-    {
-        chasis_zero_x();
     }
 }
 

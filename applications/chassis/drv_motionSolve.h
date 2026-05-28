@@ -57,6 +57,7 @@ void Omni_Forward_Kinematics_test(float speed[4]);
 void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4]); // 逆解算
 void Steer_Force_Resolve(Mot_base_t target_force, float *resolve_data);                                            // 力解算
 void Steer_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel);                                   // 正解算
+void Steer_Reset_Angle_Last(void);                                                                                  // 重置舵向角度历史（用于模式切换时避免打角跳变导致轮速反向）
 
 #endif
 Mot_base_t Get_realmotion(void);

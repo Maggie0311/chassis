@@ -356,6 +356,8 @@ extern float motorSetAngle_steer[4];
 float angle_reverse_flag[4];
 // 线速度死区（rpm）
 #define v_DEAD_ZONE 30
+static float angle_steer_last[4] = {0};   // 记录上次打角
+static float angle_steer_remain[4] = {0}; // 记录线速度进入死区前的打角
 // 舵轮逆解算
 void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run[4], float resolve_data_steer[4])
 {
@@ -367,8 +369,6 @@ void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run
     static float s = WHEEL_RADIUS;                                                                   // 轮半径
     static float rx[4] = {VEHICLE_LONG / 2, VEHICLE_LONG / 2, -VEHICLE_LONG / 2, -VEHICLE_LONG / 2}; // 轮坐标
     static float ry[4] = {-VEHICLE_WIDTH / 2, VEHICLE_WIDTH / 2, VEHICLE_WIDTH / 2, -VEHICLE_WIDTH / 2};
-    static float angle_steer_last[4] = {0};   // 记录上次打角
-    static float angle_steer_remain[4] = {0}; // 记录线速度进入死区前的打角
     float wx = 0, wy = 0, delta = 0;          // 临时变量
 
     for (int i = 0; i < 4; i++)
@@ -404,6 +404,16 @@ void Steer_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data_run
             resolve_data_steer[i] = angle_steer_last[i]; // 保持上次设定值
         else
             angle_steer_last[i] = resolve_data_steer[i]; // 记录保存上次舵向设定值
+    }
+}
+
+// 重置舵向角度历史，用于模式切换时避免旧角度导致解算器反转轮速
+void Steer_Reset_Angle_Last(void)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        angle_steer_last[i] = 0.0f;
+        angle_steer_remain[i] = 0.0f;
     }
 }
 

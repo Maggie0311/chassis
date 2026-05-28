@@ -772,6 +772,7 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
         // 上下台阶模式：状态机输出的速度已在底盘坐标系，跳过云台→底盘坐标变换
         // 同时重置规划器状态，避免从 FOLLOW_GIMBAL 切换过来时规划器输出残留
         // （线速度太小会落入舵轮死区导致轮子保持 O 字形不变）
+        Steer_Reset_Angle_Last(); // 重置舵向角度历史，防止旧O型角度导致解算器反转轮速
         set_planner_data[WHEEL_XSPEED].p = ctrl.xyw.vel.x;
         set_planner_data[WHEEL_YSPEED].p = ctrl.xyw.vel.y;
         set_planner_data[WHEEL_XSPEED].v = 0;
