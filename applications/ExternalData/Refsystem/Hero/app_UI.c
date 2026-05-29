@@ -598,7 +598,7 @@ void UI_Hero_Aim_Rect_2(UI_Object *object)
 
 void UI_Hero_Aim_Rect_3(UI_Object *object)
 {
-    UI_Set_Rect(object, UiMagenta, 2, Ui_layer_0, 912, 380, 945, 395);
+    UI_Set_Rect(object, UiMagenta, 2, Ui_layer_0, 912, 380, 945,  395);
 }
 
 void UI_Hero_Aim_Rect_4(UI_Object *object)
@@ -723,6 +723,16 @@ void UI_Up_Stairs_Car_4_Right(UI_Object *object)
     float backward_screw_height = 600.f + up_motor_angle_get[3] * 100.0f / Screw_Back_Motor_UP_Target;
     UI_Set_Line(object, UiCyan, 5, Ui_layer_9, 1620, (int)forward_screw_height + 50.f, 1720, (int)backward_screw_height + 50.f);
 }
+
+//前哨战十字
+void UI_outpost_1(UI_Object *object)
+{
+    UI_Set_Line(object,UiPink,5,Ui_layer_9,980,380,1020,380);
+}
+void UI_outpost_2(UI_Object *object)
+{
+    UI_Set_Line(object, UiPink, 5, Ui_layer_9, 1000, 360, 1000, 400);
+}
     /// <summary>
     ///                 注册部分初始化
     /// </summary>
@@ -810,6 +820,9 @@ void UI_Up_Stairs_Car_4_Right(UI_Object *object)
     Attach_UI_Object(UiLine, UiCyan, TRANS_FOREVER, 1, UI_Up_Stairs_Car_2_Right); // 上台阶矩形框
     Attach_UI_Object(UiLine, UiCyan, TRANS_FOREVER, 1, UI_Up_Stairs_Car_3_Right); // 上台阶矩形框
     Attach_UI_Object(UiLine, UiCyan, TRANS_FOREVER, 1, UI_Up_Stairs_Car_4_Right); // 上台阶矩形框
+
+    Attach_UI_Object(UiLine, UiPink, TRANS_ONCE,1,UI_outpost_1);
+    Attach_UI_Object(UiLine, UiPink, TRANS_ONCE, 1, UI_outpost_2);
 
     // Attach_UI_Object(UiCircle, UiGreen, TRANS_FOREVER, 1, UI_Guide_Light_Circle); // 英雄吊射基地引导灯
     // Attach_UI_Object(UiCircle, UiTeam, TRANS_FOREVER, 1, UI_Big_Bullet_Circle);   // 英雄大弹丸
