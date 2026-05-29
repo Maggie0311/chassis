@@ -670,7 +670,7 @@ void UI_Enemy_Num_1(UI_Object *object)
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
-    UI_Set_Int(object, UiCyan, 3, Ui_layer_0, (int)x, (int)y, 8, 1);
+    UI_Set_Int(object, UiCyan, 8, Ui_layer_0, (int)x, (int)y, 13, 1);
 }
 void UI_Enemy_Num_2(UI_Object *object)
 {
@@ -679,7 +679,7 @@ void UI_Enemy_Num_2(UI_Object *object)
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
-    UI_Set_Int(object, UiCyan, 3, Ui_layer_0, (int)x, (int)y, 8, 2);
+    UI_Set_Int(object, UiOrange, 8, Ui_layer_0, (int)x, (int)y, 13, 2);
 }
 
 void UI_Enemy_Num_3(UI_Object *object)
@@ -689,7 +689,7 @@ void UI_Enemy_Num_3(UI_Object *object)
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
-    UI_Set_Int(object, UiCyan, 3, Ui_layer_0, (int)x, (int)y, 8, 3);
+    UI_Set_Int(object, UiGreen, 8, Ui_layer_0, (int)x, (int)y, 13, 3);
 }
 
 void UI_Enemy_Num_4(UI_Object *object)
@@ -699,7 +699,7 @@ void UI_Enemy_Num_4(UI_Object *object)
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
-    UI_Set_Int(object, UiCyan, 3, Ui_layer_0, (int)x, (int)y, 8, 4);
+    UI_Set_Int(object, UiMagenta, 8, Ui_layer_0, (int)x, (int)y, 13, 4);
 }
 
 void UI_Enemy_Num_7(UI_Object *object)
@@ -709,12 +709,22 @@ void UI_Enemy_Num_7(UI_Object *object)
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
-    UI_Set_Int(object, UiCyan, 3, Ui_layer_0, (int)x, (int)y, 8, 7);
+    UI_Set_Int(object, UiPink, 8, Ui_layer_0, (int)x, (int)y, 13, 7);
 }
 void UI_If_Enemy_detected_Change(uint8_t index)
 {
     static uint8_t enemy_pose_created[5];
-    if (enemy_pose_created[index])
+    static uint8_t enemy_pose_changed[5];
+    static float last_enemy_len[5];
+    static float last_enemy_angle[5];
+    if(enemy_pos[index].if_existed==1&&(last_enemy_angle[index]!=enemy_pos[index].angle||last_enemy_len[index]!=enemy_pos[index].len))
+    {
+        enemy_pose_changed[index] = 1;
+    }
+    else{
+        enemy_pose_changed[index] = 0;
+    }
+    if (enemy_pose_created[index]&&enemy_pose_changed[index])
     {
         if (index == 0)
         {
@@ -743,7 +753,7 @@ void UI_If_Enemy_detected_Change(uint8_t index)
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_Num_7);
         }
     }
-    if (enemy_pos[index].if_existed==1)
+    if (enemy_pos[index].if_existed==1&&!enemy_pose_created[index])
     {
         if(index==0)
         {
@@ -777,7 +787,7 @@ void UI_If_Enemy_detected_Change(uint8_t index)
             enemy_pose_created[index] = 1;
         }
     }
-    else if (enemy_pos[index].if_existed == 0)
+    else if (enemy_pos[index].if_existed == 0&&enemy_pose_created[index])
     {
         if (index == 0)
         {
@@ -810,6 +820,8 @@ void UI_If_Enemy_detected_Change(uint8_t index)
             enemy_pose_created[index] = 0;
         }
     }
+    last_enemy_angle[index] = enemy_pos[index].angle;
+    last_enemy_len[index] = enemy_pos[index].len;
 }
 
 
@@ -895,7 +907,7 @@ void Attach_UI_init()
     // UI帧率显示
     Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_Frequency_Info); // 帧率显示
 
-    //透视UI 圆圈显示
+    // //透视UI 圆圈显示
     // Attach_UI_Object(UiCircle, UiCyan, TRANS_NULL, 0, UI_Enemy_1_Position);//敌方英雄位置
     // Attach_UI_Object(UiCircle, UiOrange, TRANS_NULL, 0, UI_Enemy_2_Position);//敌方工程位置
     // Attach_UI_Object(UiCircle, UiGreen, TRANS_NULL, 0, UI_Enemy_3_Position);//敌方步兵位置

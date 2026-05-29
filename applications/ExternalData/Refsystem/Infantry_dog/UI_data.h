@@ -25,7 +25,7 @@
 
 #define SCOPE_CIRCLE_RADIUS 180       // 中心瞄准圆半径大小，所有界面图形的绘制都与它成正比
 #define  ENEMY_BIG_CIRCLE_RADIUS 260   //敌方位置
-#define ENEMY_Circle_RADIUS 10
+#define ENEMY_Circle_RADIUS 25
 #define OUTER_SCOPE_CIRCLE_RADIUS 340 // 外圈
 
 // 子弹大小

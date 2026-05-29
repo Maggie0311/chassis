@@ -443,7 +443,7 @@ void Follow_pid_init(void)
     pid_config.Kp = 45;
     pid_config.Ki = 0;
     pid_config.Kd = 20;
-    pid_config.MaxOut = 16000;
+    pid_config.MaxOut = 2000;
     pid_config.DeadBand = 0.1;
     pid_config.IntegralLimit = 600;
 
