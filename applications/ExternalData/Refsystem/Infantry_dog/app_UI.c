@@ -616,194 +616,194 @@ void UI_Enemy_Big_circle(UI_Object *object)
 {
     UI_Set_Circle(object, UiTeam, 4, Ui_layer_0, X_OFFSET, Y_OFFSET, ENEMY_BIG_CIRCLE_RADIUS);
 }
-void UI_Enemy_1_Position(UI_Object *object, Robot_Pos *robot_pos)
+void UI_Enemy_1_Position(UI_Object *object)
 {
-    float pos_r = robot_pos[0].len; // 280-800
-    float pos_angle = robot_pos[0].angle - 90;
+    float pos_r = enemy_pos[0].len; // 280-800
+    float pos_angle = enemy_pos[0].angle - 90;
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     UI_Set_Circle(object, UiCyan, 4, Ui_layer_0, (int)x, (int)y, ENEMY_Circle_RADIUS);
 }
 
-void UI_Enemy_2_Position(UI_Object *object, Robot_Pos *robot_pos)
+void UI_Enemy_2_Position(UI_Object *object)
 {
-    float pos_r = robot_pos[1].len; // 280-800
-    float pos_angle = robot_pos[1].angle - 90;
+    float pos_r = enemy_pos[1].len; // 280-800
+    float pos_angle = enemy_pos[1].angle - 90;
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     UI_Set_Circle(object, UiOrange, 4, Ui_layer_0, (int)x, (int)y, ENEMY_Circle_RADIUS);
 }
-void UI_Enemy_3_Position(UI_Object *object, Robot_Pos *robot_pos)
+void UI_Enemy_3_Position(UI_Object *object)
 {
-    float pos_r = robot_pos[2].len; // 280-800
-    float pos_angle = robot_pos[2].angle - 90;
+    float pos_r = enemy_pos[2].len; // 280-800
+    float pos_angle = enemy_pos[2].angle - 90;
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     UI_Set_Circle(object, UiGreen, 4, Ui_layer_0, (int)x, (int)y, ENEMY_Circle_RADIUS);
 }
-void UI_Enemy_4_Position(UI_Object *object, Robot_Pos *robot_pos)
+void UI_Enemy_4_Position(UI_Object *object)
 {
-    float pos_r = robot_pos[3].len; // 280-800
-    float pos_angle = robot_pos[3].angle - 90;
+    float pos_r = enemy_pos[3].len; // 280-800
+    float pos_angle = enemy_pos[3].angle - 90;
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     UI_Set_Circle(object, UiMagenta, 4, Ui_layer_0, (int)x, (int)y, ENEMY_Circle_RADIUS);
 }
-void UI_Enemy_7_Position(UI_Object *object, Robot_Pos *robot_pos)
+void UI_Enemy_7_Position(UI_Object *object)
 {
-    float pos_r = robot_pos[4].len; // 280-800
-    float pos_angle = robot_pos[4].angle - 90;
+    float pos_r = enemy_pos[4].len; // 280-800
+    float pos_angle = enemy_pos[4].angle - 90;
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     UI_Set_Circle(object, UiPink, 4, Ui_layer_0, (int)x, (int)y, ENEMY_Circle_RADIUS);
 }
 
-void UI_Enemy_Num_1(UI_Object *object, Robot_Pos *robot_pos)
+void UI_Enemy_Num_1(UI_Object *object)
 {
-    float pos_r = robot_pos[0].len; // 280-800
-    float pos_angle = robot_pos[0].angle - 90;
+    float pos_r = enemy_pos[0].len; // 280-800
+    float pos_angle = enemy_pos[0].angle - 90;
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     UI_Set_Int(object, UiCyan, 3, Ui_layer_0, (int)x, (int)y, 8, 1);
 }
-void UI_Enemy_Num_2(UI_Object *object, Robot_Pos *robot_pos)
+void UI_Enemy_Num_2(UI_Object *object)
 {
-    float pos_r = robot_pos[1].len; // 280-800
-    float pos_angle = robot_pos[1].angle - 90;
+    float pos_r = enemy_pos[1].len; // 280-800
+    float pos_angle = enemy_pos[1].angle - 90;
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     UI_Set_Int(object, UiCyan, 3, Ui_layer_0, (int)x, (int)y, 8, 2);
 }
 
-void UI_Enemy_Num_3(UI_Object *object, Robot_Pos *robot_pos)
+void UI_Enemy_Num_3(UI_Object *object)
 {
-    float pos_r = robot_pos[2].len; // 280-800
-    float pos_angle = robot_pos[2].angle - 90;
+    float pos_r = enemy_pos[2].len; // 280-800
+    float pos_angle = enemy_pos[2].angle - 90;
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     UI_Set_Int(object, UiCyan, 3, Ui_layer_0, (int)x, (int)y, 8, 3);
 }
 
-void UI_Enemy_Num_4(UI_Object *object, Robot_Pos *robot_pos)
+void UI_Enemy_Num_4(UI_Object *object)
 {
-    float pos_r = robot_pos[3].len; // 280-800
-    float pos_angle = robot_pos[3].angle - 90;
+    float pos_r = enemy_pos[3].len; // 280-800
+    float pos_angle = enemy_pos[3].angle - 90;
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     UI_Set_Int(object, UiCyan, 3, Ui_layer_0, (int)x, (int)y, 8, 4);
 }
 
-void UI_Enemy_Num_7(UI_Object *object, Robot_Pos *robot_pos)
+void UI_Enemy_Num_7(UI_Object *object)
 {
-    float pos_r = robot_pos[4].len; // 280-800
-    float pos_angle = robot_pos[4].angle - 90;
+    float pos_r = enemy_pos[4].len; // 280-800
+    float pos_angle = enemy_pos[4].angle - 90;
     int k = (ENEMY_BIG_CIRCLE_RADIUS - SCOPE_CIRCLE_RADIUS) / 20;
     float x = X_OFFSET + sinf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     float y = Y_OFFSET + cosf(pos_angle * PI / 180) * (SCOPE_CIRCLE_RADIUS + k * pos_r + ENEMY_Circle_RADIUS);
     UI_Set_Int(object, UiCyan, 3, Ui_layer_0, (int)x, (int)y, 8, 7);
 }
-void UI_If_Enemy_detected_Change(Robot_Pos* robot_pos,uint8_t index)
+void UI_If_Enemy_detected_Change(uint8_t index)
 {
     static uint8_t enemy_pose_created[5];
     if (enemy_pose_created[index])
     {
-        if (index == 1)
+        if (index == 0)
         {
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_1_Position);
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_Num_1);
         }
-        else if (index == 2)
+        else if (index == 1)
         {
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_2_Position);
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_Num_2);
 
         }
-        else if (index == 3)
+        else if (index == 2)
         {
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_3_Position);
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_Num_3);
         }
-        else if (index == 4)
+        else if (index == 3)
         {
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_4_Position);
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_Num_4);
         }
-        else if (index == 5)
+        else if (index == 4)
         {
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_7_Position);
             Drv_Set_Object_Visualable(UI_MODIFY, UI_Enemy_Num_7);
         }
     }
-    if (robot_pos[index].if_existed==1)
+    if (enemy_pos[index].if_existed==1)
     {
-        if(index==1)
+        if(index==0)
         {
             Drv_Set_Object_Visualable(UI_CREATE, UI_Enemy_1_Position);
             Drv_Set_Object_Visualable(UI_CREATE, UI_Enemy_Num_1);
             enemy_pose_created[index] = 1;
         }
-         else if(index==2)
+         else if(index==1)
         {
             Drv_Set_Object_Visualable(UI_CREATE, UI_Enemy_2_Position);
             Drv_Set_Object_Visualable(UI_CREATE, UI_Enemy_Num_2);
 
             enemy_pose_created[index] = 1;
         }
-        else if(index==3)
+        else if(index==2)
         {
         Drv_Set_Object_Visualable(UI_CREATE, UI_Enemy_3_Position);
             Drv_Set_Object_Visualable(UI_CREATE, UI_Enemy_Num_3);
         enemy_pose_created[index] = 1;
         }
-        else if(index==4)
+        else if(index==3)
         {
             Drv_Set_Object_Visualable(UI_CREATE, UI_Enemy_4_Position);
             Drv_Set_Object_Visualable(UI_CREATE, UI_Enemy_Num_4);
             enemy_pose_created[index] = 1;
         }
-        else if(index==5)
+        else if(index==4)
         {
             Drv_Set_Object_Visualable(UI_CREATE, UI_Enemy_7_Position);
             Drv_Set_Object_Visualable(UI_CREATE, UI_Enemy_Num_7);
             enemy_pose_created[index] = 1;
         }
     }
-    else if (robot_pos[index].if_existed == 0)
+    else if (enemy_pos[index].if_existed == 0)
     {
-        if (index == 1)
+        if (index == 0)
         {
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Enemy_1_Position);
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Enemy_Num_1);
             enemy_pose_created[index] = 0;
         }
-        else if (index == 2)
+        else if (index == 1)
         {
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Enemy_2_Position);
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Enemy_Num_2);
             enemy_pose_created[index] = 0;
         }
-        else if (index == 3)
+        else if (index == 2)
         {
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Enemy_3_Position);
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Enemy_Num_3);
             enemy_pose_created[index] = 0;
         }
-        else if (index == 4)
+        else if (index == 3)
         {
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Enemy_4_Position);
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Enemy_Num_4);
             enemy_pose_created[index] = 0;
         }
-        else if (index == 5)
+        else if (index == 4)
         {
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Enemy_7_Position);
             Drv_Set_Object_Visualable(UI_DELDTE, UI_Enemy_Num_7);
@@ -895,7 +895,7 @@ void Attach_UI_init()
     // UI帧率显示
     Attach_UI_Object(UiFloat, UiTeam, TRANS_FOREVER, 1, UI_Frequency_Info); // 帧率显示
 
-    // //透视UI 圆圈显示
+    //透视UI 圆圈显示
     // Attach_UI_Object(UiCircle, UiCyan, TRANS_NULL, 0, UI_Enemy_1_Position);//敌方英雄位置
     // Attach_UI_Object(UiCircle, UiOrange, TRANS_NULL, 0, UI_Enemy_2_Position);//敌方工程位置
     // Attach_UI_Object(UiCircle, UiGreen, TRANS_NULL, 0, UI_Enemy_3_Position);//敌方步兵位置
@@ -1145,7 +1145,7 @@ void Get_UI_Data(void)
 
     for (int i = 0; i < 5;i++)
     {
-        UI_If_Enemy_detected_Change(enemy_pos,i);
+        UI_If_Enemy_detected_Change(i);
     }
     
 

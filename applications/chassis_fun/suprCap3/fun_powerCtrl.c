@@ -312,7 +312,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     if ( Get_Wireless_Charge())//!PowerCtrl_Close_Flag[0] &&
     //if (!PowerCtrl_Close_Flag[0] && test_wr)
     {
-			PowerCtrl_Close_Flag[0]=0;
+			PowerCtrl_Close_Flag[0]=1;
         Set_SuprCap_OutputMode(2); // 只放不充（无线充电期间禁止超电充电）
     }
     // 正常工作：超电在线且未耗尽时正常充放

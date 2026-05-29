@@ -245,10 +245,13 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
             direction=-180;
     }
     #endif
+#ifdef CORE_USING_2026_INFANTRY_1
+    direction = 0;
+    #endif
 #ifdef CORE_USING_2026_INFANTRY_2
 
-    if (Get_if_DongMode())
-        direction = get_imu_yaw();
+        if (Get_if_DongMode())
+            direction = get_imu_yaw();
     else
         direction = 0;
 
