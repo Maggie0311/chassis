@@ -225,6 +225,7 @@ static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
  */
 static void Gimbal_RefdataGet_Tx(CANInstance *instance)
 {
+    static ext_bullet_remaining_t visual_tx_bullet_remaining_temp = {0};
     rt_memset(&gim_reftrans_msg2, 0, sizeof(gim_reftrans_msg2));
 
     Mot_base_t real_motion = Get_realmotion();
@@ -240,7 +241,8 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
     }
     else
         gim_reftrans_msg2.speed = 0;
-
+    getRefData(structGet_pram(visual_tx_bullet_remaining_temp, ext_bullet_remaining));
+    gim_reftrans_msg2.bullet_remaining_num_17mm = visual_tx_bullet_remaining_temp.bullet_remaining_num_17mm;
     memcpy(instance->tx_buff, &gim_reftrans_msg2, sizeof(gim_reftrans_msg2) < 8 ? sizeof(gim_reftrans_msg2) : 8);
 }
 

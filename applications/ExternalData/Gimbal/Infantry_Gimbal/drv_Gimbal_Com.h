@@ -34,6 +34,7 @@ typedef __packed struct
     int16_t vx;     // 底盘正解算X方向速度（mm/s）
     int16_t vy;     // 底盘正解算Y方向速度（mm/s）
     uint16_t speed; // 弹速（m/s * 100）
+    uint16_t bullet_remaining_num_17mm;//剩余发弹量
 } Gim_Reftrans2_t;  // 发送给云台的底盘速度和弹速数据
 
 /*Rx*/
