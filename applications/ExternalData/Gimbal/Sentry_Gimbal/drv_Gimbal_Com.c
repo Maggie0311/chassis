@@ -211,6 +211,8 @@ static void Gimbal_RefShootdataGet_Tx(CANInstance *instance)
 static void Gimbal_RefdataGet_Tx(CANInstance *instance)
 {
     rt_memset(&gim_reftrans_msg2, 0, sizeof(gim_reftrans_msg2));
+
+    static ext_bullet_remaining_t gim_tx_bullet_remaining_temp={0};
     uint8_t get_temp_8; // 暂存裁判系统信息
     uint16_t get_temp_16;
     float get_temp_float;
@@ -261,9 +263,12 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
     }
     else
         gim_reftrans_msg2.speed = 0;
-    getRefData(memberGet_parm(get_temp_float, ext_game_robot_pos, yaw));
-    { uint32_t _raw; rt_memcpy(&_raw, &get_temp_float, sizeof(float)); gim_reftrans_msg2.yaw_world_raw = _raw; }
+    // getRefData(memberGet_parm(get_temp_float, ext_game_robot_pos, yaw));
+    // { uint32_t _raw; rt_memcpy(&_raw, &get_temp_float, sizeof(float)); gim_reftrans_msg2.yaw_world_raw = _raw; }
 
+
+     getRefData(structGet_pram(gim_tx_bullet_remaining_temp,ext_bullet_remaining));
+    gim_reftrans_msg2.remaining_bullet_num = gim_tx_bullet_remaining_temp.bullet_remaining_num_17mm;
     /*哨兵血量*/
     // getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
     // gim_reftrans_msg2.SentryHP = get_temp_16;

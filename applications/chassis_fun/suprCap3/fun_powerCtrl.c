@@ -304,7 +304,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     else if (PowerInfo.Cap.superCap > 3.0f)
     {
         if_used_up = 0;
-
+        if_used_up_user_unchange=0;
     }
 
 
@@ -317,7 +317,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         Set_SuprCap_OutputMode(2); // 只放不充（无线充电期间禁止超电充电）
     }
     // 正常工作：超电在线且未耗尽时正常充放
-    else if (if_used_up == 0 && user_enable == 1)
+    else if (if_used_up == 0 && user_enable == 1&&!if_used_up_user_unchange)
     {
         Set_SuprCap_OutputMode(1); // 正常充放
         PowerCtrl_Close_Flag[0] = 0;
@@ -326,7 +326,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     {
         Set_SuprCap_OutputMode(0); // 电量耗尽 → 关闭
         PowerCtrl_Close_Flag[0] = 1;
-		pre_button_state=0;
+		//pre_button_state=0;
     }
     #else
 
@@ -339,7 +339,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     {
         Set_SuprCap_OutputMode(0); // 电量耗尽 → 关闭
         PowerCtrl_Close_Flag[0] = 1;
-		pre_button_state=0;
+		//pre_button_state=0;
     }
 
     #endif
@@ -888,11 +888,11 @@ void Power_re_allo(void)
         // 按照误差比例的置信度分配
         if (if_wheel_used[group] == 1)
             Motor_power[group][WHEEL_RUN].allo_power_set =
-                RunKcoe * SQUARE(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sq_sum * Power_Set.power_set_run + (1 - RunKcoe) * Power_Set.run_ratio[group] * Power_Set.power_set_run;
+                RunKcoe * (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sum * Power_Set.power_set_run + (1 - RunKcoe) * Power_Set.run_ratio[group] * Power_Set.power_set_run;
 
         if (if_steer_used[group] == 1)
             Motor_power[group][WHEEL_ANGLE].allo_power_set =
-                AngleKcoe * SQUARE(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.run_err_sq_sum * Power_Set.power_set_steer + (1 - AngleKcoe) * Power_Set.angle_ratio[group] * Power_Set.power_set_steer;
+                AngleKcoe * (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Err) / Power_Set.angle_err_sum * Power_Set.power_set_steer + (1 - AngleKcoe) * Power_Set.angle_ratio[group] * Power_Set.power_set_steer;
     }
 }
 

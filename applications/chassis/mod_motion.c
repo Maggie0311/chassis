@@ -278,7 +278,13 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
         /*跟随时，当功率受限时降低平移保证转向*/
         // yaw_Omega = Get_GM_Omega(ctrlMsg->arg); // 这里的arg是云台yaw或者pitch轴电机的枚举，在云台接受控制数据处定义
         // yawAngleOffset(yaw_Omega, &yaw_angle);  // 当旋转较快时执行yaw轴电机角度补偿
+        if(get_k_power_allo()<1.f&&fabsf(VxyW.angvel)>100)
+        {
 
+        
+        VxyW.vel.x=VxyW.vel.x*get_k_power_allo()*get_k_power_allo()*get_k_power_allo();
+        VxyW.vel.y=VxyW.vel.y*get_k_power_allo()*get_k_power_allo()*get_k_power_allo();
+        }
         /*将云台的控制速度矢量转化到底盘坐标系上*/
         // VxyW.vel = MotModule_Transform(VxyW.vel, yaw_angle);
         return VxyW;

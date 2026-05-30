@@ -16,6 +16,7 @@
 /*功率控制相关参数*/
 #define SCAP_MAX_CURRENT (10.f) // 电容最大放电响应电流
 
+
 /*轮子相关数据*/
 #define USING_OMNI_RESOLVE
 #define VEHICLE_LONG (331.26f)     // 前后轮间距（用于麦轮和舵轮解算），单位mm
@@ -42,12 +43,12 @@
 /*底盘速度设定值的平滑，SMOOTH_ADD/SMOOTH_PERIOD m/s^2（或100°/s^2） (类型float)*/
 #define WEIGHT 23.0f                  // 质量 kg
 #define rotational_inertia 0.3f       // 转动惯量 kg·m²
-#define PLAN_PERIOD (float)0.004      // s,频率为50Hz
+#define PLAN_PERIOD (float)0.004      // s,频率为50Hz0
 #define VEL_MAX_X (float)3500         //    mm/s
 #define VEL_MAX_Y (float)3500         //    mm/s
 #define VEL_MAX_W (float)10000        //   0.1°/s
-#define ACC_MAX_X (float)4500         // mm/s²
-#define ACC_MAX_Y (float)4500         // mm/s²
+#define ACC_MAX_X (float)3500         // mm/s²
+#define ACC_MAX_Y (float)3500         // mm/s²
 #define ACC_MAX_W (float)30000         // 0.1°/s²
 #define DOUBLE_ACC_MAX_X (float)60000 // mm / s³
 #define DOUBLE_ACC_MAX_Y (float)60000 // mm / s³
