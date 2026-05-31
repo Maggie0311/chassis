@@ -69,7 +69,7 @@
 #endif
 
 // 超级电容最多输出电流--有一定余量
-#define Supr_Cap_MaxOutputCurrent (9.f)
+#define Supr_Cap_MaxOutputCurrent (8.f)
 // 预留能量控制响应时间 一般大于200ms 单位ms
 #define Supr_Cap_DelayTime (600)
 // 预留能量，单位j
@@ -119,22 +119,22 @@ typedef struct
 } Power_info_t;
 
 
-typedef struct
-{
-    float  power_set_run;
-    float  power_set_steer;
-    float  power_set_sum_temp;  // 用于查看计算的电机预输出总功率
-    float  run_power;        //轮向电机预输出功率
-    float  steer_power;     //舵向电机预输出功率
-    float  power_set_sum;   //预输出总功率
-    float  run_ratio[4];    //各电机输出功率的占比
-    float  angle_ratio[4];    //各电机输出功率的占比
-    float  run_err_sum;
-    float  run_err_sq_sum;
-    float angle_err_sum;
+// typedef struct
+// {
+//     float  power_set_run;
+//     float  power_set_steer;
+//     float  power_set_sum_temp;  // 用于查看计算的电机预输出总功率
+//     float  run_power;        //轮向电机预输出功率
+//     float  steer_power;     //舵向电机预输出功率
+//     float  power_set_sum;   //预输出总功率
+//     float  run_ratio[4];    //各电机输出功率的占比
+//     float  angle_ratio[4];    //各电机输出功率的占比
+//     float  run_err_sum;
+//     float  run_err_sq_sum;
+//     float angle_err_sum;
     
 
-} Power_Set_t;
+// } Power_Set_t;
 /*************************功率控制的结构体******************************/
 
 
@@ -167,6 +167,9 @@ typedef struct
     float I_set;             // 电机预输出的转矩电流（A）
     float V_now;             // 电机反馈的当前转子速度（rpm）
 	float V_last;
+    float K1;                // 电机功率计算公式的参数
+    float K2;                // 电机功率计算公式的参数
+    float C;                 // 电机功率计算公式的参数
 } Motor_Power_t;
 
 extern PowerCtrl_t PowerCtrl;
@@ -180,11 +183,11 @@ void powerCtrlInit(void);
 
 uint8_t get_SuperCap_if_abnormal(void);
 uint8_t get_Super_Cap_if_open(void);
-void Power_re_allo(void);
-void get_true_RLS(void);
-void get_pre_power(void);
+// void Power_re_allo(void);
+// void get_true_RLS(void);
+// void get_pre_power(void);
 void Power_Motor_Attach(MotorInstance *motor_instance);
 float get_K_IC2Tor(MotorInstance *motor_instance);
 float get_k_power_allo();
-uint8_t get_over_voltage(void);
+// uint8_t get_over_voltage(void);
 #endif
