@@ -679,72 +679,60 @@ else
         // 计算功率分配后的输出转矩（这里的公式计算完的扭矩的方向是绝对的，未调整正确输出符号的）
         if (if_steer_used[group] == 1)
         {
-            // 先检查预算是否至少覆盖速度相关损耗，若不覆盖则无法输出正向扭矩
-            float speed_loss = Motor_power[group][WHEEL_ANGLE].K2 * SQUARE(Motor_power[group][WHEEL_ANGLE].V_now) + Motor_power[group][WHEEL_ANGLE].C;
-            float disc = SQUARE(Motor_power[group][WHEEL_ANGLE].V_now / 9.55f) -
-                         4 * Motor_power[group][WHEEL_ANGLE].K1 * (speed_loss - Motor_power[group][WHEEL_ANGLE].allo_power_set);
-            if (disc < 0) disc = 0; // 防sqrtf负数
             if (SIGN_F(Motor_power[group][WHEEL_ANGLE].V_now) * SIGN_F(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output) >= 0)
-            {
-                // 电机转速与输出扭矩方向相同（电动），反电动势与扭矩方向相反
+                // 电机转速与输出扭矩方向相同，此时反电动势方向与输出扭矩方向相反，相同功率下输出较小的扭矩
+                // 计算完为正
                 Motor_power[group][WHEEL_ANGLE].allo_tor_set = (-fabsf(Motor_power[group][WHEEL_ANGLE].V_now) / 9.55f +
-                                                                sqrtf(disc)) /
+                                                                sqrtf(SQUARE(Motor_power[group][WHEEL_ANGLE].V_now / 9.55f) -
+                                                                      4 * Motor_power[group][WHEEL_ANGLE].K1 * (Motor_power[group][WHEEL_ANGLE].K2 * SQUARE(Motor_power[group][WHEEL_ANGLE].V_now) + Motor_power[group][WHEEL_ANGLE].C - Motor_power[group][WHEEL_ANGLE].allo_power_set))) /
                                                                (2 * Motor_power[group][WHEEL_ANGLE].K1);
-                // 预算不足以覆盖速度损耗时，二次方程给负值 → 钳位到0
-                if (Motor_power[group][WHEEL_ANGLE].allo_tor_set < 0)
-                    Motor_power[group][WHEEL_ANGLE].allo_tor_set = 0;
             }
             else
             {
-                // 电机转速与输出扭矩方向相反（制动），反电动势与扭矩方向相同
+                // 电机转速与输出扭矩方向相反，此时反电动势方向与输出扭矩方向相同，相同功率下输出较大的扭矩
+                // 计算完为负
                 Motor_power[group][WHEEL_ANGLE].allo_tor_set = (-fabsf(Motor_power[group][WHEEL_ANGLE].V_now) / 9.55f -
-                                                                sqrtf(disc)) /
+                                                                sqrtf(SQUARE(Motor_power[group][WHEEL_ANGLE].V_now / 9.55f) -
+                                                                      4 * Motor_power[group][WHEEL_ANGLE].K1 * (Motor_power[group][WHEEL_ANGLE].K2 * SQUARE(Motor_power[group][WHEEL_ANGLE].V_now) + Motor_power[group][WHEEL_ANGLE].C - Motor_power[group][WHEEL_ANGLE].allo_power_set))) /
                                                                (2 * Motor_power[group][WHEEL_ANGLE].K1);
             }
             temp_angle = fabsf(Motor_power[group][WHEEL_ANGLE].allo_tor_set); // 取扭矩绝对值
-            // 功率分配只应减小扭矩，绝不应放大。钳制到不超过原始请求
-            if (temp_angle > Motor_power[group][WHEEL_ANGLE].initial_tor_set)
-                temp_angle = Motor_power[group][WHEEL_ANGLE].initial_tor_set;
             if (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output >= 0)
                 Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output = temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
             else
                 Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output = -temp_angle / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_ANGLE][group]);
             // CAN驱动发送的是Current_pid.Output，必须同步更新，否则功率限制不生效
             Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output =
-                Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output;
+            Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output;
         }
         if(if_wheel_used[group] == 1)
         {
-            float speed_loss = Motor_power[group][WHEEL_RUN].K2 * SQUARE(Motor_power[group][WHEEL_RUN].V_now) + Motor_power[group][WHEEL_RUN].C;
-            float disc = SQUARE(Motor_power[group][WHEEL_RUN].V_now / 9.55f) -
-                         4 * Motor_power[group][WHEEL_RUN].K1 * (speed_loss - Motor_power[group][WHEEL_RUN].allo_power_set);
-            if (disc < 0) disc = 0;
             if (SIGN_F(Motor_power[group][WHEEL_RUN].V_now) * SIGN_F(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output) >= 0)
             {
-                // 电机转速与输出扭矩方向相同（电动），反电动势与扭矩方向相反
+                // 电机转速与输出扭矩方向相同，此时反电动势方向与输出扭矩方向相反，相同功率下输出较小的扭矩
+                // 计算完为正
                 Motor_power[group][WHEEL_RUN].allo_tor_set = (-fabsf(Motor_power[group][WHEEL_RUN].V_now) / 9.55f +
-                                                              sqrtf(disc)) /
+                                                              sqrtf(SQUARE(Motor_power[group][WHEEL_RUN].V_now / 9.55f) -
+                                                                    4 * Motor_power[group][WHEEL_RUN].K1 * (Motor_power[group][WHEEL_RUN].K2 * SQUARE(Motor_power[group][WHEEL_RUN].V_now) + Motor_power[group][WHEEL_RUN].C - Motor_power[group][WHEEL_RUN].allo_power_set))) /
                                                              (2 * Motor_power[group][WHEEL_RUN].K1);
-                if (Motor_power[group][WHEEL_RUN].allo_tor_set < 0)
-                    Motor_power[group][WHEEL_RUN].allo_tor_set = 0;
             }
             else
             {
-                // 电机转速与输出扭矩方向相反（制动），反电动势与扭矩方向相同
+                // 电机转速与输出扭矩方向相反，此时反电动势方向与输出扭矩方向相同，相同功率下输出较大的扭矩
+                // 计算完为负
                 Motor_power[group][WHEEL_RUN].allo_tor_set = (-fabsf(Motor_power[group][WHEEL_RUN].V_now) / 9.55f -
-                                                              sqrtf(disc)) /
+                                                              sqrtf(SQUARE(Motor_power[group][WHEEL_RUN].V_now / 9.55f) -
+                                                                    4 * Motor_power[group][WHEEL_RUN].K1 * (Motor_power[group][WHEEL_RUN].K2 * SQUARE(Motor_power[group][WHEEL_RUN].V_now) + Motor_power[group][WHEEL_RUN].C - Motor_power[group][WHEEL_RUN].allo_power_set))) /
                                                              (2 * Motor_power[group][WHEEL_RUN].K1);
             }
             temp_run = fabsf(Motor_power[group][WHEEL_RUN].allo_tor_set); // 取扭矩绝对值
-            if (temp_run > Motor_power[group][WHEEL_RUN].initial_tor_set)
-                temp_run = Motor_power[group][WHEEL_RUN].initial_tor_set;
             if (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output >= 0)
                 Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output = temp_run / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]);
             else
                 Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output = -temp_run / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]);
             // CAN驱动发送的是Current_pid.Output，必须同步更新，否则功率限制不生效
             Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output =
-                Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output;
+            Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output;
         }
 #if Power_Ctrl_Debug == 1
         if (if_steer_used[group] == 1)
