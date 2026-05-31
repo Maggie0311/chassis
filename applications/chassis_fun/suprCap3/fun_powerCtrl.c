@@ -88,10 +88,10 @@ float get_K_IC2Tor(MotorInstance *motor_instance)
     case M3508:
         DJI_3508_Motor_Measure_s *P_3508 = (DJI_3508_Motor_Measure_s *)measure_p;
         if (P_3508)
-        return (P_3508->current_to_real) * (P_3508->current_to_torque) * 19.2f /(P_3508->RATIO); // 输出轴扭矩/count，与功率模型单位一致
+        return (P_3508->current_to_real) * (P_3508->current_to_torque)  /(P_3508->RATIO)*19.2f; // 输出轴扭矩/count，与功率模型单位一致
      case GM6020:
             DJI_6020_Motor_Measure_s *P_6020 = (DJI_6020_Motor_Measure_s *)measure_p;
-        if (P_6020) return (P_6020->current_to_real) * (P_6020->current_to_torque);
+        if (P_6020) return (P_6020->current_to_real) * (P_6020->current_to_torque)/(P_6020->RATIO);
     case LK_ms6015:
         LK_Motor_Measure_s *LK_p = (LK_Motor_Measure_s *)measure_p;
         if (LK_p)
@@ -682,7 +682,7 @@ else
             if (SIGN_F(Motor_power[group][WHEEL_ANGLE].V_now) * SIGN_F(Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output) >= 0)
                 // 电机转速与输出扭矩方向相同，此时反电动势方向与输出扭矩方向相反，相同功率下输出较小的扭矩
                 // 计算完为正
-                Motor_power[group][WHEEL_ANGLE].allo_tor_set = (-fabsf(Motor_power[group][WHEEL_ANGLE].V_now) / 9.55f +
+              {  Motor_power[group][WHEEL_ANGLE].allo_tor_set = (-fabsf(Motor_power[group][WHEEL_ANGLE].V_now) / 9.55f +
                                                                 sqrtf(SQUARE(Motor_power[group][WHEEL_ANGLE].V_now / 9.55f) -
                                                                       4 * Motor_power[group][WHEEL_ANGLE].K1 * (Motor_power[group][WHEEL_ANGLE].K2 * SQUARE(Motor_power[group][WHEEL_ANGLE].V_now) + Motor_power[group][WHEEL_ANGLE].C - Motor_power[group][WHEEL_ANGLE].allo_power_set))) /
                                                                (2 * Motor_power[group][WHEEL_ANGLE].K1);
@@ -756,10 +756,10 @@ else
     out_power_sum = out_power_sum_temp + Power_C_sum; // debug
 #endif
 }
-
+}
 //___________________________________
     
-}
+
 
 // /**
 //  * @brief 设定功率超过最大值时功率再分配
@@ -823,7 +823,7 @@ void Power_Ctrl(void)
     // 计算最大可输出功率与异常处理
     get_chassis_max_power();
     // 功率限制、功率再分配
-    Power_lim_allo_to_wheels();//开启功率控制
+   Power_lim_allo_to_wheels();//开启功率控制
 #ifdef BSP_USING_VOFA
     static float data_vofa[4];
     data_vofa[0] = PowerInfo.Ref.PowerBuff;
@@ -873,40 +873,39 @@ MSH_CMD_EXPORT(set_k1, "set k1");
 
 void set_k2(int argc, char *argv[])
 {
-    float k2 = 0.f;
     if (argc == 2)
     {
-        k2 = atof(argv[1]);
+        k2_test = atof(argv[1]);
         for (int i = 0; i < WHEELS_GROUP_NUM; i++)
         {
-            rt_kprintf("k2 = %d\n", (int)k2 * 10000000);
-            Motor_power[i][WHEEL_RUN].K2 = k2;
-            Motor_power[i][WHEEL_ANGLE].K2 = k2;
+            rt_kprintf("k2_test = %d\n", (int)k2_test * 10000000);
+            Motor_power[i][WHEEL_RUN].K2 = k2_test;
+            Motor_power[i][WHEEL_ANGLE].K2 = k2_test;
         }
     }
     else if (argc == 3)
     {
         if (strcmp(argv[1], "run") == 0)
         {
-            k2 = atof(argv[2]);
-            rt_kprintf("k2 = %d\n", (int)k2 * 10000000);
+            k2_test = atof(argv[2]);
+            rt_kprintf("k2 = %d\n", (int)k2_test * 10000000);
             for (int i = 0; i < WHEELS_GROUP_NUM; i++)
             {
-                Motor_power[i][WHEEL_RUN].K2 = k2;
+                Motor_power[i][WHEEL_RUN].K2 = k2_test;
             }
         }
         else if (strcmp(argv[1], "angle") == 0)
         {
-            k2 = atof(argv[2]);
-            rt_kprintf("k2 = %d\n", (int)k2 * 10000000);
+            k2_test = atof(argv[2]);
+            rt_kprintf("k2_test = %d\n", (int)k2_test * 10000000);
             for (int i = 0; i < WHEELS_GROUP_NUM; i++)
             {
-                Motor_power[i][WHEEL_ANGLE].K2 = k2;
+                Motor_power[i][WHEEL_ANGLE].K2 = k2_test;
             }
         }
     }
 }
-MSH_CMD_EXPORT(set_k2, "set k2");
+MSH_CMD_EXPORT(set_k2, "set k2_test");
 
 __weak float getScRate(void)
 {
