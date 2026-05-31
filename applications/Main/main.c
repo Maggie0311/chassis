@@ -48,7 +48,7 @@ int main(void){
 #endif
     /*监视器*/
     if (MONITOR_INIT(THREAD_STACK_MONITOR, THREAD_PRIO_MONITOR, THREAD_TICK_MONITOR) != RT_EOK)
-        Robot_Chassis_Reset(RT_TRUE);
+        Robot_Chassis_Reset(RT_TRUE);	
     /*灯效控制*/
 #ifdef BSP_USING_RGB_LIGHT
     RGB_Display_Init();

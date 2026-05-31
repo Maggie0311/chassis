@@ -13,7 +13,7 @@
 #define SCPR_SPI_USE 0
 
 /*功率控制相关参数*/
-#define SCAP_MAX_CURRENT (8.f) // 电容最大放电响应电流
+#define SCAP_MAX_CURRENT (6.f) // 电容最大放电响应电流
 
 /*轮子相关数据*/
 #define USING_OMNI_RESOLVE
@@ -42,8 +42,8 @@
 #define WEIGHT 25.0f                  // 质量 kg
 #define rotational_inertia 0.5f       // 转动惯量 kg·m²
 #define PLAN_PERIOD (float)0.005      // s,频率为250Hz
-#define VEL_MAX_X (float)4000         //    mm/s
-#define VEL_MAX_Y (float)4000         //    mm/s
+#define VEL_MAX_X (float)3500         //    mm/s
+#define VEL_MAX_Y (float)3500         //    mm/s
 #define VEL_MAX_W (float)8300        //   0.1°/s
 #define ACC_MAX_X (float)4500         // mm/s²
 #define ACC_MAX_Y (float)4500         // mm/s²

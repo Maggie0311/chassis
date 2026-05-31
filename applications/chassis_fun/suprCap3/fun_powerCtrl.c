@@ -349,6 +349,8 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         PowerCtrl_Close_Flag[0] = 0;
         #endif
 
+        //  Set_SuprCap_OutputMode(1);   // 关闭超电输出
+        //     PowerCtrl_Close_Flag[0] = 0;
     // ── 满电滞回控制（暂时注释，备用）──────────────────────────────────
     // 防止接近满电时反复充放电过热：
     //   superCap > SCAP_HYST_HIGH(90%) → 进入"只放不充"模式(2)
@@ -522,8 +524,8 @@ static void get_chassis_max_power(void)
             else
             {
                 PowerCtrl.Power_Maxlim_sum = PowerInfo.Ref.Power_Maxlim +
-                                             PowerInfo.Cap.SupplyCurrt * PowerInfo.Cap.Voltage +
-                                             (PowerInfo.Ref.PowerBuff - PowerCtrl.nowRemain) * 1000.f / (RefPowerData_RefTime + rt_tick_get() - PowerInfo.Ref.refresh_tick);
+                                             PowerInfo.Cap.SupplyCurrt * PowerInfo.Cap.Voltage ;
+                                             //+(PowerInfo.Ref.PowerBuff - PowerCtrl.nowRemain) * 1000.f / (RefPowerData_RefTime + rt_tick_get() - PowerInfo.Ref.refresh_tick);
             }
 #if IF_USED_ALLO_LEVEL != 0
             // 功率强制保护限制
@@ -733,9 +735,9 @@ static void Power_lim_allo_to_wheels()
 
 #endif
 
-    if (Power_Set.run_power < 0)
-        PowerCtrl.power_allo_flag = 0;
-    if (PowerCtrl.power_allo_flag != 0)
+    // if (Power_Set.run_power < 0)
+    //     PowerCtrl.power_allo_flag = 0;
+     if (PowerCtrl.power_allo_flag != 0)
     {
 
         //*舵向与轮向功率受到功率限制后再分配到各个电机上
@@ -779,31 +781,15 @@ static void Power_lim_allo_to_wheels()
             {
 
                 // 轮向电机功率反解
-                if (SIGN_F(Motor_power[group][WHEEL_RUN].V_now) * SIGN_F(Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Speed_pid.Output) >= 0)
+                //  始终用"+"(电动)分支计算扭矩大小, 方向沿用旧Current_pid.Output的符号
+                // 避免"-"(回馈)分支在小P_target时τ ≈ |V|/(9.55*θ₀)导致的数值爆炸
                 {
-                    // 电机转速与输出扭矩方向相同，此时反电动势方向与输出扭矩方向相反，相同功率下输出较小的扭矩
-                    // 计算完为正
-                    // 速度项为平方的公式扭矩反解
-                    // Motor_power[group][WHEEL_RUN].allo_tor_set = (-fabsf(Motor_power[group][WHEEL_RUN].V_now) / 9.55f +
-                    //                                               sqrtf(SQUARE(Motor_power[group][WHEEL_RUN].V_now / 9.55f) -
-                    //                                                     4 * RunRLS.theta[0] * (RunRLS.theta[1] * SQUARE(Motor_power[group][WHEEL_RUN].V_now) +RunRLS.theta[2]/4.f - Motor_power[group][WHEEL_RUN].allo_power_set))) /
-                    //                                              (2 * RunRLS.theta[0]);
+                    float disc = SQUARE(Motor_power[group][WHEEL_RUN].V_now / 9.55f) -
+                                 4 * RunRLS.theta[0] * (RunRLS.theta[1] * fabsf(Motor_power[group][WHEEL_RUN].V_now) + RunRLS.theta[2] / 4.f - Motor_power[group][WHEEL_RUN].allo_power_set);
+                    if (disc < 0.f) disc = 0.f;  // 保护sqrtf, 极小负值截断
+
                     Motor_power[group][WHEEL_RUN].allo_tor_set = (-fabsf(Motor_power[group][WHEEL_RUN].V_now) / 9.55f +
-                                                                  sqrtf(SQUARE(Motor_power[group][WHEEL_RUN].V_now / 9.55f) -
-                                                                        4 * RunRLS.theta[0] * (RunRLS.theta[1] * fabsf(Motor_power[group][WHEEL_RUN].V_now) + RunRLS.theta[2] / 4.f - Motor_power[group][WHEEL_RUN].allo_power_set))) /
-                                                                 (2 * RunRLS.theta[0]);
-                }
-                else
-                {
-                    // 电机转速与输出扭矩方向相反，此时反电动势方向与输出扭矩方向相同，相同功率下输出较大的扭矩
-                    // 计算完为负
-                    // Motor_power[group][WHEEL_RUN].allo_tor_set = (-fabsf(Motor_power[group][WHEEL_RUN].V_now) / 9.55f -
-                    //                                              sqrtf(SQUARE(Motor_power[group][WHEEL_RUN].V_now / 9.55f) -
-                    //                                                     4 * RunRLS.theta[0] * (RunRLS.theta[1] * SQUARE(Motor_power[group][WHEEL_RUN].V_now) +RunRLS.theta[2]/4.f - Motor_power[group][WHEEL_RUN].allo_power_set))) /
-                    //                                              (2 * RunRLS.theta[0]);
-                    Motor_power[group][WHEEL_RUN].allo_tor_set = (-fabsf(Motor_power[group][WHEEL_RUN].V_now) / 9.55f -
-                                                                  sqrtf(SQUARE(Motor_power[group][WHEEL_RUN].V_now / 9.55f) -
-                                                                        4 * RunRLS.theta[0] * (RunRLS.theta[1] * fabsf(Motor_power[group][WHEEL_RUN].V_now) + RunRLS.theta[2] / 4.f - Motor_power[group][WHEEL_RUN].allo_power_set))) /
+                                                                  sqrtf(disc)) /
                                                                  (2 * RunRLS.theta[0]);
                 }
                 temp_run = fabsf(Motor_power[group][WHEEL_RUN].allo_tor_set); // 取扭矩绝对值
@@ -814,7 +800,11 @@ static void Power_lim_allo_to_wheels()
                     Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = temp_run / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]);
                 else
                     Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = -temp_run / get_K_IC2Tor(Motor_Power_Pointer[WHEEL_RUN][group]);
+
+
+                  //  Power_test[group] = Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output;
             }
+
         }
     }
 
@@ -831,6 +821,8 @@ static void Power_lim_allo_to_wheels()
          Motor_Power_Pointer[WHEEL_RUN][5]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
     }
     #endif
+
+
     // for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
     // {
     //     //        轮向电机调整方向
@@ -875,7 +867,6 @@ void Power_re_allo(void)
         RunKcoe = 0;
     else
         RunKcoe = (Power_Set.run_err_sum - RunERRlow) / (RunERRhigh - RunERRlow);
-
     if (Power_Set.angle_err_sum > AngleERRhigh)
         AngleKcoe = 1;
     else if (Power_Set.angle_err_sum <= AngleERRlow)

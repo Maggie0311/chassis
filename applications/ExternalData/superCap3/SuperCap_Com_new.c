@@ -348,7 +348,7 @@ rt_bool_t Get_SuprCapPower(float *power)
  */
 uint8_t Get_if_supercap_output(void)
 {
-    return (scpr_output_mode != 0);
+    return (scpr_output_mode == 1);
 }
 
 /**
