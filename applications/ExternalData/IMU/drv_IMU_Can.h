@@ -5,16 +5,17 @@
 #include "can_com_thread.h"
 
 /* CAN设备 */
-#define IMU_CAN_DEV "can1"
+#define IMU_CAN_DEV "can2"
 
 /* 接收线程轮询周期，单位ms */
 #define IMU_RX_PERIOD 10
 
 /* 接收报文ID（待填写） */
 #define IMU_YAW_Z_RX   0x107   // 包1: yaw角度 + z轴加速度
-#define IMU_PITCH_Y_RX 0x108   // 包2: pitch角度 + y轴加速度
-#define IMU_ROLL_X_RX  0x109   // 包3: roll角度 + x轴加速度
+#define IMU_PITCH_Y_RX 0x109   // 包2: pitch角度 + y轴加速度
+#define IMU_ROLL_X_RX  0x108   // 包3: roll角度 + x轴加速度
 
+#define IMU_SPI_USE 1
 /* 报文索引 */
 typedef enum
 {

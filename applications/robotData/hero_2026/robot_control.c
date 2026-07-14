@@ -9,6 +9,7 @@
 #include "fun_powerCtrl.h"
 #include "drv_SPICAN.h"
 
+#include "drv_IMU_Can.h"
 #include "DM_Motor.h"
 #include "Wheel_data.h"
 #include <arm_math.h>
@@ -105,7 +106,7 @@ DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
     {
         .motor_obj_init_config = {
             .name = "Wheel_LF",
-            .reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .reverse_flag = MOTOR_DIRECTION_REVERSE,
             .motor_type = M3508,
             .state = MOTOR_STATE_NEED_INIT,
             .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -535,10 +536,10 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
                 .Ki = 0.5,
                 .MaxOut = 8000,
                 .Improve = PID_Integral_Limit,
-                .IntegralLimit = 800,
+                .IntegralLimit = 5000,
             },
 
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000
 
             },
             .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
@@ -587,12 +588,12 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
                 .Kp = 32,
                 .Kd = 1,
                 .Ki = 0.5,
-                .MaxOut = 8000,
+                .MaxOut = 12000,
                 .Improve = PID_Integral_Limit,
-                .IntegralLimit = 800,
+                .IntegralLimit = 5000,
             },
 
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000
 
             },
             .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
@@ -633,7 +634,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         .controller_param_init_config = {
             // todo pid参数
             .Angle_pid = {
-                .Kp = 6.2, .Kd = 3, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
+                .Kp = 8.2, .Kd = 8, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
                 .MaxOut = 350 ,// 最大输出单位为RPM
                 .DeadBand = 0.1,
             },
@@ -641,12 +642,12 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
                 .Kp = 32,
                 .Kd = 1,
                 .Ki = 0.5,
-                .MaxOut = 8000,
+                .MaxOut = 12000,
                 .Improve = PID_Integral_Limit,
-                .IntegralLimit = 800,
+                .IntegralLimit = 5000,
             },
 
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000
+            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000
 
             },
             .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
@@ -685,20 +686,21 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
      .controller_param_init_config = {
          // todo pid参数
          .Angle_pid = {
-             .Kp = 6.2, .Kd = 3, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
+             .Kp = 8.2, .Kd = 8, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
              .MaxOut = 350 ,// 最大输出单位为RPM,
              .DeadBand = 0.1
          },
          .Speed_pid = {
-             .Kp = 32,
+					 
+             .Kp = 38,
              .Kd = 1,
              .Ki = 0.5,
-             .MaxOut = 8000,
+             .MaxOut = 12000,
              .Improve = PID_Integral_Limit,
-             .IntegralLimit = 800,
+             .IntegralLimit = 5000,
          },
 
-         .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 8000
+         .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000
 
          },
          .Closeloop_Type = SINGLE_ANGLE_LOOP | SPEED_LOOP,
@@ -879,14 +881,14 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target,uint8_t up_or_down)
     }
     else if (motor == Back_Screw_Motor&&up_or_down==UP)
     {
-        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle;
+        up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle-8;
         up_motor[2].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
-        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed+5;
+        up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed-5;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
         up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16384;
-        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle+5;
+        up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kp=UP_PID_Kp_Angle-8;
         up_motor[3].Motor_obj.Motor_ctrl.Angle_pid.Kd=UP_PID_Kd_Angle;
-        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed+5;
+        up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Kp=UP_PID_Kp_Speed-5;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.Ki=UP_PID_Ki_Speed;
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=16384;
         Motor_Set_Target((MotorInstance *)&up_motor[2], set_planner_up_motor[2].p+ up_motor_zero_offset[2]); // TODO
@@ -956,7 +958,7 @@ int If_Target_Reached(Screw_Motor_e motor,float target)
 {
     if (motor == Forward_Screw_Motor)
     {
-        if (fabsf(up_motor[0].Motor_obj.total_angle-target-up_motor_zero_offset[0]) < 20.0f && fabsf(target+up_motor_zero_offset[1]-up_motor[1].Motor_obj.total_angle) < 20.0f)
+        if (fabsf(up_motor[0].Motor_obj.total_angle-target-up_motor_zero_offset[0]) < 30.0f && fabsf(target+up_motor_zero_offset[1]-up_motor[1].Motor_obj.total_angle) < 30.0f)
         {
             return 1;
         }
@@ -967,7 +969,7 @@ int If_Target_Reached(Screw_Motor_e motor,float target)
     }
     else if (motor == Back_Screw_Motor)
 {
-   if (fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 20.0f && fabsf(target+up_motor_zero_offset[3]-up_motor[3].Motor_obj.total_angle) < 20.0f)
+   if (fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 30.0f && fabsf(target+up_motor_zero_offset[3]-up_motor[3].Motor_obj.total_angle) < 30.0f)
         {
             return 1;
         }
@@ -1019,18 +1021,11 @@ void Follow_pid_init(void)
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 60;
-    pid_config.Ki = 0.2;
-    pid_config.Kd = 18;
-    pid_config.MaxOut = 14000;
-    pid_config.Kp = 60;
-    pid_config.Ki = 0.2;
-    pid_config.Kd = 18;
-    pid_config.MaxOut = 14000;
-    pid_config.Kp = 60;
-    pid_config.Ki = 0.2;
-    pid_config.Kd = 18;
-    pid_config.MaxOut = 14000;
+  
+    pid_config.Kp = 40;
+    pid_config.Ki = 0.05;
+    pid_config.Kd = 10;
+    pid_config.MaxOut = 8000;
     pid_config.DeadBand = 5;
     pid_config.IntegralLimit = 400;
 
@@ -1079,10 +1074,10 @@ void Up_Machine_pid_init(void)
     rt_memset(&pid_config, 0, sizeof(pid_config));
     pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-    pid_config.Kp = 8; // TODO
-    pid_config.Ki = 0;
-    pid_config.Kd = 4;
-    pid_config.MaxOut = 400;
+    pid_config.Kp = 28; // TODO
+    pid_config.Ki = 0.01;
+    pid_config.Kd = 5;
+    pid_config.MaxOut = 800;
     pid_config.DeadBand = 0;
     pid_config.IntegralLimit = 0;
     PIDInit(&up_machine_pid, &pid_config);
@@ -1105,6 +1100,9 @@ static float RUN_wheel_forward_cal(float set)
     }
 }
 
+float debug_feedforward_set_run[WHEEL_MOTOR_NUM] = {0};
+float debug_kb = 0.01f;
+#define CLAMP(x, lo, hi) ((x) < (lo) ? (lo) : ((x) > (hi) ? (hi) : (x)))
 /**
  * @brief 将雅可比矩阵解算出的电机的扭矩转换为电流
  *
@@ -1113,12 +1111,43 @@ static float RUN_wheel_forward_cal(float set)
  */
 static void Get_force_out(float motorSetForce[WHEEL_MOTOR_NUM])
 {
-    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
-    {
-        wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 暂时不加摩擦
-        // debug_feedforward_set_run[i] = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real; // 转换为电机的扭矩
+    // for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+    // {
+    //     wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 暂时不加摩擦
+    //     // debug_feedforward_set_run[i] = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real; // 转换为电机的扭矩
 
-        // + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target);暂时不加摩擦
+    //     // + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target);暂时不加摩擦
+    // }
+
+     float k_back = 1.0f + debug_kb * fabsf(imu_can_data.pitch_angle);
+    k_back = CLAMP(k_back, 1.0f, 1.5f);
+    // for (int i = 0; i < 2; i++)
+    // {
+    //     wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f +RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+    // }
+    // for (int i = 2; i < WHEEL_MOTOR_NUM; i++)
+    // {
+    //     wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = motorSetForce[i] * k_back;
+    // }
+    for (int i = 0; i < 2; i++)
+    {
+        if(wheel_motor[i].Motor_obj.Motor_ctrl.Current_pid.Output>0)
+        {
+            debug_feedforward_set_run[i] = motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f * (2.0f - k_back) ;//+ RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = fabsf(motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f * (2.0f - k_back));// + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+        }
+        else 
+            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = -fabsf(motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f * (2.0f - k_back));// + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+    }
+    for (int i = 2; i < WHEEL_MOTOR_NUM; i++)
+    {
+         if(wheel_motor[i].Motor_obj.Motor_ctrl.Current_pid.Output>0)
+        {
+            debug_feedforward_set_run[i]=motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f *  k_back ;//+ RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = fabsf(motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f *  k_back);// + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
+        }
+        else 
+            wheel_motor[i].Motor_obj.Motor_ctrl.feedforward.current_feedforward = -fabsf(motorSetForce[i] / wheel_motor[i].dji3508_motor_measure.current_to_torque / wheel_motor[i].dji3508_motor_measure.current_to_real * WHEEL_RADIUS / 1000.f *  k_back);// + RUN_wheel_forward_cal(wheel_motor[i].Motor_obj.Motor_ctrl.Speed_pid.Target); // 转换为电机的扭矩
     }
 }
 
@@ -1134,22 +1163,36 @@ static void Wheel_Speed_Set(float motorSetSpeed_run[WHEEL_MOTOR_NUM], float moto
         Motor_Set_Target((MotorInstance *)&steer_motor[i], motorSetAngle_steer[i]);
     }
 }
-
+float debug_gravity_ff =0;
+float gravity_feedforward(Mot_base_t Force_xyw)
+{
+    debug_gravity_ff = WEIGHT * imu_can_data.z_accel * 10.0f * arm_sin_f32(imu_can_data.pitch_angle * DEGTORAD) * 1000.0f; // 单位mN
+    return debug_gravity_ff;
+}
 //**
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw,uint8_t motion_mode)
 {
     if (1 == isSetValid_debug[0])
     {
         Steer_Inverse_Kinematics_test(*Speed_xyw, motorSetSpeed_run, motorSetAngle_steer); // 舵轮逆解算
-        Steer_Force_Resolve(*Force_xyw, motorSetForce);                                    // 进行力解算到各个电机上，输出为扭矩
+        //Steer_Force_Resolve(*Force_xyw, motorSetForce);                                    // 进行力解算到各个电机上，输出为扭矩
 
+        //Get_force_out(motorSetForce); // 获取前馈值
+
+        if(If_Target_Reached(Back_Screw_Motor,0)&&If_Target_Reached(Forward_Screw_Motor,0))
+        {
+        float gravity_ff = gravity_feedforward(*Force_xyw);//加上重力前馈
+        Force_xyw->vel.x += gravity_ff;
+        Steer_Force_Resolve(*Force_xyw, motorSetForce);//力逆解算
         Get_force_out(motorSetForce); // 获取前馈值
+        }
     }
     if (1 == isSetValid_debug[1])
     {
         Wheel_Speed_Set(motorSetSpeed_run, motorSetAngle_steer); // 设置电机速度环设定值
     }
 }
+
 
 /*正解算对应函数*/
 void Forward_Kinematics(void)
@@ -1160,16 +1203,6 @@ void Forward_Kinematics(void)
         temp[i] = wheel_motor[i].Motor_obj.speed;
     }
     // Omni_Forward_Kinematics(temp);
-}
-float get_power_lim_speed(float power_max)
-{
-    float speed_max = 0;
-    speed_max = 6.976f * power_max + 696;
-    if (speed_max > 3000)
-        speed_max = 3000;
-    else if (speed_max < 1000)
-        speed_max = 1000;
-    return speed_max;
 }
 
 void chasis_dangling_x(void)

@@ -57,12 +57,14 @@ rt_err_t IMU_Can_Init(void)
     config.can_device_name     = IMU_CAN_DEV;
     config.rx_id               = IMU_YAW_Z_RX;
     config.can_module_callback = IMU_Yaw_Z_Rx_call;
+    config.spi_slave=IMU_SPI_USE;
     res += CAN_Attach(&imu_can_rx[IMU_YAW_Z_INDEX], &config);
 
     /* 包2: pitch_angle + y_accel */
     rt_memset(&config, 0, sizeof(config));
     config.can_device_name     = IMU_CAN_DEV;
     config.rx_id               = IMU_PITCH_Y_RX;
+     config.spi_slave=IMU_SPI_USE;
     config.can_module_callback = IMU_Roll_X_Rx_call;
     res += CAN_Attach(&imu_can_rx[IMU_PITCH_Y_INDEX], &config);
 
@@ -70,6 +72,7 @@ rt_err_t IMU_Can_Init(void)
     rt_memset(&config, 0, sizeof(config));
     config.can_device_name     = IMU_CAN_DEV;
     config.rx_id               = IMU_ROLL_X_RX;
+     config.spi_slave=IMU_SPI_USE;
     config.can_module_callback = IMU_Pitch_Y_Rx_call;
     res += CAN_Attach(&imu_can_rx[IMU_ROLL_X_INDEX], &config);
 

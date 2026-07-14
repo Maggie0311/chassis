@@ -11,8 +11,6 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw,uint8_t motion_mo
 int gim_motor_init();
 void Follow_pid_init(void);
 
-float get_power_lim_speed(float power_max);
-
 void Motor_Speed_Read();
 void Up_Machine_pid_init(void);
 int If_Target_Reached(Screw_Motor_e motor,float target);

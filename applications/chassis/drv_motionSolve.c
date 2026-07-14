@@ -133,13 +133,13 @@ void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4])
 
 
 /**
- * @brief 适应不同安装角度的全向轮力逆解算（基于虚功原理 τ = J^T · F）
+ * @brief 适应不同安装角度的全向轮力逆解算（基于虚功原理 + 伪逆 τ = A·(AᵀA)⁻¹·F）
  *
- * @note  还原公式（已通过 VS 测试验证）：
- *          Fx = Σ(τ_i × k1[i])     / (sin_a × s)
- *          Fy = Σ(τ_i × k2[i])     / (cos_a × s)
- *          Tw = Σ(τ_i × k3sign[i]) / (d_base_m × s)
- *        力雅可比系数与 Omni_Inverse_Kinematics_new 完全共用，只需将 /r 改为 ×s。
+ * @note  正确公式（伪逆推导，sinα/cosα/k3_base 在分母）：
+ *          τ[i] = k1[i]·s·Fx/(4·sinα) + k2[i]·s·Fy/(4·cosα) + k3sign[i]·s·Tw/(4·k3_base)
+ *        其中 s 为轮半径(m)，k3_base = sinα·L + cosα·W (m)。
+ *        与正解算 Omni_Forward_Kinematics_new 互为转置对偶（系数同为 /sinα、/cosα、/k3_base）。
+ *        还原（由约束 Aᵀτ=F）：Fx = Σ(τ_i·k1[i])·sinα/s，Fy、Tw 同理乘对应项。
  *
  * @param target_force 底盘期望合力/力矩
  *                     vel.x  ：底盘 x 方向加速度归一化量（mm/s²，对应 F = vel.x × WEIGHT/1000）
@@ -150,7 +150,7 @@ void Omni_Inverse_Kinematics_45(Mot_base_t target_xyw, float resolve_data[4])
  */
 void Omni_Force_Resolve(Mot_base_t target_force, float alpha, float *resolve_data)
 {
-    // ---- 1. 一次性初始化力雅可比矩阵 ----
+    // ---- 1. 一次性初始化力雅可比伪逆矩阵（τ = A·(AᵀA)⁻¹·F 的每行）----
     static uint8_t if_init = 0;
     static float Jt[4][3];
 
@@ -165,14 +165,16 @@ void Omni_Force_Resolve(Mot_base_t target_force, float alpha, float *resolve_dat
 
     if (!if_init)
     {
-        float a     = alpha * DEGTORAD;
-        float cos_a = arm_cos_f32(a), sin_a = arm_sin_f32(a);
+        float a       = alpha * DEGTORAD;
+        float cos_a   = arm_cos_f32(a), sin_a = arm_sin_f32(a);
+        float k3_base = sin_a * (L / 1000.0f) + cos_a * (W / 1000.0f);  // 旋转力臂 (m)
 
         for (uint8_t i = 0; i < 4; i++)
         {
-            Jt[i][0] = k1[i]     * sin_a * s;                                       // Fx 列 (m)
-            Jt[i][1] = k2[i]     * cos_a * s;                                       // Fy 列 (m)
-            Jt[i][2] = k3sign[i] * (sin_a * L / 1000.0f + cos_a * W / 1000.0f) * s; // Tw 列 (m²)
+            // 【修正】sinα/cosα/k3_base 在分母（伪逆推导结果），1/4 已并入系数
+            Jt[i][0] = k1[i]     * s / (4.0f * sin_a);     // Fx 系数 (m)
+            Jt[i][1] = k2[i]     * s / (4.0f * cos_a);     // Fy 系数 (m)
+            Jt[i][2] = k3sign[i] * s / (4.0f * k3_base);   // Tw 系数 (无量纲)
         }
         if_init = 1;
     }
@@ -182,12 +184,12 @@ void Omni_Force_Resolve(Mot_base_t target_force, float alpha, float *resolve_dat
     float Fy = target_force.vel.y * WEIGHT / 1000.0f;                       // mm/s² 归一化量 → N
     float Tw = target_force.angvel / 10.0f * DEGTORAD * rotational_inertia; // 0.1°/s² → N·m
 
-    // ---- 3. 力雅可比映射：τ = J^T · [Fx, Fy, Tw]^T，平均分配到 4 个轮 ----
+    // ---- 3. 力雅可比伪逆映射：τ = Jt · [Fx, Fy, Tw]^T（系数已含 1/4，无需再除）----
     for (uint8_t i = 0; i < 4; i++)
     {
-        resolve_data[i] = (Jt[i][0] * Fx +
-                           Jt[i][1] * Fy +
-                           Jt[i][2] * Tw) / 4.0f;
+        resolve_data[i] = Jt[i][0] * Fx +
+                          Jt[i][1] * Fy +
+                          Jt[i][2] * Tw;
     }
 }
 

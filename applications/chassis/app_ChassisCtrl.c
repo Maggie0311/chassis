@@ -13,6 +13,7 @@
 #include "drv_GimMotor.h"
 #include "fun_protocolGim.h"
 #include  "fun_powerCtrl.h"
+#include "drv_IMU_Can.h"
 #ifdef BSP_USING_LOG
 #define LOG_TAG "Ctrl"
 #define LOG_LVL LOG_LVL_DBG
@@ -68,7 +69,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
        fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
    }
    else if(get_down_stairs_flag()&&Zero_Check() == 4)
-   //else if(test_stair_down&&Zero_Check() == 4)
+  // else if(test_stair_down&&Zero_Check() == 4)
    {
     //   Screw_Motor_Move(Back_Screw_Motor, 520, 0);
 
@@ -77,22 +78,29 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
        fixCtrl.motion_mode = GO_UPSTAIRS;   
    }
    else if(get_forward_up()&&Zero_Check() == 4)
+  //else if(test_stair&&Zero_Check() == 4)
    {
          Screw_Motor_Move(Forward_Screw_Motor, 500, 0);
         Screw_Motor_Move(Back_Screw_Motor, 0, 1);
    }
    else if(get_back_up()&&Zero_Check() == 4)
+   //else if(test_stair_down&&Zero_Check() == 4)
    {
-         Screw_Motor_Move(Back_Screw_Motor, 560, 0);
+         Screw_Motor_Move(Back_Screw_Motor, 615, 0);
          Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
 
    }
+  
    else if(Zero_Check() == 4)
    {
        status=Forward_Screw_Move_Up;
        Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
        Screw_Motor_Move(Back_Screw_Motor, 0, 1);
        up_stairs_finish=0;
+   }
+   if(imu_can_data.pitch_angle>35.f)
+   {
+     Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
    }
 #endif
 
