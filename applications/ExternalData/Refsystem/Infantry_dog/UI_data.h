@@ -74,11 +74,7 @@
 #define UI_ABS_PITCH_CENTER_X 1200
 #define UI_ABS_PITCH_CENTER_Y 450
 
-//履带开关
-#define UI_TRACK_SIZE 15 // 图形大小
-#define UI_TRACK_STATE_CENTER_X 700
-#define UI_TRACK_STATE_CENTER_Y 100
-#define Draw_TRACK_STATE_WIDTH 2 
+
 
 //狗洞
 #define UI_HOLE_RECT_X1  0   // TODO: 标定

@@ -82,19 +82,7 @@ uint8_t Get_Wireless_Charge(void)
 { // Supercap/UI
     return gimbal_mixdata_msg.Wire_less_charge;
 }
-#ifdef CORE_USING_2026_INFANTRY_2
-uint8_t Get_Track_On(void)
-{
-    return gimbal_mixdata_msg.if_track_on;
-}
 
-extern uint8_t track_on_flag;
-
-uint8_t Get_Track_real_state(void)
-{
-    return track_on_flag;
-}
-#endif
 // 读取当前是否需要超级电容充电, 返回 1 为不需要
 rt_uint8_t Get_Charge_Cmd(void)
 {

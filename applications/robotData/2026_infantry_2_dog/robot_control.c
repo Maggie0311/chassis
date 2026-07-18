@@ -1,4 +1,4 @@
-/**2026 狗洞步兵 （未出生）*/
+/**2026 狗洞步兵 */
 #include "robot_data.h"
 #include "drv_motor_new.h"
 #include "DJI_3508.h"
@@ -8,17 +8,16 @@
 #include "drv_GimMotor.h"
  #include "fun_powerCtrl.h"
 #include "drv_Gimbal_Com.h"
+#include "DM_Motor.h"
 
 #define WHEEL_MOTOR_NUM 4
-#define GIM_MOTOR_NUM 2
-#define TRACK_MOTOR_NUM 2
+#define GIM_MOTOR_NUM 1
+#define GIM_DM_MOTOR_NUM 1
 
 #define WHEEL_RF 0
 #define WHEEL_LF 1
 #define WHEEL_LH 2
 #define WHEEL_RH 3
-#define TRACK_R 4
-#define TRACK_L 5
 
 /* 过洞左边速度补偿：comp = 1.0 + OFFSET + K * |vx|。OFFSET处理低速段，K处理高速段斜率 */
 #define DONG_LEFT_SPEED_OFFSET 0.01f    /* 低速基础补偿 */
@@ -28,7 +27,7 @@
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
 DJI_6020_MotorInstance gim_motor[GIM_MOTOR_NUM];
-DJI_3508_MotorInstance track_motor[TRACK_MOTOR_NUM];//新增履带电机
+DM_MotorInstance gim_DM_motor[GIM_DM_MOTOR_NUM];
 
 uint8_t isSetValid_debug[2] = {1, 1}; /*debug*,1为开，0为关/
 
@@ -40,7 +39,7 @@ float motorSetForce[WHEEL_MOTOR_NUM]; // 经过解算后的数据(加速度)
 PIDInstance follow_pid_fast, follow_pid_slow;
 
     // 底盘四个电机配置参数模板
-    DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
+DJI_3508_Motor_Init_Config_s wheel_motor_init_config[WHEEL_MOTOR_NUM] = {
         // 右前轮
         {
             .motor_obj_init_config = {
@@ -90,7 +89,7 @@ PIDInstance follow_pid_fast, follow_pid_slow;
         {
             .motor_obj_init_config = {
                 .name = "Wheel_LF",
-                .reverse_flag = MOTOR_DIRECTION_NORMAL,
+                .reverse_flag = MOTOR_DIRECTION_NORMAL,   
                 .motor_type = M3508,
                 .state = MOTOR_STATE_NEED_INIT,
                 .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -179,7 +178,7 @@ PIDInstance follow_pid_fast, follow_pid_slow;
         {
             .motor_obj_init_config = {
                 .name = "Wheel_LR",
-                .reverse_flag = MOTOR_DIRECTION_NORMAL,
+                .reverse_flag = MOTOR_DIRECTION_NORMAL,   
                 .motor_type = M3508,
                 .state = MOTOR_STATE_NEED_INIT,
                 .power_ctrl_type = POWER_CTRL_WHEEL,
@@ -220,114 +219,7 @@ PIDInstance follow_pid_fast, follow_pid_slow;
             },
         }};
 
-//新增履带电机配置模板
-DJI_3508_Motor_Init_Config_s track_motor_init_config[TRACK_MOTOR_NUM] = {
-    // 履带电机
-    {
-        .motor_obj_init_config = {
-            .name = "Track_RF",
-            .reverse_flag = MOTOR_DIRECTION_NORMAL,
-            .motor_type = M3508,
-            .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type = POWER_CTRL_WHEEL,
-            .index = TRACK_R,
-        },
-        .Motor_operate_setting = {
-            .Motor_Init = DJI_3508_Motor_Init,
-            .Motor_Enable = DJI_3508_Motor_Enable,
-            .Motor_Disable = DJI_3508_Motor_Disable,
-            .Motor_ErrorHandle = DJI_3508_Motor_ErrorHandle,
-            .Motor_RefreshData = DJI_3508_Motor_RefreshData,
-            .Motor_Control = NULL,
-            .Motor_Transmit = DJI_3508_Motor_Transmit,
-        },
 
-        .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp+60, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit|PID_ChangingIntegrationRate , .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 9000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 9000},
-            .Closeloop_Type = SPEED_LOOP,
-            .Calc_Pre = {
-                .speed_calc_Prescaler = 1,
-
-            },
-            .Feedforward_Type = FEEDFORWARD_NONE,
-        },
-        .can_init_config = {
-            .can_device_name = "can2",
-            .rx_id = 0x202, // TODO:设置ID
-            .tx_id = 0x200,
-            .can_module_callback = DJI_3508_Motor_RefreshData,
-            .parent = NULL,
-        },
-        .DJI3508_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
-            .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 13.73f,               // 搭配C620电调，默认减速比为19
-            .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 0.0,
-        },
-    },
-    {
-        .motor_obj_init_config = {
-            .name = "Track_LF",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
-            .motor_type = M3508,
-            .state = MOTOR_STATE_NEED_INIT,
-            .power_ctrl_type = POWER_CTRL_WHEEL,
-            .index = TRACK_L,
-        },
-        .Motor_operate_setting = {
-            .Motor_Init = DJI_3508_Motor_Init,
-            .Motor_Enable = DJI_3508_Motor_Enable,
-            .Motor_Disable = DJI_3508_Motor_Disable,
-            .Motor_ErrorHandle = DJI_3508_Motor_ErrorHandle,
-            .Motor_RefreshData = DJI_3508_Motor_RefreshData,
-            .Motor_Control = NULL,
-            .Motor_Transmit = DJI_3508_Motor_Transmit,
-        },
-
-        .controller_param_init_config = {
-            .Speed_pid = {.Kp = RUN_PID_Kp+20, .Ki = RUN_PID_Ki, .Kd = RUN_PID_Kd, .Improve = PID_Integral_Limit|PID_ChangingIntegrationRate, .CoefA = 52.0, .CoefB = 2.0, .IntegralLimit = 3000, .MaxOut = 9000, .DeadBand = 0.5},
-            .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 9000},
-            .Closeloop_Type = SPEED_LOOP,
-            .Calc_Pre = {
-                .speed_calc_Prescaler = 1,
-
-            },
-            .Feedforward_Type = FEEDFORWARD_NONE,
-        },
-        .can_init_config = {
-            .can_device_name = "can2",
-            .rx_id = 0x204, // TODO:设置ID
-            .tx_id = 0x200,
-            .can_module_callback = DJI_3508_Motor_RefreshData,
-            .parent = NULL,
-        },
-        .DJI3508_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0012207, // 3508电机的电流转换系数20A/16384
-            .current_to_torque = 0.3,     // 3508电机的电流转扭矩系数
-            .RATIO = 13.73f,               // 搭配C620电调，默认减速比为19
-            .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 0.0,
-        },
-    },
-};
-
-//todo 目前还没有调用履带电机初始化，等出车
-int track_motor_init()
-{
-    int ret = 0;
-    for (int i = 0; i < TRACK_MOTOR_NUM; i++)
-    {
-        ret = Motor_Attach((MotorInstance *)&track_motor[i], (Motor_Init_Config_s *)&track_motor_init_config[i]);
-        Power_Motor_Attach((MotorInstance *)&track_motor[i]);
-        if (ret != 0)
-        {
-            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-        }
-    }
-    return ret;
-}
 int chassis_motor_init()
 {
     int ret = 0;
@@ -340,44 +232,12 @@ int chassis_motor_init()
             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
         }
     }
-    track_motor_init();
+
     return ret;
 }
 DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
-    // YAW轴电机
-    {
-        .motor_obj_init_config = {
-            .name = "Yaw_M",
-            .reverse_flag = MOTOR_DIRECTION_REVERSE,
-            .motor_type = GM6020,
-            .state = MOTOR_STATE_NEED_INIT,
-        },
-        .Motor_operate_setting = {
-            .Motor_Init = DJI_6020_Motor_Init,
-            .Motor_Enable = DJI_6020_Motor_Enable,
-            .Motor_Disable = DJI_6020_Motor_Disable,
-            .Motor_ErrorHandle = DJI_6020_Motor_ErrorHandle,
-            .Motor_RefreshData = DJI_6020_Motor_RefreshData,
-            .Motor_Control = NULL,
-            .Motor_Transmit = NULL,
-        },
-        .controller_param_init_config = NULL,
-
-        .can_init_config = {
-            .can_device_name = "can2",
-            .rx_id = 0x205, // TODO:设置ID
-            .tx_id = NULL,
-            .can_module_callback = DJI_6020_Motor_RefreshData,
-            .parent = NULL,
-        },
-        .DJI6020_Motor_Measure_Init_Config = {
-            .current_to_real = 0.0001831, // 6020电机的电流转换系数3A/16384
-            .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
-            .RATIO = 1.0,
-            .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 2476,
-            .ctrl_mode = CTRL_MODE_VOLTAGE,
-        }},
+  
+       
     // pitch轴电机
 
     {.motor_obj_init_config = {
@@ -415,21 +275,91 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
 
 };
 
+DM_Motor_Init_Config_s gim_dm_motor_init_config[GIM_DM_MOTOR_NUM] =
+    {
+              {
+            .motor_obj_init_config = {
+                .name = "Yaw_M",
+                .reverse_flag = MOTOR_DIRECTION_NORMAL,
+                .motor_type = DM4310,
+                .state = MOTOR_STATE_NOTCTRL,
+            },
+            .Motor_operate_setting = {
+                .Motor_Init = DM_Motor_Init,
+                .Motor_Enable = DM_Motor_Enable,
+                .Motor_Disable = DM_Motor_Disable,
+                .Motor_ErrorHandle = DM_Motor_ErrorHandle,
+                .Motor_RefreshData = DM_Motor_RefreshData,
+                .Motor_Control = NULL,
+                .Motor_Transmit = DM_Motor_Transmit,
+            },
+            .controller_param_init_config = {
+                .Angle_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .CoefA = 0, .CoefB = 0
+
+                },
+                .Speed_pid = {.Kp = 5, .Kd = 0, .Ki = 0.5, .CoefA = 0, .CoefB = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 1000, .MaxOut = 25000
+
+                },
+                .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .CoefA = 0, .CoefB = 0
+
+                },
+                .Closeloop_Type = SPEED_LOOP,
+                .Calc_Pre = {
+                    .speed_calc_Prescaler = 1,
+                },
+                .Feedforward_Type = FEEDFORWARD_NONE,
+            },
+            .can_init_config = {
+                .can_device_name = "can2",
+                .rx_id = 0x02,
+                .tx_id = NULL,
+                .can_module_callback = DM_Motor_RefreshData,
+                .parent = NULL,
+            },
+            .DM_Motor_Measure_Init_Config = {
+                .RATIO = 1.0,
+                .ENCODER_LEN = 65535,
+                .ENCODER_ZERO_OFFSET = 54519,//10850,
+                .DM_P_MAX = 3.1415926f,
+                .DM_P_MIN = -3.1415926f,
+                .DM_V_MAX = 45.f,
+                .DM_V_MIN = -45.f,
+                .DM_T_MAX = 18.f,
+                .DM_T_MIN = -18.f,
+            },
+        }
+        
+
+};
 int gim_motor_init()
 {
     int ret = 0;
-     for (int i = 0; i < GIM_MOTOR_NUM; i++)
+    //  for (int i = 0; i < GIM_MOTOR_NUM; i++)
+    // {
+    //      ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_motor_init_config[i]);
+    //      if (ret != 0)
+    //      {
+    //          return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+    //      }
+    //      ret = Gim_Motor_Attach((MotorInstance *)&gim_motor[i]);
+    //      if (ret != 0)
+    //      {
+    //          return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+    //      }
+    // }
+
+     for (int i = 0; i < GIM_DM_MOTOR_NUM; i++)
     {
-         ret = Motor_Attach((MotorInstance *)&gim_motor[i], (Motor_Init_Config_s *)&gim_motor_init_config[i]);
-         if (ret != 0)
-         {
-             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-         }
-         ret = Gim_Motor_Attach((MotorInstance *)&gim_motor[i]);
-         if (ret != 0)
-         {
-             return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-         }
+        ret = Motor_Attach((MotorInstance *)&gim_DM_motor[i], (Motor_Init_Config_s *)&gim_dm_motor_init_config[i]);
+        if (ret != 0)
+        {
+            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+        }
+        ret = Gim_Motor_Attach((MotorInstance *)&gim_DM_motor[i]);
+        if (ret != 0)
+        {
+            return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+        }
     }
     return ret;
 }
@@ -444,7 +374,7 @@ void Follow_pid_init(void)
     pid_config.Ki = 0;
     pid_config.Kd = 20;
     pid_config.MaxOut = 2000;
-    pid_config.DeadBand = 0.1;
+    pid_config.DeadBand = 1;
     pid_config.IntegralLimit = 600;
 
     PIDInit(&follow_pid_fast, &pid_config);
@@ -453,7 +383,7 @@ void Follow_pid_init(void)
     pid_config.Ki = 0.15;
     pid_config.Kd = 30;
     pid_config.MaxOut = 5000;
-    pid_config.DeadBand = 0;
+    pid_config.DeadBand = 1;
     pid_config.IntegralLimit = 400;
     PIDInit(&follow_pid_slow, &pid_config);
 }
@@ -556,55 +486,10 @@ static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
         Motor_Set_Target((MotorInstance *)&wheel_motor[i], motorSetSpeed[i]);
     }
 }
-float vel_x=0;
-void Inverse_to_Track(Mot_base_t Speed_xyw)
-{
-    
-        track_motor[0].Motor_obj.Motor_ctrl.Current_pid.MaxOut=7000;
-        track_motor[1].Motor_obj.Motor_ctrl.Current_pid.MaxOut=7000;
-        vel_x = Speed_xyw.vel.x*RADTORPM/150.f;
-        Motor_Set_Target((MotorInstance *)&track_motor[0], vel_x);
-        Motor_Set_Target((MotorInstance *)&track_motor[1], vel_x);
-}
 
 
 
-void fix_dong(float motorSetSpeed[WHEEL_MOTOR_NUM], float vx)
-{
-    wheel_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=RUN_PID_Kp;
-    wheel_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=RUN_PID_Kp;
-
-    wheel_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=8000;
-    wheel_motor[2].Motor_obj.Motor_ctrl.Current_pid.MaxOut=8000;
-
-    wheel_motor[1].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=8000;
-    wheel_motor[1].Motor_obj.Motor_ctrl.Current_pid.MaxOut=8000;
-
-    /* 左边轮速度补偿：offset保证低速有基础补偿，K控制高速增量 */
-    float comp = 1.0f + DONG_LEFT_SPEED_OFFSET + DONG_LEFT_SPEED_K * fabsf(vx);
-    motorSetSpeed[1] *= comp;
-    motorSetSpeed[2] *= comp;
-}
-
-void no_track()
-{
-    wheel_motor[2].Motor_obj.Motor_ctrl.Speed_pid.Kp=RUN_PID_Kp;
-    wheel_motor[1].Motor_obj.Motor_ctrl.Speed_pid.Kp=RUN_PID_Kp;
-
-    wheel_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=8000;
-    wheel_motor[2].Motor_obj.Motor_ctrl.Current_pid.MaxOut=8000;
-
-    wheel_motor[1].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=8000;
-    wheel_motor[1].Motor_obj.Motor_ctrl.Current_pid.MaxOut=8000;
-
-       track_motor[0].Motor_obj.Motor_ctrl.Current_pid.MaxOut=0;
-        track_motor[1].Motor_obj.Motor_ctrl.Current_pid.MaxOut=0;
-
- Motor_Set_Target((MotorInstance *)&track_motor[0], 0);
-        Motor_Set_Target((MotorInstance *)&track_motor[1], 0);
-}
-
-uint8_t track_on_flag=0,last_dong_mode=0;
+uint8_t last_dong_mode=0;
 int16_t yaw_angle_target=0;
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e motion_mode)
 {
@@ -623,29 +508,14 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
 
         Omni_Inverse_Kinematics_new(*Speed_xyw, 45.f, motorSetSpeed); // 底盘速度解算到各个电机上
         Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
-        if(Get_if_DongMode()==1)
-        {
-            if (last_dong_mode==0)
-                yaw_angle_target = get_imu_yaw();
-
-            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 3676;
-         //   Inverse_to_Track(*Speed_xyw);
-            fix_dong(motorSetSpeed, Speed_xyw->vel.x);
-           // track_on_flag=0;
-        }
-        else 
-            gim_motor[0].dji6020_motor_measure.ENCODER_ZERO_OFFSET = 2590;
-       if(Get_Track_On())
-        {
-            Inverse_to_Track(*Speed_xyw);
-            track_on_flag=1;
-        }
-        else 
-        {
-            no_track();
-            track_on_flag=0;  
-        }
-        last_dong_mode = Get_if_DongMode();
+        // if(Get_if_DongMode()==1)
+        // {
+        //     // if (last_dong_mode==0)
+        //     //     yaw_angle_target = get_imu_yaw();
+     
+        // }
+      
+        // last_dong_mode = Get_if_DongMode();
         Get_force_out(motorSetForce); // 获取前馈值
     }
 

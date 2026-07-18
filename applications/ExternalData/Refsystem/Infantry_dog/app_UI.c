@@ -595,21 +595,6 @@ void UI_Hole_Rect(UI_Object *object)
                 UI_HOLE_RECT_X2, UI_HOLE_RECT_Y2);
 }
 
-void UI_Track_State(UI_Object *object)
-{
-    static char txt1[2][12] = {" Track Off ", " Track ON "};
-    uint8_t track_remain = UiExData.Track_State;
-    if (track_remain == 0)
-    {
-        UI_Set_String(object, UiOrange, Draw_TRACK_STATE_WIDTH, Ui_layer_4, UI_TRACK_STATE_CENTER_X - UI_TRACK_SIZE * 3,
-                      UI_TRACK_STATE_CENTER_Y + UI_TRACK_SIZE * 3, UI_TRACK_SIZE, txt1[0], sizeof(txt1[0]));
-    }
-    else if (track_remain == 1)
-    {
-        UI_Set_String(object, UiOrange, Draw_TRACK_STATE_WIDTH, Ui_layer_4, UI_TRACK_STATE_CENTER_X - UI_TRACK_SIZE * 3,
-                      UI_TRACK_STATE_CENTER_Y + UI_TRACK_SIZE * 3, UI_TRACK_SIZE, txt1[1], sizeof(txt1[1]));
-    }
-}
 
 
 void UI_Enemy_Big_circle(UI_Object *object)
@@ -836,8 +821,8 @@ void Attach_UI_init()
     Attach_UI_Object(UiLine, UiGreen, TRANS_FOREVER, 1, UI_SuperCap_Shape);  // 绘制超电矩形框内部的柱状线
     Attach_UI_Object(UiStr, UiGreen, TRANS_FOREVER, 4, UI_SuperCap_Key);     // 绘制超电的开关字符
     
-    //履带标志
-    Attach_UI_Object(UiStr, UiOrange, TRANS_FOREVER, 4, UI_Track_State); // 绘制履带状态
+    
+   
     
      // 洞对准 — 洞口矩形 (TRANS_ONCE 常驻显示，方便标定)
     Attach_UI_Object(UiRect, UiGreen, TRANS_ONCE, 1, UI_Hole_Rect);
@@ -1069,7 +1054,7 @@ static rt_uint8_t getIfBuildAttacked(void)
 void Get_UI_Data(void)
 {
     /******************************未用****************************************/
-    UiExData.Track_State = Get_Track_real_state();
+   
     UiExData.Local_AmmoBooster_Mode = Get_Local_AmmoBooster_Type();
     // UiExData.Local_Robot_Level = Get_Local_Robot_Level();
     UiExData.Gimbal_Motor_Offline = Get_Gimbal_Motor_Offline_State();

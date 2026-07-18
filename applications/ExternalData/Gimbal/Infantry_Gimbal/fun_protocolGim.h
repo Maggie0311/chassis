@@ -146,9 +146,7 @@ extern rt_uint8_t Get_HeatLimit_Status(void);
 
 // 获取二维按键当前处于哪个菜单下
 extern ui_option_display_e Get_UI_Option_Flag(void);
-#ifdef CORE_USING_2026_INFANTRY_2
-uint8_t Get_Track_On(void);
-#endif
+
 // 读取当前是否切换超电放电状态，这里里只是开关超电的按键状态，并不实际打开或者关闭超电
 uint8_t GetGimIfSuperCapOutput(void);
 
