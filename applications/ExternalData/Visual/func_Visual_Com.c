@@ -63,6 +63,7 @@ static void get_visual_need_ref_data()
     static ext_bullet_remaining_t visual_tx_bullet_remaining_temp={0};
     static ext_game_state_t visual_tx_game_state_temp ={0};
     static ext_event_data_t visual_tx_event_data_temp ={0};
+    static ext_game_robot_status_t visual_tx_robot_info_temp = {0};
 
     uint16_t getdata_temp_16;
     uint8_t getdata_temp_8;
@@ -87,22 +88,18 @@ static void get_visual_need_ref_data()
     getRefData(structGet_pram(visual_tx_ground_robot_position,ext_ground_robot_position));
     
     /*机器人信息*/
-    getRefData(memberGet_parm(getdata_temp_8,ext_game_robot_status,robot_id));
-    visual_tx_robot_info.robot_id = getdata_temp_8;
-    getRefData(memberGet_parm(getdata_temp_8,ext_game_robot_status,robot_level));
-    visual_tx_robot_info.robot_level = getdata_temp_8;
-    getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,remain_HP));
-    visual_tx_robot_info.remain_HP = getdata_temp_16;
-    getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,max_HP));
-    visual_tx_robot_info.max_HP = getdata_temp_16;
-    getRefData(structGet_pram(visual_tx_bullet_remaining_temp,ext_bullet_remaining));
-    visual_tx_robot_info.bullet_remaining_num_17mm = visual_tx_bullet_remaining_temp.bullet_remaining_num_17mm;
-    getRefData(memberGet_parm(getdata_temp_16, ext_game_robot_status, shooter_cooling_limit));
-    visual_tx_robot_info.shooter_cooling_limit = getdata_temp_16;
-    getRefData(memberGet_parm(getdata_temp_16,ext_game_robot_status,chassis_power_limit));
-    visual_tx_robot_info.chassis_power_limit = getdata_temp_16;
+    getRefData(structGet_pram(visual_tx_robot_info_temp,ext_game_robot_status));
+    visual_tx_robot_info.robot_id = visual_tx_robot_info_temp.robot_id;
+    visual_tx_robot_info.robot_level = visual_tx_robot_info_temp.robot_level;
+    visual_tx_robot_info.remain_HP = visual_tx_robot_info_temp.remain_HP;
+    visual_tx_robot_info.max_HP = visual_tx_robot_info_temp.max_HP;
+    visual_tx_robot_info.shooter_cooling_rate = visual_tx_robot_info_temp.shooter_cooling_rate;
+    visual_tx_robot_info.shooter_cooling_limit = visual_tx_robot_info_temp.shooter_cooling_limit;
+    visual_tx_robot_info.chassis_power_limit = visual_tx_robot_info_temp.chassis_power_limit;
+    visual_tx_robot_info.bullet_speed_limit = visual_tx_robot_info_temp.bullet_speed_limit;
 
     /*剩余发弹量与金币数*/
+    getRefData(structGet_pram(visual_tx_bullet_remaining_temp,ext_bullet_remaining));
     visual_tx_bullet_remaining.bullet_remaining_num_17mm = visual_tx_bullet_remaining_temp.bullet_remaining_num_17mm;
     visual_tx_bullet_remaining.coin_remaining_num = visual_tx_bullet_remaining_temp.coin_remaining_num;
     visual_tx_bullet_remaining.projectile_allowance_fortress = visual_tx_bullet_remaining_temp.projectile_allowance_fortress;

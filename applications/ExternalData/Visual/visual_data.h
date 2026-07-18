@@ -33,14 +33,16 @@ typedef __packed struct
 
 typedef __packed struct
 {
-    uint16_t robot_1_HP;  // 己方 英雄机器人血量，未上场以及罚下血量为 0
-    uint16_t robot_2_HP;   // 己方 工程机器人血量
-    uint16_t robot_3_HP;   // 己方 步兵机器人血量
-    uint16_t robot_4_HP;   // 己方 步兵机器人血量
-    uint16_t reserve;      // 保留位
-    uint16_t robot_7_HP;   // 己方 哨兵机器人血量
-    uint16_t outpost_HP;   // 己方 前哨站血量
-    uint16_t base_HP;      // 己方 基地血量
+    uint16_t ally_1_robot_HP; //己方 1 号英雄机器人血量，若该机器人未上场或者被罚下，则血量为 0
+    uint16_t ally_2_robot_HP; //己方 2 号工程机器人血量
+    uint16_t ally_3_robot_HP; //己方 3 号步兵机器人血量
+    uint16_t ally_4_robot_HP; //己方 4 号步兵机器人血量
+    int16_t damage_difference;//己方全队总伤与对方总伤之差
+    uint16_t ally_7_robot_HP; //己方 7 号哨兵机器人血量
+    uint16_t ally_outpost_HP; //己方前哨站血量
+    uint16_t ally_base_HP;    //己方基地血量
+    uint16_t enemy_outpost_HP;//对方前哨站血量
+    uint16_t enemy_base_HP;   //对方基地血量
 }Game_robot_survivors_t; // 比赛机器人血量数据!
 
 typedef __packed struct
@@ -49,9 +51,10 @@ typedef __packed struct
     uint8_t robot_level;            // 机器人等级
     uint16_t remain_HP;             // 剩余血量
     uint16_t max_HP;                // 血量上限
-    uint16_t bullet_remaining_num_17mm; // 机器人枪口每秒冷却值
+    uint16_t shooter_cooling_rate; // 机器人枪口每秒冷却值
     uint16_t shooter_cooling_limit; // 机器人枪口热量上限
     uint16_t chassis_power_limit;   // 机器人底盘功率上限
+    float bullet_speed_limit;       // 机器人射击初速度上限
 } Robot_info_t; // 机器人状态数据!
 
 typedef __packed struct
