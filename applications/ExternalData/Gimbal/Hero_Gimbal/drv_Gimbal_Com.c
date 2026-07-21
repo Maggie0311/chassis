@@ -36,13 +36,14 @@ rt_tick_t gimbal_ui_data_msg_freshtick = 0;
 
 /*---------------------------信息接收-----------------------------------------------------------------------------*/
 /*接收回调*/
+Ctrl_data_info_t gimbal_ctrl;
 /***
  * @brief    处理云台发送的运动控制报文
  * @param    instance
  ***/
 static void Gimbal_CtrlData_Rx_call(CANInstance *instance)
 {
-    static Ctrl_data_info_t gimbal_ctrl;
+     
     gimbal_ctrl.vel_x = (float)MSG_READ_2BYTES(instance->rx_buff[0], instance->rx_buff[1]);
     gimbal_ctrl.vel_y = (float)MSG_READ_2BYTES(instance->rx_buff[2], instance->rx_buff[3]);
     gimbal_ctrl.mode = (Motion_mode_e)(instance->rx_buff[6]);

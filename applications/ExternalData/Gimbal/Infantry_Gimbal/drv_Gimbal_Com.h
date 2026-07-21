@@ -79,8 +79,7 @@ typedef __packed struct
     unsigned Energy_is_already : 1;    // 能量机关拟合完成标志位
     unsigned Wire_less_charge : 1;     // 无线充电标志位（1打开无线充电，0关闭无线充电）
     #ifdef CORE_USING_2026_INFANTRY_2
-    unsigned if_track_on : 1; // 当前是否为云台认为的最佳射击距离
-    unsigned reserve : 3;              // 保留位
+    int8_t pitch_angle;         // 保留位
     #else
     unsigned reserve : 4;
     #endif
@@ -105,7 +104,7 @@ typedef struct
 {
     float yaw;
     float pitch;
-    // float roll;
+   // float roll;
 } imu_euler_t;
 
 

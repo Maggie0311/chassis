@@ -195,6 +195,5 @@ imu_euler_t get_chassis_imu_data(void);
 uint8_t get_Key_ctrl(void);
 
 int16_t get_imu_yaw(void) ;
-extern uint8_t Get_gimbal_imu_pitch(void);
-
+int8_t get_imu_pitch(void) ;
 #endif

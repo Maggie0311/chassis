@@ -24,8 +24,8 @@ int If_Ready_To_Down_F(float target);
 #define hero
 
 // TODO:调Pid这堆
-#define RUN_PID_Kp 100
-#define RUN_PID_Ki 0.5
+#define RUN_PID_Kp 60
+#define RUN_PID_Ki 0.1
 #define RUN_PID_Kd 0.8
 
 

@@ -9,6 +9,7 @@
  #include "fun_powerCtrl.h"
 #include "drv_Gimbal_Com.h"
 #include "DM_Motor.h"
+#include <arm_math.h>
 
 #define WHEEL_MOTOR_NUM 4
 #define GIM_MOTOR_NUM 1
@@ -379,10 +380,10 @@ void Follow_pid_init(void)
 
     PIDInit(&follow_pid_fast, &pid_config);
 
-    pid_config.Kp = 120;
-    pid_config.Ki = 0.15;
-    pid_config.Kd = 30;
-    pid_config.MaxOut = 5000;
+    pid_config.Kp = 30;
+    pid_config.Ki = 0.05;
+    pid_config.Kd = 10;
+    pid_config.MaxOut = 3000;
     pid_config.DeadBand = 1;
     pid_config.IntegralLimit = 400;
     PIDInit(&follow_pid_slow, &pid_config);
@@ -491,6 +492,16 @@ static void Wheel_Speed_Set(float motorSetSpeed[WHEEL_MOTOR_NUM])
 
 uint8_t last_dong_mode=0;
 int16_t yaw_angle_target=0;
+
+float debug_gravity_ff = 0;
+// 重力前馈：过洞上坡时补偿重力沿坡面分量 F = m·g·sin(pitch)
+// pitch 直接读取云台 mixdata（get_imu_pitch，单位 deg）；26inf2 无底盘CAN IMU，故省略 z_accel 项
+float gravity_feedforward(Mot_base_t Force_xyw)
+{
+    debug_gravity_ff = WEIGHT * 10.0f * arm_sin_f32((float)get_imu_pitch() * DEGTORAD) * 1000.0f; // 单位mN
+    return debug_gravity_ff;
+}
+
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e motion_mode)
 {
     if (1 == isSetValid_debug[0])
@@ -507,15 +518,17 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw, Motion_mode_e mo
         //   Speed_xyw->angvel*=0.8;
 
         Omni_Inverse_Kinematics_new(*Speed_xyw, 45.f, motorSetSpeed); // 底盘速度解算到各个电机上
+        // 过洞模式：加重力前馈补偿上坡重力分量（pitch由云台mixdata读取）
+        if (Get_if_DongMode() == 1)
+            Force_xyw->vel.x += gravity_feedforward(*Force_xyw);
         Omni_Force_Resolve(*Force_xyw, 45.f, motorSetForce);//力逆解算
-        // if(Get_if_DongMode()==1)
-        // {
-        //     // if (last_dong_mode==0)
-        //     //     yaw_angle_target = get_imu_yaw();
-     
-        // }
+        if(Get_if_DongMode()==1)
+        {
+             if (last_dong_mode==0)
+                 yaw_angle_target = get_imu_yaw();
+        }
       
-        // last_dong_mode = Get_if_DongMode();
+         last_dong_mode = Get_if_DongMode();
         Get_force_out(motorSetForce); // 获取前馈值
     }
 

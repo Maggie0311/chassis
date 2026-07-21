@@ -332,8 +332,8 @@ rt_err_t Gimbal_Com_Init(void)
     res += Gimbal_comRx_Attach(mixData_msg_Index, GIMBAL_DATA_RX, Gimbal_MixData_Rx_call);
     // res += Gimbal_comRx_Attach(Imu_msg_Index, GIMBAL_IMU_DATA_RX, Gimbal_imuData_Rx_call);
 
-    res += Gimbal_comRx_Attach(2, TEST_RX, NULL);
-    res += Gimbal_comRx_Attach(3, TEST_RX_2, NULL);
+    // res += Gimbal_comRx_Attach(2, TEST_RX, NULL);
+    // res += Gimbal_comRx_Attach(3, TEST_RX_2, NULL);
         if (res)
     {
         LOG_E("gim_Rx_msg init failed, err=%d", res);

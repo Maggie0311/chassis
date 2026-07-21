@@ -273,13 +273,14 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     static uint8_t pre_button_state = 1;         // 前次按键状态
     static uint8_t if_used_up = 0;               // 是否电量耗尽（<3%）
     static uint8_t if_used_up_user_unchange = 0; // 耗尽后用户是否已手动切换
+    static uint8_t gim_online_inited = 0;        // 云台首次通信完成标志(防止上电瞬间误翻转)
 
     // 裁判系统有效时：缓冲能量过低或超电掉线 → 强制关闭
     if (PowerInfo.Ref.isValid)
     {
         if (PowerInfo.Ref.PowerBuff <= PowerBuffReamin || PowerInfo.Cap.Cap_State == CAP_STATE_ERROR)
         {
-            //Cap_false_flag = 1;
+            Cap_false_flag = 1;
             Set_SuprCap_OutputMode(0);   // 关闭超电输出
             PowerCtrl_Close_Flag[0] = 1;
         }
@@ -287,19 +288,35 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
 
    
     // 云台按键边沿检测
-    if (pre_button_state != GimIfSuperCapOutput)
+    // 上电瞬间云台尚未通信, supercap_switch 默认为0, 若直接检测边沿会把默认的 user_enable=1
+    // 误翻转为0, 导致超电上电默认关闭、需操作手按C键才会开启。故仅在云台通信在线时处理按键,
+    // 且首次在线时只同步前次按键状态、不翻转, 使超电保持默认开启。
+    if (Get_Gim_FreshTick() && rt_tick_get() - Get_Gim_FreshTick() < 800)
     {
-        user_enable = !user_enable;
-        if_used_up_user_unchange = 0;
-        pre_button_state = GimIfSuperCapOutput;
+        if (!gim_online_inited)
+        {
+            pre_button_state = GimIfSuperCapOutput; // 首次在线仅同步, 不触发翻转
+            gim_online_inited = 1;
+        }
+        if (pre_button_state != GimIfSuperCapOutput)
+        {
+            user_enable = !user_enable;
+            if_used_up_user_unchange = 0;
+            pre_button_state = GimIfSuperCapOutput;
+        }
     }
 
-    // 超电电量耗尽检测（<3% 强制关闭放电）
-    if (PowerInfo.Cap.superCap <= 3.0f)
+    // 超电电量耗尽检测（<3% 临时禁止放电）
+    // 关键1: 上电瞬间超电板尚未通信, isValid=0 且 superCap 被置0, 若直接判断 0<=3 会把
+    //   "无数据"误判为"耗尽", 故仅在超电数据有效(确在线)时才判断耗尽。
+    // 关键2: 耗尽时绝不能写 user_enable=0! 否则一旦超电报过一次低压, user_enable 就被永久
+    //   钉死为0(else-if恢复时不会回填), 导致 infantry 分支永远走else关闭、必须按C键才能恢复。
+    //   耗尽只通过 if_used_up 临时进关闭分支, 电量恢复后自动回到正常充放。
+    if (PowerInfo.Cap.V_Cap && PowerInfo.Cap.isValid && PowerInfo.Cap.superCap <= 3.0f)
     {
         if_used_up = 1;
         if_used_up_user_unchange = 1;
-        user_enable = 0;
+        user_enable=0;
     }
     else if (PowerInfo.Cap.superCap > 3.0f)
     {
@@ -508,7 +525,7 @@ void get_true_RLS(void)
 
 static void get_chassis_max_power(void)
 {
-
+		
     PowerCtrl.Power_Allo_level = 0;
    // PowerCtrl_Close_Flag[0]=1;//关闭超电使用
     if (PowerInfo.Cap.isValid && Get_if_supercap_output() && !PowerCtrl_Close_Flag[0])
@@ -814,24 +831,6 @@ static void Power_lim_allo_to_wheels()
         //  Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
     }
 
-   
-
-
-    // for (group = 0; group < WHEELS_GROUP_NUM; group++) // 调整符号到统一的计算方向，同样的，在本函数最后要将方向调回正确的输出方向
-    // {
-    //     //        轮向电机调整方向
-    //     if (if_wheel_used[group] == 1)
-    //     {
-    //      //   Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output = Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output * (Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.reverse_flag);
-    //         // Motor_Power_Pointer[WHEEL_RUN][group]->Motor_obj.Motor_ctrl.Current_pid.Output=0;//*电机不输出
-    //     }
-
-    //     // 舵向电机调整方向
-    //     if (if_steer_used[group] == 1)
-    //     {
-    //      //   Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Current_pid.Output = Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.Motor_ctrl.Speed_pid.Output * (Motor_Power_Pointer[WHEEL_ANGLE][group]->Motor_obj.reverse_flag);
-    //     }
-    // }
     
 }
 

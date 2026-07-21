@@ -248,14 +248,14 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
 // #ifdef CORE_USING_2026_INFANTRY_1
 //     direction = 0;
 //     #endif
-// #ifdef CORE_USING_2026_INFANTRY_2
+#ifdef CORE_USING_2026_INFANTRY_2
 
-//     //  if (Get_if_DongMode())
-//     //         direction = get_imu_yaw();
-//     // else
-//         direction = 0;
+     if (Get_if_DongMode())
+            direction = get_imu_yaw();
+    else
+        direction = 0;
 
-// #endif
+#endif
 
     #ifdef CORE_USING_INFANTRY
       if(Get_Wireless_Charge())
@@ -264,17 +264,19 @@ Mot_base_t MotPack_Follow_Gim(const Ctrl_data_t * ctrlMsg, uint8_t trunin_mode)
 
     //direction += fol_angle;// 加入跟随角
     VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_fast, direction, yaw_angle);
-// #ifdef CORE_USING_2026_INFANTRY_2
+#ifdef CORE_USING_2026_INFANTRY_2
 
-//     if (Get_if_DongMode())
-//     {
-//         if (direction - get_yaw_target() > 180)
-//             direction -= 360;
-//         else if (direction - get_yaw_target() < -180)
-//             direction += 360;
-//         VxyW.angvel = anglevel_last + PIDCalculate(&follow_pid_slow, direction, get_yaw_target());
-//     }
-// #endif
+    if (Get_if_DongMode())
+    {
+        if (direction - get_yaw_target() > 180)
+            direction -= 360;
+        else if (direction - get_yaw_target() < -180)
+            direction += 360;
+        float temp=PIDCalculate(&follow_pid_slow, direction, get_yaw_target());
+        //if(get_imu_pitch()>3.0f)
+        VxyW.angvel = anglevel_last + temp;
+    }
+#endif
         /*跟随时，当功率受限时降低平移保证转向*/
         // yaw_Omega = Get_GM_Omega(ctrlMsg->arg); // 这里的arg是云台yaw或者pitch轴电机的枚举，在云台接受控制数据处定义
         // yawAngleOffset(yaw_Omega, &yaw_angle);  // 当旋转较快时执行yaw轴电机角度补偿
@@ -313,10 +315,10 @@ uint8_t move_at_no_follow(Ctrl_data_t *const fixCtrl)
     {
         ret = 1;
     }
-    #ifdef CORE_USING_2026_INFANTRY_2
-     ret = 0;
+    // #ifdef CORE_USING_2026_INFANTRY_2
+    //  ret = 0;
 
-    #endif
+    // #endif
     return ret;
 }
 

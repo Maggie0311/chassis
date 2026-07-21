@@ -51,8 +51,8 @@ static CtrlSrcNum_e valid_schedule(Ctrl_source_t *Ctrl_sourceArr, CtrlSrcNum_e s
             continue;
         // 数据源在使用，先置无效，保证最终只有一个数据源有效
         Ctrl_sourceArr[cs].if_valid = 0;
-        // 数据源超时断联，跳过
-        if (rt_tick_get() - Ctrl_sourceArr[cs].tick > 100)
+        // 数据源超时断联，跳过（1000ms 内有刷新认为有效）
+        if (rt_tick_get() - Ctrl_sourceArr[cs].tick > 1000)
             continue;
         // 接收到了实时数据，判断优先级
         if (Ctrl_sourceArr[cs].level > temp_max)

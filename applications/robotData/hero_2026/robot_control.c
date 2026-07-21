@@ -531,12 +531,12 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
 
             },
             .Speed_pid = {
-                .Kp = 32,
+                .Kp = 30,
                 .Kd = 1,
-                .Ki = 0.5,
+                .Ki = 0.1,
                 .MaxOut = 8000,
                 .Improve = PID_Integral_Limit,
-                .IntegralLimit = 5000,
+                .IntegralLimit = 2000,
             },
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000
@@ -587,10 +587,10 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
             .Speed_pid = {
                 .Kp = 32,
                 .Kd = 1,
-                .Ki = 0.5,
+                .Ki = 0.2,
                 .MaxOut = 12000,
                 .Improve = PID_Integral_Limit,
-                .IntegralLimit = 5000,
+                .IntegralLimit = 1000,
             },
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000
@@ -634,17 +634,17 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
         .controller_param_init_config = {
             // todo pid参数
             .Angle_pid = {
-                .Kp = 8.2, .Kd = 8, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
+                .Kp = 6.2, .Kd = 6, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
                 .MaxOut = 350 ,// 最大输出单位为RPM
                 .DeadBand = 0.1,
             },
             .Speed_pid = {
                 .Kp = 32,
                 .Kd = 1,
-                .Ki = 0.5,
-                .MaxOut = 12000,
+                .Ki = 0.3,
+                .MaxOut = 9000,
                 .Improve = PID_Integral_Limit,
-                .IntegralLimit = 5000,
+                .IntegralLimit = 1000,
             },
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000
@@ -686,7 +686,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
      .controller_param_init_config = {
          // todo pid参数
          .Angle_pid = {
-             .Kp = 8.2, .Kd = 8, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
+             .Kp = 6.2, .Kd = 6, .Ki = 0, .Improve = PID_Integral_Limit, .IntegralLimit = 40,
              .MaxOut = 350 ,// 最大输出单位为RPM,
              .DeadBand = 0.1
          },
@@ -694,10 +694,10 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
 					 
              .Kp = 38,
              .Kd = 1,
-             .Ki = 0.5,
+             .Ki = 0.3,
              .MaxOut = 12000,
              .Improve = PID_Integral_Limit,
-             .IntegralLimit = 5000,
+             .IntegralLimit = 1000,
          },
 
          .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000
