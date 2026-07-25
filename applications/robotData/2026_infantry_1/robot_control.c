@@ -261,7 +261,7 @@ DJI_6020_Motor_Init_Config_s gim_motor_init_config[GIM_MOTOR_NUM] = {
             .current_to_torque = 0.741,   // 6020电机的电流转扭矩系数
             .RATIO = 1.0,
             .ENCODER_LEN = 8192,
-            .ENCODER_ZERO_OFFSET = 3486,
+            .ENCODER_ZERO_OFFSET = 3801,
             .ctrl_mode = CTRL_MODE_VOLTAGE,
         }},
     // pitch轴电机

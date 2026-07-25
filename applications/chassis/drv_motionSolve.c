@@ -6,7 +6,9 @@ static float encodeData[4];
 Mot_base_t real_xyw; // 正解算后的底盘真实运动情况
 
 //********************************逆解算部分（全向）************************************** */
-#ifdef USING_OMNI_RESOLVE
+// 注：麦轮(USING_MECANUM_RESOLVE)的力逆解算复用本块 Omni_Force_Resolve
+// (麦轮与45°全向轮力雅可比等价)，故编译条件放宽，使麦轮车型也能链接到。
+#if defined(USING_OMNI_RESOLVE) || defined(USING_MECANUM_RESOLVE)
 J4_3 J_Omni_Inv_45 = {0}; // 逆解算雅可比矩阵 (4x3)：轮速 = J_inv * 底盘速度(电机轴向为45度)
 J3_4 J_Omni_Fwd_45 = {0}; // 正解算雅可比矩阵 (3x4)：底盘速度 = J_fwd * 轮速
 J4_3 J_Omni_Inv_60 = {0}; // 逆解算雅可比矩阵 (4x3)：轮速 = J_inv * 底盘速度(电机轴向为60度)
@@ -590,13 +592,98 @@ void Steer_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel)
 
 #ifdef USING_MECANUM_RESOLVE
 
-void Mecanum_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel)
+/**
+ * @brief 麦轮逆解算（标准 X 型布置，顺序 RF-LF-LB-RB）
+ *        输入：底盘速度 (vx, vy 单位 mm/s；angvel 单位 0.1°/s)
+ *        输出：四个轮子转速 (RPM)，顺序 RF-LF-LB-RB，直接作为 3508 速度环设定值
+ *        量纲流程与 Omni_Inverse_Kinematics_new 一致，仅符号数组不同。
+ *
+ * @note 符号数组按标准 X 型麦轮给出。实车若方向不对，翻转 k1/k2/k3 对应位，
+ *       或调整各轮 reverse_flag（属机械标定范畴，留待实测）。
+ */
+void Mecanum_Inverse_Kinematics(Mot_base_t target_xyw, float resolve_data[4])
 {
+    static uint8_t if_init = 0;
+    static float coef[4][3]; // [轮][vx,vy,ω] 系数
+
+    if (!if_init)
+    {
+        float lx = VEHICLE_LONG / 2.0f;  // mm
+        float ly = VEHICLE_WIDTH / 2.0f; // mm
+        float r  = WHEEL_RADIUS;         // mm
+        float inv_r = 1.0f / r;
+        float R = (lx + ly) * inv_r;     // (lx+ly)/r 无量纲
+
+        // 标准 X 型麦轮符号（顺序 RF-LF-LB-RB）
+        float k1[4] = {1,  1,  1,  1};   // vx 前后平移:四轮同向
+        float k2[4] = {-1, 1, -1,  1};   // vy 左右平移:对角线轮同向(RF/LB 与 LF/RB)
+        float k3[4] = {-1, 1,  1, -1};   // ω  自转:左右两侧反向
+
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            coef[i][0] = k1[i] * inv_r;  // vx 系数 (1/mm) -> 输出 rad/s
+            coef[i][1] = k2[i] * inv_r;  // vy 系数
+            coef[i][2] = k3[i] * R;      // ω 系数 (无量纲)
+        }
+        if_init = 1;
+    }
+
+    // ω: 0.1°/s -> rad/s
+    float w = target_xyw.angvel * 0.1f * DEGTORAD;
+
+    // 轮角速度 (rad/s)
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        resolve_data[i] = coef[i][0] * target_xyw.vel.x
+                        + coef[i][1] * target_xyw.vel.y
+                        + coef[i][2] * w;
+    }
+    // rad/s -> RPM
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        resolve_data[i] *= RADTORPM;
+    }
 }
+
 //********************************正解算部分（麦轮）************************************** */
 
-void Mecanum_Inverse_Kinematics_test(Mot_base_t target_xyw, float resolve_data[4])
+/**
+ * @brief 麦轮正解算（逆解的伪逆），由四轮转速反推底盘速度，供里程计/观测使用
+ *        输入：四轮转速 (RPM)，顺序 RF-LF-LB-RB
+ *        输出：chassis_vel (vx,vy 单位 mm/s；angvel 单位 rad/s)
+ * @note angvel 单位为 rad/s，与系统 0.1°/s 约定不同，使用前注意转换
+ */
+void Mecanum_Forward_Kinematics(float wheel_rpm[4], Mot_base_t *chassis_vel)
 {
+    static uint8_t if_init = 0;
+    static float r;
+    static float inv_4R;
+
+    if (!if_init)
+    {
+        r = WHEEL_RADIUS;
+        float lx = VEHICLE_LONG / 2.0f;
+        float ly = VEHICLE_WIDTH / 2.0f;
+        inv_4R = 1.0f / (4.0f * (lx + ly));
+        if_init = 1;
+    }
+
+    // 与逆解算一致的符号
+    float k1[4] = {1,  1,  1,  1};
+    float k2[4] = {-1, 1, -1,  1};
+    float k3[4] = {-1, 1,  1, -1};
+
+    float vx = 0, vy = 0, vw = 0;
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        float w = wheel_rpm[i] * RPMTORAD; // RPM -> rad/s
+        vx += k1[i] * w;
+        vy += k2[i] * w;
+        vw += k3[i] * w;
+    }
+    chassis_vel->vel.x  = r * vx / 4.0f;  // mm/s
+    chassis_vel->vel.y  = r * vy / 4.0f;  // mm/s
+    chassis_vel->angvel = inv_4R * vw;    // rad/s
 }
 #endif
 // 返回正解算后底盘的运动状态

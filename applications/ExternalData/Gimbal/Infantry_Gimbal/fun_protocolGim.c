@@ -253,7 +253,9 @@ int16_t get_imu_yaw(void)
 {
     return gimbal_mixdata_msg.yaw_angle;
 }
+#ifdef CORE_USING_2026_INFANTRY_2
 int8_t get_imu_pitch(void)
 {
     return gimbal_mixdata_msg.pitch_angle;
 }
+#endif

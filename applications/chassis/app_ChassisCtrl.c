@@ -31,16 +31,20 @@ static void ChassCtrl_IRQHandler(void *parameter)
 {
     rt_sem_release(&ChassCtrl_sem);
 }
-uint8_t test_stair=0,test_stair_down=0;
 // debug
 Ctrl_data_t debug_fixctrl;
-Machine_Status status=Forward_Screw_Move_Up;
-extern float motor_speed[4];
 
 extern Mot_base_t real_xyw;
 extern float test_off_x;
 extern float test_off_y;
+
+#ifdef CORE_USING_2026_HERO
+/* hero_2026 过洞英雄上台阶/抬升专用变量，普通英雄（如 hero2025）不编译 */
+uint8_t test_stair=0,test_stair_down=0;
+Machine_Status status=Forward_Screw_Move_Up;
+extern float motor_speed[4];
 extern uint8_t up_stairs_finish;
+#endif
 
 /**
  * @brief    模式状态调度 总的来说就是根据云台控制的运动方式，得到底盘坐标系下的Vx,Vy矢量
@@ -51,7 +55,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     Ctrl_data_t fixCtrl = Cctrl;
      debug_fixctrl=Cctrl;
     fixCtrl = debug_fixctrl;
-#ifdef CORE_USING_HERO
+#ifdef CORE_USING_2026_HERO
 //    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
 //    {
    // {
@@ -106,7 +110,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
 
     switch (fixCtrl.motion_mode) // 控制模式由控制端更改
     {
-#ifdef CORE_USING_HERO
+#ifdef CORE_USING_2026_HERO
     case GO_UPSTAIRS: // 英雄上台阶
         break;
     case CHASSIS_DANGLING_X: // 底盘悬空X轴
@@ -146,7 +150,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
     //  chassis_ctrl(&debug_fixctrl.xyw, &Force_xyw);
     #ifdef CORE_USING_2026_INFANTRY_2
     chassis_ctrl(&Speed_xyw, &Force_xyw,fixCtrl.motion_mode);
-    #elif defined(CORE_USING_HERO)
+    #elif defined(CORE_USING_2026_HERO)
     if(fixCtrl.motion_mode!=CHASSIS_DANGLING_X)
       chassis_ctrl(&Speed_xyw, &Force_xyw,fixCtrl.motion_mode);
     #else
@@ -206,14 +210,16 @@ static rt_err_t chassisCtrlInit(void)
     // MotSmooth_Vxyw_init(); /*初始化平滑和模式及切换时的基本数据*/
     Set_Planner_init(); // 新修改的设定值规划结构体初始化
 
+#ifdef CORE_USING_2026_HERO
     Set_Planner_Up_motor_init();//抬升机构四个电机设定值规划结构体初始化
+#endif
     // 跟随模式PID初始化
     Follow_pid_init();
     //全局速度PID初始化
     // Fix_Speed_pid_init();
     // 卡尔曼滤波融合初始化 
 //    Kalman_init();
-#ifdef CORE_USING_HERO
+#ifdef CORE_USING_2026_HERO
     //抬升机构对零点
     
     // 抬升机构前移pid初始化

@@ -79,7 +79,7 @@ rt_err_t Wheels_Init(void)
 #ifdef USE_CAPACITY_3
     powerCtrlInit();
 #endif
-#ifdef CORE_USING_HERO
+#ifdef CORE_USING_2026_HERO
     Zero_Init();
 #endif
     // 初始化信号量

@@ -629,7 +629,7 @@ void UI_Gimbal_Pose_Yaw(UI_Object *object)
 {
     UI_Set_Float(object, UiCyan, 10, Ui_layer_9, 1200, 720, 120, Get_GimbalFB_Yaw());
 }
-
+#ifdef CORE_USING_2026_HERO
 extern float up_motor_angle_get[4];
 //前面丝杆高度映射（左侧）
 void UI_Forward_Screw(UI_Object *object)
@@ -678,6 +678,7 @@ void UI_Up_Stairs_Car_4(UI_Object *object)
 
 }
 
+
 //抬升机构丝杆映射（右侧）
 void UI_Forward_Screw_Right(UI_Object *object)
 {
@@ -723,7 +724,7 @@ void UI_Up_Stairs_Car_4_Right(UI_Object *object)
     float backward_screw_height = 600.f + up_motor_angle_get[3] * 100.0f / Screw_Back_Motor_UP_Target;
     UI_Set_Line(object, UiCyan, 5, Ui_layer_9, 1620, (int)forward_screw_height + 50.f, 1720, (int)backward_screw_height + 50.f);
 }
-
+#endif
 //前哨战十字
 void UI_outpost_1(UI_Object *object)
 {
@@ -806,6 +807,7 @@ void UI_outpost_2(UI_Object *object)
     Attach_UI_Object(UiFloat,UiOrange,TRANS_NULL,0,UI_Gimbal_Pose_Pitch);//云台pitch显示
     Attach_UI_Object(UiFloat,UiCyan,TRANS_NULL,0,UI_Gimbal_Pose_Yaw);//云台yaw显示
 
+    #ifdef CORE_USING_2026_HERO
     //绘制英雄抬升机构状态UI（左侧）
     Attach_UI_Object(UiLine,UiCyan,TRANS_FOREVER, 1,UI_Forward_Screw);//抬升机构前向显示
     Attach_UI_Object(UiLine,UiCyan,TRANS_FOREVER, 1,UI_Backward_Screw);//抬升机构后向显示
@@ -821,6 +823,7 @@ void UI_outpost_2(UI_Object *object)
     Attach_UI_Object(UiLine, UiCyan, TRANS_FOREVER, 1, UI_Up_Stairs_Car_3_Right); // 上台阶矩形框
     Attach_UI_Object(UiLine, UiCyan, TRANS_FOREVER, 1, UI_Up_Stairs_Car_4_Right); // 上台阶矩形框
 
+    #endif
     Attach_UI_Object(UiLine, UiPink, TRANS_ONCE,1,UI_outpost_1);
     Attach_UI_Object(UiLine, UiPink, TRANS_ONCE, 1, UI_outpost_2);
 

@@ -407,7 +407,7 @@ Mot_base_t MotPack_Small_Top(Ctrl_data_t *const ctrlMsg)
     return VxyW;
 }
 
-#ifdef CORE_USING_HERO
+#ifdef CORE_USING_2026_HERO
 uint8_t up_stairs_finish=0;
 extern PIDInstance up_machine_pid;
 float intigral[2];
@@ -789,7 +789,7 @@ void Set_Plan_Vxyw_Process(Ctrl_data_t ctrl)
     // 得到当前控制坐标系和底盘坐标系角度
     angle = ctrl.getYawAngel;
 
-#ifdef CORE_USING_HERO
+#ifdef CORE_USING_2026_HERO
     if (ctrl.motion_mode == GO_UPSTAIRS)
     {
         // 上下台阶模式：状态机输出的速度已在底盘坐标系，跳过云台→底盘坐标变换

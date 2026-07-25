@@ -85,6 +85,10 @@ menu "Choose Car model Config"
             config CORE_USING_2026_HERO
                 bool "2026 hero"
 
+            #2025老英雄-四轮麦轮复活
+            config CORE_USING_2025_HERO
+                bool "2025 hero mecanum"
+
             #英雄双马尾
             config CORE_USING_BUNCHES_HERO
                 bool "SMW hero"

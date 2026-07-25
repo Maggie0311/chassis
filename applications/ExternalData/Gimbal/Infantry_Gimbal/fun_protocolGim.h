@@ -195,5 +195,8 @@ imu_euler_t get_chassis_imu_data(void);
 uint8_t get_Key_ctrl(void);
 
 int16_t get_imu_yaw(void) ;
+#ifdef CORE_USING_2026_INFANTRY_2
 int8_t get_imu_pitch(void) ;
+#endif
+
 #endif

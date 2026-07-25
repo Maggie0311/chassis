@@ -380,8 +380,8 @@ void Follow_pid_init(void)
 
     PIDInit(&follow_pid_fast, &pid_config);
 
-    pid_config.Kp = 30;
-    pid_config.Ki = 0.05;
+    pid_config.Kp = 25;
+    pid_config.Ki = 0.03;
     pid_config.Kd = 10;
     pid_config.MaxOut = 3000;
     pid_config.DeadBand = 1;
@@ -417,8 +417,8 @@ static float RUN_wheel_forward_cal(float set)
     }
 }
 
-float test_off_x = 250;  // 质心向前(+x)偏移，单位mm
-float test_off_y = -50;   // 质心向左(+y)偏移，单位mm
+float test_off_x = 0;  // 质心向前(+x)偏移，单位mm
+float test_off_y = 0;   // 质心向左(+y)偏移，单位mm
 float ff_gyro_gain=1.0f;
 float ff_torque[WHEEL_MOTOR_NUM];
 Mot_base_t centripetal_force = {0};
