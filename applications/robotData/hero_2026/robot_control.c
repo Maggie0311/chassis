@@ -639,12 +639,12 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
                 .DeadBand = 0.1,
             },
             .Speed_pid = {
-                .Kp = 32,
+                .Kp = 35,
                 .Kd = 1,
                 .Ki = 0.3,
                 .MaxOut = 9000,
                 .Improve = PID_Integral_Limit,
-                .IntegralLimit = 1000,
+                .IntegralLimit = 2000,
             },
 
             .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000
@@ -697,7 +697,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
              .Ki = 0.3,
              .MaxOut = 12000,
              .Improve = PID_Integral_Limit,
-             .IntegralLimit = 1000,
+             .IntegralLimit = 2500,
          },
 
          .Current_pid = {.Kp = 0, .Kd = 0, .Ki = 0, .MaxOut = 12000
@@ -958,7 +958,7 @@ int If_Target_Reached(Screw_Motor_e motor,float target)
 {
     if (motor == Forward_Screw_Motor)
     {
-        if (fabsf(up_motor[0].Motor_obj.total_angle-target-up_motor_zero_offset[0]) < 30.0f && fabsf(target+up_motor_zero_offset[1]-up_motor[1].Motor_obj.total_angle) < 30.0f)
+        if (fabsf(up_motor[0].Motor_obj.total_angle-target-up_motor_zero_offset[0]) < 50.0f && fabsf(target+up_motor_zero_offset[1]-up_motor[1].Motor_obj.total_angle) < 50.0f)
         {
             return 1;
         }
@@ -969,7 +969,7 @@ int If_Target_Reached(Screw_Motor_e motor,float target)
     }
     else if (motor == Back_Screw_Motor)
 {
-   if (fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 30.0f && fabsf(target+up_motor_zero_offset[3]-up_motor[3].Motor_obj.total_angle) < 30.0f)
+   if (fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 50.0f && fabsf(target+up_motor_zero_offset[3]-up_motor[3].Motor_obj.total_angle) < 50.0f)
         {
             return 1;
         }

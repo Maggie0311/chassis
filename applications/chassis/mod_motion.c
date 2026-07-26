@@ -467,7 +467,7 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
     case Chassis_Move_Forward:
         chasis_zero_x();
         position = Motor_Position_Cal(0, motor_speed);
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 400); // TODO设置向前动0.01m
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 300); // TODO设置向前动0.01m
         if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
         {
             *status = Forward_Screw_Move_Down;
@@ -494,13 +494,14 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
         up_machine_pid.MaxOut=5500;
             *status = Chassis_Move_Forward_Twice;
             reach_flag=0;
+             rear_screw_stall = 0;
         }
         break;
     case Chassis_Move_Forward_Twice:
     Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target+50,0);
         position = Motor_Position_Cal(0, motor_speed);
        
-        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 1550); // TODO设置向前动0.01m
+        Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, 1100); // TODO设置向前动0.01m
         
         if (rear_screw_stall)
         {
@@ -510,6 +511,7 @@ Mot_base_t UP_Machine_SM(Machine_Status *status, float motor_speed[4])
             set_planner_data[WHEEL_XSPEED].v = 0;
             Vxyw.vel.x = 0;
             rear_screw_stall = 0;
+            *status = Back_Screw_Move_Up;
         }
         if (fabsf(up_machine_pid.Err) < 30.0f)                      // TODO dong多少
         //if(fabsf(position-880.f) < 20.0f)
@@ -600,7 +602,7 @@ Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])
           chasis_zero_x();
            Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target,1);
         //}
-        Vxyw.vel.x = -500;
+        Vxyw.vel.x = -250;
         Vxyw.vel.y = 0;
         Vxyw.angvel = 0;
         reach_flag = If_Ready_To_Down(Screw_Back_Motor_UP_Target);
@@ -627,7 +629,7 @@ Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])
         break;
     case Chassis_Move_Back:
        
-        Vxyw.vel.x=-300;
+        Vxyw.vel.x=-150;
          Vxyw.vel.y = 0;
           Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target+50,0);
         //position = Motor_Position_Cal(0, motor_speed);
@@ -646,8 +648,8 @@ Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])
         Vxyw.vel.x = 0;
         Vxyw.vel.y = 0;
         Vxyw.angvel = 0;
-         Screw_Motor_Move(Forward_Screw_Motor, 490,1);
-        reach_flag = If_Target_Reached(Forward_Screw_Motor,490);
+         Screw_Motor_Move(Forward_Screw_Motor, 400,1);
+        reach_flag = If_Target_Reached(Forward_Screw_Motor,400);
         Screw_Motor_Move(Back_Screw_Motor, 0,1);
         if(If_Target_Reached(Back_Screw_Motor,0))
           reach_flag++;
@@ -658,15 +660,19 @@ Mot_base_t Down_Machine_SM(Machine_Status *status, float motor_speed[4])
             intigral[0] = 0;
             intigral[1] = 0;
             reach_flag=0;
+            up_machine_pid.Kp=60;
+            up_machine_pid.Kd=15;
+            up_machine_pid.Ki=1;
+            up_machine_pid.MaxOut=5500;
         }
         break;
     case Chassis_Move_Forward_Twice:
 
-         Screw_Motor_Move(Forward_Screw_Motor, 490,0);
-          Screw_Motor_Move(Back_Screw_Motor, -20,1);
+         Screw_Motor_Move(Forward_Screw_Motor, 580,0);
+          Screw_Motor_Move(Back_Screw_Motor, 0,1);
         position = Motor_Position_Cal(0, motor_speed);
         Vxyw.vel.x = PIDCalculate(&up_machine_pid, position, -500); // TODO设置向前动0.01m
-        if (fabsf(up_machine_pid.Err) < 50.0f)                      // TODO dong多少
+        if (fabsf(up_machine_pid.Err) < 30.0f)                      // TODO dong多少
         {
             *status = Back_Screw_Move_Up;
         }
@@ -710,8 +716,8 @@ int Set_Planner_init(void)
     return 1;
 }
 
-#define UP_MOTOR_MAX_VEL 500
-#define UP_MOTOR_MAX_ACC 200
+#define UP_MOTOR_MAX_VEL 400
+#define UP_MOTOR_MAX_ACC 150
 int Set_Planner_Up_motor_init(void)
 {
     SecondOrder_Set_Follow_init(&set_planner_up_motor[0], UP_MOTOR_MAX_VEL, UP_MOTOR_MAX_ACC, PLAN_PERIOD);
