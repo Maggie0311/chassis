@@ -93,13 +93,14 @@ static void get_visual_need_ref_data()
     visual_tx_robot_info.robot_level = visual_tx_robot_info_temp.robot_level;
     visual_tx_robot_info.remain_HP = visual_tx_robot_info_temp.remain_HP;
     visual_tx_robot_info.max_HP = visual_tx_robot_info_temp.max_HP;
-    visual_tx_robot_info.shooter_cooling_rate = visual_tx_robot_info_temp.shooter_cooling_rate;
+    // visual_tx_robot_info.shooter_cooling_rate = visual_tx_robot_info_temp.shooter_cooling_rate;
     visual_tx_robot_info.shooter_cooling_limit = visual_tx_robot_info_temp.shooter_cooling_limit;
     visual_tx_robot_info.chassis_power_limit = visual_tx_robot_info_temp.chassis_power_limit;
     visual_tx_robot_info.bullet_speed_limit = visual_tx_robot_info_temp.bullet_speed_limit;
 
     /*剩余发弹量与金币数*/
     getRefData(structGet_pram(visual_tx_bullet_remaining_temp,ext_bullet_remaining));
+    visual_tx_robot_info.shooter_cooling_rate = visual_tx_bullet_remaining_temp.bullet_remaining_num_17mm;//视觉要求
     visual_tx_bullet_remaining.bullet_remaining_num_17mm = visual_tx_bullet_remaining_temp.bullet_remaining_num_17mm;
     visual_tx_bullet_remaining.coin_remaining_num = visual_tx_bullet_remaining_temp.coin_remaining_num;
     visual_tx_bullet_remaining.projectile_allowance_fortress = visual_tx_bullet_remaining_temp.projectile_allowance_fortress;
