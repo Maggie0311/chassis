@@ -13,7 +13,7 @@
 #define GIMBAL_CAN_DEV "can2" // TODO: 云台通信 CAN 设备
 #define SCPR_CAN_DEV   "can1" // TODO: 超级电容通信 CAN 设备
 #define GIMBAL_SPI_USE 0      // TODO: 云台通信 SPI 从机号（0=不使用SPI）
-#define SCPR_SPI_USE   2      // TODO: 超电通信 SPI 从机号
+#define SCPR_SPI_USE   0      // TODO: 超电通信 SPI 从机号
 
 /*---------------------- 轮子相关数据（麦轮）----------------------*/
 #define USING_MECANUM_RESOLVE // 麦轮解算

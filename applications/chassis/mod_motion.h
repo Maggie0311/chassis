@@ -22,7 +22,7 @@
 // 英雄抬升机构电机目标角度
 #define Screw_Forward_Motor_UP_Target (520.0f)   // TODO
 #define Screw_Back_Motor_Down_Target (0.0f) // TODO
-#define Screw_Back_Motor_UP_Target (590.0f)   // TODO
+#define Screw_Back_Motor_UP_Target (620.0f)   // TODO
 #define Screw_Forward_Motor_Down_Target (0.0f) // TODO
 #define Screw_Motor_ZeroOffset (0.0f)  // TODO
 
