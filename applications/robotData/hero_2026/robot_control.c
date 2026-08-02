@@ -1,19 +1,18 @@
 #include "robot_control.h"
 #include "DJI_3508.h"
 #include "DJI_6020.h"
+#include "DM_Motor.h"
 #include "LK_MF_MG.h"
 #include "Wheel_data.h"
+#include "app_ChassisCtrl.h"
 #include "controlMsg.h"
 #include "drv_GimMotor.h"
+#include "drv_IMU_Can.h"
 #include "drv_SPICAN.h"
 #include "drv_SetPlanning.h"
 #include "drv_motionSolve.h"
 #include "drv_motor_new.h"
 #include "fun_powerCtrl.h"
-#include "app_ChassisCtrl.h"
-#include "DM_Motor.h"
-#include "Wheel_data.h"
-#include "drv_IMU_Can.h"
 #include <arm_math.h>
 #include <stdint.h>
 
@@ -1111,6 +1110,9 @@ void Screw_Motor_Move(Screw_Motor_e motor, float target, uint8_t up_or_down) {
         up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut = 3000;
       }
     }
+    break;
+  default:
+    break;
   }
 
   Motor_Set_Target((MotorInstance *)&up_motor[motor],
@@ -1463,9 +1465,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw,
     if (If_Target_Reached(Screw_Motor_BL, 0) &&
         If_Target_Reached(Screw_Motor_BR, 0) &&
         If_Target_Reached(Screw_Motor_FR, 0) &&
-        If_Target_Reached(Screw_Motor_FL, 0)&&
-        get_if_up()
-    ) {
+        If_Target_Reached(Screw_Motor_FL, 0) && get_if_up()) {
       float gravity_ff = gravity_feedforward(*Force_xyw); // 加上重力前馈
       Force_xyw->vel.x += gravity_ff;
       Steer_Force_Resolve(*Force_xyw, motorSetForce); // 力逆解算
