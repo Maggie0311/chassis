@@ -87,15 +87,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl) {
     fixCtrl.motion_mode = GO_UPSTAIRS;
     up_gra_flag=0;
   } 
-  else if (get_forward_up() && Zero_Check() == 4)
-  //  else if(test_stair&&Zero_Check() == 4)
-  {
-    Screw_Motor_Move(Screw_Motor_FR, Screw_Forward_Motor_UP_Target, 0);
-    Screw_Motor_Move(Screw_Motor_FL, Screw_Forward_Motor_UP_Target, 0);
-    Screw_Motor_Move(Screw_Motor_BL, 0, 1);
-    Screw_Motor_Move(Screw_Motor_BR, 0, 1);
-      up_gra_flag=0;
-  } 
+
   else if (get_back_up() && Zero_Check() == 4)
   //  else if(test_stair_down&&Zero_Check() == 4)
   {
@@ -106,6 +98,17 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl) {
       up_gra_flag=0;
 
   }
+
+  else if (get_forward_up() && Zero_Check() == 4)
+  //  else if(test_stair&&Zero_Check() == 4)
+  {
+    Screw_Motor_Move(Screw_Motor_FR, Screw_Forward_Motor_UP_Target, 0);
+    Screw_Motor_Move(Screw_Motor_FL, Screw_Forward_Motor_UP_Target, 0);
+    Screw_Motor_Move(Screw_Motor_BL, 0, 1);
+    Screw_Motor_Move(Screw_Motor_BR, 0, 1);
+      up_gra_flag=0;
+  } 
+
 
   else if (Zero_Check() == 4) {
     status = Forward_Screw_Move_Up;
