@@ -45,7 +45,7 @@ Machine_Status status=Forward_Screw_Move_Up;
 extern float motor_speed[4];
 extern uint8_t up_stairs_finish;
 #endif
-
+float f_target_test=0,b_target_test=0;
 /**
  * @brief    模式状态调度 总的来说就是根据云台控制的运动方式，得到底盘坐标系下的Vx,Vy矢量
  * @param    Cctrl    Ctrldata_t指针
@@ -56,7 +56,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
      debug_fixctrl=Cctrl;
     fixCtrl = debug_fixctrl;
 #ifdef CORE_USING_2026_HERO
-//    if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
+   // if (Get_If_Go_Upstairs() && fixCtrl.motion_mode == FOLLOW_GIMBAL) // 是否是英雄正需要上台阶
 //    {
    // {
         static uint8_t last_up_stairs_flag = 0;
@@ -73,7 +73,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
        fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
    }
    else if(get_down_stairs_flag()&&Zero_Check() == 4)
-  //xsxsxselse if(test_stair_down&&Zero_Check() == 4)
+ // else if(test_stair_down&&Zero_Check() == 4)
    {
     //   Screw_Motor_Move(Back_Screw_Motor, 520, 0);
 
@@ -84,13 +84,13 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
    else if(get_forward_up()&&Zero_Check() == 4)
   //else if(test_stair&&Zero_Check() == 4)
    {
-         Screw_Motor_Move(Forward_Screw_Motor, 500, 0);
+         Screw_Motor_Move(Forward_Screw_Motor,Screw_Forward_Motor_UP_Target , 0);
         Screw_Motor_Move(Back_Screw_Motor, 0, 1);
    }
    else if(get_back_up()&&Zero_Check() == 4)
-   //else if(test_stair_down&&Zero_Check() == 4)
+  // else if(test_stair_down&&Zero_Check() == 4)
    {
-         Screw_Motor_Move(Back_Screw_Motor, 615, 0);
+         Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target, 0);
          Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
 
    }
@@ -102,9 +102,10 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
        Screw_Motor_Move(Back_Screw_Motor, 0, 1);
        up_stairs_finish=0;
    }
-   if(imu_can_data.pitch_angle>35.f)
+   if(imu_can_data.pitch_angle>40.f)
    {
      Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
+     Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target, 0);
    }
 #endif
 
