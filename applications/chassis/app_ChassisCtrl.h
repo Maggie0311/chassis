@@ -11,4 +11,9 @@ rt_err_t Chassis_Ctrl_Init(void);
 
 Mot_base_t Get_Chassis_Set_Speed(void);
 
+
+#ifdef CORE_USING_2026_HERO
+uint8_t get_if_up(void);
+#endif
+
 #endif

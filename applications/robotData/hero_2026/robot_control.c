@@ -8,6 +8,7 @@
 #include "drv_GimMotor.h"
 #include "fun_powerCtrl.h"
 #include "drv_SPICAN.h"
+#include "app_ChassisCtrl.h"
 
 #include "drv_IMU_Can.h"
 #include "DM_Motor.h"
@@ -1179,7 +1180,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw,uint8_t motion_mo
 
         //Get_force_out(motorSetForce); // 获取前馈值
  
-        if(If_Target_Reached(Back_Screw_Motor,0)&&If_Target_Reached(Forward_Screw_Motor,0))
+        if(If_Target_Reached(Back_Screw_Motor,0)&&If_Target_Reached(Forward_Screw_Motor,0)&&  get_if_up()  )
         {
         float gravity_ff = gravity_feedforward(*Force_xyw);//加上重力前馈
         Force_xyw->vel.x += gravity_ff;

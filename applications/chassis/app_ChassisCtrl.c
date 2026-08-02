@@ -44,6 +44,11 @@ uint8_t test_stair=0,test_stair_down=0;
 Machine_Status status=Forward_Screw_Move_Up;
 extern float motor_speed[4];
 extern uint8_t up_stairs_finish;
+uint8_t up_gra_flag=0;
+uint8_t get_if_up(void)
+{
+    return up_gra_flag;
+}
 #endif
 float f_target_test=0,b_target_test=0;
 /**
@@ -71,6 +76,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
         Motor_Speed_Read();                                // 获取底盘轮向电机速度
        fixCtrl.xyw = UP_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
        fixCtrl.motion_mode = GO_UPSTAIRS;                 // 将运动模式设置为上台阶
+       up_gra_flag=0;
    }
    else if(get_down_stairs_flag()&&Zero_Check() == 4)
  // else if(test_stair_down&&Zero_Check() == 4)
@@ -80,20 +86,23 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
        Motor_Speed_Read();                                // 获取底盘轮向电机速度
        fixCtrl.xyw = Down_Machine_SM(&status, motor_speed); // 根据状态机算出实际速度矢量
        fixCtrl.motion_mode = GO_UPSTAIRS;   
+       up_gra_flag=0;
    }
-   else if(get_forward_up()&&Zero_Check() == 4)
-  //else if(test_stair&&Zero_Check() == 4)
-   {
-         Screw_Motor_Move(Forward_Screw_Motor,Screw_Forward_Motor_UP_Target , 0);
-        Screw_Motor_Move(Back_Screw_Motor, 0, 1);
-   }
-   else if(get_back_up()&&Zero_Check() == 4)
+    else if(get_back_up()&&Zero_Check() == 4)
   // else if(test_stair_down&&Zero_Check() == 4)
    {
          Screw_Motor_Move(Back_Screw_Motor, Screw_Back_Motor_UP_Target, 0);
          Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
 
    }
+   else if(get_forward_up()&&Zero_Check() == 4)
+  //else if(test_stair&&Zero_Check() == 4)
+   {
+         Screw_Motor_Move(Forward_Screw_Motor,Screw_Forward_Motor_UP_Target , 0);
+        Screw_Motor_Move(Back_Screw_Motor, 0, 1);
+        up_gra_flag=0;
+   }
+  
   
    else if(Zero_Check() == 4)
    {
@@ -101,6 +110,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl)
        Screw_Motor_Move(Forward_Screw_Motor, 0, 1);
        Screw_Motor_Move(Back_Screw_Motor, 0, 1);
        up_stairs_finish=0;
+       up_gra_flag=1;
    }
    if(imu_can_data.pitch_angle>40.f)
    {
