@@ -11,13 +11,12 @@
 
 #define USING_MECANUM_RESOLVE
 
-int  chassis_motor_init(void);
-int  gim_motor_init(void);
+int chassis_motor_init(void);
+int gim_motor_init(void);
 void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw);
 void Follow_pid_init(void);
 void Fix_Speed_pid_init(void);
 void Forward_Kinematics(void);
-
 // 云台电机索引
 #define YAW_MOTOR 0
 #define PITCH_MOTOR 1
@@ -27,8 +26,8 @@ void Forward_Kinematics(void);
 #define RUN_PID_Ki 0.5
 #define RUN_PID_Kd 0.8
 
-#define POWER_CTRL 0          // 功率控制开关：1开 0不开
-#define Power_C_sum (4.0f)    // 固定静态功率（换板子也影响）
+#define POWER_CTRL 0       // 功率控制开关：1开 0不开
+#define Power_C_sum (4.0f) // 固定静态功率（换板子也影响）
 #define Wheel_Power_K1 (50.f)
 #define Wheel_Power_K2 (0.00097)
 #define Wheel_Power_C (7.f)
