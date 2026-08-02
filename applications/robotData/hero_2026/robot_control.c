@@ -919,7 +919,7 @@ int If_Ready_To_Down(float target)
    up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=1000;
 //     Motor_Set_Target((MotorInstance *)&up_motor[2], -400);
 //    Motor_Set_Target((MotorInstance *)&up_motor[3], -400);
-   if(fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 300.0f&&fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) <300.f)
+   if(fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 300.0f&&fabsf(up_motor[3].Motor_obj.total_angle-target-up_motor_zero_offset[3]) <300.f)
    {
      up_motor[2].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=10000;
      up_motor[3].Motor_obj.Motor_ctrl.Speed_pid.MaxOut=10000;
@@ -958,7 +958,7 @@ int If_Target_Reached(Screw_Motor_e motor,float target)
 {
     if (motor == Forward_Screw_Motor)
     {
-        if (fabsf(up_motor[0].Motor_obj.total_angle-target-up_motor_zero_offset[0]) < 50.0f && fabsf(target+up_motor_zero_offset[1]-up_motor[1].Motor_obj.total_angle) < 50.0f)
+        if (fabsf(up_motor[0].Motor_obj.total_angle-target-up_motor_zero_offset[0]) < 60.0f && fabsf(target+up_motor_zero_offset[1]-up_motor[1].Motor_obj.total_angle) < 60.0f)
         {
             return 1;
         }
@@ -969,7 +969,7 @@ int If_Target_Reached(Screw_Motor_e motor,float target)
     }
     else if (motor == Back_Screw_Motor)
 {
-   if (fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 50.0f && fabsf(target+up_motor_zero_offset[3]-up_motor[3].Motor_obj.total_angle) < 50.0f)
+   if (fabsf(up_motor[2].Motor_obj.total_angle-target-up_motor_zero_offset[2]) < 60.0f && fabsf(target+up_motor_zero_offset[3]-up_motor[3].Motor_obj.total_angle) < 60.0f)
         {
             return 1;
         }
@@ -1178,7 +1178,7 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw,uint8_t motion_mo
         //Steer_Force_Resolve(*Force_xyw, motorSetForce);                                    // 进行力解算到各个电机上，输出为扭矩
 
         //Get_force_out(motorSetForce); // 获取前馈值
-
+ 
         if(If_Target_Reached(Back_Screw_Motor,0)&&If_Target_Reached(Forward_Screw_Motor,0))
         {
         float gravity_ff = gravity_feedforward(*Force_xyw);//加上重力前馈
