@@ -45,6 +45,7 @@ int main(void){
     set_buzzer(2000, 1);
     rt_thread_mdelay(120);
     set_buzzer(0, 1);
+	
 #endif
     /*监视器*/
     if (MONITOR_INIT(THREAD_STACK_MONITOR, THREAD_PRIO_MONITOR, THREAD_TICK_MONITOR) != RT_EOK)

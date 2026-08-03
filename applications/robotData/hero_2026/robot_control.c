@@ -1462,14 +1462,21 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw,
 
     // Get_force_out(motorSetForce); // 获取前馈值
 
-    if (If_Target_Reached(Screw_Motor_BL, 0) &&
-        If_Target_Reached(Screw_Motor_BR, 0) &&
-        If_Target_Reached(Screw_Motor_FR, 0) &&
-        If_Target_Reached(Screw_Motor_FL, 0) && get_if_up()) {
+    if ( get_if_up()&&imu_can_data.pitch_angle>8) 
+    {
+
+
+      steer_motor[2].Motor_obj.Motor_ctrl.Speed_pid.IntegralLimit=6000;
+      steer_motor[3].Motor_obj.Motor_ctrl.Speed_pid.IntegralLimit=6000;
       float gravity_ff = gravity_feedforward(*Force_xyw); // 加上重力前馈
       Force_xyw->vel.x += gravity_ff;
       Steer_Force_Resolve(*Force_xyw, motorSetForce); // 力逆解算
       Get_force_out(motorSetForce);                   // 获取前馈值
+    }
+    else
+    {
+        steer_motor[2].Motor_obj.Motor_ctrl.Speed_pid.IntegralLimit=2500;
+        steer_motor[3].Motor_obj.Motor_ctrl.Speed_pid.IntegralLimit=2500;
     }
   }
   if (1 == isSetValid_debug[1]) {

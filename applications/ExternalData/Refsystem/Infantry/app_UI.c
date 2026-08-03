@@ -11,30 +11,36 @@
 // UI需要使用到的外部数据
 UI_Used_Data_t UiExData;
 
-// 绘制超电数值
+// 绘制超电数值（条下方，中间偏右 1/4）
 void UI_SuperCap_Value(UI_Object *object)
 {
     float remain_cap = UiExData.RemainCapacity; // 获取剩余容量
-    UI_Set_Float(object, UiGreen, Draw_SC_Bar_WIDTH, Ui_layer_5, UI_SC_BAR_CENTER_X + UI_SC_BAR_SIZE * 7,
-                 UI_SC_BAR_CENTER_Y + 0.7f * UI_SC_BAR_SIZE, UI_SC_BAR_SIZE, remain_cap);
+    UI_Set_Float(object, UiGreen, Draw_SC_Bar_WIDTH, Ui_layer_5,
+                 (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 + (UI_SC_BAR_RIGHT - UI_SC_BAR_LEFT) / 4,
+                 UI_SC_BAR_CENTER_Y - UI_SC_BAR_SIZE * 2.2f,
+                 UI_SC_BAR_SIZE, remain_cap);
 }
 
-// 绘制超电矩形框
+// 绘制超电矩形框（横向加长，两侧各留约 1/5 屏宽）
 void UI_SuperCap_Border(UI_Object *object)
 {
-    UI_Set_Rect(object, UiGreen, Draw_SC_Bar_WIDTH, Ui_layer_0, UI_SC_BAR_CENTER_X - UI_SC_BAR_SIZE * 6,
+    UI_Set_Rect(object, UiGreen, Draw_SC_Bar_WIDTH, Ui_layer_0,
+                UI_SC_BAR_LEFT,
                 UI_SC_BAR_CENTER_Y - UI_SC_BAR_SIZE * 0.7f,
-                UI_SC_BAR_CENTER_X + UI_SC_BAR_SIZE * 6,
+                UI_SC_BAR_RIGHT,
                 UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 0.7f);
 }
 
-// 绘制超电矩形框内部的柱状线
+// 绘制超电矩形框内部的柱状线（按电量比例填满整条内宽）
 void UI_SuperCap_Shape(UI_Object *object)
 {
     float remain_cap = UiExData.RemainCapacity; // 获取剩余容量
-    UI_Set_Line(object, UiGreen, UI_SC_BAR_SIZE, Ui_layer_5, UI_SC_BAR_CENTER_X - UI_SC_BAR_SIZE * 5.5f, UI_SC_BAR_CENTER_Y,
-                UI_SC_BAR_CENTER_X - UI_SC_BAR_SIZE * 5.5f + remain_cap / 9.1f * UI_SC_BAR_SIZE,
-                UI_SC_BAR_CENTER_Y); // 值大于40时显示绿色
+    float bar_inner = (float)(UI_SC_BAR_RIGHT - UI_SC_BAR_LEFT) - UI_SC_BAR_SIZE; // 内宽，左右各留 0.5*SIZE 边距
+    float bar_x0 = UI_SC_BAR_LEFT + UI_SC_BAR_SIZE * 0.5f;
+    float len = remain_cap / UI_SC_BAR_LEVEL_FULL * bar_inner; // 满量程时柱长=内宽
+    UI_Set_Line(object, UiGreen, UI_SC_BAR_SIZE, Ui_layer_5,
+                bar_x0, UI_SC_BAR_CENTER_Y,
+                bar_x0 + len, UI_SC_BAR_CENTER_Y);
     if (remain_cap > 40)
         UI_Set_Color(object, UiGreen); // 值大于40时显示绿色
     else if (remain_cap > 20)
@@ -43,35 +49,39 @@ void UI_SuperCap_Shape(UI_Object *object)
         UI_Set_Color(object, UiTeam); // 值小于20时显示红蓝主色
 }
 
-// 绘制超电的开关字符
+// 绘制超电的开关字符（条上方水平居中，加粗）
 void UI_SuperCap_Key(UI_Object *object)
 {
     static char txt1[2][10] = {" Off ", " ON "};
     uint8_t sc_remain = UiExData.IfSuperCap_open;
     if (sc_remain == 0)
     {
-        UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH, Ui_layer_4, UI_SC_BAR_CENTER_X - UI_SC_BAR_SIZE * 3,
-                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 3, UI_SC_BAR_SIZE, txt1[0], sizeof(txt1[0]));
+        UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH + 3, Ui_layer_4,
+                      (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 - UI_SC_BAR_SIZE,
+                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 1.5f,
+                      UI_SC_BAR_SIZE, txt1[0], sizeof(txt1[0]));
     }
     else if (sc_remain == 1)
     {
-        UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH, Ui_layer_4, UI_SC_BAR_CENTER_X - UI_SC_BAR_SIZE * 3,
-                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 3, UI_SC_BAR_SIZE, txt1[1], sizeof(txt1[1]));
+        UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH + 3, Ui_layer_4,
+                      (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 - UI_SC_BAR_SIZE,
+                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 1.5f,
+                      UI_SC_BAR_SIZE, txt1[1], sizeof(txt1[1]));
     }
 }
 
 // 绘制无线充电标识
 void UI_Wireless_Charge_Arc_1(UI_Object *object)
-{ // 绘制在超电条的右侧
-    UI_Set_Arc(object, UiGreen, 5, Ui_layer_5, UI_SC_BAR_CENTER_X + UI_SC_BAR_SIZE * 11, UI_SC_BAR_CENTER_Y - UI_SC_BAR_SIZE * 0.7f, 10, 10, 320, 40);
+{ // 绘制在超电条右端外侧（条加长后避开条本体）
+    UI_Set_Arc(object, UiGreen, 5, Ui_layer_5, UI_SC_BAR_RIGHT + UI_SC_BAR_SIZE * 3, UI_SC_BAR_CENTER_Y - UI_SC_BAR_SIZE * 0.7f, 16, 16, 320, 40);
 }
 void UI_Wireless_Charge_Arc_2(UI_Object *object)
-{ // 绘制在超电条的右侧
-    UI_Set_Arc(object, UiGreen, 5, Ui_layer_5, UI_SC_BAR_CENTER_X + UI_SC_BAR_SIZE * 11, UI_SC_BAR_CENTER_Y - UI_SC_BAR_SIZE * 0.7f, 20, 20, 320, 40);
+{ // 绘制在超电条右端外侧
+    UI_Set_Arc(object, UiGreen, 5, Ui_layer_5, UI_SC_BAR_RIGHT + UI_SC_BAR_SIZE * 3, UI_SC_BAR_CENTER_Y - UI_SC_BAR_SIZE * 0.7f, 32, 32, 320, 40);
 }
 void UI_Wireless_Charge_Arc_3(UI_Object *object)
-{ // 绘制在超电条的右侧
-    UI_Set_Arc(object, UiGreen, 5, Ui_layer_5, UI_SC_BAR_CENTER_X + UI_SC_BAR_SIZE * 11, UI_SC_BAR_CENTER_Y - UI_SC_BAR_SIZE * 0.7f, 30, 30, 320, 40);
+{ // 绘制在超电条右端外侧
+    UI_Set_Arc(object, UiGreen, 5, Ui_layer_5, UI_SC_BAR_RIGHT + UI_SC_BAR_SIZE * 3, UI_SC_BAR_CENTER_Y - UI_SC_BAR_SIZE * 0.7f, 48, 48, 320, 40);
 }
 
 // 绘制云台的姿态信息（圆）

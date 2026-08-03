@@ -592,14 +592,14 @@ static void get_chassis_max_power(void)
     // 一部分固定的静态功率不属于电机可用功率：即要减去Power_C_sum
     PowerCtrl.Power_Maxlim = (PowerCtrl.Power_Maxlim_sum - Power_C_sum) * (K_Conservative + PowerCtrl.Power_Allo_level * One_Level_Persent);
     static char str[30] = {0} ;
-    static int count = 0;
-    count++;
-    if(count==500)
-    {
-        count = 0;
-        int i = sprintf(str, "%d", (int)PowerCtrl.Power_Maxlim_sum);
-        Custom_Message_Send(str);
-    }
+    // static int count = 0;
+    // count++;
+    // if(count==500)
+    // {
+    //     count = 0;
+    //     int i = sprintf(str, "%d", (int)PowerCtrl.Power_Maxlim_sum);
+    //     Custom_Message_Send(str);
+    // }
 }
 
 

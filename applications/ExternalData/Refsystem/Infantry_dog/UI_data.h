@@ -14,10 +14,13 @@
 #endif
 
 // 超级电容
-#define UI_SC_BAR_SIZE 15 // 图形大小
-#define UI_SC_BAR_CENTER_X 650
-#define UI_SC_BAR_CENTER_Y 100
-#define Draw_SC_Bar_WIDTH 2 // 为了方便之后统一将宽度设为2 字体大小与线宽比例为 10:1
+#define UI_SC_BAR_SIZE 24            // 字号 / 柱状线粗 / 条高基准
+#define UI_SC_BAR_CENTER_X 650       // 保留（未使用）
+#define UI_SC_BAR_CENTER_Y 100       // 条垂直中心
+#define UI_SC_BAR_LEFT 400           // 条左缘 x（两侧各留约 1/5 屏宽，居中）
+#define UI_SC_BAR_RIGHT 1520         // 条右缘 x
+#define UI_SC_BAR_LEVEL_FULL 100.0f  // 电量满量程（满电时柱状线填满条内宽）
+#define Draw_SC_Bar_WIDTH 3          // 描边线宽，字号:线宽约 10:1
 
 // 屏幕中心
 #define X_OFFSET 960
