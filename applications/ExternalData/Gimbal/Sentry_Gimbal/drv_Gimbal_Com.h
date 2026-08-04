@@ -46,7 +46,8 @@ typedef __packed struct
 //     uint8_t commd_keyboard;   // 发送指令时，云台手按下的键盘信息 无按键按下则为 0
 //     uint16_t target_robot_ID; // 要作用的目标机器人 ID           当发送位置信息时，该项为 0
     unsigned remaining_bullet_num : 16; // 枪管朝向世界角原始位（IEEE 754 float，单位°，范围-180~180）
-    unsigned reserved : 31;      // 预留
+    unsigned outpost_hp  :16;
+    unsigned reserved : 15;      // 预留
 } Gim_Reftrans2_t;            // 发送给云台的裁判系统数据
 
 /*Rx*/

@@ -269,6 +269,11 @@ static void Gimbal_RefdataGet_Tx(CANInstance *instance)
 
      getRefData(structGet_pram(gim_tx_bullet_remaining_temp,ext_bullet_remaining));
     gim_reftrans_msg2.remaining_bullet_num = gim_tx_bullet_remaining_temp.bullet_remaining_num_17mm;
+    
+    /*对方前哨站血量*/
+    getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, enemy_outpost_HP));
+    gim_reftrans_msg2.outpost_hp = get_temp_16;
+    
     /*哨兵血量*/
     // getRefData(memberGet_parm(get_temp_16, ext_game_robot_survivors, ally_7_robot_HP));
     // gim_reftrans_msg2.SentryHP = get_temp_16;
