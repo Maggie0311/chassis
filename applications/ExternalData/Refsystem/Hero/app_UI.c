@@ -639,6 +639,16 @@ void UI_Gimbal_Pose_Yaw(UI_Object *object)
 {
     UI_Set_Float(object, UiCyan, 10, Ui_layer_9, 1200, 720, 120, Get_GimbalFB_Yaw());
 }
+
+void UI_Rub_Speed_Mode(UI_Object *object)
+{
+    static char speed_str[4][20] = {"511004800", "5100 4700", "50504700", "50004700"};
+    uint8_t rub_speed = UiExData.Rub_Speed;
+    if (rub_speed <= 3)
+    {
+        UI_Set_String(object, UiOrange, 3, Ui_layer_9, 960, 500, 40, speed_str[rub_speed], sizeof(speed_str[rub_speed]));
+    }
+}
 #ifdef CORE_USING_2026_HERO
 extern float up_motor_angle_get[4];
 //前面丝杆高度映射（左侧）
@@ -816,6 +826,7 @@ void UI_outpost_2(UI_Object *object)
     // 绘制英雄的云台姿态UI
     Attach_UI_Object(UiFloat,UiOrange,TRANS_NULL,0,UI_Gimbal_Pose_Pitch);//云台pitch显示
     Attach_UI_Object(UiFloat,UiCyan,TRANS_NULL,0,UI_Gimbal_Pose_Yaw);//云台yaw显示
+    Attach_UI_Object(UiStr,UiOrange,TRANS_NULL,0,UI_Rub_Speed_Mode);//吊射模式射速模式显示
 
     #ifdef CORE_USING_2026_HERO
     //绘制英雄抬升机构状态UI（左侧）
@@ -867,6 +878,7 @@ void UI_If_Aimbot_Change()
     { 
         Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Pitch);
         Drv_Set_Object_Visualable(UI_MODIFY,UI_Gimbal_Pose_Yaw);
+        Drv_Set_Object_Visualable(UI_MODIFY,UI_Rub_Speed_Mode);
     }
 
     if(UiExData.UI_Reset_Flag!=last_ui_reset_flag&&UiExData.Aimbot_Mode==DANGLING_MODE)
@@ -875,6 +887,7 @@ void UI_If_Aimbot_Change()
         Drv_Set_Object_Visualable(UI_CREATE, UI_Gimbal_Pose_Yaw);          // 更新云台yaw显示
         Drv_Set_Object_Visualable(UI_CREATE, UI_GimbalPosture_Pitch_word);        // 更新云台pitch显示
         Drv_Set_Object_Visualable(UI_CREATE, UI_GimbalPosture_Yaw_word);          // 更新云台yaw显示
+        Drv_Set_Object_Visualable(UI_CREATE, UI_Rub_Speed_Mode);                // 更新射速模式显示
         last_ui_reset_flag=UiExData.UI_Reset_Flag;
     }
     if (last_aimbot_state != UiExData.Aimbot_Mode) // 自瞄状态变化
@@ -889,6 +902,7 @@ void UI_If_Aimbot_Change()
             gimbal_pose_created = 1;                                          // 标记已创建
             Drv_Set_Object_Visualable(UI_CREATE,UI_GimbalPosture_Pitch_word);        // 创建云台pitch显示
             Drv_Set_Object_Visualable(UI_CREATE,UI_GimbalPosture_Yaw_word);          // 创建云台yaw显示
+            Drv_Set_Object_Visualable(UI_CREATE,UI_Rub_Speed_Mode);                  // 创建射速模式显示
         }
         else if (gimbal_pose_created) // 仅在已创建过的情况下才删除
         {
@@ -897,6 +911,7 @@ void UI_If_Aimbot_Change()
             gimbal_pose_created = 0;                                          // 清除标志位
             Drv_Set_Object_Visualable(UI_DELDTE,UI_GimbalPosture_Pitch_word);        // 删除云台pitch显示
             Drv_Set_Object_Visualable(UI_DELDTE,UI_GimbalPosture_Yaw_word);          // 删除云台yaw显示
+            Drv_Set_Object_Visualable(UI_DELDTE,UI_Rub_Speed_Mode);                  // 删除射速模式显示
         }
 
     //     if (AIMBUFF_CONST_MODE == UiExData.Aimbot_Mode || AIMBUFF_VAR_MODE == UiExData.Aimbot_Mode)
@@ -1255,6 +1270,7 @@ void Get_UI_Data(void)
     UiExData.Motion_Mode = Get_Motion_Mode(); // 显示当前运动模式(跟随/不跟随/小陀螺/快陀螺/变速陀螺)
 
     UiExData.Aimbot_Mode = Get_Aimbot_Mode(); // 自瞄模式
+    UiExData.Rub_Speed = Get_Rub_Speed();     // 摩擦轮射速模式(吊射模式下显示)
     UI_If_Aimbot_Change();                    // 检查自瞄状态是否改变,并进行相应的检查和处理
 
     UiExData.Color_Myself = Get_Color_Myself(); // 当前自瞄的己方颜色

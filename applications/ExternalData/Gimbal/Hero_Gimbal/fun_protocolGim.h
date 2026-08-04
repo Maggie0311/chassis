@@ -155,6 +155,7 @@ extern uint8_t get_down_stairs_flag(void);
 
 extern uint8_t get_forward_up(void);
 extern uint8_t get_back_up(void);
+extern uint8_t Get_Rub_Speed(void);
 
 // 获取云台反馈的 Yaw/Pitch 角度(单位:度, 范围 -180.00~+180.00, 仅在吊射模式有效)
 extern float Get_GimbalFB_Yaw(void);

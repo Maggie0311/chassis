@@ -33,7 +33,7 @@ hero_light_bullet_t gimbal_ui_data_msg;
 rt_tick_t imu_data_freshtick = 0;
 rt_tick_t gimbal_mixdata_msg_freshtick = 0;
 rt_tick_t gimbal_ui_data_msg_freshtick = 0;
-
+uint8_t gimbal_rub_speed_flag = 0;
 /*---------------------------信息接收-----------------------------------------------------------------------------*/
 /*接收回调*/
 Ctrl_data_info_t gimbal_ctrl;

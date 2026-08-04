@@ -52,6 +52,8 @@ typedef struct UI_Used_Data_t
     rt_time_t Last_UI_refresh_Time;        // 上一次 UI 刷新时间
     unsigned IfAllow_Heat_Shoot : 1;       // 英雄是否允许超热量射击, 1 代表允许
 
+    uint8_t Rub_Speed;                      // 摩擦轮射速模式(0-3), 用于吊射模式显示
+
     unsigned If_Up_Stairs : 1; // 英雄是否要进入上台阶
      //!云台(视觉)目前还没加些功能
     //unsigned if_aimbot_best_dis : 1;       // 当前是否为云台认为的最佳射击距离

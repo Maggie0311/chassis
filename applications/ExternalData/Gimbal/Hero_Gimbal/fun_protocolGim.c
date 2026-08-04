@@ -96,7 +96,10 @@ rt_bool_t Read_Rub_Started(void)
 { // UI
     return (gimbal_mixdata_msg.rub_started ? RT_TRUE : RT_FALSE);
 }
-
+uint8_t Get_Rub_Speed(void)
+{ // UI
+    return gimbal_mixdata_msg.rub_speed;
+}
 // 读取当前是否处于客户端模式, 返回真代表在客户端模式
 rt_bool_t Get_Client_Status(void)
 { // UI

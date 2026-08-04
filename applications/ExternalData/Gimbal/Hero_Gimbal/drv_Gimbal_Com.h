@@ -82,7 +82,7 @@ typedef __packed struct
     unsigned lift_rear      : 1;   // bit5:  后抬升(Ctrl+F翻转)
     unsigned yaw_angle      : 16;  // bit6-21:  Yaw反馈角(0.01°/LSB)
     unsigned motion_mode    : 4;   // bit22-25: 底盘运动模式 ← 位置变了!
-    unsigned ctrl_rsv       : 6;   // bit26-31: 控制区保留位
+    unsigned ctrl_rsv       : 4;   // bit26-31: 控制区保留位
 
     // ---- Word 1: UI区 bit[32:63] ----
     unsigned ui_reset              : 1;   // bit32: UI重置标志
@@ -100,6 +100,7 @@ typedef __packed struct
     unsigned now_client_control    : 1;   // bit46: 客户端控制模式
     unsigned gimbal_reset          : 1;   // bit47: 云台复位状态
     unsigned pitch_angle           : 16;  // bit48-63: Pitch反馈角(0.01°/LSB)
+    unsigned rub_speed             : 2;   // bit64-67: 保留位
 } Gim_mixData_Rx_t; // 原 Gim_mixData_Rx_t, 协议升级
 
 typedef struct
