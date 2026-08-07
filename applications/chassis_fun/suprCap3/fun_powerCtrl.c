@@ -274,15 +274,21 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     static uint8_t if_used_up = 0;               // 是否电量耗尽（<3%）
     static uint8_t if_used_up_user_unchange = 0; // 耗尽后用户是否已手动切换
     static uint8_t gim_online_inited = 0;        // 云台首次通信完成标志(防止上电瞬间误翻转)
+    uint8_t cap_abnormal_now = 0;                // 本周期超电异常标志(缓冲能量过低或Cap_State错误)，置1后阻止后续正常分支重新开启超电
 
     // 裁判系统有效时：缓冲能量过低或超电掉线 → 强制关闭
     if (PowerInfo.Ref.isValid)
     {
         if (PowerInfo.Ref.PowerBuff <= PowerBuffReamin || PowerInfo.Cap.Cap_State == CAP_STATE_ERROR)
         {
+            cap_abnormal_now = 1;        // 标记本周期异常，阻止后续正常分支把超电重新打开
             Cap_false_flag = 1;
             Set_SuprCap_OutputMode(0);   // 关闭超电输出
             PowerCtrl_Close_Flag[0] = 1;
+        }
+        else
+        {
+            Cap_false_flag = 0;          // 异常解除，复位(原代码置1后永不回0，会导致UI永久显示ERR)
         }
     }
 
@@ -316,7 +322,8 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     {
         if_used_up = 1;
         if_used_up_user_unchange = 1;
-        user_enable=0;
+        // 注意:此处绝不能写 user_enable=0,否则超电报过一次低压后 user_enable 被永久钉死,
+        //       必须操作手手动按C键才能恢复。耗尽只通过 if_used_up 临时进关闭分支,电量恢复自动回正常。
     }
     else if (PowerInfo.Cap.superCap > 3.0f)
     {
@@ -334,7 +341,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
         Set_SuprCap_OutputMode(2); // 只放不充（无线充电期间禁止超电充电）
     }
     // 正常工作：超电在线且未耗尽时正常充放
-    else if (if_used_up == 0 && user_enable == 1&&!if_used_up_user_unchange)
+    else if (!cap_abnormal_now && if_used_up == 0 && user_enable == 1&&!if_used_up_user_unchange)
     {
         Set_SuprCap_OutputMode(1); // 正常充放
         PowerCtrl_Close_Flag[0] = 0;
@@ -347,7 +354,7 @@ static void SCap_PowerCtrl(uint8_t GimIfSuperCapOutput)
     }
     #else
 
-     if (if_used_up == 0 && user_enable == 1)
+     if (!cap_abnormal_now && if_used_up == 0 && user_enable == 1)
     {
         Set_SuprCap_OutputMode(1); // 正常充放
         PowerCtrl_Close_Flag[0] = 0;
@@ -405,6 +412,32 @@ uint8_t get_SuperCap_if_abnormal(void)
 uint8_t get_Super_Cap_if_open(void)
 {
     return Get_if_supercap_output();
+}
+
+/**
+ * @brief 获取超电UI三态状态(ON/OFF/ERR)
+ *
+ *  ON : 命令开启(mode==1)且超电数据可信且功率真算入 —— 与 get_chassis_max_power 走超电分支判据一致
+ *  OFF: 操作手主动关 / 电量耗尽自动关
+ *  ERR: 操作手想开但超电数据不可信/掉线/异常保护导致实际未放电
+ *
+ * @return SCap_UI_State_e
+ */
+SCap_UI_State_e get_SuperCap_UI_State(void)
+{
+    if (Get_if_supercap_output())
+    {
+        // 命令开启: 只有数据可信且未被异常保护关闭才算真正在放电
+        if (PowerInfo.Cap.isValid
+            && PowerInfo.Cap.Cap_State != CAP_STATE_ERROR
+            && !PowerCtrl_Close_Flag[0])
+            return SCAP_UI_ON;
+        return SCAP_UI_ERR; // 命令开了但超电数据不可信/被异常保护
+    }
+    // 命令关闭: 区分"正常关闭"与"异常保护关闭"
+    if (Cap_false_flag)
+        return SCAP_UI_ERR;
+    return SCAP_UI_OFF;
 }
 
 /**

@@ -60,21 +60,28 @@ void UI_SuperCap_Shape(UI_Object *object)
 // 绘制超电的开关字符（条上方水平居中，加粗）
 void UI_SuperCap_Key(UI_Object *object)
 {
-    static char txt1[2][10] = {" Off ", " ON "};
+    static char txt1[3][10] = {" Off ", " ON ", " ERR "};
     uint8_t sc_remain = UiExData.IfSuperCap_open;
-    if (sc_remain == 0)
+    if (sc_remain == 1) // ON: 正常放电中(超电数据可信且功率已算入)
+    {
+        UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH + 3, Ui_layer_4,
+                      (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 - UI_SC_BAR_SIZE,
+                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 1.5f,
+                      UI_SC_BAR_SIZE, txt1[1], sizeof(txt1[0]));
+    }
+    else if (sc_remain == 2) // ERR: 想开但数据不可信/掉线/异常保护,实际未放电
+    {
+        UI_Set_String(object, UiOrange, Draw_SC_Bar_WIDTH + 3, Ui_layer_4,
+                      (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 - UI_SC_BAR_SIZE,
+                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 1.5f,
+                      UI_SC_BAR_SIZE, txt1[2], sizeof(txt1[0]));
+    }
+    else // OFF: 操作手主动关 / 电量耗尽自动关
     {
         UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH + 3, Ui_layer_4,
                       (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 - UI_SC_BAR_SIZE,
                       UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 1.5f,
                       UI_SC_BAR_SIZE, txt1[0], sizeof(txt1[0]));
-    }
-    else if (sc_remain == 1)
-    {
-        UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH + 3, Ui_layer_4,
-                      (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 - UI_SC_BAR_SIZE,
-                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 1.5f,
-                      UI_SC_BAR_SIZE, txt1[1], sizeof(txt1[1]));
     }
 }
 
@@ -1108,7 +1115,7 @@ void Get_UI_Data(void)
 
     Get_RemainCapcity(&UiExData.RemainCapacity);        // 画出超级电容剩余电量使用
     UiExData.ScRate = getScRate();                      // 得到超级电容电流衰减比例
-    UiExData.IfSuperCap_open = get_Super_Cap_if_open(); // 读取当前云台是否允许超电放电
+    UiExData.IfSuperCap_open = get_SuperCap_UI_State(); // 读取超电三态状态(0=OFF 1=ON 2=ERR)
     // 无线充电是否开启
     UiExData.IfWireless_Charge = Get_Wireless_Charge(); // 刷新无线充电状态
     UI_If_Wireless_Charge_Change();                     // 检查无线充电状态是否改变,并进行相应的检查和处理

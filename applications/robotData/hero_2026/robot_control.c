@@ -825,7 +825,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
                 // todo pid参数
                 .Angle_pid =
                     {
-                        .Kp = 6.2,
+                        .Kp = 5.2,
                         .Kd = 6,
                         .Ki = 0,
                         .Improve = PID_Integral_Limit,
@@ -837,7 +837,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
                     {
                         .Kp = 35,
                         .Kd = 1,
-                        .Ki = 0.3,
+                        .Ki = 0.1,
                         .MaxOut = 9000,
                         .Improve = PID_Integral_Limit,
                         .IntegralLimit = 2000,
@@ -903,7 +903,7 @@ DJI_6020_Motor_Init_Config_s steer_motor_init_config[STEER_MOTOR_NUM] = {
 
                      .Kp = 38,
                      .Kd = 1,
-                     .Ki = 0.3,
+                     .Ki = 0.2,
                      .MaxOut = 12000,
                      .Improve = PID_Integral_Limit,
                      .IntegralLimit = 2500,
@@ -1252,11 +1252,11 @@ void Follow_pid_init(void) {
   rt_memset(&pid_config, 0, sizeof(pid_config));
   pid_config.Improve = PID_Integral_Limit | PID_ChangingIntegrationRate;
 
-  pid_config.Kp = 40;
-  pid_config.Ki = 0.05;
+  pid_config.Kp = 30;
+  pid_config.Ki = 0.0;
   pid_config.Kd = 10;
   pid_config.MaxOut = 8000;
-  pid_config.DeadBand = 5;
+  pid_config.DeadBand = 8;
   pid_config.IntegralLimit = 400;
 
   PIDInit(&follow_pid_fast, &pid_config);

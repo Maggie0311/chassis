@@ -54,21 +54,28 @@ void UI_SuperCap_Shape(UI_Object *object)
 // 绘制超电的开关字符（条上方水平居中，加粗）
 void UI_SuperCap_Key(UI_Object *object)
 {
-    static char txt1[2][10] = {" Off ", " ON "};
+    static char txt1[3][10] = {" Off ", " ON ", " ERR "};
     uint8_t sc_remain = UiExData.IfSuperCap_open;
-    if (sc_remain == 0)
+    if (sc_remain == 1) // ON: 正常放电中(超电数据可信且功率已算入)
+    {
+        UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH + 3, Ui_layer_4,
+                      (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 - UI_SC_BAR_SIZE,
+                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 1.5f,
+                      UI_SC_BAR_SIZE, txt1[1], sizeof(txt1[0]));
+    }
+    else if (sc_remain == 2) // ERR: 想开但数据不可信/掉线/异常保护,实际未放电
+    {
+        UI_Set_String(object, UiOrange, Draw_SC_Bar_WIDTH + 3, Ui_layer_4,
+                      (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 - UI_SC_BAR_SIZE,
+                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 1.5f,
+                      UI_SC_BAR_SIZE, txt1[2], sizeof(txt1[0]));
+    }
+    else // OFF: 操作手主动关 / 电量耗尽自动关
     {
         UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH + 3, Ui_layer_4,
                       (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 - UI_SC_BAR_SIZE,
                       UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 1.5f,
                       UI_SC_BAR_SIZE, txt1[0], sizeof(txt1[0]));
-    }
-    else if (sc_remain == 1)
-    {
-        UI_Set_String(object, UiGreen, Draw_SC_Bar_WIDTH + 3, Ui_layer_4,
-                      (UI_SC_BAR_LEFT + UI_SC_BAR_RIGHT) / 2 - UI_SC_BAR_SIZE,
-                      UI_SC_BAR_CENTER_Y + UI_SC_BAR_SIZE * 1.5f,
-                      UI_SC_BAR_SIZE, txt1[1], sizeof(txt1[1]));
     }
 }
 
@@ -642,7 +649,7 @@ void UI_Gimbal_Pose_Yaw(UI_Object *object)
 
 void UI_Rub_Speed_Mode(UI_Object *object)
 {
-    static char speed_str[4][20] = {"511004800", "5100 4700", "50504700", "50004700"};
+    static char speed_str[4][20] = {"5250 4700", "5200 4700", "5150 4700", "5000 4700"};
     uint8_t rub_speed = UiExData.Rub_Speed;
     if (rub_speed <= 3)
     {
@@ -1261,7 +1268,7 @@ void Get_UI_Data(void)
 
     Get_RemainCapcity(&UiExData.RemainCapacity);        // 画出超级电容剩余电量使用
     UiExData.ScRate = getScRate();                      // 得到超级电容电流衰减比例
-    UiExData.IfSuperCap_open = get_Super_Cap_if_open(); // 读取当前云台是否允许超电放电
+    UiExData.IfSuperCap_open = get_SuperCap_UI_State(); // 读取超电三态状态(0=OFF 1=ON 2=ERR)
   
 
     UiExData.GM_YAW_360F = Get_YAW_ANGLE_360f(); // 获取云台,yaw --绘制辅助瞄准线

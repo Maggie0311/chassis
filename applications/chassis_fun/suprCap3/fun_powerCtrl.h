@@ -178,8 +178,17 @@ float getScRate(void);
 void Power_Ctrl(void);
 void powerCtrlInit(void);
 
+// 超电UI三态状态(用于UI显示, ON必须语义等价于"超电真的在放电且 Power_Maxlim 已算入超电功率")
+typedef enum
+{
+    SCAP_UI_OFF = 0, // 正常关闭(操作手主动关 / 电量耗尽自动关)
+    SCAP_UI_ON  = 1, // 正常放电中(数据可信且 Power_Maxlim 已算入超电功率)
+    SCAP_UI_ERR = 2, // 异常(操作手想开但数据不可信/掉线/异常保护,实际未放电)
+} SCap_UI_State_e;
+
 uint8_t get_SuperCap_if_abnormal(void);
 uint8_t get_Super_Cap_if_open(void);
+SCap_UI_State_e get_SuperCap_UI_State(void);
 void Power_re_allo(void);
 void get_true_RLS(void);
 void get_pre_power(void);

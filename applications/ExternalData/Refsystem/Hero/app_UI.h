@@ -38,7 +38,7 @@ typedef struct UI_Used_Data_t
 
 
     unsigned Rub_Started : 1;              // 摩擦轮已开启
-    unsigned IfSuperCap_open : 1;          // 云台是否允许超级电容放电, 1 代表允许放电
+    unsigned IfSuperCap_open : 2;          // 超电状态: 0=OFF(操作手关/电量耗尽) 1=ON(正在放电,功率已算入) 2=ERR(数据不可信/异常保护)
     unsigned PowerRestriction_Status : 1;  // 自动电量保留状态, 1 代表开启自动电量保留（未使用）
     unsigned Capacity_Charge_Cmd : 1;      // 开启超级电容充电的指令, 1 为开启充电(0时建议标红)(未使用)
     unsigned Gimbal_Online : 1;            // 云台通信正常, 1 代表通信正常

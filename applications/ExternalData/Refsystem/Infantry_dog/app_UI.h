@@ -53,7 +53,7 @@ typedef struct UI_Used_Data_t
     unsigned Client_Mode : 1;              // 当前处于客户端控制模式
     unsigned Rub_Started : 1;              // 摩擦轮已开启
     unsigned HeatLimit_Status : 1;         // 本地热量限制状态, 1 代表关闭
-    unsigned IfSuperCap_open : 1;          // 云台是否允许超级电容放电, 1 代表允许放电
+    unsigned IfSuperCap_open : 2;          // 超电状态: 0=OFF(操作手关/电量耗尽) 1=ON(正在放电,功率已算入) 2=ERR(数据不可信/异常保护)
     unsigned IfWireless_Charge : 1;        // 是否开启无线充电, 1 代表开启无线充电，0表关闭无线充电
     unsigned PowerRestriction_Status : 1;  // 自动电量保留状态, 1 代表开启自动电量保留（未使用）
     unsigned Capacity_Charge_Cmd : 1;      // 开启超级电容充电的指令, 1 为开启充电(0时建议标红)(未使用)
