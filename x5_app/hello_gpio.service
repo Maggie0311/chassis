@@ -1,0 +1,27 @@
+# hello_gpio.service —— 步骤3：让 gpio_toggle 开机自启（像 MCU 上电即跑）
+#
+# 安装方法（板上执行）：
+#   cp hello_gpio.service /etc/systemd/system/
+#   systemctl daemon-reload
+#   systemctl enable --now hello_gpio.service    # enable=开机自启, now=立即启动
+#
+# 查看状态 / 日志 / 停止 / 取消自启：
+#   systemctl status  hello_gpio
+#   journalctl -u hello_gpio -f                  # 实时看 printf 输出
+#   systemctl stop     hello_gpio                # 停止（重启后仍会自启）
+#   systemctl disable  hello_gpio                # 取消开机自启
+#   # 两者都不要了：
+#   systemctl disable --now hello_gpio && rm /etc/systemd/system/hello_gpio.service && systemctl daemon-reload
+
+[Unit]
+Description=RDK X5 first app: GPIO toggle (hello world of embedded Linux)
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/data/hello_app/gpio_toggle
+Restart=always          # 进程崩了 2 秒后自动拉起（MCU 看门狗的味道）
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

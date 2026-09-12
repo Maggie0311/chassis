@@ -54,6 +54,12 @@ static void PID_Cal_Thread(void)
        Power_Ctrl();
 #endif
 
+#ifdef CORE_USING_2026_HERO
+        /* 复活宽限期：驱动轮"离线→上线"(复活)后给 C620 一段初始化时间，
+         * 期内强制电流输出为0、不发非零电流，防复活后底盘移动缓慢。台架常在线不触发。*/
+        Chassis_Revive_DelayGate();
+#endif
+
         /*can报文发送*/
         Motor_Transmit_Loop();
 

@@ -63,13 +63,17 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl) {
   fixCtrl = debug_fixctrl;
 #ifdef CORE_USING_2026_HERO
 
+  /* 底盘断电(驱动轮离线)死亡锁存：死后冻结上下台阶状态机，防止卡台阶时复活续跑/重升前丝杆翻车。
+   * 锁存只由 MCU 重启清零；操作手驶离平地后按底盘复位键(=重启)恢复上下台阶。*/
+  uint8_t chassis_dead = Chassis_IsDead();
+
   static uint8_t last_up_stairs_flag = 0;
   uint8_t cur_up_stairs_flag = get_up_stairs_flag();
   if (cur_up_stairs_flag && !last_up_stairs_flag)
     status = Forward_Screw_Move_Up;
   last_up_stairs_flag = cur_up_stairs_flag;
   //}
-  if (get_up_stairs_flag() && Zero_Check() == 4)
+  if (get_up_stairs_flag() && Zero_Check() == 4 && !chassis_dead)
   // if(test_stair&&Zero_Check() == 4)
   {
     Motor_Speed_Read(); // 获取底盘轮向电机速度
@@ -77,7 +81,7 @@ static void ModeState_Scheduler(Ctrl_data_t Cctrl) {
     fixCtrl.motion_mode = GO_UPSTAIRS;       // 将运动模式设置为上台阶
       up_gra_flag=0;
   }
-  else if (get_down_stairs_flag() && Zero_Check() == 4)
+  else if (get_down_stairs_flag() && Zero_Check() == 4 && !chassis_dead)
   // else if(test_stair_down&&Zero_Check() == 4)
   {
     //   Screw_Motor_Move(Back_Screw_Motor, 520, 0);

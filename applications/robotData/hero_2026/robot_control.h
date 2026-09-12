@@ -74,4 +74,8 @@ void chasis_zero_x(void);
 void Forward_Kinematics(void);
 void Fix_Speed_pid_init(void);
 void chasis_dangling_x(void);
+#ifdef CORE_USING_2026_HERO
+uint8_t Chassis_IsDead(void); /* 底盘断电(驱动轮离线)检测：死后锁存，冻结上下台阶状态机防翻车 */
+void Chassis_Revive_DelayGate(void); /* 复活宽限期：驱动轮离线→上线后延迟放行非零电流，防 C620 初始化失败致复活移动缓慢 */
+#endif
 #endif

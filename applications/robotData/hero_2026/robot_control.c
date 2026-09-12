@@ -1507,3 +1507,64 @@ void chasis_zero_x(void) {
   Motor_Set_Target((MotorInstance *)&steer_motor[2], 0);
   Motor_Set_Target((MotorInstance *)&steer_motor[3], 0);
 }
+
+/* 底盘断电(死亡)检测——纯只读，仅返回标志，不写任何电机输出/积分。
+ * 死亡机制：被打死后 MCU 不断电，但所有电机断电、C620 不发 CAN → 驱动轮离线。
+ * 判据：4 个驱动轮"曾在线过后全部离线"=断电死亡(开机首次上电前不判，wheels_ever_online 排除)。
+ * 一旦判定即锁存 g_chassis_dead=1，**只由 MCU 重启清零**(全局变量初值)。
+ * 仅供 app_ChassisCtrl.c 门控上下台阶状态机防翻车；不读裁判 HP(台架上 HP=0 会误判)、不碰 Follow_pid。*/
+uint8_t Chassis_IsDead(void) {
+  uint32_t now = rt_tick_get();
+  rt_bool_t all_online = RT_TRUE;
+  for (int i = 0; i < WHEEL_MOTOR_NUM; i++) {
+    uint32_t rx = wheel_motor[i].Motor_obj.can_instance.rx_time;
+    if (!(rx != 0 && (now - rx) <= 200)) { /* 200ms 无 CAN 反馈视为离线(与框架离线阈值一致) */
+      all_online = RT_FALSE;
+      break;
+    }
+  }
+  static rt_bool_t wheels_ever_online = RT_FALSE;
+  if (all_online)
+    wheels_ever_online = RT_TRUE;
+  static uint8_t g_chassis_dead = 0;
+  if (wheels_ever_online && !all_online)
+    g_chassis_dead = 1; /* 曾在线后全部离线=断电死亡，锁存至重启 */
+  return g_chassis_dead;
+}
+
+/* 复活宽限期门控——解决"复活后底盘移动缓慢"。
+ * 病因：电调(C620)断电复活瞬间，电机框架一收到反馈就把状态恢复成 ENABLED 并立即输出 PID 电流，
+ *       但此时 C620 内部初始化尚未完成，一上非零电流会让其初始化失败 → 复活后底盘发涩、移动极慢。
+ * 解法：检测驱动轮"离线→上线"的复活上升沿，在其后开一段宽限期，期内强制驱动轮电流输出为0
+ *       (发0电流，让C620安心完成初始化)，过期后放行正常输出。
+ * 安全性(关键，区别于已回退的 HP 判死保护)：
+ *   - 触发条件是"曾在线→离线→重新上线"的真正复活；台架上电机常在线、不会经历离线→上线，故绝不触发，
+ *     不会像旧方案那样在台架上误清零导致漂移。
+ *   - 只清 Current_pid.Output(就是发到 CAN 的值)，不清任何 PID 积分(Iout)，不读裁判 HP。
+ *   - ever_online 排除开机首次上电(开机本就该给 C620 初始化电流，不开宽限期)。*/
+#define REVIVE_GRACE_MS 500   /* 复活后宽限期，给 C620 完成内部初始化 */
+#define MOTOR_OFFLINE_MS 200  /* 与电机框架一致：200ms 无 CAN 反馈视为离线 */
+void Chassis_Revive_DelayGate(void) {
+  uint32_t now = rt_tick_get();
+  /* 用 4 个驱动轮代表底盘在线状态：阵亡时所有电机一起断电、复活一起上线 */
+  rt_bool_t online = RT_TRUE;
+  for (int i = 0; i < WHEEL_MOTOR_NUM; i++) {
+    uint32_t rx = wheel_motor[i].Motor_obj.can_instance.rx_time;
+    if (!(rx != 0 && (now - rx) <= MOTOR_OFFLINE_MS)) { online = RT_FALSE; break; }
+  }
+  static rt_bool_t ever_online = RT_FALSE; /* 排除开机首次上电 */
+  static rt_bool_t prev_online = RT_FALSE; /* 上一拍在线状态，用于检测离线→上线上升沿 */
+  static uint32_t revive_deadline = 0;     /* 复活宽限期截止时刻，0=当前无宽限期 */
+  if (online) {
+    if (ever_online && !prev_online)
+      revive_deadline = now + REVIVE_GRACE_MS; /* 真正的复活上升沿：开启宽限期 */
+    ever_online = RT_TRUE;
+  }
+  prev_online = online;
+
+  if (revive_deadline != 0 && now < revive_deadline) {
+    /* 宽限期内：强制驱动轮电流输出为0(发0电流)，让 C620 完成初始化。不清积分。*/
+    for (int i = 0; i < WHEEL_MOTOR_NUM; i++)
+      wheel_motor[i].Motor_obj.Motor_ctrl.Current_pid.Output = 0;
+  }
+}

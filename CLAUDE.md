@@ -2,6 +2,9 @@
 
 本项目是基于 RT-Thread RTOS 的 RoboMaster 底盘控制系统，支持哨兵、步兵、英雄等多机型。
 
+> **⚡ 进行中的跨线任务：RDK X5 迁移**——新会话请先读 [交接文档](docs/SESSION_HANDOFF.md) 和 [板子操作记录](docs/rdk_x5_board_log.md) 恢复上下文；对板子的任何新操作继续登记到操作记录里。
+> 第一阶段（三步上手 + 1kHz 实时骨架）已完成：[实现过程实录](docs/rdk_x5_stage1_impl_log.md)（怎么一步步做出来的，含弯路）｜[跟做手册](docs/rdk_x5_stage1_tutorial.md)（提炼后的复现路径）。
+
 根据你要执行的任务类型，查看对应指引：
 
 - [编译构建指引](docs/build_guide.md) - 如何编译和烧录固件
