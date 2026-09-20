@@ -26,6 +26,8 @@
 #define WHEEL_LH 2
 #define WHEEL_RH 3
 
+float v_shift;
+
 // 底盘电机实例
 DJI_3508_MotorInstance wheel_motor[WHEEL_MOTOR_NUM];
 DJI_3508_MotorInstance up_motor[UP_MOTOR_NUM];
@@ -1488,10 +1490,18 @@ void chassis_ctrl(Mot_base_t *Speed_xyw, Mot_base_t *Force_xyw,
 /*正解算对应函数*/
 void Forward_Kinematics(void) {
   float temp[WHEEL_MOTOR_NUM] = {0};
+  float theta[WHEEL_MOTOR_NUM] = {0};
+  static Mot_base_t chassis_speed;
+ 
   for (int i = 0; i < WHEEL_MOTOR_NUM; i++) {
     temp[i] = wheel_motor[i].Motor_obj.speed;
   }
-  // Omni_Forward_Kinematics(temp);
+  for (int j = 0; j < WHEEL_MOTOR_NUM; j++)
+  {
+      theta[j] = steer_motor[j].Motor_obj.angle*DEGTORAD;
+  }
+  Steer_Forward_Kinematics_test(temp,theta,&chassis_speed);
+  v_shift=sqrt(chassis_speed.vel.x*chassis_speed.vel.x+chassis_speed.vel.y*chassis_speed.vel.y);
 }
 
 void chasis_dangling_x(void) {

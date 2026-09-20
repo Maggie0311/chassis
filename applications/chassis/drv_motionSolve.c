@@ -356,7 +356,10 @@ void Omni_Forward_Kinematics(float speed[4])
 // 舵轮正逆解算
 #ifdef USING_STEER_RESOLVE
 
+#include "DJI_6020.h" // 舵向电机实例类型（实例定义于使用舵轮机型的 robot_control.c，如 hero_2026）
+
 extern float motorSetAngle_steer[4];
+extern DJI_6020_MotorInstance steer_motor[4]; // 舵向电机实例，正解算读取实际打角反馈
 float angle_reverse_flag[4];
 // 线速度死区（rpm）
 #define v_DEAD_ZONE 30
@@ -457,9 +460,36 @@ void Steer_Force_Resolve(Mot_base_t target_force, float *resolve_data)
     // resolve_data[3] = tx[3] * arm_sin_f32(motorSetAngle_steer[3]) - ty[3] * arm_cos_f32(motorSetAngle_steer[3]); // RF
 }
 
-// 舵轮正解算
-void Steer_Forward_Kinematics_test(float wheel_rpm[4], Mot_base_t *chassis_vel)
+//舵轮正解算
+void Steer_Forward_Kinematics_test(float wheel_rpm[4], float theta[4],Mot_base_t *chassis_vel)
 {
+    // 计算轮子i的坐标，顺序RF-LF-LB-RB
+    static float rx[4] = {VEHICLE_LONG / 2, VEHICLE_LONG / 2, -VEHICLE_LONG / 2, -VEHICLE_LONG / 2};
+    static float ry[4] = {-VEHICLE_WIDTH / 2, VEHICLE_WIDTH / 2, VEHICLE_WIDTH / 2, -VEHICLE_WIDTH / 2};
+    static float s = WHEEL_RADIUS; // 轮半径，mm
+
+    //计算w0x,w0y,w1x,w1y,w2x,w2y,w3x,w3y
+    float wx[4],wy[4];
+    for (int i = 0; i < 4; i++)
+   {
+        //float theta = steer_motor[i].Motor_obj.angle * DEGTORAD;  // theta,0-360°直接转弧度
+        float v = wheel_rpm[i] * RPMTORAD;         // RPM → rad/s
+        wx[i] = v * arm_cos_f32(theta[i]);   // 沿打角方向的 x 分量
+        wy[i] = v * arm_sin_f32(theta[i]);   // 沿打角方向的 y 分量
+   }
+    
+    //计算Q
+    float Q = 0;
+    for(int i =0; i<4; i++)
+    {
+        Q += (rx[i]*rx[i] + ry[i]*ry[i]);
+    }
+
+    //计算vx,vy,w
+    chassis_vel->vel.x = s/4*(wx[0]+wx[1]+wx[2]+wx[3]);
+    chassis_vel->vel.y = s/4*(wy[0]+wy[1]+wy[2]+wy[3]);
+    chassis_vel->angvel = s/Q*(-ry[0]*wx[0]+rx[0]*wy[0]-ry[1]*wx[1]+rx[1]*wy[1]-ry[2]*wx[2]+rx[2]*wy[2]-ry[3]*wx[3]+rx[3]*wy[3])* RADTODEG * 10.0f;  // rad/s -> 0.1°/s
+    
 }
 
 // // 舵轮解算
