@@ -958,13 +958,13 @@ int chassis_motor_init() {
     }
   }
   // todo 抬升机构
-  for (int i = 0; i < UP_MOTOR_NUM; i++) {
-    ret = Motor_Attach((MotorInstance *)&up_motor[i],
-                       (Motor_Init_Config_s *)&up_motor_init_config[i]);
-    if (ret != 0) {
-      return ret; // 如果注册失败将直接返回错误，停止后续电机注册
-    }
-  }
+//   for (int i = 0; i < UP_MOTOR_NUM; i++) {
+//     ret = Motor_Attach((MotorInstance *)&up_motor[i],
+//                        (Motor_Init_Config_s *)&up_motor_init_config[i]);
+    // if (ret != 0) {
+    //   return ret; // 如果注册失败将直接返回错误，停止后续电机注册
+    // }
+  //}
   return ret;
 }
 
