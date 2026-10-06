@@ -470,7 +470,7 @@ void get_true_RLS(void)
     if (PowerInfo.Cap.Cap_State==CAP_STATE_NO_WORK&&PowerInfo.Cap.Power > 13 && RunPhi[0]>0.f && RunPhi[1] && RunRLS.flag == 1 && RunRLS.now_power > 0 && GYRO_FLAG < 100) //&&RunRLS.repe_speed>200)
     {
         
-      //RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
+      RLS_Update(&RunRLS, RunPhi, PowerInfo.Cap.Power - RunPhi[2] - RunRLS.theta[2]); // 只有三个变参，减去固定的一项。
         // RLS_Update(&RunRLS, RunPhi, PowerInfo.Ref.power_now-Power_Set.power_set_steer-RunPhi[2]-RunRLS.theta[2] );
         if (!Check_Stability(&RunRLS))
             Reconstruct_P(&RunRLS);
@@ -678,7 +678,7 @@ void get_pre_power(void)
                 AngleRLS.theta[2]/4.f; // 电机功率模型计算公式
 
 
-            Power_Set.power_set_steer += Motor_power[group][WHEEL_ANGLE].initial_power_set;
+           // Power_Set.power_set_steer += Motor_power[group][WHEEL_ANGLE].initial_power_set;
             // 构建回归向量，第一项的系数不参与RLS，故仍然时三维的
         }
         if (if_wheel_used[group] == 1)
